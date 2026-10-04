@@ -24,3 +24,5 @@ jobs:
           persist-credentials: false
       - name: Validate research package
         run: python3 .work/tools/validate.py
+      - name: Test corpus manifest contracts
+        run: python3 -m unittest discover -s .work/tests -v

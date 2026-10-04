@@ -1,0 +1,505 @@
+{
+  "acquisition_rule": "archives are fetched only in GitHub Actions; acquisition hashes enter a reviewed source-lock, never this plan",
+  "ancestry_edges": [
+    {
+      "a": "libpng",
+      "b": "zlib",
+      "evidence": "libpng links zlib; no zlib sources in the libpng git trees v1.6.40-v1.6.44 (path inventory 2026-10-04)",
+      "globs": [],
+      "relation": "build dependency",
+      "resolution": "no_shared_payload"
+    },
+    {
+      "a": "zlib",
+      "b": "zstd",
+      "evidence": "zstd zlibWrapper/gzlib.c and gzguts.h: zlib code by Mark Adler with minimal changes (zstd v1.5.5-v1.5.7)",
+      "globs": [
+        "zlibWrapper/*"
+      ],
+      "relation": "shared origin",
+      "resolution": "path_excluded"
+    }
+  ],
+  "deferred_domains": [
+    {
+      "domain": "sources/builds at scale",
+      "examples": "GCC, Linux, Node.js",
+      "reason": "acquisition size and member-level license review exceed the pilot budget"
+    },
+    {
+      "domain": "binaries/update artifacts",
+      "examples": "ELF/PE release builds",
+      "reason": "binary redistribution rights are not implied by source licenses"
+    },
+    {
+      "domain": "tabular revisions",
+      "examples": "open versioned datasets",
+      "reason": "no licensed, bounded, reproducible snapshot selected yet"
+    },
+    {
+      "domain": "containers",
+      "examples": "OCI layers",
+      "reason": "provenance/redistribution review and expansion caps pending"
+    },
+    {
+      "domain": "models",
+      "examples": "BF16/FP16 safetensors families",
+      "reason": "conditional track DELSK-011; license and ancestry independence unverified"
+    },
+    {
+      "domain": "assets/VM/traces",
+      "examples": "versioned assets, paper traces",
+      "reason": "no licensed reproducible sample available"
+    }
+  ],
+  "families": [
+    {
+      "exclude_globs": [],
+      "family_id": "bzip2",
+      "license": {
+        "evidence_url": "https://sourceware.org/git/?p=bzip2.git;a=blob_plain;f=LICENSE;hb=refs/tags/bzip2-1.0.8",
+        "spdx": "bzip2-1.0.6",
+        "status": "PENDING_SNAPSHOT_REVIEW"
+      },
+      "lineage_kind": "independent_project",
+      "name": "bzip2",
+      "notes": "Dates from CHANGES only (day precision). LICENSE text per tag must be compared before REVIEWED; SPDX id matches 1.0.6 terms.",
+      "releases": [
+        {
+          "archive": {
+            "format": "tar.gz",
+            "sha256": null,
+            "url": "https://sourceware.org/pub/bzip2/bzip2-1.0.6.tar.gz"
+          },
+          "immutable_revision": null,
+          "ordinal": 1,
+          "release_id": "bzip2-1.0.6",
+          "time": {
+            "evidence_url": "https://sourceware.org/git/?p=bzip2.git;a=blob_plain;f=CHANGES;hb=refs/tags/bzip2-1.0.8",
+            "value": "2010-09-06"
+          },
+          "version": "1.0.6"
+        },
+        {
+          "archive": {
+            "format": "tar.gz",
+            "sha256": null,
+            "url": "https://sourceware.org/pub/bzip2/bzip2-1.0.7.tar.gz"
+          },
+          "immutable_revision": null,
+          "ordinal": 2,
+          "release_id": "bzip2-1.0.7",
+          "time": {
+            "evidence_url": "https://sourceware.org/git/?p=bzip2.git;a=blob_plain;f=CHANGES;hb=refs/tags/bzip2-1.0.8",
+            "value": "2019-06-27"
+          },
+          "version": "1.0.7"
+        },
+        {
+          "archive": {
+            "format": "tar.gz",
+            "sha256": null,
+            "url": "https://sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz"
+          },
+          "immutable_revision": null,
+          "ordinal": 3,
+          "release_id": "bzip2-1.0.8",
+          "time": {
+            "evidence_url": "https://sourceware.org/git/?p=bzip2.git;a=blob_plain;f=CHANGES;hb=refs/tags/bzip2-1.0.8",
+            "value": "2019-07-13"
+          },
+          "version": "1.0.8"
+        }
+      ],
+      "upstream_digest": "detached GPG .sig for 1.0.7 and 1.0.8; none for 1.0.6"
+    },
+    {
+      "exclude_globs": [
+        {
+          "glob": "CMake/*",
+          "reason": "build scaffolding"
+        },
+        {
+          "glob": "lib/inet_ntop.c",
+          "reason": "foreign origin: Internet Software Consortium notice"
+        },
+        {
+          "glob": "lib/inet_pton.c",
+          "reason": "foreign origin: Internet Software Consortium notice"
+        },
+        {
+          "glob": "lib/krb5.c",
+          "reason": "foreign origin: Kungliga Tekniska Hogskolan BSD notice"
+        },
+        {
+          "glob": "packages/*",
+          "reason": "OS packaging scaffolding"
+        },
+        {
+          "glob": "plan9/*",
+          "reason": "build scaffolding"
+        },
+        {
+          "glob": "projects/*",
+          "reason": "IDE/build scaffolding"
+        },
+        {
+          "glob": "scripts/*",
+          "reason": "build helpers"
+        },
+        {
+          "glob": "winbuild/*",
+          "reason": "build scaffolding"
+        }
+      ],
+      "family_id": "curl",
+      "license": {
+        "evidence_url": "https://github.com/curl/curl/blob/curl-8_8_0/COPYING",
+        "spdx": "curl",
+        "status": "PENDING_SNAPSHOT_REVIEW"
+      },
+      "lineage_kind": "independent_project",
+      "name": "curl",
+      "notes": "Release tarballs contain generated files absent from git; member review happens on the tarball.",
+      "releases": [
+        {
+          "archive": {
+            "format": "tar.xz",
+            "sha256": null,
+            "url": "https://curl.se/download/curl-8.6.0.tar.xz"
+          },
+          "immutable_revision": null,
+          "ordinal": 1,
+          "release_id": "curl-8.6.0",
+          "time": {
+            "evidence_url": "https://curl.se/docs/releases.html",
+            "value": "2024-01-31"
+          },
+          "version": "8.6.0"
+        },
+        {
+          "archive": {
+            "format": "tar.xz",
+            "sha256": null,
+            "url": "https://curl.se/download/curl-8.7.1.tar.xz"
+          },
+          "immutable_revision": null,
+          "ordinal": 2,
+          "release_id": "curl-8.7.1",
+          "time": {
+            "evidence_url": "https://curl.se/docs/releases.html",
+            "value": "2024-03-27"
+          },
+          "version": "8.7.1"
+        },
+        {
+          "archive": {
+            "format": "tar.xz",
+            "sha256": null,
+            "url": "https://curl.se/download/curl-8.8.0.tar.xz"
+          },
+          "immutable_revision": null,
+          "ordinal": 3,
+          "release_id": "curl-8.8.0",
+          "time": {
+            "evidence_url": "https://curl.se/docs/releases.html",
+            "value": "2024-05-22"
+          },
+          "version": "8.8.0"
+        }
+      ],
+      "upstream_digest": "detached PGP .asc next to each archive"
+    },
+    {
+      "exclude_globs": [
+        {
+          "glob": "scripts/*",
+          "reason": "build scaffolding and generated-config helpers"
+        }
+      ],
+      "family_id": "libpng",
+      "license": {
+        "evidence_url": "https://github.com/pnggroup/libpng/blob/v1.6.44/LICENSE",
+        "spdx": "libpng-2.0",
+        "status": "PENDING_SNAPSHOT_REVIEW"
+      },
+      "lineage_kind": "independent_project",
+      "name": "libpng",
+      "notes": "GitHub has no release assets; codeload tag archives are not byte-stable and are not used. Tag commits are provenance, not the acquired bytes.",
+      "releases": [
+        {
+          "archive": {
+            "format": "tar.xz",
+            "sha256": null,
+            "url": "https://downloads.sourceforge.net/project/libpng/libpng16/1.6.40/libpng-1.6.40.tar.xz"
+          },
+          "immutable_revision": {
+            "commit": "f135775ad4e5d4408d2e12ffcc71bb36e6b48551",
+            "kind": "git_commit",
+            "repository": "https://github.com/pnggroup/libpng",
+            "tag": "v1.6.40"
+          },
+          "ordinal": 1,
+          "release_id": "libpng-1.6.40",
+          "time": {
+            "evidence_url": "https://raw.githubusercontent.com/pnggroup/libpng/v1.6.40/CHANGES",
+            "value": "2023-06-21"
+          },
+          "version": "1.6.40"
+        },
+        {
+          "archive": {
+            "format": "tar.xz",
+            "sha256": null,
+            "url": "https://downloads.sourceforge.net/project/libpng/libpng16/1.6.43/libpng-1.6.43.tar.xz"
+          },
+          "immutable_revision": {
+            "commit": "ed217e3e601d8e462f7fd1e04bed43ac42212429",
+            "kind": "git_commit",
+            "repository": "https://github.com/pnggroup/libpng",
+            "tag": "v1.6.43"
+          },
+          "ordinal": 2,
+          "release_id": "libpng-1.6.43",
+          "time": {
+            "evidence_url": "https://raw.githubusercontent.com/pnggroup/libpng/v1.6.43/CHANGES",
+            "value": "2024-02-23"
+          },
+          "version": "1.6.43"
+        },
+        {
+          "archive": {
+            "format": "tar.xz",
+            "sha256": null,
+            "url": "https://downloads.sourceforge.net/project/libpng/libpng16/1.6.44/libpng-1.6.44.tar.xz"
+          },
+          "immutable_revision": {
+            "commit": "f5e92d76973a7a53f517579bc95d61483bf108c0",
+            "kind": "git_commit",
+            "repository": "https://github.com/pnggroup/libpng",
+            "tag": "v1.6.44"
+          },
+          "ordinal": 3,
+          "release_id": "libpng-1.6.44",
+          "time": {
+            "evidence_url": "https://raw.githubusercontent.com/pnggroup/libpng/v1.6.44/CHANGES",
+            "value": "2024-09-12"
+          },
+          "version": "1.6.44"
+        }
+      ],
+      "upstream_digest": "none published; SourceForge redirects to rotating mirrors"
+    },
+    {
+      "exclude_globs": [],
+      "family_id": "sqlite",
+      "license": {
+        "evidence_url": "https://sqlite.org/copyright.html",
+        "spdx": "LicenseRef-SQLite-public-domain",
+        "status": "PENDING_SNAPSHOT_REVIEW"
+      },
+      "lineage_kind": "independent_project",
+      "name": "SQLite amalgamation",
+      "notes": "sqlite3.c is a generated first-party amalgamation, retained as an explicit exception. Archives show Last-Modified 2025-04-07 (re-upload); byte equality with 2024 uploads is unverified and the lock hash is authoritative.",
+      "releases": [
+        {
+          "archive": {
+            "format": "zip",
+            "sha256": null,
+            "url": "https://sqlite.org/2024/sqlite-amalgamation-3450300.zip"
+          },
+          "immutable_revision": null,
+          "ordinal": 1,
+          "release_id": "sqlite-3.45.3",
+          "time": {
+            "evidence_url": "https://sqlite.org/releaselog/3_45_3.html",
+            "value": "2024-04-15"
+          },
+          "version": "3.45.3"
+        },
+        {
+          "archive": {
+            "format": "zip",
+            "sha256": null,
+            "url": "https://sqlite.org/2024/sqlite-amalgamation-3460100.zip"
+          },
+          "immutable_revision": null,
+          "ordinal": 2,
+          "release_id": "sqlite-3.46.1",
+          "time": {
+            "evidence_url": "https://sqlite.org/releaselog/3_46_1.html",
+            "value": "2024-08-13"
+          },
+          "version": "3.46.1"
+        },
+        {
+          "archive": {
+            "format": "zip",
+            "sha256": null,
+            "url": "https://sqlite.org/2024/sqlite-amalgamation-3470200.zip"
+          },
+          "immutable_revision": null,
+          "ordinal": 3,
+          "release_id": "sqlite-3.47.2",
+          "time": {
+            "evidence_url": "https://sqlite.org/releaselog/3_47_2.html",
+            "value": "2024-12-07"
+          },
+          "version": "3.47.2"
+        }
+      ],
+      "upstream_digest": "SHA3-256 on download.html only for the current release; not SHA-256 and not available for these versions"
+    },
+    {
+      "exclude_globs": [],
+      "family_id": "zlib",
+      "license": {
+        "evidence_url": "https://zlib.net/zlib_license.html",
+        "spdx": "Zlib",
+        "status": "PENDING_SNAPSHOT_REVIEW"
+      },
+      "lineage_kind": "independent_project",
+      "name": "zlib",
+      "notes": "Dates from ChangeLog (day precision); Last-Modified is an mtime and is not used.",
+      "releases": [
+        {
+          "archive": {
+            "format": "tar.gz",
+            "sha256": null,
+            "url": "https://zlib.net/fossils/zlib-1.2.13.tar.gz"
+          },
+          "immutable_revision": null,
+          "ordinal": 1,
+          "release_id": "zlib-1.2.13",
+          "time": {
+            "evidence_url": "https://raw.githubusercontent.com/madler/zlib/v1.2.13/ChangeLog",
+            "value": "2022-10-13"
+          },
+          "version": "1.2.13"
+        },
+        {
+          "archive": {
+            "format": "tar.gz",
+            "sha256": null,
+            "url": "https://zlib.net/fossils/zlib-1.3.tar.gz"
+          },
+          "immutable_revision": null,
+          "ordinal": 2,
+          "release_id": "zlib-1.3",
+          "time": {
+            "evidence_url": "https://raw.githubusercontent.com/madler/zlib/v1.3/ChangeLog",
+            "value": "2023-08-18"
+          },
+          "version": "1.3"
+        },
+        {
+          "archive": {
+            "format": "tar.gz",
+            "sha256": null,
+            "url": "https://zlib.net/fossils/zlib-1.3.1.tar.gz"
+          },
+          "immutable_revision": null,
+          "ordinal": 3,
+          "release_id": "zlib-1.3.1",
+          "time": {
+            "evidence_url": "https://raw.githubusercontent.com/madler/zlib/v1.3.1/ChangeLog",
+            "value": "2024-01-22"
+          },
+          "version": "1.3.1"
+        }
+      ],
+      "upstream_digest": "none published for these versions"
+    },
+    {
+      "exclude_globs": [
+        {
+          "glob": "build/*",
+          "reason": "build scaffolding"
+        },
+        {
+          "glob": "lib/common/xxhash.*",
+          "reason": "vendored xxHash library"
+        },
+        {
+          "glob": "lib/dictBuilder/divsufsort.*",
+          "reason": "third-party libdivsufsort-lite (Yuta Mori, MIT)"
+        },
+        {
+          "glob": "programs/windres/*",
+          "reason": "Windows resource scaffolding"
+        },
+        {
+          "glob": "zlibWrapper/*",
+          "reason": "shared origin with zlib: gz*.c/gzguts.h carry zlib copyright with minimal changes"
+        }
+      ],
+      "family_id": "zstd",
+      "license": {
+        "evidence_url": "https://github.com/facebook/zstd/blob/v1.5.7/LICENSE",
+        "spdx": "BSD-3-Clause OR GPL-2.0-only",
+        "status": "PENDING_SNAPSHOT_REVIEW"
+      },
+      "lineage_kind": "independent_project",
+      "name": "Zstandard",
+      "notes": "Time = GitHub release published_at (UTC). Dual license; the pilot relies on BSD-3-Clause, per-file SPDX review pending.",
+      "releases": [
+        {
+          "archive": {
+            "format": "tar.gz",
+            "sha256": null,
+            "url": "https://github.com/facebook/zstd/releases/download/v1.5.5/zstd-1.5.5.tar.gz"
+          },
+          "immutable_revision": null,
+          "ordinal": 1,
+          "release_id": "zstd-1.5.5",
+          "time": {
+            "evidence_url": "https://github.com/facebook/zstd/releases/tag/v1.5.5",
+            "value": "2023-04-04T22:20:32Z"
+          },
+          "version": "1.5.5"
+        },
+        {
+          "archive": {
+            "format": "tar.gz",
+            "sha256": null,
+            "url": "https://github.com/facebook/zstd/releases/download/v1.5.6/zstd-1.5.6.tar.gz"
+          },
+          "immutable_revision": null,
+          "ordinal": 2,
+          "release_id": "zstd-1.5.6",
+          "time": {
+            "evidence_url": "https://github.com/facebook/zstd/releases/tag/v1.5.6",
+            "value": "2024-03-30T18:57:28Z"
+          },
+          "version": "1.5.6"
+        },
+        {
+          "archive": {
+            "format": "tar.gz",
+            "sha256": null,
+            "url": "https://github.com/facebook/zstd/releases/download/v1.5.7/zstd-1.5.7.tar.gz"
+          },
+          "immutable_revision": null,
+          "ordinal": 3,
+          "release_id": "zstd-1.5.7",
+          "time": {
+            "evidence_url": "https://github.com/facebook/zstd/releases/tag/v1.5.7",
+            "value": "2025-02-19T21:50:11Z"
+          },
+          "version": "1.5.7"
+        }
+      ],
+      "upstream_digest": ".sha256 and GPG .sig release assets"
+    }
+  ],
+  "known_limitations": [
+    "Six C projects biased toward compression libraries; not representative of other domains.",
+    "Six ancestry components give one calibration and one evaluation family: exploratory only under DELSK-P1 (<10 held-out lineages).",
+    "Exclusion globs come from git-tree inventories; release tarballs are re-inventoried member by member during acquisition review."
+  ],
+  "metadata_checked_on": "2026-10-04",
+  "metadata_method": "HTTP HEAD (status 200, no bodies), GitHub API and upstream changelog pages; no archive was downloaded outside Actions",
+  "plan_id": "pilot-v1",
+  "schema": "delsk.corpus.source-plan.v1",
+  "status": "PROPOSED"
+}
