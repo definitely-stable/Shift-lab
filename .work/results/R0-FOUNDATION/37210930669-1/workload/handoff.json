@@ -1,0 +1,141 @@
+{
+  "accounting": {
+    "candidates": {
+      "identity_queries": 15,
+      "near_queries": 64,
+      "pairs_by_family": {
+        "bzip2": 106,
+        "curl": 232,
+        "libpng": 383,
+        "sqlite": 655,
+        "zlib": 74,
+        "zstd": 511
+      },
+      "planned_pairs_per_codec": 1961,
+      "queries": 79
+    },
+    "content": {
+      "by_split": {
+        "calibration": {
+          "content_classes": 6565,
+          "occurrences": 8133
+        },
+        "development": {
+          "content_classes": 21673,
+          "occurrences": 24003
+        },
+        "evaluation": {
+          "content_classes": 239,
+          "occurrences": 255
+        }
+      },
+      "content_classes": 28477,
+      "cross_split_classes": 0,
+      "materialized_bytes": 446924313,
+      "occurrences": 32391
+    },
+    "lineage": {
+      "components": [
+        {
+          "families": [
+            "bzip2"
+          ],
+          "occurrences": 255,
+          "split": "evaluation"
+        },
+        {
+          "families": [
+            "curl"
+          ],
+          "occurrences": 8133,
+          "split": "calibration"
+        },
+        {
+          "families": [
+            "libpng"
+          ],
+          "occurrences": 1909,
+          "split": "development"
+        },
+        {
+          "families": [
+            "sqlite"
+          ],
+          "occurrences": 15245,
+          "split": "development"
+        },
+        {
+          "families": [
+            "zlib"
+          ],
+          "occurrences": 1666,
+          "split": "development"
+        },
+        {
+          "families": [
+            "zstd"
+          ],
+          "occurrences": 5183,
+          "split": "development"
+        }
+      ]
+    }
+  },
+  "evidence_scope": "foundation",
+  "limitations": [
+    "Exploratory pilot: six singleton lineage components (upper bound, A08); one held-out lineage each in calibration (curl) and evaluation (bzip2); no confirmatory sufficiency.",
+    "Evaluation (bzip2) has no file track; calibration and evaluation hold one family each, so their foreign-family pools are always empty (structural, known before sealing).",
+    "Temporal claim is retrospective and version-indexed (A07); chunk, tar and tar-gz are the modeled lane, not historical replay.",
+    "Two Actions runs share one source commit and one implementation of each layer; independence is between builder and verifier code paths, not between authors."
+  ],
+  "locks": {
+    ".work/corpus/e0/ancestry-audit.json": "99d6c4142c0e3a1796d6e877af456f7683ebdf32cbf9519004152b3b59b6b04f",
+    ".work/corpus/e0/candidate-lock-v2.schema.json": "1466f5b3bafa1a9f6c11d87f361a95add4f38808337bcdd8668b0f0d4b8de006",
+    ".work/corpus/e0/construction-spec.md": "b91e54d62aae22ed9cc898abb65e62dd78e47505f63a51a929d445947abf54f8",
+    ".work/corpus/e0/freeze.json": "95394c10f4b3711641740873b832a9b6cdc7555fba6af5bd10462c602c51b19b",
+    ".work/corpus/e0/golden-vectors.json": "01e7f504e6f7b919b829db1372160839cc456a253522276057bc18a9e0eab745",
+    ".work/corpus/e0/historical-bytes.json": "bf48bb970327a53be751cffe7d60ef0e142da7414f2539cdc332a3ce2a0a0b0c",
+    ".work/corpus/e0/origin-evidence.json.gz": "88113947711b3238dae4f1f867dc484832986453a4bbe13403410028d2f342fc",
+    ".work/corpus/e0/runs/ancestry-audit-37196309671-1.json": "46fcb25193d0539eb31fff44513053fc5218690fb927eff012e16bdcd3e3b9c1",
+    ".work/corpus/e0/runs/ancestry-audit-37196505949-1.json": "a8d7e9707a44e96ef3d2bdb60c8de5cde25d2d4c7269d63a3cff16ae2b112191",
+    ".work/corpus/e0/runs/ancestry-audit-37197318303-1.json": "fb04dad7bd63e3c69c3a96a32c0ac930540bdd98dc7c68e2d9555c288020ac30",
+    ".work/corpus/e1/candidate-lock.json": "cb16d53b164ff393187e0115bdf31c52ac717a5172fb1e91889b5988ac019d2e",
+    ".work/corpus/e1/coverage.json": "fff71554f28fea2b1628ac9f430e4d542f0147e30bcdc43e64887265f6cade5c",
+    ".work/corpus/e1/runs/candidate-seal-37202367307-1-run.json": "cb372b68678e5d5317a521e64c19b92068bff71eedd10e611058326bd2b227ac",
+    ".work/corpus/e1/runs/candidate-seal-37202367307-1-verification.json": "faeb87cf19fd242f01e74565a0029625a1e766c86f74c02031594a3c23d872b3",
+    ".work/corpus/e1/runs/candidate-seal-37202367307-1.json": "1f90b7f5bc0a867197f0faa3a2eb06499d5b8dd16bd745acbae42b2dcd868a48",
+    ".work/corpus/e1/runs/candidate-seal-37202375349-1-run.json": "4399b66ff61a9419b90a3aae7b0f22fb49cf4ffb134378295de61949ad8cb526",
+    ".work/corpus/e1/runs/candidate-seal-37202375349-1-verification.json": "faeb87cf19fd242f01e74565a0029625a1e766c86f74c02031594a3c23d872b3",
+    ".work/corpus/e1/runs/candidate-seal-37202375349-1.json": "74ae594f8775b4813f1f002395925653a6507368e0ecfb44e5882884b4820f00",
+    ".work/corpus/e1/runs/candidate-seal-37205165066-1-run.json": "4f84fe5864b444199f1563a105f595254cf1eef1a8e84942f28aaf74a2aaa618",
+    ".work/corpus/e1/runs/candidate-seal-37205165066-1-verification.json": "faeb87cf19fd242f01e74565a0029625a1e766c86f74c02031594a3c23d872b3",
+    ".work/corpus/e1/runs/candidate-seal-37205165066-1.json": "5202dd32f43bcb7f5dfd41a01d2d3d0b05b0fd3dccfc6951a310fb5b41d545b2",
+    ".work/corpus/e1/runs/candidate-seal-37205172692-1-run.json": "0a939a9ca500f5e72e738c031e5078eea1c1cb2a7a25fea00b751d449bb13312",
+    ".work/corpus/e1/runs/candidate-seal-37205172692-1-verification.json": "faeb87cf19fd242f01e74565a0029625a1e766c86f74c02031594a3c23d872b3",
+    ".work/corpus/e1/runs/candidate-seal-37205172692-1.json": "f695b2d82f7220614f4c65f67c8ee70d1429d6684dea5314de05a9a05ce42c4a",
+    ".work/corpus/e1/seal.json": "0c87fd5c96279c377d6031051d0cf990cb0afc6041212fc973b1ef35a8be73ef",
+    ".work/corpus/e1/selection.json": "23db37338d3c9413ddb4186f2d7a86d3a480c02cc15808f0b5eff34f0f99eb8e",
+    ".work/corpus/pilot-v1/corpus-lock.json.gz": "86009552183230ab13f9366684eedb4fcfcea746b25cbbed10ab2aabceb8f56b",
+    ".work/corpus/pilot-v1/freeze.json": "8814ce0221b2b890f1710476da0c1a31771e7528d81cfc3a99ffa10acc88e8da",
+    ".work/corpus/pilot-v1/licenses.json": "c7e7d7d85e17d2b4bcd31ca08c985a128fcc947f16bb1e49f99e345bc0d55f7c",
+    ".work/corpus/pilot-v1/materialization.json": "11e5913293bedcf74d801f5d69afd0879115c30c811fa7c45b8acbcbaab6942b",
+    ".work/corpus/pilot-v1/source-lock.json": "2154224d9b8af255f4f48662b7f03a6b9865c3e976079dbad33c939eb3a5903c",
+    ".work/corpus/selection-policy.json": "539642ffb9a65f4fe49f42ea99d26b416c2ab40583021b3fe8d2aa8d415cbd50",
+    ".work/corpus/source-plan.json": "75d879fd50ba8d7c749694ab091a61fa59c20ddc5fa3689a0e592692ae221074",
+    ".work/protocol.md": "a0c518247d111e8ad1294562d65eb34c28da87c7027c009efb64a39e6f4e0038",
+    ".work/research/DELSK-002-E0-candidate-universe.md": "0d5b6137623651b5f6ff0ea92427bc217e5b348c889d8aeedfc5b986709203e9",
+    ".work/tests/test_e1_candidates.py": "bc959d7470883dbf7bb1377707505a57be8a89781d9b63747179a594dca1382c",
+    ".work/tests/test_e1_mutants.py": "bc248eeb7b3d337caff778e8f2d273a1553cff21b4394e5100e78f3a1dc34e7d",
+    ".work/tests/test_e1_seal.py": "12677c7846e68b8731e26ef4ec68925649302f06e67fc5f2b21be82c762429aa",
+    ".work/tools/ancestry_audit.py": "5b0cb53ffa4273e57e6fc8ea2d8a977bd8ef5f5d77d5a3c338fb0ccf7b8ac683",
+    ".work/tools/origin_leads.py": "9917eb20458cefe008ee0cc294c5bc5b1a6c7c00f2e4c82d675209c529af7190"
+  },
+  "oracle": "NOT_RUN",
+  "quality_verdict": "N/A",
+  "schema": "delsk.r0.foundation-handoff.v1",
+  "scope": "R0 exploratory pilot: acquisition, lineage and sealed C_t accounting. No scorer, encoder, oracle or quality result exists; this is not a G1-G5 verdict.",
+  "tools": {
+    "manifests.py": "c1b394781b2cf55e347dca5cf25b00cea422b03df695f7aea83b5283a85c30b4",
+    "recompute_foundation.py": "bfe7129ba1c8f65e5712016efa50fdd0edbaea0087d4631f72f48fd9ec71f287"
+  }
+}

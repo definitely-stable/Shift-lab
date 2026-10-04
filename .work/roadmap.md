@@ -15,7 +15,7 @@
 
 ## Очередь issues
 
-Назначение исполнителя происходит при старте; по умолчанию accountable maintainers Shift-lab. Все issues ниже **PLANNED**, не измеренные результаты. Блокирующие зависимости указаны, модельный track условный.
+Назначение исполнителя происходит при старте; по умолчанию accountable maintainers Shift-lab. Таблица ниже задаёт dependency graph; фактический статус каждого issue ведётся в его body/GitHub. R0 foundation уже завершён как exploratory evidence, остальные научные результаты не следует считать измеренными без соответствующего gate.
 
 | ID | Priority | Задача | Зависимости |
 |---|---|---|---|
@@ -38,4 +38,4 @@ GitHub URLs и номера хранятся в [реестре](issues/index.js
 
 ## Первый следующий шаг
 
-Claim register DELSK-001 и corpus contracts DELSK-002 приняты; milestone `005-foundation` (admission до compute и bounded foundation workflow) — в [CI plan](ci-plan.md). Acquisition DELSK-002 (Slice D) frozen: source/corpus locks, snapshot license review и две совпавшие materializations — в [pilot-v1](corpus/pilot-v1/README.md). Candidate construction design и ancestry audit приняты (Slice E0, [construction contract](corpus/e0/construction-spec.md)). Sealed `C_t` (Slice E1) — [candidate lock v2](corpus/e1/README.md): builder, независимый verifier и два совпавших Actions runs. Durable foundation evidence (Slice F): recompute, verify и gate готовы, состояние — [R0 readiness](research/R0-readiness.md); gate закрывается двумя независимыми Actions dispatch `foundation-handoff`. После R0 DELSK-003 создаёт oracle. Это конкретный путь к первым измерениям; наличие пакета документации не закрывает G1–G5.
+Claim register DELSK-001 и corpus contracts DELSK-002 приняты; milestone `005-foundation` (admission до compute и bounded foundation workflow) — в [CI plan](ci-plan.md). Acquisition DELSK-002 (Slice D) frozen: source/corpus locks, snapshot license review и две совпавшие materializations — в [pilot-v1](corpus/pilot-v1/README.md). Candidate construction design и ancestry audit приняты (Slice E0, [construction contract](corpus/e0/construction-spec.md)). Sealed `C_t` (Slice E1) — [candidate lock v2](corpus/e1/README.md): builder, независимый verifier и два совпавших Actions runs. Durable foundation evidence (Slice F) закрыта: два независимых Actions `foundation-handoff` на merged SHA сохранены как retained bundles, [R0 readiness](research/R0-readiness.md) = **READY**. R0 exploratory foundation завершён. Следующий этап — DELSK-003: настоящий multi-base encoder oracle и G1 correctness; только затем DELSK-004 baselines. Наличие READY foundation само по себе не закрывает G1–G5.

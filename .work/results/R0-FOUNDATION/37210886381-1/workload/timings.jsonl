@@ -1,0 +1,14 @@
+{"arm": "A1", "block": 0, "ns": 5329005, "position": 0, "warmup": true}
+{"arm": "A2", "block": 0, "ns": 5323495, "position": 1, "warmup": true}
+{"arm": "A2", "block": 1, "ns": 5309339, "position": 0, "warmup": true}
+{"arm": "A1", "block": 1, "ns": 5281325, "position": 1, "warmup": true}
+{"arm": "A1", "block": 2, "ns": 5275495, "position": 0, "warmup": false}
+{"arm": "A2", "block": 2, "ns": 5282117, "position": 1, "warmup": false}
+{"arm": "A2", "block": 3, "ns": 5287017, "position": 0, "warmup": false}
+{"arm": "A1", "block": 3, "ns": 5290102, "position": 1, "warmup": false}
+{"arm": "A1", "block": 4, "ns": 5279072, "position": 0, "warmup": false}
+{"arm": "A2", "block": 4, "ns": 5294721, "position": 1, "warmup": false}
+{"arm": "A2", "block": 5, "ns": 5283200, "position": 0, "warmup": false}
+{"arm": "A1", "block": 5, "ns": 5280855, "position": 1, "warmup": false}
+{"arm": "A1", "block": 6, "ns": 5276267, "position": 0, "warmup": false}
+{"arm": "A2", "block": 6, "ns": 5285734, "position": 1, "warmup": false}

@@ -2,7 +2,7 @@
 
 Запись состояния R0 foundation (DELSK-002 Slice F, DELSK-005 milestone `005-foundation`). Это не quality verdict: oracle, scorer и encoder не запускались, G1–G5 не оцениваются.
 
-**Gate: NOT READY**
+**Gate: READY**
 
 Gate вычисляется `python3 .work/tools/recompute_foundation.py readiness` и проверяется тестом `test_readiness_record_states_the_computed_gate`: строка выше обязана совпадать с вычисленным значением. Изменять её вручную без bundles нельзя.
 
@@ -28,10 +28,22 @@ python3 .work/tools/recompute_foundation.py readiness
 | Acquisition pilot-v1 (Slice D) | frozen, две совпавшие materializations |
 | Ancestry audit и E0 freeze (Slice E0) | adopted |
 | Sealed `C_t` (Slice E1) | sealed, 79 queries, 1 961 pairs/codec |
-| Recompute и verify bundle (этот PR) | реализованы, покрыты тестами |
-| Bundles двух независимых Actions dispatch | **нет** — dispatch ещё не выполнялись |
-| A/A recorder (2 warmups, 5 blocks) | реализован в workload; timings появятся с первым bundle |
+| Recompute и verify bundle (Slice F / PR #22) | реализованы, покрыты тестами |
+| Bundles двух независимых Actions dispatch | **verified** — `37210886381-1` и `37210930669-1`; `handoff.json` byte-identical |
+| A/A recorder (2 warmups, 5 blocks) | сохранён в обоих bundles; exact block/arm/position/warmup sequence verified |
 | Native ARM | **не проверялась**; scope R0 остаётся x64 |
+
+## Retained evidence
+
+- source/workflow SHA обоих runs: `7ff8882e5143448a0be65ace6c27b009ae9ba0bd`;
+- run IDs: [37210886381](https://github.com/definitely-stable/Shift-lab/actions/runs/37210886381) и [37210930669](https://github.com/definitely-stable/Shift-lab/actions/runs/37210930669), attempt 1;
+- runners: GitHub-hosted Ubuntu 24.04 x64; CPU AMD EPYC 7763 и AMD EPYC 9V74;
+- оба workload status `ok`, admission complete/admitted/within budget;
+- canonical `handoff.json` SHA-256: `3157c401e2c12f281fb6f855c14faba89d8aade0b6675be451804a7fed51a4d0`;
+- accounting: 32 391 occurrences, 28 477 content classes, 0 cross-split classes, 79 queries (64 near + 15 identity), 1 961 planned pairs/codec;
+- ZIP/artifact digests различаются ожидаемо из-за run metadata и timing samples; readiness сравнивает normative retained bundles и byte-identical semantic handoff.
+
+R0 foundation **READY** означает только воспроизводимый exploratory foundation. Oracle/scorer/encoder не запускались; это не G1–G5 verdict.
 
 ## Что этот gate не закрывает
 
