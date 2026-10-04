@@ -122,11 +122,12 @@
     "source": "upstream publication evidence only; acquisition time and file mtimes are never release time"
   },
   "track_rules": {
-    "canonical_tar_gzip_v1": "canonical_tar_v1 compressed by Python gzip, compresslevel 9, mtime 0, empty filename; zlib runtime version recorded in the lock",
+    "canonical_tar_gzip_v1": "canonical_tar_v1 compressed by Python gzip, compresslevel from the track, mtime 0, empty filename; provenance options {compresslevel, zlib_runtime} and lock toolchain.zlib_runtime must match, so a different zlib runtime yields a different occurrence_id",
     "canonical_tar_v1": "ustar of all retained members of one release, sorted by path, mode 0644, uid/gid 0, empty uname/gname, mtime 0, no directories",
     "chunk_offsets": "fixed offsets 0, unit, 2*unit, ...; a short tail below unit_bytes is excluded as short_tail, never padded",
     "chunk_parents": "retained_members",
-    "lanes": "historical = bytes published upstream; modeled = deterministic representations built by materialize.py; results are never pooled across lanes"
+    "lanes": "historical = bytes published upstream; modeled = deterministic representations built by materialize.py; results are never pooled across lanes",
+    "member_less_categories": "for tar and tar-gz the position key is (family, null, null): earlier releases of the same family are same_path_historical (at most two)"
   },
   "tracks": [
     {
@@ -179,6 +180,7 @@
       "unit_bytes": null
     },
     {
+      "compresslevel": 9,
       "id": "tar-gz",
       "lane": "modeled",
       "per_member": false,

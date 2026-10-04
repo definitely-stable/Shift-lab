@@ -68,7 +68,8 @@ class World:
         self.cal = next(f for f in FAMILIES if self.split[f] == "calibration")
         d0, d1 = self.dev[:2]
         self.lock = {
-            "schema": "delsk.corpus.lock.v1", "materialized_bytes": 12345, "exclusions": [], "occurrences": [],
+            "schema": "delsk.corpus.lock.v1", "materialized_bytes": 12345,
+            "toolchain": {"python": "3.12.3", "zlib_runtime": "1.3", "materializer_sha256": h("materializer")}, "exclusions": [], "occurrences": [],
             "components": [{"families": list(c), "split": self.split[c[0]]} for c in comps],
             "sources": [{"source_id": r["release_id"], "family_id": f["family_id"], "url": r["archive"]["url"],
                          "archive_sha256": h("archive", r["release_id"]), "archive_bytes": 1000}
@@ -107,8 +108,11 @@ class World:
     def reid(self, occ):
         occ["occurrence_id"] = m.occurrence_id(occ["source_id"], occ["provenance"])
 
-    def exclude(self, kind, subject, reason):
-        self.lock["exclusions"].append({"kind": kind, "subject": subject, "reason": reason, "detail": ""})
+    def exclude(self, kind, subject, reason, detail="", evidence_url=None):
+        if reason in m.MANUAL_REASONS and not detail:
+            detail, evidence_url = "fixture evidence", "https://example.org/evidence"
+        self.lock["exclusions"].append({"kind": kind, "subject": subject, "reason": reason, "detail": detail,
+                                        "evidence_url": evidence_url})
 
     def query(self, target, bases, status="near_duplicate", dup=None):
         entries = sorted(({"object_id": b["object_id"], "category": category(target, b),
@@ -583,7 +587,7 @@ class CorpusLockValidator(Base):
 
     def test_file_with_parent_or_span_rejected(self):
         self.w.lock["occurrences"][0]["parent_object_id"] = OBJ0
-        self.has(self.w.corpus_errors(), "only allowed on chunk tracks")
+        self.has(self.w.corpus_errors(), "span/parent only on chunk tracks")
 
     def test_stratum_mismatch(self):
         self.w.find(f"{self.w.dev[0]}-1", "lib/b.c")["stratum"] = "f256k"
@@ -614,14 +618,15 @@ class CorpusLockValidator(Base):
             with self.subTest(kind, reason=reason):
                 w = World()
                 w.exclude(kind, OBJ0, reason)
-                self.has(w.corpus_errors(), "unknown kind or reason")
+                self.has(w.corpus_errors(), "not allowed for kind")
 
     def test_unsorted_exclusions_and_unknown_occurrence(self):
         w = self.w
-        w.exclude("object", "b" * 64, "self")
-        w.exclude("object", "a" * 64, "self")
+        w.exclude("source", w.lock["sources"][1]["source_id"], "license_blocked")
+        w.exclude("source", w.lock["sources"][0]["source_id"], "license_blocked")
         self.has(w.corpus_errors(), "exclusions must be sorted and unique")
-        w.lock["exclusions"] = [{"kind": "occurrence", "subject": OBJ0, "reason": "self", "detail": ""}]
+        w.lock["exclusions"] = []
+        w.exclude("occurrence", OBJ0, "license_blocked")
         self.has(w.corpus_errors(), "unknown occurrence")
 
     def test_invalid_sha256(self):
@@ -757,8 +762,9 @@ class CandidateLockValidator(Base):
     def test_identity_only_with_eligible_duplicate(self):
         w, dup = self.dup_world()
         w.requery(status="identity_only", dup=dup["occurrence_id"], bases=[])
-        self.assertEqual(w.cand_errors(), [])
         self.assertEqual(w.cand["planned_pairs_per_codec"], 0)
+        # identity-only targets alone are a degenerate universe
+        self.assertEqual(w.cand_errors(), ["candidate lock: no near_duplicate target; an empty universe cannot be sealed"])
 
     def test_identity_only_with_bases_rejected(self):
         w, dup = self.dup_world()
@@ -871,7 +877,7 @@ class ReviewRegressions(Base):
         occ["provenance"]["options"] = {"x": 1}
         self.w.reid(occ)
         self.w.seal()
-        self.has(self.w.corpus_errors(), "only allowed on chunk tracks")
+        self.has(self.w.corpus_errors(), "span/parent only on chunk tracks")
 
     def test_negative_archive_bytes_cannot_offset_cap(self):
         self.w.lock["sources"][0]["archive_bytes"] = -(10 ** 12)
@@ -926,6 +932,94 @@ class ReviewRegressions(Base):
         self.w.policy["caps"]["acquired_bytes_max"] = 10 ** 13
         self.w.seal()
         self.has(self.w.corpus_errors(), "invalid input")
+
+
+class SecondReviewRegressions(Base):
+    """Holes found by the PR verification review of a14cd62."""
+
+    def setUp(self):
+        self.w = World()
+
+    def test_reason_kind_matrix(self):
+        sid = self.w.lock["sources"][0]["source_id"]
+        for kind, subject, reason in (("source", sid, "category_cap"), ("object", OBJ0, "temporal_ineligible"),
+                                      ("member", f"{sid}:lib/a.c", "short_tail"), ("occurrence", OBJ0, "self")):
+            w = World()
+            w.exclude(kind, subject, reason)
+            w.seal()
+            self.has(w.corpus_errors(), "not allowed for kind")
+
+    def test_deterministic_reasons_need_true_predicates(self):
+        w, sid = self.w, self.w.lock["sources"][0]["source_id"]
+        cases = (("source", sid, "unknown_time", "", "known release time"),
+                 ("object", "a" * 64, "cross_split_content", "", "more than one split"),
+                 ("member", f"{sid}:lib/x.c", "vendor_or_shared_origin_path", "contrib/*", "path rules give"),
+                 ("member", f"{sid}:contrib/x.c", "vendor_or_shared_origin_path", "contrib/*", None))
+        for kind, subject, reason, detail, text in cases:
+            w = World()
+            w.exclude(kind, subject, reason, detail)
+            w.seal()
+            if text:
+                self.has(w.corpus_errors(), text)
+            else:
+                self.assertEqual(w.corpus_errors(), [])
+
+    def test_manual_reason_needs_evidence(self):
+        sid = self.w.lock["sources"][0]["source_id"]
+        self.w.exclude("source", sid, "license_blocked", detail="x", evidence_url=None)
+        self.w.seal()
+        self.has(self.w.corpus_errors(), "needs detail and https evidence_url")
+
+    def test_toolchain_required(self):
+        del self.w.lock["toolchain"]
+        self.w.seal()
+        self.has(self.w.corpus_errors(), "toolchain needs")
+
+    def test_tar_gz_options_bind_zlib_runtime(self):
+        w = self.w
+        sid = w.lock["sources"][0]["source_id"]
+        track = next(t for t in w.policy["tracks"] if t["id"] == "tar-gz")
+        prov = {"transform": track["transform"], "member_path": None, "offset": None, "length": None,
+                "options": {"compresslevel": 9, "zlib_runtime": "1.3"}}
+        occ = {"source_id": sid, "family_id": sid.rsplit("-", 1)[0], "split": w.split[sid.rsplit("-", 1)[0]],
+               "track": "tar-gz", "object_id": h("targz"), "bytes": 5000, "provenance": prov,
+               "occurrence_id": m.occurrence_id(sid, prov)}
+        w.lock["occurrences"].append(occ)
+        w.seal()
+        self.assertEqual(w.corpus_errors(), [])
+        before = occ["occurrence_id"]
+        w.lock["toolchain"]["zlib_runtime"] = "1.3.1"
+        w.seal()
+        self.has(w.corpus_errors(), "options must match the track/toolchain")
+        prov["options"]["zlib_runtime"] = "1.3.1"
+        w.reid(occ)
+        w.seal()
+        self.assertEqual(w.corpus_errors(), [])
+        self.assertNotEqual(before, occ["occurrence_id"])
+
+    def test_max_targets_must_be_positive(self):
+        for value in (0, -3):
+            policy = copy.deepcopy(POLICY)
+            policy["targets"]["max_targets"] = value
+            self.has(m.validate_selection_policy(policy), "max_targets must be a positive integer")
+
+    def test_empty_locks_cannot_be_sealed(self):
+        w = self.w
+        w.cand["queries"] = []
+        w.seal()
+        self.has(w.cand_errors(), "no near_duplicate target")
+        w.lock["occurrences"] = []
+        w.seal()
+        self.has(w.corpus_errors(), "no occurrences")
+
+    def test_malformed_input_returns_errors(self):
+        plan = copy.deepcopy(self.w.plan)
+        del plan["families"][0]["family_id"]
+        self.assertTrue(m.validate_source_plan(plan))
+        for occ in self.w.lock["occurrences"][:2]:
+            del occ["occurrence_id"]
+        errors = self.w.corpus_errors()
+        self.assertTrue(errors and all(isinstance(e, str) for e in errors))
 
 
 if __name__ == "__main__":

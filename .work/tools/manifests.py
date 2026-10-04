@@ -18,12 +18,17 @@ DATE = re.compile(r"\d{4}-\d{2}-\d{2}\Z")
 SPLITS = ("development", "calibration", "evaluation")
 ARCHIVE_FORMATS = {"tar.gz", "tar.xz", "tar.bz2", "zip"}
 MEMBER_TYPES = {"file", "dir", "symlink", "hardlink", "other"}
-EXCLUSION_REASONS = {
-    "category_cap", "cross_split_content", "exact_target_bytes", "license_blocked",
-    "non_regular_member", "not_source_suffix", "self",
-    "short_tail", "split_mismatch", "temporal_ineligible", "track_mismatch",
-    "unknown_time", "vendor_or_shared_origin_path",
+# Lock exclusions remove occurrences from eligibility, so each kind allows only
+# reasons with a checkable predicate or, for manual reasons, recorded evidence.
+# Per-query outcomes (self, exact target bytes, time, split, track, category cap)
+# are consequences of the candidate rules and are never lock exclusions.
+LOCK_EXCLUSIONS = {
+    "source": {"license_blocked", "unknown_time"},
+    "member": {"license_blocked", "non_regular_member", "not_source_suffix", "vendor_or_shared_origin_path"},
+    "object": {"cross_split_content"},
+    "occurrence": {"license_blocked"},
 }
+MANUAL_REASONS = {"license_blocked", "non_regular_member"}
 PROVENANCE_KEYS = {"member_path", "transform", "options", "offset", "length"}
 CANDIDATE_CATEGORIES = ("same_path_historical", "same_family_decoy", "foreign_family_decoy")
 # P1 hard ceilings; a policy may be stricter, never looser.
@@ -268,6 +273,18 @@ def _sorted_unique(items):
     return all(a < b for a, b in zip(items, items[1:]))
 
 
+def _robust(validator):
+    """Malformed input yields an error string instead of an exception."""
+    def wrapper(*args):
+        try:
+            return validator(*args)
+        except (AttributeError, KeyError, TypeError, ValueError, IndexError) as error:
+            return [f"{validator.__name__}: malformed input: {error!r}"]
+    wrapper.__name__, wrapper.__doc__ = validator.__name__, validator.__doc__
+    return wrapper
+
+
+@_robust
 def validate_source_plan(plan):
     errors = []
     err = errors.append
@@ -335,6 +352,7 @@ def validate_source_plan(plan):
     return errors
 
 
+@_robust
 def validate_selection_policy(policy):
     errors = []
     err = errors.append
@@ -356,6 +374,8 @@ def validate_selection_policy(policy):
     for track in tracks:
         if track.get("lane") not in {"historical", "modeled"} or not track.get("transform"):
             err(f"track {track.get('id')}: needs lane and transform")
+        if (track.get("transform") == "canonical_tar_gzip_v1") != (type(track.get("compresslevel")) is int):
+            err(f"track {track.get('id')}: compresslevel exactly on canonical_tar_gzip_v1")
         unit = track.get("unit_bytes")
         if track.get("per_member") is not (track.get("id") == "file" or unit is not None):
             err(f"track {track.get('id')}: per_member must be true exactly for file and chunk tracks")
@@ -373,7 +393,9 @@ def validate_selection_policy(policy):
     max_targets = policy.get("targets", {}).get("max_targets")
     if any(type(cand.get(f"{c}_max")) is not int or cand[f"{c}_max"] < 0 for c in CANDIDATE_CATEGORIES):
         err("selection policy: candidate category caps must be non-negative integers")
-    elif type(max_targets) is not int or max_targets * per_target > caps.get("planned_pairs_per_codec_max", 0):
+    elif type(max_targets) is not int or max_targets < 1:
+        err("selection policy: max_targets must be a positive integer")
+    elif max_targets * per_target > caps.get("planned_pairs_per_codec_max", 0):
         err("selection policy: max_targets x candidate caps can exceed the pair cap")
     ordinals = policy.get("targets", {}).get("release_ordinals")
     if not ordinals or any(type(o) is not int or o < 2 for o in ordinals) or not _sorted_unique(ordinals):
@@ -394,6 +416,14 @@ def _family_splits(plan, policy):
     return components, assign_splits(components, policy["splits"]["counts"], policy["seed"])
 
 
+def _track_options(track, toolchain):
+    """Non-chunk provenance options: compressor identity enters the occurrence ID."""
+    if track["transform"] == "canonical_tar_gzip_v1":
+        return {"compresslevel": track["compresslevel"], "zlib_runtime": toolchain.get("zlib_runtime")}
+    return {}
+
+
+@_robust
 def validate_corpus_lock(lock, plan, policy):
     errors = []
     err = errors.append
@@ -442,7 +472,15 @@ def validate_corpus_lock(lock, plan, policy):
 
     tracks = {t["id"]: t for t in policy["tracks"]}
     globs = family_globs(plan)
+    toolchain = lock.get("toolchain")
+    if type(toolchain) is not dict or set(toolchain) != {"python", "zlib_runtime", "materializer_sha256"} \
+            or not all(type(v) is str and v for v in toolchain.values()) \
+            or not SHA256.match(toolchain["materializer_sha256"]):
+        err("corpus lock: toolchain needs python, zlib_runtime and materializer_sha256")
+        toolchain = {}
     occurrences = lock.get("occurrences", [])
+    if not occurrences:
+        err("corpus lock: no occurrences; an empty corpus cannot be sealed")
     ids = [o.get("occurrence_id") for o in occurrences]
     if not _sorted_unique(ids):
         err("corpus lock: occurrences must be sorted by unique occurrence_id")
@@ -488,9 +526,9 @@ def validate_corpus_lock(lock, plan, policy):
                 err(f"occurrence {oid}: chunk needs parent_object_id and parent_bytes")
             elif type(offset) is int and offset + unit > parent_bytes:
                 err(f"occurrence {oid}: chunk span exceeds parent_bytes")
-        elif prov["options"] != {} or prov["offset"] is not None or prov["length"] is not None \
+        elif prov["options"] != _track_options(track, toolchain) or prov["offset"] is not None or prov["length"] is not None \
                 or occ.get("parent_object_id") is not None or occ.get("parent_bytes") is not None:
-            err(f"occurrence {oid}: options/span/parent fields only allowed on chunk tracks")
+            err(f"occurrence {oid}: options must match the track/toolchain; span/parent only on chunk tracks")
         if occ["track"] == "file":
             if occ.get("stratum") != stratum_of(occ["bytes"], policy["file_strata"]) or occ.get("stratum") is None:
                 err(f"occurrence {oid}: stratum does not match size")
@@ -509,16 +547,46 @@ def validate_corpus_lock(lock, plan, policy):
     keys = [(e.get("kind"), e.get("subject"), e.get("reason")) for e in exclusions]
     if not _sorted_unique(keys):
         err("corpus lock: exclusions must be sorted and unique by (kind, subject, reason)")
-    for kind, subject, reason in keys:
-        if reason not in EXCLUSION_REASONS or kind not in {"object", "occurrence", "member", "source"}:
-            err(f"exclusion {subject}: unknown kind or reason")
-        if kind == "occurrence" and subject not in by_id or kind == "source" and subject not in sources:
-            err(f"exclusion {subject}: unknown {kind}")
+    for exclusion in exclusions:
+        err_exclusion = _exclusion_error(exclusion, by_id, sources, splits_by_object, policy, globs)
+        if err_exclusion:
+            err(f"exclusion {exclusion.get('subject')}: {err_exclusion}")
     excluded_objects = {s for k, s, r in keys if k == "object" and r == "cross_split_content"}
     for object_id, splits in sorted(splits_by_object.items()):
         if len(splits) > 1 and object_id not in excluded_objects:
             err(f"object {object_id}: occurs in splits {sorted(splits)} without cross_split_content exclusion")
     return errors
+
+
+def _exclusion_error(exclusion, by_id, sources, splits_by_object, policy, globs):
+    kind, subject, reason = exclusion.get("kind"), exclusion.get("subject"), exclusion.get("reason")
+    if set(exclusion) != {"kind", "subject", "reason", "detail", "evidence_url"}:
+        return "needs exactly kind, subject, reason, detail, evidence_url"
+    if reason not in LOCK_EXCLUSIONS.get(kind, ()):
+        return f"reason {reason} not allowed for kind {kind}"
+    if reason in MANUAL_REASONS:
+        if not exclusion["detail"] or not _https(exclusion["evidence_url"]):
+            return f"manual reason {reason} needs detail and https evidence_url"
+    elif exclusion["evidence_url"] is not None:
+        return "evidence_url only for manual reasons"
+    if kind == "source":
+        if subject not in sources:
+            return "unknown source"
+        if reason == "unknown_time" and sources[subject]["interval"] is not None:
+            return "source has a known release time"
+    elif kind == "occurrence" and subject not in by_id:
+        return "unknown occurrence"
+    elif kind == "object" and len(splits_by_object.get(subject, ())) < 2:
+        return "cross_split_content needs an object present in more than one split"
+    elif kind == "member":
+        source_id, _, path = str(subject).partition(":")
+        if source_id not in sources or not valid_member_path(path):
+            return "member subject must be source_id:member_path"
+        if reason in {"not_source_suffix", "vendor_or_shared_origin_path"}:
+            found = path_exclusion(path, sources[source_id]["family_id"], policy, globs)
+            if found is None or found[0] != reason or found[1] != exclusion["detail"]:
+                return f"path rules give {found}, not ({reason}, {exclusion['detail']!r})"
+    return None
 
 
 def excluded_occurrences(lock):
@@ -550,6 +618,7 @@ def _category(eligible, target):
     return "foreign_family_decoy"
 
 
+@_robust
 def validate_candidate_lock(clock, lock, plan, policy):
     """Precondition: validate_corpus_lock(lock, plan, policy) returned no errors."""
     errors = []
@@ -628,6 +697,8 @@ def validate_candidate_lock(clock, lock, plan, policy):
         if status == "near_duplicate":
             near += 1
             pairs += len(bases)
+    if near == 0:
+        err("candidate lock: no near_duplicate target; an empty universe cannot be sealed")
     if near > policy["targets"]["max_targets"]:
         err("candidate lock: too many near-duplicate targets")
     if type(clock.get("planned_pairs_per_codec")) is not int or clock["planned_pairs_per_codec"] != pairs:
