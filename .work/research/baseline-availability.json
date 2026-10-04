@@ -1,0 +1,141 @@
+{
+  "schema": "delsk.baseline-availability.v1",
+  "checked_on": "2026-10-04",
+  "scope": "Static reading of primary texts and pinned repository trees. Nothing was built, executed or downloaded as data; no entry is a reproduction.",
+  "fields": {
+    "provenance": "AUTHOR | REIMPLEMENTED | PROXY | UNAVAILABLE — who wrote the artifact relative to the cited work",
+    "paper_fidelity": "UNKNOWN | KNOWN_DEVIATIONS | NOT_APPLICABLE — correspondence of the artifact to the published configuration",
+    "license_status": "CLEAR | UNRESOLVED | CONFLICT | NOT_APPLICABLE — permission to build, run and adapt the artifact in Delsk CI, including every vendored component on the build path; CLEAR requires project_license",
+    "data_status": "AVAILABLE | PARTIAL | WITHHELD | UNKNOWN | NOT_APPLICABLE — inputs, checkpoints and datasets the artifact needs",
+    "reproduction_status": "NOT_ATTEMPTED | PENDING | BLOCKED | VERIFIED — VERIFIED requires a GitHub Actions run URL in evidence",
+    "comparator_readiness": "NEEDS_ADAPTER | BLOCKED | NOT_A_COMPARATOR | NOT_APPLICABLE — readiness for the shared C_t / Top-K harness"
+  },
+  "entries": [
+    {
+      "id": "finesse",
+      "work": {"title": "Finesse: Fine-Grained Feature Locality based Fast Resemblance Detection for Post-Deduplication Delta Compression", "venue": "FAST 2019", "url": "https://www.usenix.org/system/files/fast19-zhang.pdf", "access": "FULL_TEXT"},
+      "artifacts": [
+        {"label": "author release", "provenance": "UNAVAILABLE", "url": null, "commit": null, "project_license": null, "license_status": "NOT_APPLICABLE", "paper_fidelity": "NOT_APPLICABLE", "data_status": "UNKNOWN", "reproduction_status": "NOT_ATTEMPTED", "comparator_readiness": "NOT_APPLICABLE",
+         "notes": ["No code URL in the paper; USENIX page, slides, web, developer and GitHub searches found no author repository.", "Paper §5.1 names Destor (github.com/fomy/destor, GPL-3.0) as the prototype platform; whether Destor contains the Finesse patch is not verified."]},
+        {"label": "DeepSketch platform finesse/", "provenance": "REIMPLEMENTED", "url": "https://github.com/postech-caoslab/deepsketch-fast2022/tree/566920bd7ac2185534c29beed901ed5e930ceec6/finesse", "commit": "566920bd7ac2185534c29beed901ed5e930ceec6", "project_license": null, "license_status": "UNRESOLVED", "paper_fidelity": "KNOWN_DEVIATIONS", "data_status": "NOT_APPLICABLE", "reproduction_status": "PENDING", "comparator_readiness": "NEEDS_ADAPTER",
+         "notes": ["Written by DeepSketch authors, not Finesse authors.", "Fixed 4 KiB blocks (compress.h BLOCK_SIZE) instead of Rabin CDC with 8 KB expected chunks; LZ4 self-compression fallback; xdelta3_compress level 1.", "DeepSketch §5.1 selects the reference with the most matching SFs, while Finesse §5.1 uses FirstFit.", "Shares DeepSketch build blockers: missing ../xxhash.h, no project license."]},
+        {"label": "ZelinMa557/delta_compression_framework", "provenance": "REIMPLEMENTED", "url": "https://github.com/ZelinMa557/delta_compression_framework/tree/ac03b538fefaf0b33a7698fc51cc849673ffe9be", "commit": "ac03b538fefaf0b33a7698fc51cc849673ffe9be", "project_license": null, "license_status": "UNRESOLVED", "paper_fidelity": "UNKNOWN", "data_status": "NOT_APPLICABLE", "reproduction_status": "NOT_ATTEMPTED", "comparator_readiness": "BLOCKED",
+         "notes": ["Third-party framework claiming N-Transform, Finesse, Odess and Palantir; fidelity not reviewed; no license file."]}
+      ]
+    },
+    {
+      "id": "deepsketch",
+      "work": {"title": "DeepSketch: A New Machine Learning-Based Reference Search Technique for Post-Deduplication Delta Compression", "venue": "FAST 2022", "url": "https://www.usenix.org/system/files/fast22-park.pdf", "access": "FULL_TEXT"},
+      "artifacts": [
+        {"label": "author platform", "provenance": "AUTHOR", "url": "https://github.com/postech-caoslab/deepsketch-fast2022/tree/566920bd7ac2185534c29beed901ed5e930ceec6", "commit": "566920bd7ac2185534c29beed901ed5e930ceec6", "project_license": null, "license_status": "UNRESOLVED", "paper_fidelity": "UNKNOWN", "data_status": "PARTIAL", "reproduction_status": "BLOCKED", "comparator_readiness": "BLOCKED",
+         "notes": ["Paper ref [1] github.com/dgist-datalab/deepsketch-fast2022 redirects to this repository; pinned commit is HEAD (2022-05-06).", "No project license. Vendored xdelta3: Apache-2.0 LICENSE file, GPL-2.0-or-later headers in xdelta3.c/.h; COPYING and several autotools files are dangling symlinks to the authors' build host.", "Sources include ../xxhash.h, which is absent from the tree.", "Inference (deepsketch/deepsketch.h, multi_cand/deepsketch.h) hardcodes torch::kCUDA; no trained checkpoint is shipped. CPU use needs a documented deviation.", "Paper footnote 4 promises open data; README publishes only the Stack Overflow pointer and defers other data for privacy.", "Paper §5.1: GeForce RTX 2080 for DNN inference; §5.6: offline training under 4 hours."]}
+      ]
+    },
+    {
+      "id": "palantir",
+      "work": {"title": "Palantir: Hierarchical Similarity Detection for Post-Deduplication Delta Compression", "venue": "ASPLOS 2024", "doi": "10.1145/3620665.3640353", "url": "https://henryhxu.github.io/share/hongming-asplos24.pdf", "access": "FULL_TEXT"},
+      "artifacts": [
+        {"label": "author release", "provenance": "UNAVAILABLE", "url": null, "commit": null, "project_license": null, "license_status": "NOT_APPLICABLE", "paper_fidelity": "NOT_APPLICABLE", "data_status": "WITHHELD", "reproduction_status": "NOT_ATTEMPTED", "comparator_readiness": "NOT_APPLICABLE",
+         "notes": ["No code or data URL in the paper; web, developer and GitHub searches and author pages found none. Absence of evidence, not evidence of absence.", "Cloud-provider datasets with synthetic revisions are not public; Linux 5.0.1–5.0.21 tar is reconstructible.", "Third-party claim of a Palantir implementation: see the ZelinMa557 artifact under finesse; not author code."]}
+      ]
+    },
+    {
+      "id": "odess",
+      "work": {"title": "The Design of Fast and Lightweight Resemblance Detection for Efficient Post-Deduplication Delta Compression", "venue": "ACM TOS 19(3) article 22, 2023; extends ICDE 2021", "doi": "10.1145/3584663", "url": "https://doi.org/10.1145/3584663", "access": "FULL_TEXT"},
+      "artifacts": [
+        {"label": "author release", "provenance": "UNAVAILABLE", "url": null, "commit": null, "project_license": null, "license_status": "NOT_APPLICABLE", "paper_fidelity": "NOT_APPLICABLE", "data_status": "UNKNOWN", "reproduction_status": "NOT_ATTEMPTED", "comparator_readiness": "NOT_APPLICABLE",
+         "notes": ["No author repository identified in this pass; targeted search was not exhaustive."]},
+        {"label": "SpeedSketch CLI schemes od-g, od-x", "provenance": "REIMPLEMENTED", "url": "https://github.com/FengkuiYang-hust/SpeedSketch/blob/83ef5b313d9d2cb6606be6b71c8ec200b896e175/speedsketch.cpp", "commit": "83ef5b313d9d2cb6606be6b71c8ec200b896e175", "project_license": "GPL-2.0", "license_status": "UNRESOLVED", "paper_fidelity": "UNKNOWN", "data_status": "NOT_APPLICABLE", "reproduction_status": "PENDING", "comparator_readiness": "NEEDS_ADAPTER",
+         "notes": ["SpeedSketch authors do not overlap with Odess authors.", "od-g/od-x are implemented inside speedsketch.cpp. The separate odess/ directory is another tool (delta_time_dis) whose Makefile links the prebuilt ../lib/libzd.a and edelta; it is not the CLI path.", "README fixes features=12, super-features=3 for tests and states other values were not validated.", "Odess §4.3 modifies Xdelta3 (no inner compression of the input chunk); whether od-x matches this is not checked."]}
+      ]
+    },
+    {
+      "id": "bepro",
+      "work": {"title": "Achieving Better Benefits via Flexible Feature Matching in Post-Deduplication Delta Compression", "venue": "IPDPS 2025", "doi": "10.1109/IPDPS64566.2025.00093", "url": "https://ieeexplore.ieee.org/document/11078474/", "access": "ABSTRACT_ONLY"},
+      "artifacts": [
+        {"label": "author code", "provenance": "AUTHOR", "url": "https://github.com/FengkuiYang-hust/BePro/tree/23a4440bfacc0890bc707f619e6dad6fc66f573c", "commit": "23a4440bfacc0890bc707f619e6dad6fc66f573c", "project_license": null, "license_status": "UNRESOLVED", "paper_fidelity": "UNKNOWN", "data_status": "PARTIAL", "reproduction_status": "PENDING", "comparator_readiness": "NEEDS_ADAPTER",
+         "notes": ["No project license; README states the code builds on DeepSketch (unlicensed) and FastCDC-c (MIT).", "Vendored util/xdelta3 has the same Apache LICENSE / GPL header mismatch as DeepSketch.", "Corpus given as mutable tag/site pointers (Scilab, Linux, GNU tar, osboxes VM, Stack Overflow, synthetic SYN) without checksums or generator lock.", "Full paper not read: correspondence of code to paper settings unknown."]}
+      ]
+    },
+    {
+      "id": "speedsketch",
+      "work": {"title": "SpeedSketch: An Ultra-Fast Sketch Generation and Delta Encoding Framework for Delta Compression", "venue": "ICPP 2025", "doi": "10.1145/3754598.3754628", "url": "https://doi.org/10.1145/3754598.3754628", "access": "FULL_TEXT"},
+      "artifacts": [
+        {"label": "author research implementation", "provenance": "AUTHOR", "url": "https://github.com/FengkuiYang-hust/SpeedSketch/tree/83ef5b313d9d2cb6606be6b71c8ec200b896e175", "commit": "83ef5b313d9d2cb6606be6b71c8ec200b896e175", "project_license": "GPL-2.0", "license_status": "UNRESOLVED", "paper_fidelity": "KNOWN_DEVIATIONS", "data_status": "PARTIAL", "reproduction_status": "PENDING", "comparator_readiness": "NEEDS_ADAPTER",
+         "notes": ["Root LICENSE is GPL-2.0, but license_status stays UNRESOLVED because of vendored components: xdelta3 repeats the Apache LICENSE / GPL header mismatch, and zdelta, edelta and a prebuilt lib/libzd.a have their own notices. The root Makefile (speedsketch binary) does not link them; odess/Makefile links -lzd.", "README: FastCDC 4/8/32 KiB instead of the paper's 2/8/32 KiB; single-file simulator; payload estimate excludes indexes, recipes and container metadata.", "Build documented: GNU Make, C++14/C99, pthread, zstd; make check and CLI tests exist. Not built in this pass.", "No interface for an external candidate universe C_t or Top-K; the sketch and the sketch-accelerated encoder are coupled (ss-g-s), so encoder speedups must not be attributed to ranking quality.", "Paper datasets are not shipped; README offers a 64 MiB synthetic feasibility fixture only."]}
+      ]
+    },
+    {
+      "id": "argus",
+      "work": {"title": "Argus: A Precise and Efficient Resemblance Detection for Post-Deduplication Delta Compression", "venue": "ACM TOS 22(1), 2026", "doi": "10.1145/3747839", "url": "https://doi.org/10.1145/3747839", "access": "FULL_TEXT"},
+      "artifacts": [
+        {"label": "author release", "provenance": "UNAVAILABLE", "url": null, "commit": null, "project_license": null, "license_status": "NOT_APPLICABLE", "paper_fidelity": "NOT_APPLICABLE", "data_status": "UNKNOWN", "reproduction_status": "NOT_ATTEMPTED", "comparator_readiness": "NOT_APPLICABLE",
+         "notes": ["No artifact identified in this pass; search was not exhaustive."]}
+      ]
+    },
+    {
+      "id": "rolling-hash-reuse",
+      "work": {"title": "Once Rolling Hashing is Enough: Exploiting Rolling Hash Reuse in Delta Compression", "venue": "EuroSys 2026", "doi": "10.1145/3767295.3803596", "url": "https://doi.org/10.1145/3767295.3803596", "access": "FULL_TEXT"},
+      "artifacts": [
+        {"label": "FastDelta author release", "provenance": "UNAVAILABLE", "url": null, "commit": null, "project_license": null, "license_status": "NOT_APPLICABLE", "paper_fidelity": "NOT_APPLICABLE", "data_status": "UNKNOWN", "reproduction_status": "NOT_ATTEMPTED", "comparator_readiness": "NOT_APPLICABLE",
+         "notes": ["No artifact identified in this pass; search was not exhaustive."]}
+      ]
+    },
+    {
+      "id": "card-preprint",
+      "work": {"title": "Chunk Content is not Enough: Chunk-Context Aware Resemblance Detection for Deduplication Delta Compression", "venue": "arXiv 2106.01273v1, 2021 (only version)", "url": "https://arxiv.org/abs/2106.01273", "access": "FULL_TEXT"},
+      "artifacts": [
+        {"label": "author release", "provenance": "UNAVAILABLE", "url": null, "commit": null, "project_license": null, "license_status": "NOT_APPLICABLE", "paper_fidelity": "NOT_APPLICABLE", "data_status": "UNKNOWN", "reproduction_status": "NOT_ATTEMPTED", "comparator_readiness": "NOT_APPLICABLE",
+         "notes": ["No code URL in the preprint."]}
+      ]
+    },
+    {
+      "id": "card-journal",
+      "work": {"title": "Context-aware resemblance detection for data deduplication with neural network", "venue": "Engineering Applications of Artificial Intelligence 144:110116, 2025", "doi": "10.1016/j.engappai.2025.110116", "url": "https://doi.org/10.1016/j.engappai.2025.110116", "access": "ABSTRACT_ONLY"},
+      "artifacts": [
+        {"label": "author release", "provenance": "UNAVAILABLE", "url": null, "commit": null, "project_license": null, "license_status": "NOT_APPLICABLE", "paper_fidelity": "NOT_APPLICABLE", "data_status": "UNKNOWN", "reproduction_status": "NOT_ATTEMPTED", "comparator_readiness": "NOT_APPLICABLE",
+         "notes": ["Journal body not read (paywall); abstract and highlights only. Title, author list and reported speedups differ from card-preprint."]}
+      ]
+    },
+    {
+      "id": "sonic",
+      "work": {"title": "Efficient Similarity Detection for Delta Compression", "venue": "Computers 15(9):607, 2026", "doi": "10.3390/computers15090607", "url": "https://www.mdpi.com/2073-431X/15/9/607", "access": "FULL_TEXT"},
+      "artifacts": [
+        {"label": "author release", "provenance": "UNAVAILABLE", "url": null, "commit": null, "project_license": null, "license_status": "NOT_APPLICABLE", "paper_fidelity": "NOT_APPLICABLE", "data_status": "WITHHELD", "reproduction_status": "NOT_ATTEMPTED", "comparator_readiness": "NOT_APPLICABLE",
+         "notes": ["Data Availability: code and datasets not public, available from the corresponding author on reasonable request. No outreach in R0.", "A paper-inspired implementation must carry its own name, not Sonic."]}
+      ]
+    },
+    {
+      "id": "dclc",
+      "work": {"title": "Deep contrastive learning-based redundancy elimination for similar data in cloud storage systems", "venue": "Journal of King Saud University - Computer and Information Sciences 38, 2026", "doi": "10.1007/s44443-026-01042-5", "url": "https://link.springer.com/article/10.1007/s44443-026-01042-5", "access": "FULL_TEXT"},
+      "artifacts": [
+        {"label": "linked repository", "provenance": "UNAVAILABLE", "url": "https://github.com/qcode-systems-lab/DCLC", "commit": null, "project_license": null, "license_status": "NOT_APPLICABLE", "paper_fidelity": "NOT_APPLICABLE", "data_status": "UNKNOWN", "reproduction_status": "NOT_ATTEMPTED", "comparator_readiness": "NOT_APPLICABLE",
+         "notes": ["Repository URL from the abstract returns HTTP 404 on 2026-10-04; the organisation page exists.", "Data Availability states no datasets were generated or analysed."]}
+      ]
+    },
+    {
+      "id": "zipllm-bitx",
+      "work": {"title": "ZipLLM (BitX)", "venue": "NSDI 2026", "url": "https://www.usenix.org/system/files/nsdi26-wang-zirui.pdf", "access": "FULL_TEXT"},
+      "artifacts": [
+        {"label": "author Rust/Python implementation", "provenance": "AUTHOR", "url": "https://github.com/ds2-lab/ZipLLM/tree/612924f36f0723a048211e6abe228258a08de0f8", "commit": "612924f36f0723a048211e6abe228258a08de0f8", "project_license": "Apache-2.0", "license_status": "CLEAR", "paper_fidelity": "KNOWN_DEVIATIONS", "data_status": "PARTIAL", "reproduction_status": "PENDING", "comparator_readiness": "NEEDS_ADAPTER",
+         "notes": ["Paper links github.com/ds2lab/ZipLLM (HTTP 404); the code lives at ds2-lab/ZipLLM.", "README: current version supports BF16 only; the paper describes BitX as data-type-agnostic and evaluates mainly BF16/FP32.", "bitx_bytes.rs truncates to min(len1, len2) & !1: a model-track adapter must reject unequal or odd lengths and check dtype, shape, mapping and full target reconstruction.", "Downloader defaults to revision=main (mutable); historical checkpoint availability, license and ancestry are per-model questions.", "examples/bitx.rs compresses with 48 zstd threads; not a bounded Actions configuration.", "License CLEAR covers this repository only, not models or datasets."]}
+      ]
+    },
+    {
+      "id": "fastcdc",
+      "work": {"title": "FastCDC: a Fast and Efficient Content-Defined Chunking Approach for Data Deduplication", "venue": "USENIX ATC 2016", "url": "https://www.usenix.org/system/files/conference/atc16/atc16-paper-xia.pdf", "access": "FULL_TEXT"},
+      "artifacts": [
+        {"label": "FastCDC-c", "provenance": "AUTHOR", "url": "https://github.com/wxiacode/FastCDC-c/tree/7d661508aeef2d9be3c7fc6e4b94325ef90205c5", "commit": "7d661508aeef2d9be3c7fc6e4b94325ef90205c5", "project_license": "MIT", "license_status": "CLEAR", "paper_fidelity": "UNKNOWN", "data_status": "NOT_APPLICABLE", "reproduction_status": "NOT_ATTEMPTED", "comparator_readiness": "NOT_A_COMPARATOR",
+         "notes": ["Auxiliary chunker, not a reference-search comparator.", "Only vendored component is uthash.h under a BSD-style notice, compatible with CLEAR.", "Driver main() opens a hardcoded empty path and mallocs CacheSize = 1 GiB; a bounded driver and the exact chunking variant (USE_CHUNKING_METHOD) must be locked separately.", "Paper not re-read section by section in this pass."]}
+      ]
+    },
+    {
+      "id": "widecdc",
+      "work": {"title": "Taking a Bigger Byte: Wide Hashless Chunking for Data Deduplication", "venue": "FAST 2027 (prepublication)", "url": "https://www.usenix.org/conference/fast27/presentation/udayashankar", "access": "FULL_TEXT"},
+      "artifacts": [
+        {"label": "artifact behind AE badges", "provenance": "UNAVAILABLE", "url": null, "commit": null, "project_license": null, "license_status": "NOT_APPLICABLE", "paper_fidelity": "NOT_APPLICABLE", "data_status": "UNKNOWN", "reproduction_status": "NOT_ATTEMPTED", "comparator_readiness": "NOT_A_COMPARATOR",
+         "notes": ["Presentation page shows Available/Functional artifact badges, but the artifact location was not identified in this pass.", "Chunking work: a feature-source control, not a ranking comparator. First public availability date not established."]}
+      ]
+    }
+  ]
+}

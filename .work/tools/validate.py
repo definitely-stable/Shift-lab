@@ -22,7 +22,8 @@ required = [
     ".work/roadmap.md", ".work/research/report-audit.md",
     ".work/research/literature-review.md", ".work/research/lab-practices.md",
     ".work/templates/experiment.md", ".work/templates/evidence.md",
-    ".work/issues/index.json",
+    ".work/issues/index.json", ".work/research/baseline-availability.json",
+    ".work/research/claim-matrix.md",
 ]
 for name in required:
     check((ROOT / name).is_file(), f"Missing required file: {name}")
@@ -88,6 +89,53 @@ def visit(ident, stack, complete):
 complete = set()
 for ident in by_id:
     visit(ident, (), complete)
+
+# Schema delsk.baseline-availability.v1 is fixed here, not read from the payload:
+# changing a field or an enum value needs a new schema version.
+AVAILABILITY_ENUMS = {
+    "provenance": {"AUTHOR", "REIMPLEMENTED", "PROXY", "UNAVAILABLE"},
+    "paper_fidelity": {"UNKNOWN", "KNOWN_DEVIATIONS", "NOT_APPLICABLE"},
+    "license_status": {"CLEAR", "UNRESOLVED", "CONFLICT", "NOT_APPLICABLE"},
+    "data_status": {"AVAILABLE", "PARTIAL", "WITHHELD", "UNKNOWN", "NOT_APPLICABLE"},
+    "reproduction_status": {"NOT_ATTEMPTED", "PENDING", "BLOCKED", "VERIFIED"},
+    "comparator_readiness": {"NEEDS_ADAPTER", "BLOCKED", "NOT_A_COMPARATOR", "NOT_APPLICABLE"},
+}
+ACCESS_LEVELS = {"FULL_TEXT", "AUTHOR_MANUSCRIPT", "ABSTRACT_ONLY", "METADATA_ONLY"}
+WORK_KEYS = {"title", "venue", "url", "access"}
+ARTIFACT_KEYS = {"label", "url", "commit", "project_license", "notes", *AVAILABILITY_ENUMS}
+
+availability = json.loads((ROOT / ".work/research/baseline-availability.json").read_text(encoding="utf-8"))
+check(availability.get("schema") == "delsk.baseline-availability.v1", "Unexpected baseline availability schema")
+fields = availability.get("fields", {})
+check(set(fields) == set(AVAILABILITY_ENUMS), "Baseline availability fields differ from schema v1")
+for field, values in AVAILABILITY_ENUMS.items():
+    documented = {value.strip() for value in fields.get(field, "").split(" — ")[0].split("|")}
+    check(documented == values, f"Documented enum differs from schema v1: {field}")
+seen = set()
+for entry in availability.get("entries", []):
+    ident = entry.get("id")
+    check(ident and ident not in seen, f"Missing or duplicate baseline availability ID: {ident}")
+    seen.add(ident)
+    work = entry.get("work", {})
+    check(WORK_KEYS <= set(work) <= WORK_KEYS | {"doi"}, f"Bad work keys: {ident}")
+    check(work.get("access") in ACCESS_LEVELS, f"Bad access: {ident}: {work.get('access')}")
+    artifacts = entry.get("artifacts") or []
+    check(artifacts, f"No artifacts: {ident}")
+    for artifact in artifacts:
+        keys = set(artifact)
+        check(ARTIFACT_KEYS <= keys <= ARTIFACT_KEYS | {"evidence"}, f"Bad artifact keys: {ident}: {sorted(keys ^ ARTIFACT_KEYS)}")
+        for field, values in AVAILABILITY_ENUMS.items():
+            check(artifact.get(field) in values, f"Bad {field}: {ident}: {artifact.get(field)}")
+        if artifact.get("reproduction_status") == "VERIFIED":
+            check("/actions/runs/" in (artifact.get("evidence") or ""), f"VERIFIED without Actions run: {ident}")
+        if artifact.get("provenance") == "UNAVAILABLE":
+            check(artifact.get("commit") is None, f"UNAVAILABLE artifact with commit: {ident}")
+            check(artifact.get("reproduction_status") == "NOT_ATTEMPTED", f"Reproduction of UNAVAILABLE artifact: {ident}")
+        else:
+            commit = artifact.get("commit") or ""
+            check(re.fullmatch(r"[0-9a-f]{40}", commit) and commit in (artifact.get("url") or ""), f"Unpinned artifact: {ident}")
+        if artifact.get("license_status") == "CLEAR":
+            check(artifact.get("project_license"), f"CLEAR license without project_license: {ident}")
 
 if errors:
     print("\n".join(errors), file=sys.stderr)
