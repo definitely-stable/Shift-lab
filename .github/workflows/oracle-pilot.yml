@@ -1,0 +1,131 @@
+name: Oracle pilot (DELSK-003)
+
+# Infrastructure only in Slice C0. Dispatches are a separate post-review task.
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact reviewed commit equal to the dispatched branch head
+        type: string
+        required: true
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: delsk-experimental
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  pilot:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      SOURCE_SHA: ${{ inputs.source_sha }}
+    steps:
+      - name: Bootstrap dispatch proof before checkout
+        run: |
+          /usr/bin/python3 - <<'PY'
+          import datetime, json, os, pathlib, re
+          out = pathlib.Path(os.environ['RUNNER_TEMP']) / 'dispatch'
+          out.mkdir()
+          doc = {'schema': 'delsk.oracle.dispatch.v1', 'status': 'DISPATCHED',
+                 'created_at': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                 'repository': os.environ['GITHUB_REPOSITORY'],
+                 'run_id': int(os.environ['GITHUB_RUN_ID']), 'run_attempt': int(os.environ['GITHUB_RUN_ATTEMPT']),
+                 'measured_source_sha': os.environ['GITHUB_SHA'], 'workflow_sha': os.environ['GITHUB_WORKFLOW_SHA'],
+                 'workflow_ref': os.environ['GITHUB_WORKFLOW_REF'],
+                 'source_sha': os.environ['SOURCE_SHA'] if re.fullmatch('[0-9a-f]{40}', os.environ['SOURCE_SHA']) else None}
+          (out / 'dispatch.json').write_text(json.dumps(doc, sort_keys=True, indent=2) + '\n')
+          PY
+      - name: Retain immutable dispatch proof
+        id: dispatch_record
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: oracle-dispatch-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/dispatch/dispatch.json
+          retention-days: 30
+          if-no-files-found: error
+          overwrite: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        id: checkout
+        with:
+          persist-credentials: false
+      - name: Validate dispatch, frozen chain and register scientific identity
+        id: initialize
+        run: /usr/bin/python3 .work/tools/oracle_pilot.py initialize "$RUNNER_TEMP/pilot-evidence"
+      - name: Retain attempt before codec setup
+        id: attempt_record
+        if: always() && steps.checkout.outcome == 'success'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: oracle-attempt-start-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/pilot-evidence/attempt.json
+          retention-days: 30
+          if-no-files-found: error
+          overwrite: false
+      - name: Budget and artifact admission
+        id: admission
+        if: steps.initialize.outcome == 'success' && steps.attempt_record.outcome == 'success'
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          BUDGET_MODE: enforce
+        run: /usr/bin/python3 .work/tools/budget.py admit "$RUNNER_TEMP/pilot-admission.json" > /dev/null 2>&1
+      - name: Hard capped transient work filesystem
+        if: steps.initialize.outcome == 'success' && steps.attempt_record.outcome == 'success'
+        run: |
+          mkdir "$RUNNER_TEMP/pilot-work"
+          sudo mount -t tmpfs -o size=1280m,nodev,nosuid tmpfs "$RUNNER_TEMP/pilot-work"
+      - name: Bounded pilot
+        id: workload
+        if: steps.initialize.outcome == 'success' && steps.attempt_record.outcome == 'success'
+        continue-on-error: true
+        env:
+          ATTEMPT_ARTIFACT_ID: ${{ steps.attempt_record.outputs.artifact-id }}
+        run: |
+          /usr/bin/python3 .work/tools/oracle_pilot.py run "$RUNNER_TEMP/pilot-evidence" \
+            "$RUNNER_TEMP/pilot-work" "$RUNNER_TEMP/pilot-admission.json"
+      - name: Bounded sealed artifact check
+        id: export_cap
+        if: always() && steps.initialize.outcome == 'success'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          /usr/bin/python3 - <<'PY'
+          import os, pathlib, sys
+          sys.path.insert(0, '.work/tools')
+          import oracle_pilot as p
+          p.export_checksums(pathlib.Path(os.environ['RUNNER_TEMP']) / 'pilot-evidence')
+          PY
+          /usr/bin/python3 .work/tools/budget.py artifact-check "$RUNNER_TEMP/pilot-evidence" > /dev/null 2>&1
+      - name: Immutable sealed pilot envelope
+        id: evidence_upload
+        if: always() && steps.export_cap.outcome == 'success'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: oracle-pilot-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/pilot-evidence
+          retention-days: 30
+          if-no-files-found: error
+          overwrite: false
+      - name: Record export failure without debug data
+        if: always() && steps.initialize.outcome == 'success' && steps.evidence_upload.outcome != 'success'
+        run: /usr/bin/python3 .work/tools/oracle_pilot.py finish "$RUNNER_TEMP/pilot-evidence" failure
+      - name: Emergency attempt status only
+        if: always() && steps.checkout.outcome == 'success' && steps.evidence_upload.outcome != 'success'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: oracle-attempt-final-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/pilot-evidence/attempt.json
+          retention-days: 30
+          if-no-files-found: error
+          overwrite: false
+      - name: Require workload and export success
+        if: always()
+        env:
+          WORKLOAD_OUTCOME: ${{ steps.workload.outcome }}
+          EXPORT_OUTCOME: ${{ steps.evidence_upload.outcome }}
+        run: test "$WORKLOAD_OUTCOME" = success && test "$EXPORT_OUTCOME" = success

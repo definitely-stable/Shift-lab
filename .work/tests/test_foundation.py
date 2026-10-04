@@ -55,6 +55,8 @@ class FakeAPI:
         page, size = int(query["page"][0]), min(int(query["per_page"][0]), self.page_size)
         if url.path == f"/repos/{REPO}/actions/workflows/foundation.yml/runs":
             key, items = "workflow_runs", self.runs
+        elif url.path == f"/repos/{REPO}/actions/workflows/oracle-pilot.yml/runs":
+            key, items = "workflow_runs", getattr(self, 'pilot_runs', [])
         elif url.path == f"/repos/{REPO}/actions/artifacts":
             key, items = "artifacts", self.artifacts
         else:

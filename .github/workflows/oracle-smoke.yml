@@ -9,12 +9,12 @@ on:
   pull_request:
     paths: ['.work/tools/oracle_*.py', '.work/tools/manifests.py', '.work/tools/materialize.py',
             '.work/tests/test_oracle_*.py', '.work/tests/oracle_reference.py', '.work/oracle/**',
-            '.github/workflows/oracle-smoke.yml']
+            '.github/workflows/oracle-smoke.yml', '.github/workflows/oracle-pilot.yml']
   push:
     branches: [main]
     paths: ['.work/tools/oracle_*.py', '.work/tools/manifests.py', '.work/tools/materialize.py',
             '.work/tests/test_oracle_*.py', '.work/tests/oracle_reference.py', '.work/oracle/**',
-            '.github/workflows/oracle-smoke.yml']
+            '.github/workflows/oracle-smoke.yml', '.github/workflows/oracle-pilot.yml']
   workflow_dispatch:
 
 permissions:
@@ -56,7 +56,11 @@ jobs:
         working-directory: .work/tests
         env:
           ORACLE_TOOLS: ${{ runner.temp }}/build/tools.json
-        run: python3 -m unittest -v test_oracle_contract test_oracle_eval test_oracle_build test_oracle_runner
+        run: python3 -m unittest -v test_oracle_contract test_oracle_eval test_oracle_build test_oracle_runner test_oracle_materialize test_oracle_attempts test_oracle_pilot
+      - name: Synthetic pilot supervisor and sealed envelope
+        run: |
+          python3 .work/tools/oracle_pilot.py smoke "$RUNNER_TEMP/build/tools.json" "$RUNNER_TEMP/out/conformance.json" \
+            "$RUNNER_TEMP/out/synthetic-pilot" "$RUNNER_TEMP/synthetic-pilot-work"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
