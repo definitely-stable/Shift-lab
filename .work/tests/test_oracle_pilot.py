@@ -117,6 +117,18 @@ class Safety(unittest.TestCase):
     def setUp(self):
         self.assertIsNotNone(pilot, 'production supervisor is missing')
 
+    def test_synthetic_supervisor_keeps_actual_smoke_workflow_identity(self):
+        smoke_env = {**ENV, 'GITHUB_EVENT_NAME': 'pull_request', 'GITHUB_REF': 'refs/pull/26/merge',
+                     'GITHUB_WORKFLOW_REF': 'definitely-stable/Shift-lab/.github/workflows/oracle-smoke.yml@refs/pull/26/merge'}
+        # Store verification anchors every ancestor; the workspace is readable on Windows too.
+        with tempfile.TemporaryDirectory(dir=WORK) as t, \
+                patch.object(pilot.runner, 'prepare', return_value={'identity_sha256': 'c' * 64}), \
+                patch.object(pilot.runner, 'execute'), patch.object(pilot, '_finalize', return_value=True):
+            out, work = Path(t) / 'out', Path(t) / 'work'
+            self.assertEqual(pilot.smoke('unused', 'unused', out, work, smoke_env), 0)
+            self.assertEqual(json.loads((out / 'attempt.json').read_bytes())['workflow_ref'],
+                             smoke_env['GITHUB_WORKFLOW_REF'])
+
     def test_relabelled_natural_locks_cannot_enter_smoke(self):
         import gzip
         import manifests as m

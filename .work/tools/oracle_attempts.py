@@ -435,14 +435,38 @@ def validate_sidecar(doc):
     check(repository(doc['repository']) and positive(doc['run_id']) and positive(doc['run_attempt']),
           'attempt sidecar dispatch identity')
     check(digest(doc['measured_source_sha'], 40) and digest(doc['workflow_sha'], 40) and
-          type(doc['workflow_ref']) is str and doc['workflow_ref'].startswith(
-              f"{doc['repository']}/{WORKFLOW}@refs/"), 'attempt sidecar source/ref')
+          _sidecar_workflow_ref(doc['repository'], doc['workflow_ref']), 'attempt sidecar source/ref')
     check(doc['measurement_identity_sha256'] is None or digest(doc['measurement_identity_sha256']),
           'attempt sidecar measurement identity')
     check(doc['status'] in STATUSES and doc['phase'] in PHASES and doc['failure_class'] in FAILURES | {None} and
           doc['admission'] in ('UNKNOWN', 'ADMITTED', 'REFUSED'), 'attempt sidecar machine status')
     check(timestamp(doc['updated_at']) >= timestamp(doc['created_at']), 'attempt sidecar timestamps')
     return doc
+
+
+def _sidecar_workflow_ref(repo, ref):
+    """Smoke sidecars describe the synthetic PR/push/dispatch lane only.
+
+    Production inventory and _bind_sidecar still require the independently resolved
+    exact pilot workflow ref; accepting smoke metadata here never admits it to G1.
+    """
+    if type(ref) is not str:
+        return False
+    if ref.startswith(f'{repo}/{WORKFLOW}@refs/'):
+        return True
+    prefix = f'{repo}/.github/workflows/oracle-smoke.yml@'
+    if not ref.startswith(prefix):
+        return False
+    suffix = ref[len(prefix):]
+    if re.fullmatch(r'refs/pull/[1-9][0-9]*/merge', suffix):
+        return True
+    named = re.fullmatch(r'refs/(?:heads|tags)/(.+)', suffix)
+    if named is None:
+        return False
+    name = named[1]
+    return (not any(ord(c) <= 32 or ord(c) == 127 or c in '~^:?*[\\' for c in name) and
+            not any(token in name for token in ('..', '//', '@{')) and not name.endswith('.') and
+            all(part and not part.startswith('.') and not part.endswith('.lock') for part in name.split('/')))
 
 
 def update_attempt(path, status, phase, failure_class=None, admission=None, now=None):

@@ -236,6 +236,18 @@ class MaterializationTests(unittest.TestCase):
         expected = om.expected_objects(candidate, corpus)
         self.assertEqual(om.verify_store(directory / "store", expected)["objects"], 11)
 
+    def test_nested_supervisor_synthetic_store(self):
+        # Keep Windows ancestor handles within this task's writable workspace.
+        # The default system temp directory can have an inaccessible user-profile
+        # ancestor under the desktop sandbox; secure traversal must fail closed.
+        work = Path(self.temp.name) / "work"
+        work.mkdir()
+        directory = work / "synthetic"
+        candidate = runner.synthetic(directory)
+        corpus = m.loads_strict((directory / "corpus-lock.json").read_bytes())
+        expected = om.expected_objects(candidate, corpus)
+        self.assertEqual(om.verify_store(directory / "store", expected)["objects"], 11)
+
     def test_frozen_excluded_link_is_inventory_only(self):
         info = tarfile.TarInfo("root/tools/link")
         info.type, info.linkname = tarfile.SYMTYPE, "../../outside"

@@ -322,6 +322,38 @@ class Envelopes(unittest.TestCase):
         self.assertEqual(doc['failure_class'], 'DISPATCH_HISTORY_UNVERIFIED')
         self.assertIn(doc['failure_class'], oa.FAILURE_CLASSES)
 
+    def test_synthetic_smoke_sidecar_accepts_only_the_allowlisted_workflow_refs(self):
+        prefix = f'{REPO}/.github/workflows/oracle-smoke.yml@'
+        for ref in ('refs/pull/26/merge', 'refs/heads/main', 'refs/tags/v1.0.0'):
+            env = dict(self.env, GITHUB_WORKFLOW_REF=prefix + ref)
+            doc = oa.create_attempt(env, ID, status='READY', phase='synthetic_premeasurement',
+                                    admission='ADMITTED', now=NOW)
+            self.assertEqual(doc['workflow_ref'], env['GITHUB_WORKFLOW_REF'])
+        for ref in ('refs/pull/26/head', 'refs/pull/0/merge', 'refs/heads/', 'refs/heads/main\n',
+                    'refs/heads/../main', 'refs/heads/main//other', 'refs/not-a-workflow/main'):
+            with self.subTest(ref=ref), self.assertRaises(oa.AttemptError):
+                oa.create_attempt(dict(self.env, GITHUB_WORKFLOW_REF=prefix + ref), ID, now=NOW)
+        for ref in (f'{REPO}/.github/workflows/oracle-smoke.yml.evil@refs/pull/26/merge',
+                    'other/repo/.github/workflows/oracle-smoke.yml@refs/pull/26/merge',
+                    f'{REPO}/.github/workflows/other.yml@refs/pull/26/merge'):
+            with self.subTest(ref=ref), self.assertRaises(oa.AttemptError):
+                oa.create_attempt(dict(self.env, GITHUB_WORKFLOW_REF=ref), ID, now=NOW)
+
+    def test_synthetic_smoke_sidecar_cannot_be_retained_against_a_pilot_dispatch(self):
+        snap = snapshot([run(1)])
+        ref = f'{REPO}/.github/workflows/oracle-smoke.yml@refs/pull/26/merge'
+        doc = oa.create_attempt(dict(self.env, GITHUB_WORKFLOW_REF=ref), ID, status='READY',
+                                phase='synthetic_premeasurement', admission='ADMITTED', now=NOW)
+        with tempfile.TemporaryDirectory() as tmp:
+            root, envelope = Path(tmp) / 'results', Path(tmp) / 'envelope'
+            envelope.mkdir()
+            (envelope / 'attempt.json').write_bytes(ev.canonical(doc))
+            oa.import_snapshot(snap, root)
+            with self.assertRaises(oa.AttemptError):
+                oa.retain(envelope, root, snapshot=snap)
+            self.assertFalse((root / '10-1').exists())
+            self.assertFalse((root / '.attempts' / '10-1').exists())
+
     def test_original_envelope_receipt_checks_separate_normative_and_sidecar_bytes(self):
         with tempfile.TemporaryDirectory() as tmp:
             sidecar, bundle = Path(tmp) / 'sidecar', Path(tmp) / 'bundle'
