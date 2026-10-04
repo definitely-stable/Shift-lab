@@ -56,7 +56,7 @@ jobs:
         working-directory: .work/tests
         env:
           ORACLE_TOOLS: ${{ runner.temp }}/build/tools.json
-        run: python3 -m unittest -v test_oracle_contract test_oracle_eval test_oracle_build test_oracle_runner test_oracle_materialize test_oracle_attempts test_oracle_pilot
+        run: python3 -m unittest -v test_oracle_contract test_oracle_eval test_oracle_build test_oracle_runner test_oracle_materialize test_oracle_attempts test_oracle_pilot test_oracle_dispatch
       - name: Synthetic pilot supervisor and sealed envelope
         run: |
           python3 .work/tools/oracle_pilot.py smoke "$RUNNER_TEMP/build/tools.json" "$RUNNER_TEMP/out/conformance.json" \

@@ -291,6 +291,26 @@ class G1(unittest.TestCase):
         self.assertEqual(self.evaluate([run(1), run(2)], [record(run(1)), record(run(2))], live=True),
                          ('NOT_PASSED', ['DISPATCH_HISTORY_UNVERIFIED']))
 
+    def test_deleted_policy_rejected_tail_has_no_inventory_witness(self):
+        # Execution policy refusal may create a failed run. If it is deleted
+        # before observation, the remaining API response has no refusal witness.
+        rejected = run(3, conclusion='failure')
+        visible = [run(1), run(2)]
+        self.assertEqual(len(snapshot(visible + [rejected])['attempts']), 3)
+        self.assertEqual(len(snapshot(visible)['attempts']), 2)
+        self.assertEqual(self.evaluate(visible, [record(r) for r in visible], live=True),
+                         ('NOT_PASSED', ['DISPATCH_HISTORY_UNVERIFIED']))
+
+    def test_manual_rerun_missing_from_broker_cannot_be_omitted(self):
+        # A journal covering only initial requests is incomplete when another
+        # actor reruns a job. Inventory must include that extra attempt.
+        visible = [run(1, 2), run(2)]
+        with_rerun = snapshot(visible)
+        self.assertEqual([(a['run_id'], a['run_attempt']) for a in with_rerun['attempts']],
+                         [(10, 1), (10, 2), (20, 1)])
+        self.assertEqual(self.evaluate(visible, [record(r) for r in visible], live=True),
+                         ('NOT_PASSED', ['ATTEMPT_NOT_RETAINED', 'DISPATCH_HISTORY_UNVERIFIED']))
+
     def test_custom_results_root_cannot_bypass_production_inventory(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
