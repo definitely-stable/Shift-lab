@@ -56,6 +56,7 @@ LICENSE_FILE = re.compile(r"(?i)(licen[cs]e|copying|copyright)([._-][^/]*)?\Z")
 NOTICE = re.compile(r"(?i)copyright")
 SPDX = re.compile(r"SPDX-License-Identifier:\s*([A-Za-z0-9.+()-]+(?:\s+(?:OR|AND|WITH)\s+[A-Za-z0-9.+()-]+)*)")
 NOTICES_PER_FAMILY = 100
+NOTICE_PATHS = 5
 NOTICE_CHARS = 200
 EXPANDERS = {"tar.gz": gzip.open, "tar.xz": lzma.open, "tar.bz2": bz2.open}
 
@@ -305,8 +306,10 @@ def build(plan, policy, fetcher, locked=None, log=None):
     locked_sources = {s["source_id"]: s for s in locked["sources"]} if locked else None
     acquired = expanded_total = materialized = 0
     sources, lock_sources, occurrences, coverage = [], [], [], []
-    license_files, notices, spdx = (collections.defaultdict(list), collections.defaultdict(collections.Counter),
-                                    collections.defaultdict(collections.Counter))
+    # notices/spdx: family -> line or tag -> {(source_id, path)} of retained members
+    license_files = collections.defaultdict(list)
+    notices = collections.defaultdict(lambda: collections.defaultdict(set))
+    spdx = collections.defaultdict(lambda: collections.defaultdict(set))
     for family in plan["families"]:
         fid = family["family_id"]
         for release in family["releases"]:
@@ -357,8 +360,10 @@ def build(plan, policy, fetcher, locked=None, log=None):
                                                "sha256": member["sha256"], "source_id": sid})
             for member in selection["retained"]:
                 text = member["data"].decode("utf-8", "backslashreplace")
-                notices[fid].update(set(_notice_lines(member["data"])))
-                spdx[fid].update(set(SPDX.findall(text)))
+                for line in _notice_lines(member["data"]):
+                    notices[fid][line].add((sid, member["path"]))
+                for tag in SPDX.findall(text):
+                    spdx[fid][tag].add((sid, member["path"]))
             lock_sources.append({"archive_bytes": len(data), "archive_sha256": digest_, "family_id": fid,
                                  "source_id": sid, "url": url})
             sources.append({
@@ -396,12 +401,14 @@ def build(plan, policy, fetcher, locked=None, log=None):
                          "review status is recorded in pilot-v1/README.md, never here"}
     for family in plan["families"]:
         fid = family["family_id"]
-        top = sorted(notices[fid].items(), key=lambda item: (-item[1], item[0]))
+        def where(found):
+            return {"members": len(found), "paths": sorted({path for _, path in found})[:NOTICE_PATHS]}
+        top = sorted(notices[fid].items(), key=lambda item: (-len(item[1]), item[0]))
         licenses["families"].append({
             "family_id": fid, "license_files": license_files[fid], "notice_lines": len(top),
-            "notices": [{"line": line, "members": count} for line, count in top[:NOTICES_PER_FAMILY]],
+            "notices": [{"line": line, **where(found)} for line, found in top[:NOTICES_PER_FAMILY]],
             "notices_truncated": len(top) > NOTICES_PER_FAMILY, "plan_license": family["license"],
-            "spdx_tags": [{"members": count, "tag": tag} for tag, count in sorted(spdx[fid].items())]})
+            "spdx_tags": [{"tag": tag, **where(found)} for tag, found in sorted(spdx[fid].items())]})
     tracks = []
     for sid, records, tails in coverage:
         by_track = collections.defaultdict(list)
