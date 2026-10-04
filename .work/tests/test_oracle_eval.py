@@ -353,6 +353,41 @@ def adversarial_failures(module=ev):
     return failed
 
 
+class G1Inventory(unittest.TestCase):
+    """Review blocker 3: G1 counts every dispatched attempt of the identity, retained or not."""
+
+    @staticmethod
+    def rec(run_id, status='COMPLETE', attempt=1, phase='pilot', conformance=True):
+        return {'phase': phase, 'github_run_id': run_id, 'run_attempt': attempt, 'run_status': status,
+                'cost_projection_sha256': 'c' * 64, 'targets_sha256': 'd' * 64, 'sealed_commitments_sha256': 'f' * 64,
+                'conformance': conformance, 'bundle_verified': True}
+
+    def test_invalid_attempt_cannot_be_left_out(self):
+        ledger = [(1, 1), (2, 1), (3, 1)]
+        self.assertEqual(ev.g1_inventory([self.rec(1, 'INVALID'), self.rec(2), self.rec(3)], ledger),
+                         ('INVALID', ['RUN_INVALID']))
+        # the INVALID bundle not retained (or withheld from the results root): the attempt still blocks PASS
+        self.assertEqual(ev.g1_inventory([self.rec(2), self.rec(3)], ledger), ('NOT_PASSED', ['ATTEMPT_NOT_RETAINED']))
+        self.assertEqual(ev.g1_inventory([self.rec(2), self.rec(3)], ledger[1:]), ('PASS', []))
+
+    def test_ledger_must_cover_every_retained_bundle(self):
+        with self.assertRaises(ev.EvalError):
+            ev.g1_inventory([self.rec(2), self.rec(3)], [(2, 1)])
+        with self.assertRaises(ev.EvalError):
+            ev.g1_inventory([self.rec(2), self.rec(2)], [(2, 1)])
+
+    def test_synthetic_and_empty_never_pass(self):
+        with self.assertRaises(ev.EvalError):
+            ev.g1_inventory([self.rec(2, phase='smoke'), self.rec(3, phase='smoke')], [(2, 1), (3, 1)])
+        self.assertEqual(ev.g1_inventory([], []), ('NOT_PASSED', ['REPEAT_MISSING']))
+        self.assertEqual(ev.g1_inventory([self.rec(2), self.rec(2, attempt=2)], [(2, 1), (2, 2)]),
+                         ('NOT_PASSED', ['REPEAT_MISSING']))
+
+    def test_cli_takes_no_bundle_list(self):
+        with redirect_stderr(io.StringIO()):
+            self.assertEqual(ev.main(['g1', 'a', 'b', 'c']), 2)
+
+
 class Adversarial(unittest.TestCase):
     def test_rows_beyond_the_frozen_vectors(self):
         self.assertEqual(adversarial_failures(), [])

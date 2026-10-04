@@ -7,7 +7,7 @@ everything is recomputed from retained rows, the committed locks and the codec l
     python3 oracle_eval.py finalize EVIDENCE_DIR PRIVATE_DIR      in-job: seal, derive targets, coverage, summary, evaluation
     python3 oracle_eval.py verify BUNDLE_DIR...                    recompute retained bundles byte for byte
     python3 oracle_eval.py bundle ARTIFACT_DIR [RESULTS_DIR]       verified transactional import (default .work/results)
-    python3 oracle_eval.py g1 BUNDLE_DIR...                        G1 over all attempts of one pilot measurement identity
+    python3 oracle_eval.py g1 IDENTITY_SHA256 [RESULTS_DIR]        G1 over every retained attempt and the attempts ledger
 
 Output never contains a cost, size or digest of a sealed (evaluation split) row: messages carry only statuses,
 counts and reasons.
@@ -819,7 +819,7 @@ def read_private(path):
     return [_decode(line.decode("utf-8")) for line in data.splitlines()]
 
 
-def finalize(evidence, private, source_sha=None):
+def finalize(evidence, private):
     """In-job step after the runner: seal the evaluation split, derive and seal target rows from the full rows,
     write pairs/standalone/targets JSONL, coverage/summary/evaluation and checksums. Returns the run status."""
     evidence, private = Path(evidence), Path(private)
@@ -853,7 +853,10 @@ def finalize(evidence, private, source_sha=None):
     for name, rows in (("pairs.jsonl", pairs), ("standalone.jsonl", standalone), ("targets.jsonl", targets)):
         (evidence / name).write_bytes(jsonl(rows))
     _, world, result = evaluate_bundle(evidence)
-    evaluator = evaluator_identity(source_sha or run["measurement_identity"]["measured_source_sha"])
+    evaluator = evaluator_identity(run["measurement_identity"]["measured_source_sha"])
+    code = parse_doc((evidence / "tools.json").read_bytes())["code"]
+    check(code.get("oracle_eval.py") == evaluator["evaluator_sha256"],
+          "finalize must run the evaluator of the measured commit (tools.json code manifest)")
     for name, doc in documents(result, world, evaluator).items():
         (evidence / name).write_bytes(canonical(doc))
     (evidence / "checksums.sha256").write_text(checksums(evidence), encoding="utf-8")
@@ -871,12 +874,16 @@ def _bundle_errors(directory):
     check(present == wanted, f"files: missing {sorted(wanted - present)}, unexpected {sorted(present - wanted)}")
     check((directory / "checksums.sha256").read_text(encoding="utf-8") == checksums(directory),
           "checksums differ or the bundle is truncated")
-    validate_tools(parse_doc((directory / "tools.json").read_bytes()), run)
+    tools = parse_doc((directory / "tools.json").read_bytes())
+    validate_tools(tools, run)
     conformance = parse_doc((directory / "conformance.json").read_bytes())
-    validate_conformance(conformance, run)
+    validate_conformance(conformance, run, tools)
     _, world, result = evaluate_bundle(directory)
-    recorded = parse_doc((directory / "evaluation.json").read_bytes())
-    evaluator = {k: recorded[k] for k in ("evaluator_sha256", "evaluator_source_sha")}
+    # The retained evaluation is the in-job one: its identity is the oracle_eval.py hash of the code manifest whose Hc
+    # is oracle_code_sha256 inside the measurement identity every row carries, at the measured commit. Nothing is
+    # taken from the documents being verified.
+    evaluator = {"evaluator_sha256": tools["code"]["oracle_eval.py"],
+                 "evaluator_source_sha": run["measurement_identity"]["measured_source_sha"]}
     for name, doc in documents(result, world, evaluator).items():
         check((directory / name).read_bytes() == canonical(doc), f"{name} differs from the recomputation")
     return run, result, conformance
@@ -892,14 +899,28 @@ def verify(directory):
 
 
 def validate_tools(tools, run):
-    """tools.json (delsk.oracle.tools.v1): build provenance of both codecs bound to run.json codec_builds."""
+    """tools.json (delsk.oracle.tools.v1): build provenance of both codecs equal to the frozen codec lock recipe role
+    by role, bound to run.json codec_builds, and the oracle code manifest bound to oracle_code_sha256."""
     check(tools["schema"] == "delsk.oracle.tools.v1" and set(tools) == TOOLS_KEYS, "tools.json: schema")
     check(tools["codec_lock_sha256"] == run["measurement_identity"]["codec_lock_sha256"], "tools.json: codec lock")
+    check(type(tools["code"]) is dict and set(tools["code"]) == set(CODE_FILES) and
+          all(type(v) is str and HEX64.match(v) for v in tools["code"].values()) and
+          hc(tools["code"]) == run["measurement_identity"]["oracle_code_sha256"],
+          "tools.json: code manifest is not the measured oracle_code_sha256")
+    lock = parse_doc(committed("codec-lock.json"))
     builds = {b["codec_id"]: b for b in run["codec_builds"]}
     check(len(builds) == len(run["codec_builds"]) == 2, "run.json: codec_builds")
     for role in ("delta", "standalone"):
-        c = tools["codecs"][role]
+        c, entry = tools["codecs"][role], lock["codecs"][role]
         check(set(c) == TOOLS_CODEC_KEYS, f"tools.json: {role} fields")
+        src, build = entry["source"], entry["build"]
+        pinned = {"codec_id": entry["codec_id"], "archive_url": src["archive_url"], "archive_bytes": src["archive_bytes"],
+                  "archive_sha256": src["archive_sha256"], "archive_root": src["archive_root"],
+                  "archive_path": f"archives/{src['archive_root']}.tar.gz", "build_argv": build["argv"],
+                  "build_cwd": build["cwd"], "build_env": build["env"],
+                  "executable": f"src/{build['cwd']}/{build['executable']}"}
+        check(all(compact(c[k]) == compact(v) for k, v in pinned.items()),
+              f"tools.json: {role} differs from the codec lock recipe")
         b = builds.get(c["codec_id"])
         check(b is not None and (b["archive_sha256"], b["executable_sha256"], b["self_report_sha256"],
                                  b["build_argv_sha256"]) == (c["archive_sha256"], c["executable_sha256"],
@@ -907,28 +928,33 @@ def validate_tools(tools, run):
                                                              hc(c["build_argv"])), f"tools.json: {role} binding")
 
 
-def validate_conformance(conformance, run):
-    """conformance.json (delsk.oracle.conformance.v1) bound to run.json; PASS needs the committed golden record."""
+def validate_conformance(conformance, run, tools):
+    """conformance.json (delsk.oracle.conformance.v1) bound role by role to the built executables and to run.json;
+    PASS needs the committed golden record."""
     check(conformance["schema"] == "delsk.oracle.conformance.v1" and set(conformance) == CONFORMANCE_KEYS,
           "conformance.json: schema")
     check(conformance["codec_lock_sha256"] == run["measurement_identity"]["codec_lock_sha256"],
           "conformance.json: codec lock")
     checks = conformance["checks"]
-    check(sorted(checks) == [f"C{i:02d}" for i in range(1, 15)], "conformance.json: checks C01-C14")
+    check(sorted(checks) == [f"C{i:02d}" for i in range(1, 15)] and all(
+        type(c) is dict and set(c) == {"status", "detail"} and c["status"] in ("PASS", "FAIL", "CANDIDATE")
+        and type(c["detail"]) is str for c in checks.values()), "conformance.json: checks C01-C14")
     verdict = "PASS" if all(c["status"] == "PASS" for c in checks.values()) else \
         "FAIL" if any(c["status"] == "FAIL" for c in checks.values()) else "CANDIDATE"
     check(conformance["verdict"] == verdict, "conformance.json: verdict")
     if verdict == "PASS":
         golden = parse_doc(committed("conformance.json"))
-        check(conformance["golden"] == golden["golden"] and conformance["inputs_sha256"] == golden["inputs_sha256"],
+        check(conformance["golden"] == golden["golden"] and conformance["inputs_sha256"] == golden["inputs_sha256"]
+              and golden["codec_lock_sha256"] == conformance["codec_lock_sha256"],
               "conformance.json: PASS without the committed golden digests")
-    executables = {b["codec_id"]: b["executable_sha256"] for b in run["codec_builds"]}
-    check(set(executables.values()) == set(conformance["executables"].values()), "conformance.json: executables")
+    check(conformance["executables"] == {r: tools["codecs"][r]["executable_sha256"] for r in ("delta", "standalone")},
+          "conformance.json: executables are not the built codecs, role by role")
     check(all(b["conformance"] == ("PASS" if verdict == "PASS" else "FAIL") for b in run["codec_builds"]),
           "run.json: conformance status differs from conformance.json")
 
 
-TOOLS_KEYS = {"schema", "codec_lock_sha256", "compiler", "make", "codecs", "source"}
+TOOLS_KEYS = {"schema", "codec_lock_sha256", "compiler", "make", "codecs", "code", "source"}
+CODE_FILES = ("oracle_build.py", "oracle_run.py", "oracle_eval.py", "manifests.py", "materialize.py")
 TOOLS_CODEC_KEYS = {"codec_id", "archive_url", "archive_bytes", "archive_sha256", "archive_root", "archive_path",
                     "extracted_files",
                     "extracted_tree_sha256", "skipped_members", "build_argv", "build_cwd", "build_env",
@@ -966,28 +992,64 @@ def bundle(artifact, results=RESULTS):
     return dest
 
 
-def g1_bundles(directories):
-    """G1 over retained pilot bundles of one measurement identity; unverifiable bundles count as not verified."""
-    records, identities = [], set()
-    for d in map(Path, directories):
-        run = parse_doc((d / "run.json").read_bytes())
-        summary = parse_doc((d / "summary.json").read_bytes())
-        check(run["measurement_identity"]["phase"] == "pilot", "G1 is defined only for pilot runs")
-        identities.add(run["measurement_identity_sha256"])
-        conformance = parse_doc((d / "conformance.json").read_bytes())
-        records.append({"github_run_id": run["github"]["run_id"], "run_status": summary["run_status"],
-                        "cost_projection_sha256": summary["cost_projection_sha256"],
-                        "targets_sha256": summary["targets_canonical_sha256"],
-                        "sealed_commitments_sha256": summary["sealed_commitments_sha256"],
-                        "conformance": conformance["verdict"] == "PASS", "bundle_verified": not verify(d)})
-    check(len(identities) == 1, "G1 needs the attempts of exactly one measurement identity")
-    return g1(records)
+ATTEMPTS = "attempts.json"  # durable ledger of every dispatched attempt, maintained by reviewed PRs
+
+
+def g1_inventory(records, ledger):
+    """G1 of one measurement identity from the records of every retained bundle and the ledger of every dispatched
+    attempt [(run_id, run_attempt)]. A dispatched attempt without a retained bundle can never be outvoted: it blocks
+    PASS (ATTEMPT_NOT_RETAINED); a retained bundle missing from the ledger means the ledger is incomplete."""
+    check(all(r["phase"] == "pilot" for r in records), "G1 is defined only for pilot runs")
+    retained = {(r["github_run_id"], r["run_attempt"]) for r in records}
+    check(len(retained) == len(records), "two retained bundles claim the same run attempt")
+    check(retained <= set(ledger), "retained bundle missing from the attempts ledger: the ledger is incomplete")
+    verdict, blockers = g1(records)
+    if set(ledger) - retained and verdict != "INVALID":
+        return "NOT_PASSED", sorted({*blockers, "ATTEMPT_NOT_RETAINED"})
+    return verdict, blockers
+
+
+def attempt_record(directory):
+    run = parse_doc((directory / "run.json").read_bytes())
+    summary = parse_doc((directory / "summary.json").read_bytes())
+    conformance = parse_doc((directory / "conformance.json").read_bytes())
+    check(directory.name == f"{run['github']['run_id']}-{run['github']['run_attempt']}",
+          f"{directory.name}: directory name differs from its run attempt")
+    return {"identity": run["measurement_identity_sha256"], "phase": run["measurement_identity"]["phase"],
+            "github_run_id": run["github"]["run_id"], "run_attempt": run["github"]["run_attempt"],
+            "run_status": summary["run_status"], "cost_projection_sha256": summary["cost_projection_sha256"],
+            "targets_sha256": summary["targets_canonical_sha256"],
+            "sealed_commitments_sha256": summary["sealed_commitments_sha256"],
+            "conformance": conformance["verdict"] == "PASS", "bundle_verified": not verify(directory)}
+
+
+def read_ledger(results, identity):
+    doc = parse_doc((Path(results) / ATTEMPTS).read_bytes())
+    check(set(doc) == {"schema", "attempts"} and doc["schema"] == "delsk.oracle.attempts.v1" and
+          type(doc["attempts"]) is list, "attempts ledger: schema")
+    for a in doc["attempts"]:
+        check(type(a) is dict and set(a) == {"measurement_identity_sha256", "run_id", "run_attempt"} and
+              type(a["run_id"]) is int and type(a["run_attempt"]) is int and a["run_id"] > 0 and
+              a["run_attempt"] > 0 and HEX64.match(str(a["measurement_identity_sha256"])),
+              "attempts ledger: entry fields")
+    ledger = [(a["run_id"], a["run_attempt"]) for a in doc["attempts"] if a["measurement_identity_sha256"] == identity]
+    check(len(ledger) == len(set(ledger)), "attempts ledger: repeated attempt")
+    return ledger
+
+
+def g1_root(identity, results=RESULTS):
+    """G1 of one measurement identity over every bundle under results and the attempts ledger there. No subset of
+    bundles can be passed: the tool enumerates the root itself, and any unreadable bundle stops the verdict."""
+    results = Path(results)
+    ledger = read_ledger(results, identity)
+    records = [attempt_record(d) for d in sorted(results.iterdir()) if d.is_dir() and not d.name.startswith(".")]
+    return g1_inventory([r for r in records if r["identity"] == identity], ledger)
 
 
 def main(argv):
     command, args = (argv[0], argv[1:]) if argv else (None, [])
     try:
-        if command == "finalize" and len(args) in (2, 3):
+        if command == "finalize" and len(args) == 2:
             result = finalize(*args)
             print(f"oracle run status: {result['run_status']} {' '.join(result['invalid_reasons'])}".rstrip())
         elif command == "verify" and args:
@@ -996,8 +1058,8 @@ def main(argv):
             return 1 if errors else 0
         elif command == "bundle" and len(args) in (1, 2):
             print(f"retained {bundle(*args)}")
-        elif command == "g1" and args:
-            verdict, blockers = g1_bundles(args)
+        elif command == "g1" and len(args) in (1, 2):
+            verdict, blockers = g1_root(*args)
             print(f"G1: {verdict} {' '.join(blockers)}".rstrip())
             return 0 if verdict == "PASS" else 1
         else:

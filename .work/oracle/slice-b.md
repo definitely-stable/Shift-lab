@@ -32,6 +32,13 @@ Phase `smoke` принимает только synthetic locks и отказыв�
 - Fault injection (shim codecs): decode corruption, decoder exit, malformed patch → `INVALID DECODE_MISMATCH`; encoder exit → bounded `codec_error`; encode/decode timeout → bounded `timeout`, потомки убиты; allocation failure и file cap → `resource_limit`; неверный SHA input и symlink в store → `INVALID INPUT_INTEGRITY`; foreign/duplicate/missing pair → `INVALID`/`INCOMPLETE`; SIGTERM и SIGKILL → `not_run`/missing, `INCOMPLETE`, bundle verifiable.
 - Leakage: sealed costs, patch/frame SHA и sizes evaluation split отсутствуют в artifact, stdout/stderr и step summary.
 
+## Gates после review PR #25
+
+- **Pilot gate.** Runner принимает conformance record только closed (C01–C14, `{status, detail}`, executables по ролям, verdict = checks, PASS = committed golden и inputs). Для `pilot` он дополнительно заново выполняет C01–C14 на тех же executables и требует byte-equal PASS record до первого natural вызова; поддельный record отклоняется до любого codec call.
+- **Build provenance.** `tools.json` каждой роли обязан равняться recipe codec lock: archive URL/size/SHA-256/root/path, build argv, cwd, env и путь executable; runner и verifier проверяют это независимо.
+- **Evaluator identity.** Builder пишет code manifest (`oracle_build.py`, `oracle_run.py`, `oracle_eval.py`, `manifests.py`, `materialize.py`); `oracle_code_sha256 = Hc(manifest)` входит в measurement identity каждой row. `finalize` работает только с evaluator этого manifest, а `verify` берёт `evaluator_sha256` и `evaluator_source_sha` из manifest и measured commit, не из проверяемых `evaluation.json`/`summary.json`.
+- **G1 по всем attempts.** `oracle_eval.py g1 IDENTITY [RESULTS_DIR]` сам перечисляет все bundles в results root и сверяет их с durable ledger `attempts.json` (`delsk.oracle.attempts.v1`: `measurement_identity_sha256`, `run_id`, `run_attempt` каждого dispatched attempt, ведётся reviewed PR). Список bundles передать нельзя; dispatched attempt без retained bundle блокирует PASS (`ATTEMPT_NOT_RETAINED`), retained bundle вне ledger останавливает verdict. Ledger создаёт Slice C вместе с первым pilot dispatch.
+
 ## Ограничения
 
 - Процессы codec ограничены process group; codec, который сам вызывает `setsid()`, вышел бы из group (собранные codecs этого не делают; изоляция cgroup — upgrade path).

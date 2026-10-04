@@ -34,8 +34,10 @@ ENV = {'GITHUB_REPOSITORY': 'definitely-stable/Shift-lab', 'GITHUB_RUN_ID': '7',
 # (only LC_ALL in the environment, stdin is /dev/null, the call directory holds only its inputs) and exits 4 if not.
 SHIM = r'''#!{python}
 import os, signal, sys, time
-MODE, ROLE, PIDS = {mode!r}, {role!r}, {pids!r}
+MODE, ROLE, PIDS, CALLS = {mode!r}, {role!r}, {pids!r}, {calls!r}
 args = sys.argv[1:]
+open(CALLS, 'a').write(ROLE + ' ' + ' '.join(args[:1]) + '
+')
 null = os.stat('/dev/null')
 if set(os.environ) - {{'LC_ALL'}} or os.environ.get('LC_ALL') != 'C' or os.fstat(0).st_rdev != null.st_rdev:
     sys.exit(4)
@@ -81,25 +83,28 @@ open(out, 'wb').write(body)
 def shim_tools(root, delta='ok', standalone='ok'):
     """A tools.json in the builder's format whose executables are shims, plus a bound non-PASS conformance record."""
     root = Path(root)
-    (root / 'bin').mkdir(parents=True)
     codecs = {}
     for role, mode, name in (('delta', delta, 'xdelta3'), ('standalone', standalone, 'zstd')):
-        exe = root / 'bin' / name
-        exe.write_text(SHIM.format(python=sys.executable, mode=mode, role=role, pids=str(root / 'pids')))
+        build = LOCK['codecs'][role]['build']
+        exe = root / 'src' / build['cwd'] / build['executable']  # where the builder puts the locked executable
+        exe.parent.mkdir(parents=True)
+        exe.write_text(SHIM.format(python=sys.executable, mode=mode, role=role, pids=str(root / 'pids'),
+                                   calls=str(root / 'calls')))
         exe.chmod(0o755)
         src = LOCK['codecs'][role]['source']
         codecs[role] = {'codec_id': LOCK['codecs'][role]['codec_id'], 'archive_url': src['archive_url'],
                         'archive_bytes': src['archive_bytes'], 'archive_sha256': src['archive_sha256'],
-                        'archive_root': src['archive_root'], 'archive_path': f'archives/{name}.tar.gz',
+                        'archive_root': src['archive_root'], 'archive_path': f"archives/{src['archive_root']}.tar.gz",
                         'extracted_files': 1, 'extracted_tree_sha256': '0' * 64, 'skipped_members': [],
-                        'build_argv': LOCK['codecs'][role]['build']['argv'], 'build_cwd': src['archive_root'],
-                        'build_env': LOCK['codecs'][role]['build']['env'], 'executable': f'bin/{name}',
+                        'build_argv': build['argv'], 'build_cwd': build['cwd'], 'build_env': build['env'],
+                        'executable': exe.relative_to(root).as_posix(),
                         'executable_bytes': exe.stat().st_size, 'executable_sha256': orun.sha256(exe.read_bytes()),
                         'self_report': f'{name} shim\n'}
     tools = {'schema': 'delsk.oracle.tools.v1', 'codec_lock_sha256': orun.sha256(LOCK_DATA),
              'compiler': {'path': '/usr/bin/cc', 'realpath': '/usr/bin/cc', 'sha256': '0' * 64, 'version': 'shim'},
              'make': {'path': '/usr/bin/make', 'realpath': '/usr/bin/make', 'sha256': '0' * 64, 'version': 'shim'},
-             'codecs': codecs, 'source': {'sha': None, 'workflow_sha': None, 'run_id': None, 'run_attempt': None}}
+             'codecs': codecs, 'code': orun.code_manifest(),
+             'source': {'sha': None, 'workflow_sha': None, 'run_id': None, 'run_attempt': None}}
     (root / 'tools.json').write_bytes(m.canonical_bytes(tools))
     conformance = {'schema': 'delsk.oracle.conformance.v1', 'codec_lock_sha256': orun.sha256(LOCK_DATA),
                    'executables': {r: c['executable_sha256'] for r, c in codecs.items()}, 'inputs_sha256': {},
@@ -352,7 +357,7 @@ class Runner(unittest.TestCase):
             orun.prepare('pilot', tools, conformance, None, {**ENV, 'GITHUB_EVENT_NAME': 'pull_request'})
         with self.assertRaises(orun.RunError):
             orun.prepare('smoke', tools, conformance, self.tmp / 'syn', {**ENV, 'GITHUB_WORKFLOW_SHA': 'e' * 40})
-        exe = self.tmp / 'ref-tools' / 'bin' / 'xdelta3'
+        exe = self.tmp / 'ref-tools' / 'src' / 'xdelta3-3.2.1' / 'xdelta3'
         exe.write_text(exe.read_text() + '\n# substituted\n')
         with self.assertRaises(orun.RunError):  # PATH or binary substitution
             orun.prepare('smoke', tools, conformance, self.tmp / 'syn', ENV)
@@ -360,6 +365,100 @@ class Runner(unittest.TestCase):
         exe.symlink_to('/bin/true')
         with self.assertRaises(orun.RunError):
             orun.prepare('smoke', tools, conformance, self.tmp / 'syn', ENV)
+
+    def test_forged_pass_record_refuses_pilot_before_any_codec_call(self):
+        """Review blocker 1: a conformance record is not evidence; pilot re-runs C01-C14 before natural data."""
+        tools, conformance = shim_tools(self.tmp / 'forge-tools')
+        record = m.loads_strict(conformance.read_bytes())
+        dispatch = {**ENV, 'GITHUB_EVENT_NAME': 'workflow_dispatch'}
+        calls = self.tmp / 'forge-tools' / 'calls'
+        minimal = self.tmp / 'minimal.json'
+        minimal.write_bytes(m.canonical_bytes({k: record[k] for k in ('schema', 'codec_lock_sha256', 'executables')}
+                                              | {'verdict': 'PASS'}))
+        golden = m.loads_strict(orun.GOLDEN.read_bytes())
+        shaped = self.tmp / 'shaped.json'
+        shaped.write_bytes(m.canonical_bytes({**record, 'inputs_sha256': golden['inputs_sha256'],
+                                              'golden': golden['golden'], 'verdict': 'PASS',
+                                              'checks': {c: {'status': 'PASS', 'detail': 'forged'}
+                                                         for c in record['checks']}}))
+        swapped = self.tmp / 'swapped.json'
+        swapped.write_bytes(m.canonical_bytes({**record, 'executables': {
+            'delta': record['executables']['standalone'], 'standalone': record['executables']['delta']}}))
+        for name, path in (('minimal PASS', minimal), ('swapped roles', swapped)):
+            with self.subTest(name):
+                with self.assertRaises(orun.RunError):
+                    orun.prepare('pilot', tools, path, None, dispatch)
+                self.assertFalse(calls.exists(), 'a codec ran before the record was rejected')
+        with self.assertRaises(orun.RunError):  # well-formed forgery: the re-run on these executables fails
+            orun.prepare('pilot', tools, shaped, None, dispatch)
+        invoked = calls.read_text().split('\n')
+        self.assertTrue(0 < len(invoked) < 200)  # synthetic conformance calls only, never the 1 961 natural pairs
+
+    def test_build_record_must_equal_the_codec_lock_recipe(self):
+        """Review blocker 2: archive, argv, cwd, env and executable path are pinned by the codec lock."""
+        tools, conformance = shim_tools(self.tmp / 'lock-tools')
+        good = m.loads_strict(tools.read_bytes())
+        for field, value in (('archive_sha256', '0' * 64), ('archive_url', 'https://github.com/x/y/releases/download/'),
+                             ('build_argv', ['cc', '-O0', '-o', 'xdelta3', 'xdelta3.c']), ('build_cwd', 'elsewhere'),
+                             ('build_env', {'LC_ALL': 'C', 'PATH': '/opt/bin'}), ('archive_bytes', 1)):
+            with self.subTest(field):
+                bad = {**good, 'codecs': {**good['codecs'], 'delta': {**good['codecs']['delta'], field: value}}}
+                tools.write_bytes(m.canonical_bytes(bad))
+                with self.assertRaises(orun.RunError):
+                    orun.prepare('smoke', tools, conformance, self.tmp / 'syn', ENV)
+        tools.write_bytes(m.canonical_bytes({**good, 'code': {**good['code'], 'oracle_eval.py': '0' * 64}}))
+        with self.assertRaises(orun.RunError):  # built by other oracle code
+            orun.prepare('smoke', tools, conformance, self.tmp / 'syn', ENV)
+
+    def test_verify_rejects_tampered_provenance(self):
+        """Review blockers 2 and 4 on the bundle side: tools recipe and evaluator identity come from the codec lock
+        and the code manifest bound into the measurement identity, never from the verified documents."""
+        _, _, evidence, _ = self.run_shims()
+        self.assertEqual(ev.verify(evidence), [])
+
+        def tampered(name, change):
+            copy = self.tmp / f'tamper-{name}'
+            shutil.copytree(evidence, copy)
+            change(copy)
+            (copy / 'checksums.sha256').write_text(ev.checksums(copy))
+            return ev.verify(copy)
+
+        def edit(copy, doc, **fields):
+            path = copy / doc
+            path.write_bytes(ev.canonical({**ev.parse_doc(path.read_bytes()), **fields}))
+
+        def recipe(copy):
+            t = ev.parse_doc((copy / 'tools.json').read_bytes())
+            t['codecs']['delta']['build_argv'] = t['codecs']['delta']['build_argv'] + ['-DXD3_ARMOR=1']
+            (copy / 'tools.json').write_bytes(ev.canonical(t))
+
+        for name, change in (
+                ('evaluator sha', lambda c: [edit(c, d, evaluator_sha256='1' * 64)
+                                             for d in ('evaluation.json', 'summary.json')]),
+                ('evaluator source', lambda c: [edit(c, d, evaluator_source_sha='1' * 40)
+                                                for d in ('evaluation.json', 'summary.json')]),
+                ('code manifest', lambda c: edit(c, 'tools.json', code={
+                    **ev.parse_doc((c / 'tools.json').read_bytes())['code'], 'oracle_eval.py': '1' * 64})),
+                ('tools recipe', recipe),
+                ('conformance roles', lambda c: edit(c, 'conformance.json', executables={
+                    'delta': ev.parse_doc((c / 'conformance.json').read_bytes())['executables']['standalone'],
+                    'standalone': ev.parse_doc((c / 'conformance.json').read_bytes())['executables']['delta']}))):
+            with self.subTest(name):
+                self.assertTrue(tampered(name.replace(' ', '-'), change))
+
+    def test_g1_enumerates_the_whole_results_root(self):
+        """Review blocker 3: G1 takes no list of bundles; synthetic bundles never yield a G1 verdict."""
+        _, _, evidence, _ = self.run_shims()
+        results = self.tmp / 'g1-results'
+        ev.bundle(evidence, results)
+        identity = m.loads_strict((evidence / 'run.json').read_bytes())['measurement_identity_sha256']
+        (results / 'attempts.json').write_bytes(m.canonical_bytes({'schema': 'delsk.oracle.attempts.v1', 'attempts': [
+            {'measurement_identity_sha256': identity, 'run_id': 7, 'run_attempt': 1}]}))
+        with self.assertRaises(ev.EvalError):
+            ev.g1_root(identity, results)
+        self.assertEqual(ev.main(['g1', identity, str(results)]), 1)
+        with redirect_stderr(io.StringIO()):
+            self.assertEqual(ev.main(['g1', str(results / '7-1'), str(results / '7-1'), str(results)]), 2)
 
     def test_stale_output_is_refused(self):
         tools, conformance = shim_tools(self.tmp / 'stale-tools')
@@ -437,7 +536,7 @@ class PinnedCodecs(unittest.TestCase):
     def test_conformance_passes_against_the_committed_golden(self):
         if not orun.GOLDEN.exists():
             self.skipTest('golden record not committed yet (first smoke writes the candidate)')
-        doc, candidate = orun.conformance(os.environ['ORACLE_TOOLS'])
+        doc, candidate = orun.conformance_record(os.environ['ORACLE_TOOLS'])
         self.assertEqual({c: v['status'] for c, v in doc['checks'].items()},
                          {f'C{i:02d}': 'PASS' for i in range(1, 15)})
         golden = m.loads_strict(orun.GOLDEN.read_bytes())

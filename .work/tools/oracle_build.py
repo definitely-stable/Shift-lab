@@ -30,6 +30,9 @@ CODEC_LOCK = WORK / "oracle" / "codec-lock.json"
 EXPANDED_CAP = 64 << 20  # both sources expand to < 9 MiB
 BUILD_SECONDS = 300
 SELF_REPORT = {"delta": ["config"], "standalone": ["-vV"]}
+# Oracle code of the measurement: Hc of this manifest is the run's oracle_code_sha256, and it binds the in-job
+# evaluator identity (oracle_eval.py) that bundle verification checks.
+CODE_FILES = ("oracle_build.py", "oracle_run.py", "oracle_eval.py", "manifests.py", "materialize.py")
 INVOKE_ENV = {"LC_ALL": "C"}
 
 
@@ -39,6 +42,10 @@ class BuildError(Exception):
 
 def sha256(data):
     return hashlib.sha256(data).hexdigest()
+
+
+def code_manifest():
+    return {name: sha256((TOOLS / name).read_bytes()) for name in CODE_FILES}
 
 
 def check_source(source, data):
@@ -139,6 +146,7 @@ def main(argv, env=os.environ):
         tools = {"schema": "delsk.oracle.tools.v1", "codec_lock_sha256": sha256(data),
                  "compiler": tool_identity("cc"), "make": tool_identity("make"),
                  "codecs": {role: build_codec(role, lock["codecs"][role], out) for role in ("delta", "standalone")},
+                 "code": code_manifest(),
                  "source": {k.lower(): env.get(f"GITHUB_{k}") for k in ("SHA", "WORKFLOW_SHA", "RUN_ID",
                                                                          "RUN_ATTEMPT")}}
         (out / "tools.json").write_bytes(m.canonical_bytes(tools))

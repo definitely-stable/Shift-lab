@@ -39,6 +39,7 @@ WORK = TOOLS.parent
 ORACLE = WORK / "oracle"
 sys.path.insert(0, str(TOOLS))
 import manifests as m  # noqa: E402
+from oracle_build import CODE_FILES, code_manifest  # noqa: E402,F401
 
 CODEC_LOCK, FREEZE, GOLDEN = ORACLE / "codec-lock.json", ORACLE / "freeze.json", ORACLE / "conformance.json"
 INVOKE_ENV = {"LC_ALL": "C"}
@@ -48,7 +49,6 @@ ENOMEM = re.compile(rb"(?i)cannot allocate memory|out of memory|not enough memor
 LIMITS = {"smoke": {"workload_wall_seconds": 240, "work_dir_bytes": 256 << 20, "workload_address_space_bytes": 8 << 30},
           "pilot": {"workload_wall_seconds": 22 * 60, "work_dir_bytes": 1280 << 20,
                     "workload_address_space_bytes": 8 << 30}}
-CODE_FILES = ("oracle_build.py", "oracle_run.py", "oracle_eval.py", "manifests.py", "materialize.py")
 SYNTHETIC = ("delsk.oracle.synthetic-candidates.v1", "delsk.oracle.synthetic-corpus.v1")
 PAIR_FIELDS = ("encode_exit", "encode_signal", "decode_exit", "decode_signal", "patch_payload_bytes", "patch_sha256",
                "wrapper_bytes", "base_reference_bytes", "codec_metadata_bytes", "delta_total_bytes", "decoded_bytes",
@@ -248,16 +248,39 @@ def measure_standalone(codec, target, work, file_cap):
 
 # --- tools, locks and identity ------------------------------------------------------------------------------------------
 
+TOOLS_KEYS = {"schema", "codec_lock_sha256", "compiler", "make", "codecs", "code", "source"}
+TOOLS_CODEC_KEYS = {"codec_id", "archive_url", "archive_bytes", "archive_sha256", "archive_root", "archive_path",
+                    "extracted_files", "extracted_tree_sha256", "skipped_members", "build_argv", "build_cwd",
+                    "build_env", "executable", "executable_bytes", "executable_sha256", "self_report"}
+
+
+def lock_provenance(entry):
+    """The build-record fields that the frozen codec lock fixes for one role."""
+    src, build = entry["source"], entry["build"]
+    return {"codec_id": entry["codec_id"], "archive_url": src["archive_url"], "archive_bytes": src["archive_bytes"],
+            "archive_sha256": src["archive_sha256"], "archive_root": src["archive_root"],
+            "archive_path": f"archives/{src['archive_root']}.tar.gz", "build_argv": build["argv"],
+            "build_cwd": build["cwd"], "build_env": build["env"],
+            "executable": f"src/{build['cwd']}/{build['executable']}"}
+
+
 def load_tools(tools_path, lock_data):
-    """Codecs of a builder record; every executable is re-hashed, so a substituted binary is refused."""
+    """Codecs of a builder record. Every recipe field must equal the frozen codec lock role by role, the record must
+    come from the current oracle code, and every executable is re-hashed, so a substituted binary is refused."""
     tools_path = Path(tools_path).resolve()
     tools = m.loads_strict(tools_path.read_bytes())
-    if tools.get("schema") != "delsk.oracle.tools.v1" or tools["codec_lock_sha256"] != sha256(lock_data):
+    if set(tools) != TOOLS_KEYS or tools["schema"] != "delsk.oracle.tools.v1" or \
+            tools["codec_lock_sha256"] != sha256(lock_data):
         raise RunError("tools.json is not a build record of the committed codec lock")
+    if tools["code"] != code_manifest():
+        raise RunError("tools.json was built by other oracle code than this checkout")
     lock = m.loads_strict(lock_data)
     codecs = {}
     for role in ("delta", "standalone"):
         rec, entry = tools["codecs"][role], lock["codecs"][role]
+        pinned = lock_provenance(entry)
+        if set(rec) != TOOLS_CODEC_KEYS or {k: rec[k] for k in pinned} != pinned:
+            raise RunError(f"{role}: build record differs from the frozen codec lock recipe")
         raw = tools_path.parent / rec["executable"]
         exe = raw.resolve()
         if raw.is_symlink() or not exe.is_relative_to(tools_path.parent) or not exe.is_file():
@@ -310,6 +333,28 @@ def github(env):
             "workflow_ref": env.get("GITHUB_WORKFLOW_REF", ""), "workflow_sha": env.get("GITHUB_WORKFLOW_SHA", "")}
 
 
+def check_conformance(doc, codecs, lock_data):
+    """Strict shape and binding of a conformance record; a PASS must carry the committed golden digests."""
+    checks = doc.get("checks")
+    if set(doc) != {"schema", "codec_lock_sha256", "executables", "inputs_sha256", "golden", "checks", "verdict"} or \
+            doc["schema"] != "delsk.oracle.conformance.v1" or doc["codec_lock_sha256"] != sha256(lock_data) or \
+            type(checks) is not dict or sorted(checks) != [f"C{i:02d}" for i in range(1, 15)] or \
+            any(type(c) is not dict or set(c) != {"status", "detail"} or c["status"] not in ("PASS", "FAIL", "CANDIDATE")
+                for c in checks.values()):
+        raise RunError("conformance.json is not a closed C01-C14 record of the committed codec lock")
+    if doc["executables"] != {role: c["record"]["executable_sha256"] for role, c in codecs.items()}:
+        raise RunError("conformance.json does not belong to these executables")
+    statuses = {c["status"] for c in checks.values()}
+    verdict = "FAIL" if "FAIL" in statuses else "CANDIDATE" if "CANDIDATE" in statuses else "PASS"
+    if doc["verdict"] != verdict:
+        raise RunError("conformance.json verdict differs from its checks")
+    if verdict == "PASS":
+        golden = m.loads_strict(GOLDEN.read_bytes())
+        if (golden["codec_lock_sha256"], golden["inputs_sha256"], golden["golden"]) != \
+                (sha256(lock_data), doc["inputs_sha256"], doc["golden"]):
+            raise RunError("conformance PASS without the committed golden digests")
+
+
 def prepare(phase, tools_path, conformance_path, lock_dir=None, env=os.environ):
     """Everything a run needs before the first codec call; raises RunError on any binding problem."""
     if phase not in LIMITS:
@@ -320,12 +365,17 @@ def prepare(phase, tools_path, conformance_path, lock_dir=None, env=os.environ):
         raise RunError("committed codec lock differs from the oracle freeze")
     tools, codecs = load_tools(tools_path, lock_data)
     conformance = m.loads_strict(Path(conformance_path).read_bytes())
-    if conformance["codec_lock_sha256"] != sha256(lock_data) or set(conformance["executables"].values()) != \
-            {c["record"]["executable_sha256"] for c in codecs.values()}:
-        raise RunError("conformance.json does not belong to these executables")
+    if type(conformance) is not dict:
+        raise RunError("conformance.json is not an object")
+    check_conformance(conformance, codecs, lock_data)
     gh = github(env)
-    if phase == "pilot" and (conformance["verdict"] != "PASS" or env.get("GITHUB_EVENT_NAME") != "workflow_dispatch"):
-        raise RunError("pilot needs conformance PASS and a workflow_dispatch run")
+    if phase == "pilot":
+        if conformance["verdict"] != "PASS" or env.get("GITHUB_EVENT_NAME") != "workflow_dispatch":
+            raise RunError("pilot needs conformance PASS and a workflow_dispatch run")
+        # Fail closed before any natural call: a record proves nothing unless these exact executables pass now.
+        fresh, _ = conformance_record(tools_path, env=env)
+        if fresh["verdict"] != "PASS" or m.canonical_bytes(fresh) != m.canonical_bytes(conformance):
+            raise RunError("pilot refused: C01-C14 re-run on these executables does not reproduce the PASS record")
     if not (re.fullmatch(r"[0-9a-f]{40}", gh["sha"]) and gh["sha"] == gh["workflow_sha"]):
         raise RunError("GITHUB_SHA must be a commit equal to GITHUB_WORKFLOW_SHA")
     candidate_data, corpus_data = load_locks(phase, lock_dir, freeze)
@@ -342,7 +392,7 @@ def prepare(phase, tools_path, conformance_path, lock_dir=None, env=os.environ):
                    for role in ("delta", "standalone")},
                 "corpus_lock_sha256": sha256(corpus_data), "candidate_lock_sha256": sha256(candidate_data),
                 "measured_source_sha": gh["sha"],
-                "oracle_code_sha256": m.digest({n: sha256((TOOLS / n).read_bytes()) for n in CODE_FILES}),
+                "oracle_code_sha256": m.digest(tools["code"]),
                 "phase": phase, "sealed_splits": ["evaluation"]}
     copies = {"codec-lock.json": lock_data, "tools.json": Path(tools_path).read_bytes(),
               "conformance.json": Path(conformance_path).read_bytes()}
@@ -623,7 +673,7 @@ def zstd_frame_error(frame, size):
     return None if pos == len(frame) else "bytes after the frame"
 
 
-def conformance(tools_path, golden_path=GOLDEN, env=os.environ):
+def conformance_record(tools_path, golden_path=GOLDEN, env=os.environ):
     """(conformance.json, candidate golden record) for the built codecs; synthetic data only."""
     lock_data = CODEC_LOCK.read_bytes()
     tools, codecs = load_tools(tools_path, lock_data)
@@ -785,7 +835,7 @@ def main(argv, env=os.environ):
     command, args = (argv[0], argv[1:]) if argv else (None, [])
     try:
         if command == "conformance" and len(args) == 3:
-            doc, candidate = conformance(args[0], env=env)
+            doc, candidate = conformance_record(args[0], env=env)
             Path(args[1]).write_bytes(m.canonical_bytes(doc))
             Path(args[2]).write_bytes(m.canonical_bytes(candidate))
             for cid, c in doc["checks"].items():
