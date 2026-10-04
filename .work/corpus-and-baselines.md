@@ -37,12 +37,13 @@ Pilot caps: ≤256 MiB acquired, ≤1 GiB materialized, ≤64 targets ×64 candi
 | Length + target-normalized containment | обязательный дешёвый directional control | отдельно от Jaccard и length-only; одинаковые feature/cardinality estimates и metadata budgets |
 | N-transform/Finesse | обязательный non-ML reference | опубликованная реализация или явно labeled reimplementation; проверить совпадение алгоритма |
 | Palantir/BePro | приоритет современного reproduction | доступность artifact/license и actual build проверяется DELSK-004; paper numbers не считаются нашим baseline |
-| Odess, Argus, SpeedSketch, Sonic | contemporary claim coverage | unavailable code → `UNAVAILABLE` или отдельно paper-faithful reproduction; inspired heuristic не носит имя оригинала в chart |
+| SpeedSketch | ближайший contemporary candidate с авторским кодом (GPL-2.0) | нужен adapter для общего `C_t`/Top-K; README-отклонения от paper (CDC 4/8/32 KiB) записываются как deviations; ускорение encoder не засчитывается ranking quality |
+| Odess, Argus, Sonic, DCLC, CARD | contemporary claim coverage | unavailable code → `UNAVAILABLE` или отдельно paper-faithful reproduction; inspired heuristic не носит имя оригинала в chart |
 | DeepSketch | главный learned reference | фиксировать модель/training data/cost; pretrained CPU inference если воспроизводимо. Отсутствие GPU не даёт основание заявить превосходство над ML |
 | Exhaustive encoder | small-pool upper bound | все пары и failures; вне timed deployment lane |
 | Tensor-aware/XOR | только optional model track | same-shape/dtype/tensor mapping и reconstruction metadata; не называть собственной XOR+zstd реализацией BitX без faithful reproduction |
 
-Источники и проверенная доступность: [literature review](research/literature-review.md). Каждый baseline lock содержит repository/DOI, commit, license, patch hash, build command, compiler, runtime, flags, tuning budget, supported track и статус `AUTHOR / REIMPLEMENTED / PROXY / UNAVAILABLE`.
+Источники: [literature review](research/literature-review.md) и [claim matrix](research/claim-matrix.md). Проверенная доступность на 2026-10-04 — [baseline-availability.json](research/baseline-availability.json): provenance `AUTHOR / REIMPLEMENTED / PROXY / UNAVAILABLE` отделено от paper fidelity, license, data и reproduction status. Ни одна реализация пока не воспроизведена. Каждый baseline lock DELSK-004 добавляет к этим полям patch hash, build command, compiler, runtime, flags, tuning budget и supported track.
 
 ## Codecs
 

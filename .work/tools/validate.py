@@ -22,7 +22,8 @@ required = [
     ".work/roadmap.md", ".work/research/report-audit.md",
     ".work/research/literature-review.md", ".work/research/lab-practices.md",
     ".work/templates/experiment.md", ".work/templates/evidence.md",
-    ".work/issues/index.json",
+    ".work/issues/index.json", ".work/research/baseline-availability.json",
+    ".work/research/claim-matrix.md",
 ]
 for name in required:
     check((ROOT / name).is_file(), f"Missing required file: {name}")
@@ -88,6 +89,24 @@ def visit(ident, stack, complete):
 complete = set()
 for ident in by_id:
     visit(ident, (), complete)
+
+availability = json.loads((ROOT / ".work/research/baseline-availability.json").read_text(encoding="utf-8"))
+check(availability["schema"] == "delsk.baseline-availability.v1", "Unexpected baseline availability schema")
+allowed = {
+    field: {value.strip() for value in spec.split("—")[0].split("|")}
+    for field, spec in availability["fields"].items()
+}
+seen = set()
+for entry in availability["entries"]:
+    ident = entry["id"]
+    check(ident not in seen, f"Duplicate baseline availability ID: {ident}")
+    seen.add(ident)
+    for artifact in entry["artifacts"]:
+        for field, values in allowed.items():
+            check(artifact.get(field) in values, f"Bad {field}: {ident}: {artifact.get(field)}")
+        verified = artifact["reproduction_status"] == "VERIFIED"
+        check(not verified or "/actions/runs/" in artifact.get("evidence", ""), f"VERIFIED without Actions run: {ident}")
+        check(artifact["provenance"] == "UNAVAILABLE" or artifact.get("commit"), f"Unpinned artifact: {ident}")
 
 if errors:
     print("\n".join(errors), file=sys.stderr)
