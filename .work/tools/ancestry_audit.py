@@ -78,10 +78,14 @@ def analyze_members(members, families):
                    'locations_truncated': len(numbers) > 12}
             for name, numbers in sorted(tokens.items())})
     pair_counts = collections.Counter()
+    control = collections.Counter({family: 0 for family in families})
     overlaps = []
     for digest, locations in sorted(windows.items()):
         matched_families = sorted({refs[index]['family_id'] for index, _, _ in locations})
         if len(matched_families) < 2:
+            # Positive control: the same detector must find text shared between releases of one family.
+            if len({refs[index]['source_id'] for index, _, _ in locations}) > 1:
+                control[matched_families[0]] += 1
             continue
         for pair in itertools.combinations(matched_families, 2):
             pair_counts[pair] += 1
@@ -96,6 +100,7 @@ def analyze_members(members, families):
                                  'Shared license/algorithm constants can produce false ancestry leads.',
                        'origin_marker_regex': ORIGIN_MARKER.pattern, 'origin_token_regexes': TOKENS},
             'retained_member_records': len(refs), 'members': refs,
+            'within_family_cross_release_window_hashes': dict(sorted(control.items())),
             'pairs': [{'a': a, 'b': b, 'shared_window_hashes': pair_counts[a, b],
                        'identical_member_objects': sum(a in group and b in group for group in objects.values())}
                       for a, b in itertools.combinations(families, 2)],

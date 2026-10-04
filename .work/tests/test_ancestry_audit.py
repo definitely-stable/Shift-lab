@@ -42,6 +42,17 @@ class AncestryAuditTests(unittest.TestCase):
         self.assertTrue(report['shared_windows'])
 
     @unittest.skipIf(audit is None, 'audit implementation pending')
+    def test_positive_control_counts_text_shared_across_releases_of_one_family(self):
+        shared = b''.join(('int shared_function_%02d(int x) { return x + %d; }\n' % (i, i)).encode()
+                          for i in range(15))
+        members = [member('a', 'x.c', shared, 'a-1'), member('a', 'x.c', shared + b'int v2;\n', 'a-2'),
+                   member('b', 'y.c', b'int unique_b;\n')]
+        report = audit.analyze_members(members, ['a', 'b'])
+        self.assertGreater(report['within_family_cross_release_window_hashes']['a'], 0)
+        self.assertEqual(report['within_family_cross_release_window_hashes']['b'], 0)
+        self.assertEqual(report['pairs'][0]['shared_window_hashes'], 0)
+
+    @unittest.skipIf(audit is None, 'audit implementation pending')
     def test_permutation_is_identical_and_absent_pairs_remain(self):
         members = [member('a', 'x.c', b'int unique_a;\n'),
                    member('b', 'x.c', b'int unique_b;\n')]
