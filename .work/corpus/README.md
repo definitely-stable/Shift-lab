@@ -1,6 +1,6 @@
 # Corpus и candidate contracts (DELSK-002, pilot-v1)
 
-Статус: **PROPOSED**. Здесь зафиксированы identities, provenance, время, splits и sampling **до** acquisition и до просмотра любых scores. Source plan не содержит acquisition hashes: они появляются только из CI materialization (Slice D, [pilot-v1](pilot-v1/README.md)); ancestry audit и принятый candidate construction contract — [Slice E0](e0/construction-spec.md), sealing — Slice E1. Это private research interfaces, не public API Delsk.
+Статус: **PROPOSED**. Здесь зафиксированы identities, provenance, время, splits и sampling **до** acquisition и до просмотра любых scores. Source plan не содержит acquisition hashes: они появляются только из CI materialization (Slice D, [pilot-v1](pilot-v1/README.md)); ancestry audit и принятый candidate construction contract — [Slice E0](e0/construction-spec.md), sealed `C_t` — [Slice E1](e1/README.md). Это private research interfaces, не public API Delsk.
 
 | Файл | Содержание |
 |---|---|
@@ -72,7 +72,7 @@ Manual reasons (`license_blocked`, `non_regular_member`) требуют непу
 
 `delsk.candidate.lock.v1`: `corpus_lock_sha256`, `selection_policy_sha256`, `planned_pairs_per_codec = Σ|C_t|` для near-duplicate, `queries[]` отсортированы по target: `target`, `status`, `duplicate_of`, `bases[]` (отсортированы по `object_id`: `object_id`, `representative`, `category`), `candidate_count`, `candidate_list_sha256 = digest(sorted object_ids)`.
 
-`validate_corpus_lock` сначала валидирует сам plan и policy, затем проверяет их хеши, детерминированные splits, сортировку records, occurrence IDs из provenance, member rules (suffix, vendor/shared-origin globs) для каждого member path, transform/track/span/stratum согласованность и границы chunk внутри parent, toolchain и compressor options, inheritance split, cross-split content, матрицу и predicates exclusions и caps. Malformed input даёт строку ошибки, а не exception. `validate_candidate_lock` (предусловие — валидный corpus lock) применяет exclusions всех видов, eligibility и representative каждой базы, categories, identity-only branch и сумму pairs. Он **не** может доказать по lock, что выбраны именно первые N баз по rank среди всех eligible chunks, если невыбранные occurrences не перечислены; это проверяет независимый пересчёт из materialization в Slice E.
+`validate_corpus_lock` сначала валидирует сам plan и policy, затем проверяет их хеши, детерминированные splits, сортировку records, occurrence IDs из provenance, member rules (suffix, vendor/shared-origin globs) для каждого member path, transform/track/span/stratum согласованность и границы chunk внутри parent, toolchain и compressor options, inheritance split, cross-split content, матрицу и predicates exclusions и caps. Malformed input даёт строку ошибки, а не exception. `validate_candidate_lock` (предусловие — валидный corpus lock) применяет exclusions всех видов, eligibility и representative каждой базы, categories, identity-only branch и сумму pairs. Он **не** может доказать по lock, что выбраны именно первые N баз по rank среди всех eligible chunks, если невыбранные occurrences не перечислены; это проверяет независимый пересчёт полного U в Slice E1 ([candidate_verify.py](../tools/candidate_verify.py), lock `delsk.candidate.lock.v2`).
 
 ## Acquisition и materialization (Slice D)
 

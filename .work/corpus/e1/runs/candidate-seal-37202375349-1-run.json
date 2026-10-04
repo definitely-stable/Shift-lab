@@ -1,0 +1,137 @@
+{
+  "admission": {
+    "accounting_complete": true,
+    "admitted": true,
+    "artifact_bytes": 17612303,
+    "artifact_total_cap": 268435456,
+    "budget_minutes": 600,
+    "budget_mode": "warn",
+    "ledger": [
+      {
+        "attempts": 1,
+        "minutes": 1,
+        "run_id": 37185129729,
+        "run_number": 1,
+        "workflow": "foundation.yml"
+      },
+      {
+        "attempts": 1,
+        "minutes": 1,
+        "run_id": 37185935970,
+        "run_number": 2,
+        "workflow": "foundation.yml"
+      },
+      {
+        "attempts": 1,
+        "minutes": 1,
+        "run_id": 37186057381,
+        "run_number": 3,
+        "workflow": "foundation.yml"
+      },
+      {
+        "attempts": 1,
+        "minutes": 1,
+        "run_id": 37186134266,
+        "run_number": 4,
+        "workflow": "foundation.yml"
+      },
+      {
+        "attempts": 1,
+        "minutes": 1,
+        "run_id": 37186222325,
+        "run_number": 5,
+        "workflow": "foundation.yml"
+      },
+      {
+        "attempts": 1,
+        "minutes": 2,
+        "run_id": 37196309671,
+        "run_number": 6,
+        "workflow": "foundation.yml"
+      },
+      {
+        "attempts": 1,
+        "minutes": 1,
+        "run_id": 37196505949,
+        "run_number": 7,
+        "workflow": "foundation.yml"
+      },
+      {
+        "attempts": 1,
+        "minutes": 1,
+        "run_id": 37197318303,
+        "run_number": 8,
+        "workflow": "foundation.yml"
+      },
+      {
+        "attempts": 1,
+        "minutes": 1,
+        "run_id": 37202367307,
+        "run_number": 9,
+        "workflow": "foundation.yml"
+      }
+    ],
+    "reserved_minutes": 30,
+    "run_artifact_cap": 16777216,
+    "schema": "delsk.ci.admission.v1",
+    "used_minutes": 10,
+    "warnings": [],
+    "window_end": "2026-10-04T12:31:33+00:00",
+    "window_start": "2026-09-27T12:31:33+00:00",
+    "within_budget": true
+  },
+  "argv": [
+    "/home/runner/work/Shift-lab/Shift-lab/.work/tools/e1_seal.py",
+    "evidence"
+  ],
+  "completed_at": "2026-10-04T12:32:00.358130+00:00",
+  "environment": {
+    "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+    "github": {
+      "GITHUB_ACTOR": "MrFr3di",
+      "GITHUB_REF": "refs/heads/corpus/delsk-002-e1-seal",
+      "GITHUB_REPOSITORY": "definitely-stable/Shift-lab",
+      "GITHUB_RUN_ATTEMPT": "1",
+      "GITHUB_RUN_ID": "37202375349",
+      "GITHUB_SHA": "45d3bf122a964ccbf541c4d2351d0223b8537fd4",
+      "GITHUB_WORKFLOW_REF": "definitely-stable/Shift-lab/.github/workflows/foundation.yml@refs/heads/corpus/delsk-002-e1-seal",
+      "GITHUB_WORKFLOW_SHA": "45d3bf122a964ccbf541c4d2351d0223b8537fd4",
+      "ImageOS": "ubuntu24",
+      "ImageVersion": "20260927.320.1",
+      "RUNNER_ARCH": "X64",
+      "RUNNER_OS": "Linux"
+    },
+    "logical_cpus": 4,
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]"
+  },
+  "evidence_scope": "foundation",
+  "exit_code": 0,
+  "limit_methods": {
+    "address_space_bytes": "RLIMIT_AS",
+    "wall_seconds": "poll+SIGKILL process group",
+    "work_dir_bytes": "poll+SIGKILL process group"
+  },
+  "limits": {
+    "address_space_bytes": 8589934592,
+    "wall_seconds": 1320,
+    "work_dir_bytes": 1342177280
+  },
+  "oracle": "NOT_RUN",
+  "peak_children_rss_bytes": 292290560,
+  "peak_work_dir_bytes": 866980,
+  "precheck": {
+    "free_disk_bytes": 92399747072,
+    "mem_available_bytes": 15463075840
+  },
+  "quality_verdict": "N/A",
+  "schema": "delsk.ci.foundation-run.v1",
+  "signal": null,
+  "source_sha": "45d3bf122a964ccbf541c4d2351d0223b8537fd4",
+  "started_at": "2026-10-04T12:31:37.349950+00:00",
+  "status": "ok",
+  "stderr_tail": "",
+  "stdout_tail": "{\"status\": \"ok\", \"candidate_lock_sha256\": \"cb16d53b164ff393187e0115bdf31c52ac717a5172fb1e91889b5988ac019d2e\", \"verification\": \"ok\", \"error\": null}\n",
+  "wall_seconds": 23.008,
+  "workload": "candidate-seal"
+}

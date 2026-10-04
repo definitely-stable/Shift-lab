@@ -54,6 +54,8 @@ WORKLOADS = {"selftest": [sys.executable, os.path.abspath(__file__), "--selftest
              "materialize-discover": [sys.executable, MATERIALIZE, "discover", WORKLOAD_EVIDENCE],
              "materialize-verify": [sys.executable, MATERIALIZE, "verify", WORKLOAD_EVIDENCE],
              "ancestry-audit": [sys.executable, os.path.join(os.path.dirname(MATERIALIZE), "ancestry_audit.py"),
+                                WORKLOAD_EVIDENCE],
+             "candidate-seal": [sys.executable, os.path.join(os.path.dirname(MATERIALIZE), "e1_seal.py"),
                                 WORKLOAD_EVIDENCE]}
 
 
