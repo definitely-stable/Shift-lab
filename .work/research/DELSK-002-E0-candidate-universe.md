@@ -1,6 +1,6 @@
 # DELSK-002 Slice E0: adversarial specification candidate universe
 
-Дата: 2026-10-04, Asia/Yekaterinburg. Scope: R0 exploratory pilot, ancestry audit и построение `C_t` **до implementation**. Статус документа: **REVIEW REQUIRED / E0 NOT READY**. Это research specification, не новый действующий frozen contract.
+Дата: 2026-10-04, Asia/Yekaterinburg. Scope: R0 exploratory pilot, ancestry audit и построение `C_t` **до implementation**. Статус документа: research specification на snapshot `e6c96bb`; verdict ниже — **E0 NOT READY** на тот момент. Решения A01–A10 приняты отдельно в [E0 construction contract](../corpus/e0/construction-spec.md), который закрепляет bytes этого документа по SHA-256 и закрывает A07/A08 фактической evidence. Сам документ не является действующим frozen contract.
 
 ## 1. Executive verdict
 
@@ -70,7 +70,7 @@ Candidate lock SHA: **NOT CREATED**. E0 freeze SHA: **NOT FROZEN**. Protocol о�
 
 Discovery [37186134266 / attempt 1](https://github.com/definitely-stable/Shift-lab/actions/runs/37186134266) и verify [37186222325 / attempt 1](https://github.com/definitely-stable/Shift-lab/actions/runs/37186222325) дают одинаковые source/license/materialization identities. Verify использовал committed source lock. Сохранён полный metadata lock: **32 391 occurrences, 28 477 content classes, 446 924 313 materialized bytes, 0 cross-split content objects**. Metadata gzip — 3 924 534 B, canonical JSON — 22 414 998 B; payload в Git отсутствует.
 
-[PR CI 37192294639](https://github.com/definitely-stable/Shift-lab/actions/runs/37192294639), head `2c46490…`, attempt 1: `success`. Это существующая проверка D, не E0/E1 scientific validity. Retained verify admission: budget mode `warn`, accounting complete, 4 used + 30 reserved runner-min; отсутствие hard refusal в этом режиме не подменяется заявлением об `enforce`. В E0 выполнены чтение и локальный metadata audit; отдельный исследователь также вызвал существующий corpus validator на двух in-memory mutations. Эти probes не являются Actions evidence, test-suite pass или prerequisite для freeze; ниже они используются только как контрпримеры, дополнительно выводимые из source. Encoders/scorers, benchmark и новые Actions workloads не запускались.
+[PR CI 37192294639](https://github.com/definitely-stable/Shift-lab/actions/runs/37192294639), head `2c46490…`, attempt 1: `success`. Это существующая проверка D, не E0/E1 scientific validity. Retained verify admission: budget mode `warn`, accounting complete, 4 used + 30 reserved runner-min; отсутствие hard refusal в этом режиме не подменяется заявлением об `enforce`. В E0 выполнены чтение и локальный read-only metadata audit. Все контрпримеры ниже выведены статически из исходного кода; никакие локальные вызовы validator на mutations не сохранены и не используются как evidence. Это не Actions evidence, не test-suite pass и не prerequisite для freeze. Encoders/scorers, benchmark и новые Actions workloads не запускались.
 
 ## 3. Formal model
 

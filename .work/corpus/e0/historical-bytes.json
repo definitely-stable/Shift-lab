@@ -1,0 +1,826 @@
+{
+  "checked_on": "2026-10-04",
+  "method": "Archive bytes re-acquired in Actions run 37197318303 equal the D source lock (SHA-256, size). Their SHA-1 and MD5 were compared with dated public records: Wayback Machine CDX payload digests (third-party captures of the archive URL, its mirrors and earlier official locations), SourceForge per-file MD5 with upload time, and GitHub release assets with the SHA-256 sidecar uploaded with the release. A record attests that exactly these archive bytes were public no later than attested_utc. Platform upload times are taken as recorded by the platform.",
+  "run": "runs/ancestry-audit-37197318303-1.json",
+  "schema": "delsk.e0.historical-bytes.v1",
+  "source_lock_sha256": "2154224d9b8af255f4f48662b7f03a6b9865c3e976079dbad33c939eb3a5903c",
+  "source_pairs": {
+    "base_bytes_attested_before_target_release": 62,
+    "definition": "Ordered (base source, target source) pairs in one split with target ordinal 2 or 3 and hi(base release) < lo(target release): every source pair E can use.",
+    "pairs": [
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "bzip2-1.0.6",
+        "target_source": "bzip2-1.0.7"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "bzip2-1.0.6",
+        "target_source": "bzip2-1.0.8"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "bzip2-1.0.7",
+        "target_source": "bzip2-1.0.8"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "curl-8.6.0",
+        "target_source": "curl-8.7.1"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "curl-8.6.0",
+        "target_source": "curl-8.8.0"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "curl-8.7.1",
+        "target_source": "curl-8.8.0"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "libpng-1.6.40",
+        "target_source": "libpng-1.6.43"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "libpng-1.6.40",
+        "target_source": "libpng-1.6.44"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "libpng-1.6.40",
+        "target_source": "sqlite-3.46.1"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "libpng-1.6.40",
+        "target_source": "sqlite-3.47.2"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "libpng-1.6.40",
+        "target_source": "zlib-1.3"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "libpng-1.6.40",
+        "target_source": "zlib-1.3.1"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "libpng-1.6.40",
+        "target_source": "zstd-1.5.6"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "libpng-1.6.40",
+        "target_source": "zstd-1.5.7"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "libpng-1.6.43",
+        "target_source": "libpng-1.6.44"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "libpng-1.6.43",
+        "target_source": "sqlite-3.46.1"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "libpng-1.6.43",
+        "target_source": "sqlite-3.47.2"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "libpng-1.6.43",
+        "target_source": "zstd-1.5.6"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "libpng-1.6.43",
+        "target_source": "zstd-1.5.7"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "libpng-1.6.44",
+        "target_source": "sqlite-3.47.2"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "libpng-1.6.44",
+        "target_source": "zstd-1.5.7"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "sqlite-3.45.3",
+        "target_source": "libpng-1.6.44"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "sqlite-3.45.3",
+        "target_source": "sqlite-3.46.1"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "sqlite-3.45.3",
+        "target_source": "sqlite-3.47.2"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "sqlite-3.45.3",
+        "target_source": "zstd-1.5.7"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "sqlite-3.46.1",
+        "target_source": "libpng-1.6.44"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "sqlite-3.46.1",
+        "target_source": "sqlite-3.47.2"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "sqlite-3.46.1",
+        "target_source": "zstd-1.5.7"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "sqlite-3.47.2",
+        "target_source": "zstd-1.5.7"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zlib-1.2.13",
+        "target_source": "libpng-1.6.43"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zlib-1.2.13",
+        "target_source": "libpng-1.6.44"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zlib-1.2.13",
+        "target_source": "sqlite-3.46.1"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zlib-1.2.13",
+        "target_source": "sqlite-3.47.2"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zlib-1.2.13",
+        "target_source": "zlib-1.3"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zlib-1.2.13",
+        "target_source": "zlib-1.3.1"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zlib-1.2.13",
+        "target_source": "zstd-1.5.6"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zlib-1.2.13",
+        "target_source": "zstd-1.5.7"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zlib-1.3",
+        "target_source": "libpng-1.6.43"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zlib-1.3",
+        "target_source": "libpng-1.6.44"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zlib-1.3",
+        "target_source": "sqlite-3.46.1"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zlib-1.3",
+        "target_source": "sqlite-3.47.2"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zlib-1.3",
+        "target_source": "zlib-1.3.1"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zlib-1.3",
+        "target_source": "zstd-1.5.6"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zlib-1.3",
+        "target_source": "zstd-1.5.7"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zlib-1.3.1",
+        "target_source": "libpng-1.6.43"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zlib-1.3.1",
+        "target_source": "libpng-1.6.44"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zlib-1.3.1",
+        "target_source": "sqlite-3.46.1"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zlib-1.3.1",
+        "target_source": "sqlite-3.47.2"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zlib-1.3.1",
+        "target_source": "zstd-1.5.6"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zlib-1.3.1",
+        "target_source": "zstd-1.5.7"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zstd-1.5.5",
+        "target_source": "libpng-1.6.43"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zstd-1.5.5",
+        "target_source": "libpng-1.6.44"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zstd-1.5.5",
+        "target_source": "sqlite-3.46.1"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zstd-1.5.5",
+        "target_source": "sqlite-3.47.2"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zstd-1.5.5",
+        "target_source": "zlib-1.3"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zstd-1.5.5",
+        "target_source": "zlib-1.3.1"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zstd-1.5.5",
+        "target_source": "zstd-1.5.6"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zstd-1.5.5",
+        "target_source": "zstd-1.5.7"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zstd-1.5.6",
+        "target_source": "libpng-1.6.44"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zstd-1.5.6",
+        "target_source": "sqlite-3.46.1"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zstd-1.5.6",
+        "target_source": "sqlite-3.47.2"
+      },
+      {
+        "base_bytes_attested_before_target_release": true,
+        "base_source": "zstd-1.5.6",
+        "target_source": "zstd-1.5.7"
+      }
+    ],
+    "total": 62
+  },
+  "sources": [
+    {
+      "archive_md5": "00b516f4704d4a7cb50a1d97e6e8e15b",
+      "archive_sha1_base32": "H6E7QYJATTUBU25LD7IZTDAO6MIXCIAC",
+      "archive_sha256": "a2848f34fcd5d6cf47def00461fcb528a0484d8edef8208d6d2e2909dc61d9cd",
+      "archive_url": "https://sourceware.org/pub/bzip2/bzip2-1.0.6.tar.gz",
+      "attested_after_release_hi_seconds": 6390379,
+      "cdx_urls_queried": [
+        "bzip.org/1.0.6/bzip2-1.0.6.tar.gz",
+        "sourceware.org/pub/bzip2/bzip2-1.0.6.tar.gz"
+      ],
+      "contrary_archive_captures": [],
+      "earliest_attested_utc": "2010-11-20T11:06:19Z",
+      "evidence": [
+        {
+          "attested_utc": "2010-11-20T11:06:19Z",
+          "kind": "wayback_cdx_sha1",
+          "matching_captures": 60,
+          "record": "https://web.archive.org/web/20101120110619/http://bzip.org/1.0.6/bzip2-1.0.6.tar.gz"
+        }
+      ],
+      "family_id": "bzip2",
+      "release_interval_utc": [
+        "2010-09-05T10:00:00Z",
+        "2010-09-07T12:00:00Z"
+      ],
+      "source_id": "bzip2-1.0.6"
+    },
+    {
+      "archive_md5": "1a6a61cc867be4f3d6549037a09bf13e",
+      "archive_sha1_base32": "THPB6CFPLPIRTK5YAA4XXI7D25HUUZJX",
+      "archive_sha256": "e768a87c5b1a79511499beb41500bcc4caf203726fff46a6f5f9ad27fe08ab2b",
+      "archive_url": "https://sourceware.org/pub/bzip2/bzip2-1.0.7.tar.gz",
+      "attested_after_release_hi_seconds": 895939,
+      "cdx_urls_queried": [
+        "sourceware.org/pub/bzip2/bzip2-1.0.7.tar.gz"
+      ],
+      "contrary_archive_captures": [],
+      "earliest_attested_utc": "2019-07-08T20:52:19Z",
+      "evidence": [
+        {
+          "attested_utc": "2019-07-08T20:52:19Z",
+          "kind": "wayback_cdx_sha1",
+          "matching_captures": 7,
+          "record": "https://web.archive.org/web/20190708205219/https://sourceware.org/pub/bzip2/bzip2-1.0.7.tar.gz"
+        }
+      ],
+      "family_id": "bzip2",
+      "release_interval_utc": [
+        "2019-06-26T10:00:00Z",
+        "2019-06-28T12:00:00Z"
+      ],
+      "source_id": "bzip2-1.0.7"
+    },
+    {
+      "archive_md5": "67e051268d0c475ea773822f7500d0e5",
+      "archive_sha1_base32": "X552357CJDQOZ5DF2M6C6WXOY52CBERH",
+      "archive_sha256": "ab5a03176ee106d3f0fa90e381da478ddae405918153cca248e682cd0c4a2269",
+      "archive_url": "https://sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz",
+      "attested_after_release_hi_seconds": 4171755,
+      "cdx_urls_queried": [
+        "sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz"
+      ],
+      "contrary_archive_captures": [],
+      "earliest_attested_utc": "2019-08-31T18:49:15Z",
+      "evidence": [
+        {
+          "attested_utc": "2019-08-31T18:49:15Z",
+          "kind": "wayback_cdx_sha1",
+          "matching_captures": 64,
+          "record": "https://web.archive.org/web/20190831184915/https://sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz"
+        }
+      ],
+      "family_id": "bzip2",
+      "release_interval_utc": [
+        "2019-07-12T10:00:00Z",
+        "2019-07-14T12:00:00Z"
+      ],
+      "source_id": "bzip2-1.0.8"
+    },
+    {
+      "archive_md5": "8f28f7e08c91cc679a45fccf66184fbc",
+      "archive_sha1_base32": "LOTQHXXJ47N2OS23UUDHJTQSW23KCK5N",
+      "archive_sha256": "3ccd55d91af9516539df80625f818c734dc6f2ecf9bada33c76765e99121db15",
+      "archive_url": "https://curl.se/download/curl-8.6.0.tar.xz",
+      "attested_after_release_hi_seconds": 2663347,
+      "cdx_urls_queried": [
+        "curl.se/download/curl-8.6.0.tar.xz"
+      ],
+      "contrary_archive_captures": [],
+      "earliest_attested_utc": "2024-03-03T07:49:07Z",
+      "evidence": [
+        {
+          "attested_utc": "2024-03-03T07:49:07Z",
+          "kind": "wayback_cdx_sha1",
+          "matching_captures": 4,
+          "record": "https://web.archive.org/web/20240303074907/https://curl.se/download/curl-8.6.0.tar.xz"
+        }
+      ],
+      "family_id": "curl",
+      "release_interval_utc": [
+        "2024-01-30T10:00:00Z",
+        "2024-02-01T12:00:00Z"
+      ],
+      "source_id": "curl-8.6.0"
+    },
+    {
+      "archive_md5": "f4f37253c5f1ad9ee85fa6215fdfeb42",
+      "archive_sha1_base32": "U4EWHS5BEISLIS4NOVEUJOH7MGFGUO2X",
+      "archive_sha256": "6fea2aac6a4610fbd0400afb0bcddbe7258a64c63f1f68e5855ebc0c659710cd",
+      "archive_url": "https://curl.se/download/curl-8.7.1.tar.xz",
+      "attested_after_release_hi_seconds": 4422384,
+      "cdx_urls_queried": [
+        "curl.se/download/curl-8.7.1.tar.xz"
+      ],
+      "contrary_archive_captures": [],
+      "earliest_attested_utc": "2024-05-18T16:26:24Z",
+      "evidence": [
+        {
+          "attested_utc": "2024-05-18T16:26:24Z",
+          "kind": "wayback_cdx_sha1",
+          "matching_captures": 5,
+          "record": "https://web.archive.org/web/20240518162624/https://curl.se/download/curl-8.7.1.tar.xz"
+        }
+      ],
+      "family_id": "curl",
+      "release_interval_utc": [
+        "2024-03-26T10:00:00Z",
+        "2024-03-28T12:00:00Z"
+      ],
+      "source_id": "curl-8.7.1"
+    },
+    {
+      "archive_md5": "e1062de8a9b252a75fc42e2252746bd8",
+      "archive_sha1_base32": "GV5EWK3ICKXTPOJGPRU3KXJ5VYMKOBSZ",
+      "archive_sha256": "0f58bb95fc330c8a46eeb3df5701b0d90c9d9bfcc42bd1cd08791d12551d4400",
+      "archive_url": "https://curl.se/download/curl-8.8.0.tar.xz",
+      "attested_after_release_hi_seconds": 6393903,
+      "cdx_urls_queried": [
+        "curl.se/download/curl-8.8.0.tar.xz"
+      ],
+      "contrary_archive_captures": [],
+      "earliest_attested_utc": "2024-08-05T12:05:03Z",
+      "evidence": [
+        {
+          "attested_utc": "2024-08-05T12:05:03Z",
+          "kind": "wayback_cdx_sha1",
+          "matching_captures": 3,
+          "record": "https://web.archive.org/web/20240805120503/https://curl.se/download/curl-8.8.0.tar.xz"
+        }
+      ],
+      "family_id": "curl",
+      "release_interval_utc": [
+        "2024-05-21T10:00:00Z",
+        "2024-05-23T12:00:00Z"
+      ],
+      "source_id": "curl-8.8.0"
+    },
+    {
+      "archive_md5": "6c7fe9dbb80c89c3579bedad9722e559",
+      "archive_sha1_base32": "DQ3WBHR7A5AK4UWKTYVGVX6JOQ2JPODQ",
+      "archive_sha256": "535b479b2467ff231a3ec6d92a525906fb8ef27978be4f66dbe05d3f3a01b3a1",
+      "archive_url": "https://downloads.sourceforge.net/project/libpng/libpng16/1.6.40/libpng-1.6.40.tar.xz",
+      "attested_after_release_hi_seconds": -60800,
+      "cdx_urls_queried": [
+        "download.sourceforge.net/libpng/libpng-1.6.40.tar.xz",
+        "downloads.sourceforge.net/libpng/libpng-1.6.40.tar.xz",
+        "downloads.sourceforge.net/project/libpng/libpng16/1.6.40/libpng-1.6.40.tar.xz",
+        "prdownloads.sourceforge.net/libpng/libpng-1.6.40.tar.xz",
+        "sourceforge.net/projects/libpng/files/libpng16/1.6.40/libpng-1.6.40.tar.xz/download"
+      ],
+      "contrary_archive_captures": [],
+      "earliest_attested_utc": "2023-06-21T19:06:40Z",
+      "evidence": [
+        {
+          "attested_utc": "2023-06-21T19:06:40Z",
+          "kind": "sourceforge_file_md5",
+          "md5": "6c7fe9dbb80c89c3579bedad9722e559",
+          "record": "https://sourceforge.net/projects/libpng/rss?path=/libpng16/1.6.40",
+          "size": 1021332
+        }
+      ],
+      "family_id": "libpng",
+      "release_interval_utc": [
+        "2023-06-20T10:00:00Z",
+        "2023-06-22T12:00:00Z"
+      ],
+      "source_id": "libpng-1.6.40"
+    },
+    {
+      "archive_md5": "22b8362d16c3724eba9c1fb8d187320a",
+      "archive_sha1_base32": "VWPQQ63TVTYB4LBFFEQICCYAL3TJ2PQO",
+      "archive_sha256": "6a5ca0652392a2d7c9db2ae5b40210843c0bbc081cbd410825ab00cc59f14a6c",
+      "archive_url": "https://downloads.sourceforge.net/project/libpng/libpng16/1.6.43/libpng-1.6.43.tar.xz",
+      "attested_after_release_hi_seconds": -94100,
+      "cdx_urls_queried": [
+        "download.sourceforge.net/libpng/libpng-1.6.43.tar.xz",
+        "downloads.sourceforge.net/libpng/libpng-1.6.43.tar.xz",
+        "downloads.sourceforge.net/project/libpng/libpng16/1.6.43/libpng-1.6.43.tar.xz",
+        "prdownloads.sourceforge.net/libpng/libpng-1.6.43.tar.xz",
+        "sourceforge.net/projects/libpng/files/libpng16/1.6.43/libpng-1.6.43.tar.xz/download"
+      ],
+      "contrary_archive_captures": [],
+      "earliest_attested_utc": "2024-02-23T09:51:40Z",
+      "evidence": [
+        {
+          "attested_utc": "2024-02-23T09:51:40Z",
+          "kind": "sourceforge_file_md5",
+          "md5": "22b8362d16c3724eba9c1fb8d187320a",
+          "record": "https://sourceforge.net/projects/libpng/rss?path=/libpng16/1.6.43",
+          "size": 1044076
+        }
+      ],
+      "family_id": "libpng",
+      "release_interval_utc": [
+        "2024-02-22T10:00:00Z",
+        "2024-02-24T12:00:00Z"
+      ],
+      "source_id": "libpng-1.6.43"
+    },
+    {
+      "archive_md5": "e40b61660dcc807e1bcc4df9de8389ce",
+      "archive_sha1_base32": "HKXKHE5TH6ONHM3GMH73BRLLIQ7WIPCC",
+      "archive_sha256": "60c4da1d5b7f0aa8d158da48e8f8afa9773c1c8baa5d21974df61f1886b8ce8e",
+      "archive_url": "https://downloads.sourceforge.net/project/libpng/libpng16/1.6.44/libpng-1.6.44.tar.xz",
+      "attested_after_release_hi_seconds": -54916,
+      "cdx_urls_queried": [
+        "download.sourceforge.net/libpng/libpng-1.6.44.tar.xz",
+        "downloads.sourceforge.net/libpng/libpng-1.6.44.tar.xz",
+        "downloads.sourceforge.net/project/libpng/libpng16/1.6.44/libpng-1.6.44.tar.xz",
+        "prdownloads.sourceforge.net/libpng/libpng-1.6.44.tar.xz",
+        "sourceforge.net/projects/libpng/files/libpng16/1.6.44/libpng-1.6.44.tar.xz/download"
+      ],
+      "contrary_archive_captures": [],
+      "earliest_attested_utc": "2024-09-12T20:44:44Z",
+      "evidence": [
+        {
+          "attested_utc": "2024-09-12T20:44:44Z",
+          "kind": "sourceforge_file_md5",
+          "md5": "e40b61660dcc807e1bcc4df9de8389ce",
+          "record": "https://sourceforge.net/projects/libpng/rss?path=/libpng16/1.6.44",
+          "size": 1045640
+        }
+      ],
+      "family_id": "libpng",
+      "release_interval_utc": [
+        "2024-09-11T10:00:00Z",
+        "2024-09-13T12:00:00Z"
+      ],
+      "source_id": "libpng-1.6.44"
+    },
+    {
+      "archive_md5": "a285b1e2c1f4b09593d972353212b312",
+      "archive_sha1_base32": "O26GN6BZEGK3ZUI3GU2FMCP36KTEUD7D",
+      "archive_sha256": "ea170e73e447703e8359308ca2e4366a3ae0c4304a8665896f068c736781c651",
+      "archive_url": "https://sqlite.org/2024/sqlite-amalgamation-3450300.zip",
+      "attested_after_release_hi_seconds": -72319,
+      "cdx_urls_queried": [
+        "sqlite.org/2024/sqlite-amalgamation-3450300.zip"
+      ],
+      "contrary_archive_captures": [],
+      "earliest_attested_utc": "2024-04-15T15:54:41Z",
+      "evidence": [
+        {
+          "attested_utc": "2024-04-15T15:54:41Z",
+          "kind": "wayback_cdx_sha1",
+          "matching_captures": 7,
+          "record": "https://web.archive.org/web/20240415155441/https://www.sqlite.org/2024/sqlite-amalgamation-3450300.zip"
+        }
+      ],
+      "family_id": "sqlite",
+      "release_interval_utc": [
+        "2024-04-14T10:00:00Z",
+        "2024-04-16T12:00:00Z"
+      ],
+      "source_id": "sqlite-3.45.3"
+    },
+    {
+      "archive_md5": "1fb0f7ebbee45752098cf453b6dffff3",
+      "archive_sha1_base32": "UUYNIXWBHKIHGN7J4RU3LQSO2EJ4MJYC",
+      "archive_sha256": "77823cb110929c2bcb0f5d48e4833b5c59a8a6e40cdea3936b99e199dbbe5784",
+      "archive_url": "https://sqlite.org/2024/sqlite-amalgamation-3460100.zip",
+      "attested_after_release_hi_seconds": -57121,
+      "cdx_urls_queried": [
+        "sqlite.org/2024/sqlite-amalgamation-3460100.zip"
+      ],
+      "contrary_archive_captures": [],
+      "earliest_attested_utc": "2024-08-13T20:07:59Z",
+      "evidence": [
+        {
+          "attested_utc": "2024-08-13T20:07:59Z",
+          "kind": "wayback_cdx_sha1",
+          "matching_captures": 11,
+          "record": "https://web.archive.org/web/20240813200759/https://www.sqlite.org/2024/sqlite-amalgamation-3460100.zip"
+        }
+      ],
+      "family_id": "sqlite",
+      "release_interval_utc": [
+        "2024-08-12T10:00:00Z",
+        "2024-08-14T12:00:00Z"
+      ],
+      "source_id": "sqlite-3.46.1"
+    },
+    {
+      "archive_md5": "f4a55c46043c8a9aecf0b07aa4a42f13",
+      "archive_sha1_base32": "CZXPOLROAZ6CCYLHIFZA7UFB7MYXESDN",
+      "archive_sha256": "aa73d8748095808471deaa8e6f34aa700e37f2f787f4425744f53fdd15a89c40",
+      "archive_url": "https://sqlite.org/2024/sqlite-amalgamation-3470200.zip",
+      "attested_after_release_hi_seconds": -48618,
+      "cdx_urls_queried": [
+        "sqlite.org/2024/sqlite-amalgamation-3470200.zip"
+      ],
+      "contrary_archive_captures": [],
+      "earliest_attested_utc": "2024-12-07T22:29:42Z",
+      "evidence": [
+        {
+          "attested_utc": "2024-12-07T22:29:42Z",
+          "kind": "wayback_cdx_sha1",
+          "matching_captures": 2,
+          "record": "https://web.archive.org/web/20241207222942/https://www.sqlite.org/2024/sqlite-amalgamation-3470200.zip"
+        }
+      ],
+      "family_id": "sqlite",
+      "release_interval_utc": [
+        "2024-12-06T10:00:00Z",
+        "2024-12-08T12:00:00Z"
+      ],
+      "source_id": "sqlite-3.47.2"
+    },
+    {
+      "archive_md5": "9b8aa094c4e5765dabf4da391f00d15c",
+      "archive_sha1_base32": "KXVKQSIG6MNMEDLSLKRGZUQIHEMWW25G",
+      "archive_sha256": "b3a24de97a8fdbc835b9833169501030b8977031bcb54b3b3ac13740f846ab30",
+      "archive_url": "https://zlib.net/fossils/zlib-1.2.13.tar.gz",
+      "attested_after_release_hi_seconds": 17553222,
+      "cdx_urls_queried": [
+        "zlib.net/fossils/zlib-1.2.13.tar.gz"
+      ],
+      "contrary_archive_captures": [],
+      "earliest_attested_utc": "2023-05-05T15:53:42Z",
+      "evidence": [
+        {
+          "attested_utc": "2023-05-05T15:53:42Z",
+          "kind": "wayback_cdx_sha1",
+          "matching_captures": 21,
+          "record": "https://web.archive.org/web/20230505155342/http://www.zlib.net/fossils/zlib-1.2.13.tar.gz"
+        }
+      ],
+      "family_id": "zlib",
+      "release_interval_utc": [
+        "2022-10-12T10:00:00Z",
+        "2022-10-14T12:00:00Z"
+      ],
+      "source_id": "zlib-1.2.13"
+    },
+    {
+      "archive_md5": "60373b133d630f74f4a1f94c1185a53f",
+      "archive_sha1_base32": "ATIFHZGUAZFA7OHQZPISP4F7WX7E5NKU",
+      "archive_sha256": "ff0ba4c292013dbc27530b3a81e1f9a813cd39de01ca5e0f8bf355702efa593e",
+      "archive_url": "https://zlib.net/fossils/zlib-1.3.tar.gz",
+      "attested_after_release_hi_seconds": 1721780,
+      "cdx_urls_queried": [
+        "zlib.net/fossils/zlib-1.3.tar.gz"
+      ],
+      "contrary_archive_captures": [],
+      "earliest_attested_utc": "2023-09-08T10:16:20Z",
+      "evidence": [
+        {
+          "attested_utc": "2023-09-08T10:16:20Z",
+          "kind": "wayback_cdx_sha1",
+          "matching_captures": 18,
+          "record": "https://web.archive.org/web/20230908101620/https://zlib.net/fossils/zlib-1.3.tar.gz"
+        }
+      ],
+      "family_id": "zlib",
+      "release_interval_utc": [
+        "2023-08-17T10:00:00Z",
+        "2023-08-19T12:00:00Z"
+      ],
+      "source_id": "zlib-1.3"
+    },
+    {
+      "archive_md5": "9855b6d802d7fe5b7bd5b196a2271655",
+      "archive_sha1_base32": "6U2TM6Y2CHRPTLB35RZD7MAH7PANDCPF",
+      "archive_sha256": "9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23",
+      "archive_url": "https://zlib.net/fossils/zlib-1.3.1.tar.gz",
+      "attested_after_release_hi_seconds": 8109,
+      "cdx_urls_queried": [
+        "zlib.net/fossils/zlib-1.3.1.tar.gz",
+        "zlib.net/zlib-1.3.1.tar.gz"
+      ],
+      "contrary_archive_captures": [],
+      "earliest_attested_utc": "2024-01-23T14:15:09Z",
+      "evidence": [
+        {
+          "attested_utc": "2024-01-23T14:15:09Z",
+          "kind": "wayback_cdx_sha1",
+          "matching_captures": 61,
+          "record": "https://web.archive.org/web/20240123141509/https://zlib.net/zlib-1.3.1.tar.gz"
+        }
+      ],
+      "family_id": "zlib",
+      "release_interval_utc": [
+        "2024-01-21T10:00:00Z",
+        "2024-01-23T12:00:00Z"
+      ],
+      "source_id": "zlib-1.3.1"
+    },
+    {
+      "archive_md5": "63251602329a106220e0a5ad26ba656f",
+      "archive_sha1_base32": "IR46ZR2DADJDHEOZT67L6L652R5O3GZI",
+      "archive_sha256": "9c4396cc829cfae319a6e2615202e82aad41372073482fce286fac78646d3ee4",
+      "archive_url": "https://github.com/facebook/zstd/releases/download/v1.5.5/zstd-1.5.5.tar.gz",
+      "attested_after_release_hi_seconds": 35,
+      "cdx_urls_queried": [
+        "github.com/facebook/zstd/releases/download/v1.5.5/zstd-1.5.5.tar.gz"
+      ],
+      "contrary_archive_captures": [],
+      "earliest_attested_utc": "2023-04-04T22:21:07Z",
+      "evidence": [
+        {
+          "asset_created": "2023-04-04T22:21:07Z",
+          "asset_updated": "2023-04-04T22:21:07Z",
+          "attested_utc": "2023-04-04T22:21:07Z",
+          "kind": "github_release_asset_sha256",
+          "record": "https://api.github.com/repos/facebook/zstd/releases/tags/v1.5.5",
+          "release_published": "2023-04-04T22:20:32Z",
+          "sha256_sidecar": "9c4396cc829cfae319a6e2615202e82aad41372073482fce286fac78646d3ee4",
+          "sidecar_created": "2023-04-04T22:21:07Z",
+          "size": 2368543
+        }
+      ],
+      "family_id": "zstd",
+      "release_interval_utc": [
+        "2023-04-04T22:20:32Z",
+        "2023-04-04T22:20:32Z"
+      ],
+      "source_id": "zstd-1.5.5"
+    },
+    {
+      "archive_md5": "5a473726b3445d0e5d6296afd1ab6854",
+      "archive_sha1_base32": "IWNLRXUMET6DZZSIUNNAPMY7ZVTBNLPC",
+      "archive_sha256": "8c29e06cf42aacc1eafc4077ae2ec6c6fcb96a626157e0593d5e82a34fd403c1",
+      "archive_url": "https://github.com/facebook/zstd/releases/download/v1.5.6/zstd-1.5.6.tar.gz",
+      "attested_after_release_hi_seconds": 0,
+      "cdx_urls_queried": [
+        "github.com/facebook/zstd/releases/download/v1.5.6/zstd-1.5.6.tar.gz"
+      ],
+      "contrary_archive_captures": [],
+      "earliest_attested_utc": "2024-03-30T18:57:28Z",
+      "evidence": [
+        {
+          "asset_created": "2024-03-27T00:24:25Z",
+          "asset_updated": "2024-03-27T00:24:26Z",
+          "attested_utc": "2024-03-30T18:57:28Z",
+          "kind": "github_release_asset_sha256",
+          "record": "https://api.github.com/repos/facebook/zstd/releases/tags/v1.5.6",
+          "release_published": "2024-03-30T18:57:28Z",
+          "sha256_sidecar": "8c29e06cf42aacc1eafc4077ae2ec6c6fcb96a626157e0593d5e82a34fd403c1",
+          "sidecar_created": "2024-03-27T00:24:26Z",
+          "size": 2406875
+        }
+      ],
+      "family_id": "zstd",
+      "release_interval_utc": [
+        "2024-03-30T18:57:28Z",
+        "2024-03-30T18:57:28Z"
+      ],
+      "source_id": "zstd-1.5.6"
+    },
+    {
+      "archive_md5": "780fc1896922b1bc52a4e90980cdda48",
+      "archive_sha1_base32": "NR65TSBJKYNMKR23OJMSUB42AGVX6PVL",
+      "archive_sha256": "eb33e51f49a15e023950cd7825ca74a4a2b43db8354825ac24fc1b7ee09e6fa3",
+      "archive_url": "https://github.com/facebook/zstd/releases/download/v1.5.7/zstd-1.5.7.tar.gz",
+      "attested_after_release_hi_seconds": 26,
+      "cdx_urls_queried": [
+        "github.com/facebook/zstd/releases/download/v1.5.7/zstd-1.5.7.tar.gz"
+      ],
+      "contrary_archive_captures": [],
+      "earliest_attested_utc": "2025-02-19T21:50:37Z",
+      "evidence": [
+        {
+          "asset_created": "2025-02-19T21:50:37Z",
+          "asset_updated": "2025-02-19T21:50:37Z",
+          "attested_utc": "2025-02-19T21:50:37Z",
+          "kind": "github_release_asset_sha256",
+          "record": "https://api.github.com/repos/facebook/zstd/releases/tags/v1.5.7",
+          "release_published": "2025-02-19T21:50:11Z",
+          "sha256_sidecar": "eb33e51f49a15e023950cd7825ca74a4a2b43db8354825ac24fc1b7ee09e6fa3",
+          "sidecar_created": "2025-02-19T21:50:37Z",
+          "size": 2434947
+        }
+      ],
+      "family_id": "zstd",
+      "release_interval_utc": [
+        "2025-02-19T21:50:11Z",
+        "2025-02-19T21:50:11Z"
+      ],
+      "source_id": "zstd-1.5.7"
+    }
+  ]
+}

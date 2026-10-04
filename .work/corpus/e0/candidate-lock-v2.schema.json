@@ -215,7 +215,7 @@
   "$id": "urn:delsk:candidate-lock:v2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Closed structural contract for the adopted E0 pilot design. Passing this schema does not establish canonical bytes, complete input admission, exact scheduling or first-N selection. See golden-vectors.md for semantic checks.",
+  "description": "Closed structural contract for the adopted E0 pilot design. Passing this schema does not establish canonical bytes, complete input admission, exact scheduling or first-N selection. Semantics: construction-spec.md; concrete expectations: golden-vectors.json.",
   "properties": {
     "ancestry_audit_sha256": {
       "$ref": "#/$defs/sha256",

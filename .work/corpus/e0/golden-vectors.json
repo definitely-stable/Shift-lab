@@ -965,7 +965,7 @@
   "fixture_scope": {
     "admission_validity": "not admissible for production sealing; no acquired archive, six-component assignment, reviewed license/ancestry/time proof, full track closure or source-to-occurrence completeness is claimed",
     "asserted_local_consistency": "each occurrence ID is the compact provenance hash; each content/parent ID hashes the explicit repeated-byte recipe; parent size is 4096, chunk offset is 0, full length/unit is 4096; paths are normalized retained C member names; same-family intervals increase with listed ordinal",
-    "claims": "concrete expected values for later Actions assertions; neither test results nor natural corpus sealing evidence",
+    "claims": "concrete expected values prescribed before any E1 builder; CI recomputes every hash and checks expected queries/traversal with a slow test-only reference evaluator (test_e0_vectors.py); not natural corpus sealing evidence",
     "exclusions": "empty in all projections; all aliases use the same split and track",
     "generation": "stdlib hashlib/json primitives only; expected classifications, representatives, categories, traversal and secondary orders explicitly prescribed; no manifests.py or candidates.py imports; no selector or validator executed",
     "metadata_kind": "synthetic projections; not complete source-plan/source-lock/corpus-lock D manifests",
@@ -1079,7 +1079,7 @@
   },
   "schema": "delsk.e0.golden-vectors.v1",
   "seed": 20261004,
-  "status": "DESIGN_VECTORS_NOT_EXECUTED",
+  "status": "ADOPTED_E0",
   "synthetic_digest_collision_vectors": [
     {
       "expected_secondary_order": [

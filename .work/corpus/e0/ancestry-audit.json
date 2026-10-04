@@ -1,0 +1,587 @@
+{
+  "bindings": {
+    "acquisition_freeze_sha256": "8814ce0221b2b890f1710476da0c1a31771e7528d81cfc3a99ffa10acc88e8da",
+    "origin_evidence_file": "origin-evidence.json.gz",
+    "origin_evidence_sha256": "14bb698f6e863a0bea92c2f0579e8b93f08c7121caf202639e87219494ee76d1",
+    "run": "runs/ancestry-audit-37197318303-1.json",
+    "selection_policy_sha256": "539642ffb9a65f4fe49f42ea99d26b416c2ab40583021b3fe8d2aa8d415cbd50",
+    "source_lock_sha256": "2154224d9b8af255f4f48662b7f03a6b9865c3e976079dbad33c939eb3a5903c",
+    "source_plan_sha256": "75d879fd50ba8d7c749694ab091a61fa59c20ddc5fa3689a0e592692ae221074"
+  },
+  "external_origins": [
+    {
+      "families": [
+        "zstd"
+      ],
+      "origin": "FiniteStateEntropy (FSE/Huff0 upstream)",
+      "paths": [
+        "doc/educational_decoder/zstd_decompress.c",
+        "lib/common/bitstream.h",
+        "lib/common/debug.c",
+        "lib/common/debug.h",
+        "lib/common/entropy_common.c",
+        "lib/common/fse.h",
+        "lib/common/fse_decompress.c",
+        "lib/common/huf.h",
+        "lib/compress/fse_compress.c",
+        "lib/compress/hist.c",
+        "lib/compress/hist.h",
+        "lib/compress/huf_compress.c",
+        "lib/decompress/huf_decompress.c",
+        "lib/legacy/zstd_v02.c",
+        "lib/legacy/zstd_v03.c",
+        "lib/legacy/zstd_v04.c",
+        "lib/legacy/zstd_v05.c",
+        "lib/legacy/zstd_v06.c",
+        "lib/legacy/zstd_v07.c"
+      ],
+      "relation": "upstream_of_first_party_code",
+      "resolution": "single_roster_family_no_merge",
+      "review": "Entropy coders originate in the FSE project of the same author and are maintained in zstd; no other roster family carries them."
+    },
+    {
+      "families": [
+        "sqlite"
+      ],
+      "origin": "Fossil SCM",
+      "paths": [
+        "sqlite3.c"
+      ],
+      "relation": "copied_code_marker",
+      "resolution": "single_roster_family_no_merge",
+      "review": "sqlite3.c marks a block as code taken from fossil (same upstream authors); no other roster family."
+    },
+    {
+      "families": [
+        "zstd"
+      ],
+      "origin": "Giuseppe Ottaviano COVER code",
+      "paths": [
+        "lib/dictBuilder/cover.c"
+      ],
+      "relation": "copied_code_marker",
+      "resolution": "single_roster_family_no_merge",
+      "review": "cover.c is adapted from code originally written by @ot; no other roster family."
+    },
+    {
+      "families": [
+        "sqlite"
+      ],
+      "origin": "Keccak / SHA-3 reference",
+      "paths": [
+        "shell.c"
+      ],
+      "relation": "algorithm_implementation",
+      "resolution": "single_roster_family_no_merge",
+      "review": "shell.c SHA-3 extension; no other roster family carries Keccak code."
+    },
+    {
+      "families": [
+        "curl"
+      ],
+      "origin": "LibTomCrypt",
+      "paths": [
+        "lib/sha256.c"
+      ],
+      "relation": "copied_code_marker",
+      "resolution": "single_roster_family_no_merge",
+      "review": "lib/sha256.c is based on the public-domain LibTomCrypt SHA-256; license reviewed in Slice D; no other roster family."
+    },
+    {
+      "families": [
+        "zstd"
+      ],
+      "origin": "folly CpuId.h",
+      "paths": [
+        "lib/common/cpu.h"
+      ],
+      "relation": "copied_code_marker",
+      "resolution": "single_roster_family_no_merge",
+      "review": "lib/common/cpu.h states its implementation is taken from folly/CpuId.h; no other roster family."
+    },
+    {
+      "families": [
+        "curl"
+      ],
+      "origin": "libmicrohttpd",
+      "paths": [
+        "lib/curl_sha512_256.c"
+      ],
+      "relation": "copied_code_marker",
+      "resolution": "single_roster_family_no_merge",
+      "review": "lib/curl_sha512_256.c names libmicrohttpd as origin of its SHA-512/256 code; no other roster family."
+    },
+    {
+      "families": [
+        "zstd"
+      ],
+      "origin": "xxHash",
+      "paths": [
+        "lib/common/zstd_internal.h",
+        "lib/compress/zstd_compress.c",
+        "lib/compress/zstd_compress_internal.h",
+        "lib/compress/zstd_ldm.c",
+        "lib/compress/zstdmt_compress.c",
+        "lib/decompress/zstd_decompress.c",
+        "lib/decompress/zstd_decompress_internal.h",
+        "lib/dictBuilder/zdict.c",
+        "lib/legacy/zstd_v07.c",
+        "lib/zstd.h",
+        "programs/benchzstd.c",
+        "programs/fileio.c",
+        "programs/zstdcli.c",
+        "tests/decodecorpus.c",
+        "tests/fuzz/dictionary_round_trip.c",
+        "tests/fuzz/fuzz_helpers.h",
+        "tests/fuzz/simple_round_trip.c",
+        "tests/fuzzer.c",
+        "tests/paramgrill.c",
+        "tests/regression/data.c",
+        "tests/roundTripCrash.c",
+        "tests/seqgen.c",
+        "tests/seqgen.h",
+        "tests/zstreamtest.c"
+      ],
+      "relation": "vendored_library_references",
+      "resolution": "single_roster_family_no_merge",
+      "review": "Vendored lib/common/xxhash.* is path-excluded in the plan; retained files only call or name XXH functions. No other roster family."
+    }
+  ],
+  "method": {
+    "automated": "Actions workload ancestry-audit: exact archive, inventory and retained-ledger match to the D source lock, then for every retained member origin markers, project and external-origin tokens and exact 12-line whitespace-normalized windows (>=240 bytes) shared across families.",
+    "limits": "Exact text only: modified/renamed/nonconsecutive copies can be missed. Shared license/algorithm constants can produce false ancestry leads. Algorithmic derivation without shared text is not treated as shared payload.",
+    "positive_control": {
+      "reading": "The detector finds text shared between releases of every family; cross-family zero counts are therefore not a detector failure.",
+      "within_family_cross_release_window_hashes": {
+        "bzip2": 4325,
+        "curl": 140090,
+        "libpng": 25879,
+        "sqlite": 187563,
+        "zlib": 20399,
+        "zstd": 63468
+      }
+    },
+    "review": "Every cross-project token lead and every non-copyright origin marker (based on, derived from, copied or taken from, adapted, generated) was read and classified before any candidate, scorer or encoder output existed."
+  },
+  "pairs": [
+    {
+      "a": "bzip2",
+      "b": "curl",
+      "excluded_globs": [],
+      "identical_member_objects": 0,
+      "relation": "none_found",
+      "resolution": "no_shared_origin_established",
+      "review": "No exact shared window, identical member object or cross-project token lead.",
+      "shared_window_hashes": 0,
+      "source_ids": [
+        "bzip2-1.0.6",
+        "bzip2-1.0.7",
+        "bzip2-1.0.8",
+        "curl-8.6.0",
+        "curl-8.7.1",
+        "curl-8.8.0"
+      ],
+      "token_leads": []
+    },
+    {
+      "a": "bzip2",
+      "b": "libpng",
+      "excluded_globs": [],
+      "identical_member_objects": 0,
+      "relation": "none_found",
+      "resolution": "no_shared_origin_established",
+      "review": "No exact shared window, identical member object or cross-project token lead.",
+      "shared_window_hashes": 0,
+      "source_ids": [
+        "bzip2-1.0.6",
+        "bzip2-1.0.7",
+        "bzip2-1.0.8",
+        "libpng-1.6.40",
+        "libpng-1.6.43",
+        "libpng-1.6.44"
+      ],
+      "token_leads": []
+    },
+    {
+      "a": "bzip2",
+      "b": "sqlite",
+      "excluded_globs": [],
+      "identical_member_objects": 0,
+      "relation": "none_found",
+      "resolution": "no_shared_origin_established",
+      "review": "No exact shared window, identical member object or cross-project token lead.",
+      "shared_window_hashes": 0,
+      "source_ids": [
+        "bzip2-1.0.6",
+        "bzip2-1.0.7",
+        "bzip2-1.0.8",
+        "sqlite-3.45.3",
+        "sqlite-3.46.1",
+        "sqlite-3.47.2"
+      ],
+      "token_leads": []
+    },
+    {
+      "a": "bzip2",
+      "b": "zlib",
+      "excluded_globs": [],
+      "identical_member_objects": 0,
+      "relation": "api_reference",
+      "resolution": "no_shared_payload",
+      "review": "bzlib names zlib when describing its zlib-like library interface; no shared text window or object.",
+      "shared_window_hashes": 0,
+      "source_ids": [
+        "bzip2-1.0.6",
+        "bzip2-1.0.7",
+        "bzip2-1.0.8",
+        "zlib-1.2.13",
+        "zlib-1.3",
+        "zlib-1.3.1"
+      ],
+      "token_leads": [
+        {
+          "family_id": "bzip2",
+          "paths": [
+            "bzlib.c",
+            "bzlib.h"
+          ],
+          "token": "zlib"
+        }
+      ]
+    },
+    {
+      "a": "bzip2",
+      "b": "zstd",
+      "excluded_globs": [],
+      "identical_member_objects": 0,
+      "relation": "none_found",
+      "resolution": "no_shared_origin_established",
+      "review": "No exact shared window, identical member object or cross-project token lead.",
+      "shared_window_hashes": 0,
+      "source_ids": [
+        "bzip2-1.0.6",
+        "bzip2-1.0.7",
+        "bzip2-1.0.8",
+        "zstd-1.5.5",
+        "zstd-1.5.6",
+        "zstd-1.5.7"
+      ],
+      "token_leads": []
+    },
+    {
+      "a": "curl",
+      "b": "libpng",
+      "excluded_globs": [],
+      "identical_member_objects": 0,
+      "relation": "none_found",
+      "resolution": "no_shared_origin_established",
+      "review": "No exact shared window, identical member object or cross-project token lead.",
+      "shared_window_hashes": 0,
+      "source_ids": [
+        "curl-8.6.0",
+        "curl-8.7.1",
+        "curl-8.8.0",
+        "libpng-1.6.40",
+        "libpng-1.6.43",
+        "libpng-1.6.44"
+      ],
+      "token_leads": []
+    },
+    {
+      "a": "curl",
+      "b": "sqlite",
+      "excluded_globs": [],
+      "identical_member_objects": 0,
+      "relation": "none_found",
+      "resolution": "no_shared_origin_established",
+      "review": "No exact shared window, identical member object or cross-project token lead.",
+      "shared_window_hashes": 0,
+      "source_ids": [
+        "curl-8.6.0",
+        "curl-8.7.1",
+        "curl-8.8.0",
+        "sqlite-3.45.3",
+        "sqlite-3.46.1",
+        "sqlite-3.47.2"
+      ],
+      "token_leads": []
+    },
+    {
+      "a": "curl",
+      "b": "zlib",
+      "excluded_globs": [],
+      "identical_member_objects": 0,
+      "relation": "build dependency",
+      "resolution": "no_shared_payload",
+      "review": "Optional zlib linkage for content encoding, MIME, version and SSH/TLS backends, plus help text; API calls only, no shared text window or object.",
+      "shared_window_hashes": 0,
+      "source_ids": [
+        "curl-8.6.0",
+        "curl-8.7.1",
+        "curl-8.8.0",
+        "zlib-1.2.13",
+        "zlib-1.3",
+        "zlib-1.3.1"
+      ],
+      "token_leads": [
+        {
+          "family_id": "curl",
+          "paths": [
+            "lib/content_encoding.c",
+            "lib/http.c",
+            "lib/mime.c",
+            "lib/version.c",
+            "lib/vssh/libssh.c",
+            "lib/vtls/sectransp.c",
+            "src/tool_hugehelp.c",
+            "src/tool_operate.c"
+          ],
+          "token": "zlib"
+        }
+      ]
+    },
+    {
+      "a": "curl",
+      "b": "zstd",
+      "excluded_globs": [],
+      "identical_member_objects": 0,
+      "relation": "build dependency",
+      "resolution": "no_shared_payload",
+      "review": "curl optionally links zstd for content encoding; zstd tests/regression/data.c uses the libcurl API to fetch regression data. API use in both directions, no shared text window or object.",
+      "shared_window_hashes": 0,
+      "source_ids": [
+        "curl-8.6.0",
+        "curl-8.7.1",
+        "curl-8.8.0",
+        "zstd-1.5.5",
+        "zstd-1.5.6",
+        "zstd-1.5.7"
+      ],
+      "token_leads": [
+        {
+          "family_id": "curl",
+          "paths": [
+            "include/curl/curl.h",
+            "lib/content_encoding.c",
+            "lib/version.c",
+            "src/tool_hugehelp.c",
+            "src/tool_libinfo.c"
+          ],
+          "token": "zstd"
+        },
+        {
+          "family_id": "zstd",
+          "paths": [
+            "tests/regression/data.c"
+          ],
+          "token": "curl"
+        }
+      ]
+    },
+    {
+      "a": "libpng",
+      "b": "sqlite",
+      "excluded_globs": [],
+      "identical_member_objects": 0,
+      "relation": "none_found",
+      "resolution": "no_shared_origin_established",
+      "review": "No exact shared window, identical member object or cross-project token lead.",
+      "shared_window_hashes": 0,
+      "source_ids": [
+        "libpng-1.6.40",
+        "libpng-1.6.43",
+        "libpng-1.6.44",
+        "sqlite-3.45.3",
+        "sqlite-3.46.1",
+        "sqlite-3.47.2"
+      ],
+      "token_leads": []
+    },
+    {
+      "a": "libpng",
+      "b": "zlib",
+      "excluded_globs": [],
+      "identical_member_objects": 0,
+      "relation": "build dependency",
+      "resolution": "no_shared_payload",
+      "review": "Source-plan edge confirmed on acquired snapshots (plan evidence used git trees). libpng calls zlib; png.h computes a bound \"based on deflateBound() in zlib\" with its own code. No shared text window or object.",
+      "shared_window_hashes": 0,
+      "source_ids": [
+        "libpng-1.6.40",
+        "libpng-1.6.43",
+        "libpng-1.6.44",
+        "zlib-1.2.13",
+        "zlib-1.3",
+        "zlib-1.3.1"
+      ],
+      "token_leads": [
+        {
+          "family_id": "libpng",
+          "paths": [
+            "example.c",
+            "png.c",
+            "png.h",
+            "pngconf.h",
+            "pngmem.c",
+            "pngpread.c",
+            "pngpriv.h",
+            "pngrutil.c",
+            "pngstruct.h",
+            "pngtest.c",
+            "pngwrite.c",
+            "pngwutil.c"
+          ],
+          "token": "zlib"
+        }
+      ]
+    },
+    {
+      "a": "libpng",
+      "b": "zstd",
+      "excluded_globs": [],
+      "identical_member_objects": 0,
+      "relation": "none_found",
+      "resolution": "no_shared_origin_established",
+      "review": "No exact shared window, identical member object or cross-project token lead.",
+      "shared_window_hashes": 0,
+      "source_ids": [
+        "libpng-1.6.40",
+        "libpng-1.6.43",
+        "libpng-1.6.44",
+        "zstd-1.5.5",
+        "zstd-1.5.6",
+        "zstd-1.5.7"
+      ],
+      "token_leads": []
+    },
+    {
+      "a": "sqlite",
+      "b": "zlib",
+      "excluded_globs": [],
+      "identical_member_objects": 0,
+      "relation": "build dependency",
+      "resolution": "no_shared_payload",
+      "review": "shell.c optionally uses the zlib API for archive/compression extensions; no shared text window or object.",
+      "shared_window_hashes": 0,
+      "source_ids": [
+        "sqlite-3.45.3",
+        "sqlite-3.46.1",
+        "sqlite-3.47.2",
+        "zlib-1.2.13",
+        "zlib-1.3",
+        "zlib-1.3.1"
+      ],
+      "token_leads": [
+        {
+          "family_id": "sqlite",
+          "paths": [
+            "shell.c"
+          ],
+          "token": "zlib"
+        }
+      ]
+    },
+    {
+      "a": "sqlite",
+      "b": "zstd",
+      "excluded_globs": [],
+      "identical_member_objects": 0,
+      "relation": "none_found",
+      "resolution": "no_shared_origin_established",
+      "review": "No exact shared window, identical member object or cross-project token lead.",
+      "shared_window_hashes": 0,
+      "source_ids": [
+        "sqlite-3.45.3",
+        "sqlite-3.46.1",
+        "sqlite-3.47.2",
+        "zstd-1.5.5",
+        "zstd-1.5.6",
+        "zstd-1.5.7"
+      ],
+      "token_leads": []
+    },
+    {
+      "a": "zlib",
+      "b": "zstd",
+      "excluded_globs": [
+        "zlibWrapper/*"
+      ],
+      "identical_member_objects": 0,
+      "relation": "shared origin",
+      "resolution": "path_excluded",
+      "review": "Source-plan edge: zlibWrapper gz*.c/gzguts.h carry zlib code. After the exclusion the retained zstd scope shares no text window or object with zlib; remaining mentions are gzip-format support through the zlib API (lib/zstd.h, programs/fileio.c, programs/zstdcli.c). Exclusion sufficient at the audited exact-text level.",
+      "shared_window_hashes": 0,
+      "source_ids": [
+        "zlib-1.2.13",
+        "zlib-1.3",
+        "zlib-1.3.1",
+        "zstd-1.5.5",
+        "zstd-1.5.6",
+        "zstd-1.5.7"
+      ],
+      "token_leads": [
+        {
+          "family_id": "zstd",
+          "paths": [
+            "lib/zstd.h",
+            "programs/fileio.c",
+            "programs/zstdcli.c"
+          ],
+          "token": "zlib"
+        }
+      ]
+    }
+  ],
+  "result": {
+    "components": [
+      [
+        "bzip2"
+      ],
+      [
+        "curl"
+      ],
+      [
+        "libpng"
+      ],
+      [
+        "sqlite"
+      ],
+      [
+        "zlib"
+      ],
+      [
+        "zstd"
+      ]
+    ],
+    "conclusion": "Six singleton ancestry components stand for the pilot; B split assignment unchanged; no STOP. No shared-origin relation links two roster families through retained payload.",
+    "merges": [],
+    "new_path_exclusions": [],
+    "split_component_counts": {
+      "calibration": 1,
+      "development": 4,
+      "evaluation": 1
+    },
+    "unresolved": []
+  },
+  "schema": "delsk.e0.ancestry-audit.v1",
+  "scope": "Retained members of the 18 exact Slice D snapshots (3357 source-member records, six families, all 15 unordered family pairs). Negative rows mean no shared origin was established in this retained scope; they do not assert absolute independence of the projects.",
+  "shared_vocabulary": [
+    {
+      "families": [
+        "curl",
+        "sqlite"
+      ],
+      "review": "Standard or API vocabulary; zero shared text windows between these families, so no common payload.",
+      "token": "sha1"
+    },
+    {
+      "families": [
+        "curl",
+        "sqlite"
+      ],
+      "review": "Standard or API vocabulary; zero shared text windows between these families, so no common payload.",
+      "token": "unicode"
+    }
+  ],
+  "status": "REVIEWED_FOR_PILOT"
+}

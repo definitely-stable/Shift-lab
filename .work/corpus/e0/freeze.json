@@ -1,0 +1,66 @@
+{
+  "adopted_on": "2026-10-04",
+  "candidate_lock_bindings": {
+    "ancestry_audit_sha256": "a81691db9ad196bc025be18cf2cd3240cb0a2e35a3b460456e2f09fc62c551da",
+    "construction_spec_sha256": "ced7cfa8af3a9402be5051f8fec87fb67337166d847ef3674dcaf5ecfc0d31d1",
+    "corpus_lock_sha256": "e5c288256bed284572a9f111186411517b4c73d097d13aea4cf48e2fb9f6fffa",
+    "protocol_sha256": "a0c518247d111e8ad1294562d65eb34c28da87c7027c009efb64a39e6f4e0038",
+    "selection_policy_sha256": "539642ffb9a65f4fe49f42ea99d26b416c2ab40583021b3fe8d2aa8d415cbd50"
+  },
+  "corpus_lock_canonical_sha256": "e5c288256bed284572a9f111186411517b4c73d097d13aea4cf48e2fb9f6fffa",
+  "e1_prerequisites": [
+    "Implement builder and an independent verifier per construction-spec.md section 7 without shared selection code.",
+    "Execute all adversarial cases and properties of the research specification sections 13-14 in Actions.",
+    "Two independent Actions recomputations produce the same canonical candidate lock and coverage evidence."
+  ],
+  "files": {
+    ".work/corpus/e0/ancestry-audit.json": "a81691db9ad196bc025be18cf2cd3240cb0a2e35a3b460456e2f09fc62c551da",
+    ".work/corpus/e0/candidate-lock-v2.schema.json": "af33da588b8f32c39bc258e3d973414be76502e05ed275f99dd0367f44b1326d",
+    ".work/corpus/e0/construction-spec.md": "ced7cfa8af3a9402be5051f8fec87fb67337166d847ef3674dcaf5ecfc0d31d1",
+    ".work/corpus/e0/golden-vectors.json": "84d6547c83eff4712fa2de7faffe04d8d4213d2f6654de8ef32d69960929d18e",
+    ".work/corpus/e0/historical-bytes.json": "bf48bb970327a53be751cffe7d60ef0e142da7414f2539cdc332a3ce2a0a0b0c",
+    ".work/corpus/e0/origin-evidence.json.gz": "88113947711b3238dae4f1f867dc484832986453a4bbe13403410028d2f342fc",
+    ".work/corpus/e0/runs/ancestry-audit-37196309671-1.json": "46fcb25193d0539eb31fff44513053fc5218690fb927eff012e16bdcd3e3b9c1",
+    ".work/corpus/e0/runs/ancestry-audit-37196505949-1.json": "a8d7e9707a44e96ef3d2bdb60c8de5cde25d2d4c7269d63a3cff16ae2b112191",
+    ".work/corpus/e0/runs/ancestry-audit-37197318303-1.json": "fb04dad7bd63e3c69c3a96a32c0ac930540bdd98dc7c68e2d9555c288020ac30",
+    ".work/research/DELSK-002-E0-candidate-universe.md": "0d5b6137623651b5f6ff0ea92427bc217e5b348c889d8aeedfc5b986709203e9",
+    ".work/tools/ancestry_audit.py": "5b0cb53ffa4273e57e6fc8ea2d8a977bd8ef5f5d77d5a3c338fb0ccf7b8ac683"
+  },
+  "governance": "Takes effect when a maintainer merges this record into main. Changes only through a new versioned construction spec and a new freeze record; earlier bytes and records are kept.",
+  "inputs": {
+    ".work/corpus/pilot-v1/corpus-lock.json.gz": "86009552183230ab13f9366684eedb4fcfcea746b25cbbed10ab2aabceb8f56b",
+    ".work/corpus/pilot-v1/freeze.json": "8814ce0221b2b890f1710476da0c1a31771e7528d81cfc3a99ffa10acc88e8da",
+    ".work/corpus/pilot-v1/licenses.json": "c7e7d7d85e17d2b4bcd31ca08c985a128fcc947f16bb1e49f99e345bc0d55f7c",
+    ".work/corpus/pilot-v1/materialization.json": "11e5913293bedcf74d801f5d69afd0879115c30c811fa7c45b8acbcbaab6942b",
+    ".work/corpus/pilot-v1/source-lock.json": "2154224d9b8af255f4f48662b7f03a6b9865c3e976079dbad33c939eb3a5903c",
+    ".work/corpus/selection-policy.json": "539642ffb9a65f4fe49f42ea99d26b416c2ab40583021b3fe8d2aa8d415cbd50",
+    ".work/corpus/source-plan.json": "75d879fd50ba8d7c749694ab091a61fa59c20ddc5fa3689a0e592692ae221074",
+    ".work/protocol.md": "a0c518247d111e8ad1294562d65eb34c28da87c7027c009efb64a39e6f4e0038"
+  },
+  "limitations": [
+    "Exploratory pilot: six lineages, one held-out lineage per calibration/evaluation split; no confirmatory sufficiency.",
+    "Ancestry negatives cover exact consecutive text in retained members; modified or reformatted copies can be missed.",
+    "Historical-byte evidence relies on Wayback and platform record integrity and on SHA-1/MD5 second-preimage resistance; derived chunk and tar tracks are modeled representations.",
+    "Run 37196309671 lacks the positive control and is superseded; 37196505949 and 37197318303 produce identical evidence, the latter also records archive MD5. All runs are kept."
+  ],
+  "rulings": {
+    "A01": "Global cross-split quarantine on raw U; retrospective temporal sample, not online causal simulation; only the restricted alias invariances hold.",
+    "A02": "Round-robin over groups holding all potential targets; identity consumes a group turn, not near quota; stop at 64 near targets or exhaustion; visited identities and near targets enter the lock.",
+    "A03": "duplicate_of is the minimum eligible duplicate occurrence ID.",
+    "A04": "Category from all eligible aliases with precedence same-path, same-family, foreign; independent of the representative.",
+    "A05": "Every rank is a total order with the identity as secondary key.",
+    "A06": "Closed delsk.candidate.lock.v2 with corpus, policy, construction spec, protocol and ancestry bindings.",
+    "A07": "Eligibility clock stays the B release interval. Dated public records attest the exact archive bytes for 18/18 archives and before the target release for 62/62 usable source pairs, so retained members and the file track are literal history; chunk and tar tracks remain modeled derived representations.",
+    "A08": "Reviewed acquired-snapshot audit of all 15 family pairs: no merge, no new exclusion, six singleton components, split counts 4/1/1 unchanged.",
+    "A09": "Seal only from the complete hash-bound U with independent source-to-U and U-to-queries checks.",
+    "A10": "Construction accepts closed frozen metadata only; score, encoder, codec, result fields and callbacks are errors."
+  },
+  "runs": [
+    "ancestry-audit-37196309671-1.json",
+    "ancestry-audit-37196505949-1.json",
+    "ancestry-audit-37197318303-1.json"
+  ],
+  "schema": "delsk.e0.construction-freeze.v1",
+  "scope": "Slice E0 candidate construction design for the R0 exploratory pilot: adopted semantics A01-A10, closed candidate-lock v2 schema, total orders, golden vectors, retained-origin ancestry audit and historical-byte scope. No candidate lock is sealed; no scorer, encoder, oracle or utility result exists.",
+  "status": "FROZEN_DESIGN"
+}

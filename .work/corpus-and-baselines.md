@@ -1,6 +1,6 @@
 # Корпус и baseline matrix
 
-Статус: **exploratory acquisition pilot frozen (Slice D)**; source/corpus locks, snapshot license review и две совпавшие materializations — в [pilot-v1](corpus/pilot-v1/README.md). Ancestry/candidate audit (Slice E), expansion и confirmatory sufficiency ещё не завершены. Загружать данные и запускать эксперименты — только в Actions. Публичный URL не означает разрешение redistributing.
+Статус: **exploratory acquisition pilot frozen (Slice D)**; source/corpus locks, snapshot license review и две совпавшие materializations — в [pilot-v1](corpus/pilot-v1/README.md). Ancestry audit и candidate construction design приняты в Slice E0 ([construction contract](corpus/e0/construction-spec.md)); sealed candidates (E1), expansion и confirmatory sufficiency ещё не завершены. Загружать данные и запускать эксперименты — только в Actions. Публичный URL не означает разрешение redistributing.
 
 ## Coverage
 
