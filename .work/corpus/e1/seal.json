@@ -10,24 +10,35 @@
   },
   "candidate_lock_sha256": "cb16d53b164ff393187e0115bdf31c52ac717a5172fb1e91889b5988ac019d2e",
   "code_sha256": {
-    "candidate_verify.py": "70269c1a188d8163a57e0c1b68fd71a25136deb31232bdd23ca19a38e5114281",
-    "candidates.py": "daffe336bcea38861e6a2c0f3c5cb6f9f174c7e5c55f8016d353daf42d6093ca",
-    "e1_seal.py": "fdbd53dd5df690a4ca178186897a453b20dba7542b7cd0fa4b4395d25cfc20c6",
+    "candidate_verify.py": "5b953b21cf31c0276e8f651af848741739c28361b552579058c7b9f6a6fcdbca",
+    "candidates.py": "ec0c65243ee70a7cd268636dceeeca76c0b13c225dea72d7402279b84d8cca4f",
+    "e1_seal.py": "dfbd509b15f958e77fe9f9820ecdec1e7a4e4d1b809427db2e1e58fb29f97b66",
     "manifests.py": "c1b394781b2cf55e347dca5cf25b00cea422b03df695f7aea83b5283a85c30b4"
   },
   "files": {
     ".work/corpus/e1/candidate-lock.json": "cb16d53b164ff393187e0115bdf31c52ac717a5172fb1e91889b5988ac019d2e",
-    ".work/corpus/e1/coverage.json": "5c2035694fb290004c98798ec2492c558eed6b5f4db35ef76eb5ce6320f9aa60",
+    ".work/corpus/e1/coverage.json": "fff71554f28fea2b1628ac9f430e4d542f0147e30bcdc43e64887265f6cade5c",
     ".work/corpus/e1/runs/candidate-seal-37202367307-1-run.json": "cb372b68678e5d5317a521e64c19b92068bff71eedd10e611058326bd2b227ac",
     ".work/corpus/e1/runs/candidate-seal-37202367307-1-verification.json": "faeb87cf19fd242f01e74565a0029625a1e766c86f74c02031594a3c23d872b3",
     ".work/corpus/e1/runs/candidate-seal-37202367307-1.json": "1f90b7f5bc0a867197f0faa3a2eb06499d5b8dd16bd745acbae42b2dcd868a48",
     ".work/corpus/e1/runs/candidate-seal-37202375349-1-run.json": "4399b66ff61a9419b90a3aae7b0f22fb49cf4ffb134378295de61949ad8cb526",
     ".work/corpus/e1/runs/candidate-seal-37202375349-1-verification.json": "faeb87cf19fd242f01e74565a0029625a1e766c86f74c02031594a3c23d872b3",
     ".work/corpus/e1/runs/candidate-seal-37202375349-1.json": "74ae594f8775b4813f1f002395925653a6507368e0ecfb44e5882884b4820f00",
-    ".work/corpus/e1/selection.json": "65740efb41f93688ccc5c8538117def770f73c119ad0cd3633771a6e17ee3b1b",
-    ".work/tests/test_e1_candidates.py": "f2739d232ad2d08c104bedc79202be67e85da96be1ff92f4b8466718c3d8b4f4"
+    ".work/corpus/e1/runs/candidate-seal-37205165066-1-run.json": "4f84fe5864b444199f1563a105f595254cf1eef1a8e84942f28aaf74a2aaa618",
+    ".work/corpus/e1/runs/candidate-seal-37205165066-1-verification.json": "faeb87cf19fd242f01e74565a0029625a1e766c86f74c02031594a3c23d872b3",
+    ".work/corpus/e1/runs/candidate-seal-37205165066-1.json": "5202dd32f43bcb7f5dfd41a01d2d3d0b05b0fd3dccfc6951a310fb5b41d545b2",
+    ".work/corpus/e1/runs/candidate-seal-37205172692-1-run.json": "0a939a9ca500f5e72e738c031e5078eea1c1cb2a7a25fea00b751d449bb13312",
+    ".work/corpus/e1/runs/candidate-seal-37205172692-1-verification.json": "faeb87cf19fd242f01e74565a0029625a1e766c86f74c02031594a3c23d872b3",
+    ".work/corpus/e1/runs/candidate-seal-37205172692-1.json": "f695b2d82f7220614f4c65f67c8ee70d1429d6684dea5314de05a9a05ce42c4a",
+    ".work/corpus/e1/selection.json": "23db37338d3c9413ddb4186f2d7a86d3a480c02cc15808f0b5eff34f0f99eb8e",
+    ".work/tests/test_e1_candidates.py": "bc959d7470883dbf7bb1377707505a57be8a89781d9b63747179a594dca1382c",
+    ".work/tests/test_e1_mutants.py": "bc248eeb7b3d337caff778e8f2d273a1553cff21b4394e5100e78f3a1dc34e7d",
+    ".work/tests/test_e1_seal.py": "12677c7846e68b8731e26ef4ec68925649302f06e67fc5f2b21be82c762429aa"
   },
   "governance": "Takes effect when a maintainer merges this record into main. The lock is immutable; any change of inputs, rules or code needs a new versioned seal and keeps this one.",
+  "interpretations": {
+    "protocol_input": "construction-spec section 7.1 lists eight inputs; A06 binds protocol_sha256, so the builder and verifier also admit the exact protocol bytes pinned in the E0 freeze record. No other input is added."
+  },
   "limitations": [
     "Exploratory pilot: six singleton lineage components (upper bound, A08); one held-out lineage each in calibration (curl) and evaluation (bzip2); no confirmatory sufficiency.",
     "Evaluation (bzip2) has no file track; calibration and evaluation hold one family each, so their foreign-family pools are always empty (structural, known before sealing).",
@@ -35,17 +46,17 @@
     "Two Actions runs share one source commit and one implementation of each layer; independence is between builder and verifier code paths, not between authors."
   ],
   "run_urls": [
-    "https://github.com/definitely-stable/Shift-lab/actions/runs/37202367307",
-    "https://github.com/definitely-stable/Shift-lab/actions/runs/37202375349"
+    "https://github.com/definitely-stable/Shift-lab/actions/runs/37205165066",
+    "https://github.com/definitely-stable/Shift-lab/actions/runs/37205172692"
   ],
   "runs": [
-    "candidate-seal-37202367307-1.json",
-    "candidate-seal-37202375349-1.json"
+    "candidate-seal-37205165066-1.json",
+    "candidate-seal-37205172692-1.json"
   ],
   "schema": "delsk.e1.candidate-seal.v1",
   "scope": "Slice E1 sealed candidate universe C_t for the R0 exploratory pilot under construction-spec.md (E0 FROZEN_DESIGN). Metadata only: no scorer, encoder, oracle, patch cost or utility result exists or was read.",
   "sealed_on": "2026-10-04",
-  "source_sha": "45d3bf122a964ccbf541c4d2351d0223b8537fd4",
+  "source_sha": "aebf467eade297a783a0a18796d792cf1335c457",
   "status": "SEALED",
   "summary": {
     "empty_pool_near_queries": 0,
@@ -55,5 +66,13 @@
     "planned_pairs_per_codec": 1961,
     "queries": 79,
     "targets_all": 21724
+  },
+  "superseded_runs": {
+    "reason": "Same candidate lock bytes; selection evidence lacked per-target accounting and category/representative witnesses required by research spec section 17.2 (PR #21 review). Kept, not used for the seal.",
+    "runs": [
+      "candidate-seal-37202367307-1.json",
+      "candidate-seal-37202375349-1.json"
+    ],
+    "source_sha": "45d3bf122a964ccbf541c4d2351d0223b8537fd4"
   }
 }
