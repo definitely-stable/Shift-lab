@@ -1,0 +1,74 @@
+name: Oracle smoke (DELSK-003)
+
+# PR smoke lane of the DELSK-003 oracle (contract section 12): build the pinned codecs from their locked archives,
+# codec conformance C01-C14, the production evaluator's known answers, G1 vectors, mutants and fault injection, and a
+# synthetic mini-run through finalize, verify and bundle. Synthetic data only (< 2 MiB): the natural C_t is never
+# measured here, and no performance or quality verdict is produced. Standard GitHub-hosted runner only.
+
+on:
+  pull_request:
+    paths: ['.work/tools/oracle_*.py', '.work/tools/manifests.py', '.work/tools/materialize.py',
+            '.work/tests/test_oracle_*.py', '.work/tests/oracle_reference.py', '.work/oracle/**',
+            '.github/workflows/oracle-smoke.yml']
+  push:
+    branches: [main]
+    paths: ['.work/tools/oracle_*.py', '.work/tools/manifests.py', '.work/tools/materialize.py',
+            '.work/tests/test_oracle_*.py', '.work/tests/oracle_reference.py', '.work/oracle/**',
+            '.github/workflows/oracle-smoke.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oracle-smoke-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Build pinned codecs (xdelta3 3.2.1, zstd 1.5.7)
+        run: python3 .work/tools/oracle_build.py "$RUNNER_TEMP/build"
+      - name: Codec conformance C01-C14
+        id: conformance
+        continue-on-error: true
+        run: |
+          mkdir -p "$RUNNER_TEMP/out"
+          python3 .work/tools/oracle_run.py conformance "$RUNNER_TEMP/build/tools.json" \
+            "$RUNNER_TEMP/out/conformance.json" "$RUNNER_TEMP/out/conformance-golden.candidate.json"
+      - name: Synthetic mini-run, finalize, verify, bundle
+        run: |
+          python3 .work/tools/oracle_run.py synthetic "$RUNNER_TEMP/synthetic"
+          python3 .work/tools/oracle_run.py run smoke "$RUNNER_TEMP/build/tools.json" "$RUNNER_TEMP/out/conformance.json" \
+            "$RUNNER_TEMP/synthetic/store" "$RUNNER_TEMP/out/evidence" "$RUNNER_TEMP/private" "$RUNNER_TEMP/synthetic"
+          python3 .work/tools/oracle_eval.py finalize "$RUNNER_TEMP/out/evidence" "$RUNNER_TEMP/private"
+          rm -rf "$RUNNER_TEMP/private"
+          python3 .work/tools/oracle_eval.py verify "$RUNNER_TEMP/out/evidence"
+          python3 .work/tools/oracle_eval.py bundle "$RUNNER_TEMP/out/evidence" "$RUNNER_TEMP/results"
+          python3 -c 'import json, sys; s = json.load(open(sys.argv[1])); print("synthetic run_status", s["run_status"]); sys.exit(s["run_status"] != "COMPLETE")' \
+            "$RUNNER_TEMP/out/evidence/summary.json"
+      - name: Oracle tests (contract, production KAT/G1, mutants, metamorphic, faults, pinned codecs)
+        working-directory: .work/tests
+        env:
+          ORACLE_TOOLS: ${{ runner.temp }}/build/tools.json
+        run: python3 -m unittest -v test_oracle_contract test_oracle_eval test_oracle_build test_oracle_runner
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: oracle-smoke-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/out
+            ${{ runner.temp }}/build/tools.json
+            ${{ runner.temp }}/build/build-*.log
+          retention-days: 14
+          if-no-files-found: error
+      - name: Conformance verdict must be PASS
+        if: always()
+        env:
+          OUTCOME: ${{ steps.conformance.outcome }}
+        run: test "$OUTCOME" = success
