@@ -5,7 +5,7 @@
   "fields": {
     "provenance": "AUTHOR | REIMPLEMENTED | PROXY | UNAVAILABLE — who wrote the artifact relative to the cited work",
     "paper_fidelity": "UNKNOWN | KNOWN_DEVIATIONS | NOT_APPLICABLE — correspondence of the artifact to the published configuration",
-    "license_status": "CLEAR | UNRESOLVED | CONFLICT | NOT_APPLICABLE — permission to build and run in Delsk CI",
+    "license_status": "CLEAR | UNRESOLVED | CONFLICT | NOT_APPLICABLE — permission to build, run and adapt the artifact in Delsk CI, including every vendored component on the build path; CLEAR requires project_license",
     "data_status": "AVAILABLE | PARTIAL | WITHHELD | UNKNOWN | NOT_APPLICABLE — inputs, checkpoints and datasets the artifact needs",
     "reproduction_status": "NOT_ATTEMPTED | PENDING | BLOCKED | VERIFIED — VERIFIED requires a GitHub Actions run URL in evidence",
     "comparator_readiness": "NEEDS_ADAPTER | BLOCKED | NOT_A_COMPARATOR | NOT_APPLICABLE — readiness for the shared C_t / Top-K harness"
@@ -45,8 +45,8 @@
       "artifacts": [
         {"label": "author release", "provenance": "UNAVAILABLE", "url": null, "commit": null, "project_license": null, "license_status": "NOT_APPLICABLE", "paper_fidelity": "NOT_APPLICABLE", "data_status": "UNKNOWN", "reproduction_status": "NOT_ATTEMPTED", "comparator_readiness": "NOT_APPLICABLE",
          "notes": ["No author repository identified in this pass; targeted search was not exhaustive."]},
-        {"label": "SpeedSketch odess/ (od-g, od-x)", "provenance": "REIMPLEMENTED", "url": "https://github.com/FengkuiYang-hust/SpeedSketch/tree/83ef5b313d9d2cb6606be6b71c8ec200b896e175/odess", "commit": "83ef5b313d9d2cb6606be6b71c8ec200b896e175", "project_license": "GPL-2.0", "license_status": "UNRESOLVED", "paper_fidelity": "UNKNOWN", "data_status": "NOT_APPLICABLE", "reproduction_status": "PENDING", "comparator_readiness": "NEEDS_ADAPTER",
-         "notes": ["SpeedSketch authors do not overlap with Odess authors.", "README fixes features=12, super-features=3 for tests and states other values were not validated.", "Odess §4.3 modifies Xdelta3 (no inner compression of the input chunk); whether od-x matches this is not checked."]}
+        {"label": "SpeedSketch CLI schemes od-g, od-x", "provenance": "REIMPLEMENTED", "url": "https://github.com/FengkuiYang-hust/SpeedSketch/blob/83ef5b313d9d2cb6606be6b71c8ec200b896e175/speedsketch.cpp", "commit": "83ef5b313d9d2cb6606be6b71c8ec200b896e175", "project_license": "GPL-2.0", "license_status": "UNRESOLVED", "paper_fidelity": "UNKNOWN", "data_status": "NOT_APPLICABLE", "reproduction_status": "PENDING", "comparator_readiness": "NEEDS_ADAPTER",
+         "notes": ["SpeedSketch authors do not overlap with Odess authors.", "od-g/od-x are implemented inside speedsketch.cpp. The separate odess/ directory is another tool (delta_time_dis) whose Makefile links the prebuilt ../lib/libzd.a and edelta; it is not the CLI path.", "README fixes features=12, super-features=3 for tests and states other values were not validated.", "Odess §4.3 modifies Xdelta3 (no inner compression of the input chunk); whether od-x matches this is not checked."]}
       ]
     },
     {
@@ -62,7 +62,7 @@
       "work": {"title": "SpeedSketch: An Ultra-Fast Sketch Generation and Delta Encoding Framework for Delta Compression", "venue": "ICPP 2025", "doi": "10.1145/3754598.3754628", "url": "https://doi.org/10.1145/3754598.3754628", "access": "FULL_TEXT"},
       "artifacts": [
         {"label": "author research implementation", "provenance": "AUTHOR", "url": "https://github.com/FengkuiYang-hust/SpeedSketch/tree/83ef5b313d9d2cb6606be6b71c8ec200b896e175", "commit": "83ef5b313d9d2cb6606be6b71c8ec200b896e175", "project_license": "GPL-2.0", "license_status": "UNRESOLVED", "paper_fidelity": "KNOWN_DEVIATIONS", "data_status": "PARTIAL", "reproduction_status": "PENDING", "comparator_readiness": "NEEDS_ADAPTER",
-         "notes": ["Root LICENSE is GPL-2.0; vendored xdelta3 repeats the Apache LICENSE / GPL header mismatch; zdelta, edelta and a prebuilt lib/libzd.a are vendored but not linked by the default Makefile. Running in CI looks permissible; terms for a derived adapter need review.", "README: FastCDC 4/8/32 KiB instead of the paper's 2/8/32 KiB; single-file simulator; payload estimate excludes indexes, recipes and container metadata.", "Build documented: GNU Make, C++14/C99, pthread, zstd; make check and CLI tests exist. Not built in this pass.", "No interface for an external candidate universe C_t or Top-K; the sketch and the sketch-accelerated encoder are coupled (ss-g-s), so encoder speedups must not be attributed to ranking quality.", "Paper datasets are not shipped; README offers a 64 MiB synthetic feasibility fixture only."]}
+         "notes": ["Root LICENSE is GPL-2.0, but license_status stays UNRESOLVED because of vendored components: xdelta3 repeats the Apache LICENSE / GPL header mismatch, and zdelta, edelta and a prebuilt lib/libzd.a have their own notices. The root Makefile (speedsketch binary) does not link them; odess/Makefile links -lzd.", "README: FastCDC 4/8/32 KiB instead of the paper's 2/8/32 KiB; single-file simulator; payload estimate excludes indexes, recipes and container metadata.", "Build documented: GNU Make, C++14/C99, pthread, zstd; make check and CLI tests exist. Not built in this pass.", "No interface for an external candidate universe C_t or Top-K; the sketch and the sketch-accelerated encoder are coupled (ss-g-s), so encoder speedups must not be attributed to ranking quality.", "Paper datasets are not shipped; README offers a 64 MiB synthetic feasibility fixture only."]}
       ]
     },
     {
@@ -82,11 +82,19 @@
       ]
     },
     {
-      "id": "card",
-      "work": {"title": "Chunk Content is not Enough (arXiv 2106.01273v1, 2021); journal version: Context-aware resemblance detection for data deduplication with neural network (EAAI 144:110116, 2025)", "venue": "arXiv preprint; Engineering Applications of Artificial Intelligence", "doi": "10.1016/j.engappai.2025.110116", "url": "https://arxiv.org/abs/2106.01273", "access": "FULL_TEXT"},
+      "id": "card-preprint",
+      "work": {"title": "Chunk Content is not Enough: Chunk-Context Aware Resemblance Detection for Deduplication Delta Compression", "venue": "arXiv 2106.01273v1, 2021 (only version)", "url": "https://arxiv.org/abs/2106.01273", "access": "FULL_TEXT"},
       "artifacts": [
         {"label": "author release", "provenance": "UNAVAILABLE", "url": null, "commit": null, "project_license": null, "license_status": "NOT_APPLICABLE", "paper_fidelity": "NOT_APPLICABLE", "data_status": "UNKNOWN", "reproduction_status": "NOT_ATTEMPTED", "comparator_readiness": "NOT_APPLICABLE",
-         "notes": ["Neither version gives a code URL. Access FULL_TEXT refers to the preprint; the journal body was not read (paywall)."]}
+         "notes": ["No code URL in the preprint."]}
+      ]
+    },
+    {
+      "id": "card-journal",
+      "work": {"title": "Context-aware resemblance detection for data deduplication with neural network", "venue": "Engineering Applications of Artificial Intelligence 144:110116, 2025", "doi": "10.1016/j.engappai.2025.110116", "url": "https://doi.org/10.1016/j.engappai.2025.110116", "access": "ABSTRACT_ONLY"},
+      "artifacts": [
+        {"label": "author release", "provenance": "UNAVAILABLE", "url": null, "commit": null, "project_license": null, "license_status": "NOT_APPLICABLE", "paper_fidelity": "NOT_APPLICABLE", "data_status": "UNKNOWN", "reproduction_status": "NOT_ATTEMPTED", "comparator_readiness": "NOT_APPLICABLE",
+         "notes": ["Journal body not read (paywall); abstract and highlights only. Title, author list and reported speedups differ from card-preprint."]}
       ]
     },
     {
@@ -118,7 +126,7 @@
       "work": {"title": "FastCDC: a Fast and Efficient Content-Defined Chunking Approach for Data Deduplication", "venue": "USENIX ATC 2016", "url": "https://www.usenix.org/system/files/conference/atc16/atc16-paper-xia.pdf", "access": "FULL_TEXT"},
       "artifacts": [
         {"label": "FastCDC-c", "provenance": "AUTHOR", "url": "https://github.com/wxiacode/FastCDC-c/tree/7d661508aeef2d9be3c7fc6e4b94325ef90205c5", "commit": "7d661508aeef2d9be3c7fc6e4b94325ef90205c5", "project_license": "MIT", "license_status": "CLEAR", "paper_fidelity": "UNKNOWN", "data_status": "NOT_APPLICABLE", "reproduction_status": "NOT_ATTEMPTED", "comparator_readiness": "NOT_A_COMPARATOR",
-         "notes": ["Auxiliary chunker, not a reference-search comparator.", "Driver main() opens a hardcoded empty path and mallocs CacheSize = 1 GiB; a bounded driver and the exact chunking variant (USE_CHUNKING_METHOD) must be locked separately.", "Paper not re-read section by section in this pass."]}
+         "notes": ["Auxiliary chunker, not a reference-search comparator.", "Only vendored component is uthash.h under a BSD-style notice, compatible with CLEAR.", "Driver main() opens a hardcoded empty path and mallocs CacheSize = 1 GiB; a bounded driver and the exact chunking variant (USE_CHUNKING_METHOD) must be locked separately.", "Paper not re-read section by section in this pass."]}
       ]
     },
     {
