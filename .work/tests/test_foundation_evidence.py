@@ -72,13 +72,13 @@ class HandoffTests(Base):
         self.assertEqual({c["split"] for c in a["lineage"]["components"]}, set(m.SPLITS))
         self.assertEqual((self.doc["oracle"], self.doc["quality_verdict"]), ("NOT_RUN", "N/A"))
 
-    def test_recomputation_reads_only_committed_locks(self):
+    def test_recomputation_reads_only_committed_records(self):
         seen = []
         real = Path.read_bytes
         with unittest.mock.patch.object(Path, "read_bytes", lambda p: seen.append(p) or real(p)):
             rf.account()
         self.assertTrue(seen)
-        self.assertTrue(all((WORK / "corpus") in p.parents for p in seen), [str(p) for p in seen])
+        self.assertTrue(all(WORK in p.parents and WORK / "tmp" not in p.parents for p in seen), [str(p) for p in seen])
 
     def test_unpinned_lock_is_refused(self):
         real = Path.read_bytes
@@ -86,6 +86,46 @@ class HandoffTests(Base):
         with unittest.mock.patch.object(Path, "read_bytes", lambda p: real(p) + b" " if p.resolve() == lock else real(p)):
             with self.assertRaisesRegex(rf.FoundationError, "differs from its pinned"):
                 rf.account()
+
+    def tampered(self, path, edit=None):
+        """Path.read_bytes patch: `edit` rewrites the canonical JSON document at `path`; no edit = file is gone."""
+        real, target = Path.read_bytes, path.resolve()
+
+        def read(p):
+            if p.resolve() != target:
+                return real(p)
+            if edit is None:
+                raise FileNotFoundError(p)
+            doc = m.loads_strict(real(p))
+            edit(doc)
+            return m.canonical_bytes(doc)
+        return unittest.mock.patch.object(Path, "read_bytes", read)
+
+    def test_root_records_are_part_of_the_identity(self):
+        edits = {WORK / "corpus" / "e0" / "freeze.json": lambda d: d.update(adopted_on="2026-10-05"),
+                 WORK / "corpus" / "e1" / "seal.json": lambda d: d.update(sealed_on="2026-10-05")}
+        for path, edit in edits.items():
+            with self.subTest(path.name), self.tampered(path, edit):
+                changed = rf.freeze_graph()[0]
+                self.assertNotEqual(changed[rf.rel(path)], self.doc["locks"][rf.rel(path)])
+
+    def test_pinned_members_of_the_chain_are_checked(self):
+        pilot = WORK / "corpus" / "pilot-v1" / "freeze.json"
+        with self.tampered(pilot, lambda d: d["license_review"][0].update(finding="changed")):
+            with self.assertRaisesRegex(rf.FoundationError, "freeze.json: two records pin different"):
+                rf.account()
+        with self.tampered(WORK / "corpus" / "e0" / "construction-spec.md"):
+            with self.assertRaises(OSError):
+                rf.account()
+        with self.tampered(WORK / "corpus" / "e0" / "freeze.json", lambda d: d.update(status="DRAFT")):
+            with self.assertRaisesRegex(rf.FoundationError, "freeze chain"):
+                rf.account()
+
+    def test_chain_locks_cover_every_record(self):
+        for path in ("corpus/pilot-v1/freeze.json", "corpus/e0/freeze.json", "corpus/e1/seal.json", "protocol.md",
+                     "corpus/source-plan.json", "corpus/selection-policy.json", "corpus/e0/construction-spec.md",
+                     "corpus/e0/ancestry-audit.json", "corpus/e0/historical-bytes.json"):
+            self.assertIn(f".work/{path}", self.doc["locks"])
 
     def test_workload_output_is_deterministic_except_timings(self):
         a, b = self.scratch / "a", self.scratch / "b"
@@ -143,6 +183,28 @@ class VerifyTests(Base):
         doc["accounting"]["candidates"]["planned_pairs_per_codec"] += 1
         self.assertRejected(self.bundle(doc=doc), "accounting differs from recomputation")
 
+    def test_tampered_tool_digest(self):
+        for tool in rf.CODE:
+            with self.subTest(tool):
+                doc = copy.deepcopy(self.doc)
+                doc["tools"][tool] = "0" * 64
+                d = self.bundle(doc=doc)  # checksums are consistent: only the recomputation can catch it
+                self.assertRejected(d, "tools differs from recomputation")
+                shutil.rmtree(d)
+
+    def test_timing_order_is_proved(self):
+        good = [json.loads(line) for line in (self.bundle() / "workload" / "timings.jsonl").read_text().splitlines()]
+        mutations = {"position": lambda r: r[3].update(position=99),
+                     "order not alternating": lambda r: (r[2].update(arm="A1"), r[3].update(arm="A2")),
+                     "warmup flag": lambda r: r[0].update(warmup=False),
+                     "swapped rows": lambda r: r.insert(0, r.pop(1)),
+                     "extra key": lambda r: r[0].update(x=1)}
+        for name, mutate in mutations.items():
+            rows = copy.deepcopy(good)
+            mutate(rows)
+            with self.subTest(name), self.assertRaises(rf.FoundationError):
+                rf.check_timings("".join(json.dumps(r) + chr(10) for r in rows))
+
     def test_unexpected_schema(self):
         doc = {**self.doc, "oracle_rows": []}
         self.assertRejected(self.bundle(doc=doc), "unexpected schema")
@@ -188,6 +250,20 @@ class BundleTests(Base):
                 rf.bundle(self.scratch / "artifact")
             self.assertFalse((results / "8-1").exists())
 
+    def test_failed_import_leaves_nothing_and_can_be_repeated(self):
+        artifact = self.bundle(9, 1, seal=False)
+        staged = self.scratch / "artifact"
+        for name in ("run.json", "workload/handoff.json"):
+            (staged / name).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(artifact / name, staged / name)  # timings.jsonl is missing
+        results = self.scratch / "retained"
+        with unittest.mock.patch.object(rf, "RESULTS", results):
+            with self.assertRaises(OSError):
+                rf.bundle(staged)
+            self.assertEqual(list(results.iterdir()), [])
+            shutil.copyfile(artifact / "workload" / "timings.jsonl", staged / "workload" / "timings.jsonl")
+            self.assertEqual(rf.verify(rf.bundle(staged)), [])
+
 
 class GateTests(Base):
     def gate(self):
@@ -215,7 +291,7 @@ class GateTests(Base):
 
     def test_different_handoff_does_not_confirm(self):
         other = copy.deepcopy(self.doc)
-        other["tools"]["budget.py"] = "0" * 64
+        other["tools"]["manifests.py"] = "0" * 64
         self.bundle(1, 1)
         self.bundle(2, 1, doc=other)
         self.assertFalse(self.gate()["ready"])

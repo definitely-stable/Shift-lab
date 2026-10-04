@@ -17,6 +17,7 @@ from pathlib import Path
 import re
 import shutil
 import sys
+import tempfile
 import time
 
 TOOLS = Path(__file__).resolve().parent
@@ -27,7 +28,14 @@ import manifests as m  # noqa: E402
 
 RESULTS = WORK / "results" / "R0-FOUNDATION"
 PILOT, E1 = WORK / "corpus" / "pilot-v1", WORK / "corpus" / "e1"
-CODE = ("recompute_foundation.py", "manifests.py", "foundation_run.py", "budget.py")
+# Code that computes the handoff. Runner and workflow identity is the run's source SHA (run.json), not pinned here:
+# the runner and workflow gain workloads in later slices, which must not invalidate retained R0 bundles.
+CODE = ("recompute_foundation.py", "manifests.py")
+E0 = WORK / "corpus" / "e0"
+# candidate-lock binding -> the repository file it must hash.
+BINDING_FILES = {"acquisition_freeze_sha256": PILOT / "freeze.json", "ancestry_audit_sha256": E0 / "ancestry-audit.json",
+                 "construction_spec_sha256": E0 / "construction-spec.md", "historical_bytes_sha256": E0 / "historical-bytes.json",
+                 "protocol_sha256": WORK / "protocol.md", "selection_policy_sha256": WORK / "corpus" / "selection-policy.json"}
 SCHEMA = "delsk.r0.foundation-handoff.v1"
 WORKLOAD = "foundation-handoff"
 FILES = {"run.json", "workload/handoff.json", "workload/timings.jsonl", "checksums.sha256"}
@@ -55,24 +63,38 @@ def check(condition, message):
 
 # --- accounting -----------------------------------------------------------
 
+def freeze_graph():
+    """SHA-256 of every file in the D -> E0 -> E1 freeze chain: the three root records and everything they pin.
+    Any difference between roots, between a root and the file it pins, or in a pinned file is an error."""
+    roots = {"pilot": PILOT / "freeze.json", "e0": E0 / "freeze.json", "seal": E1 / "seal.json"}
+    docs = {name: m.loads_strict(path.read_bytes()) for name, path in roots.items()}
+    check(docs["pilot"]["status"] == "FROZEN_ACQUISITION" and docs["e0"]["status"] == "FROZEN_DESIGN"
+          and docs["seal"]["status"] == "SEALED", "freeze chain is not FROZEN_ACQUISITION -> FROZEN_DESIGN -> SEALED")
+    pins = {rel(path): sha(path.read_bytes()) for path in roots.values()}
+    for base, files in ((PILOT, docs["pilot"]["files"]), (ROOT, docs["e0"]["files"]), (ROOT, docs["e0"]["inputs"]),
+                        (ROOT, docs["seal"]["files"])):
+        for name, digest in files.items():
+            path = rel(base / name)
+            check(pins.setdefault(path, digest) == digest, f"{path}: two records pin different SHA-256 values")
+    for path, digest in sorted(pins.items()):
+        check(sha((ROOT / path).read_bytes()) == digest, f"{path}: differs from its pinned SHA-256")
+    bindings = docs["seal"]["bindings"]
+    check(bindings == docs["e0"]["candidate_lock_bindings"], "seal bindings differ from the E0 freeze bindings")
+    for key, path in BINDING_FILES.items():
+        check(pins.get(rel(path)) == bindings[key], f"binding {key} does not hash {rel(path)}")
+    return dict(sorted(pins.items())), docs["pilot"], docs["seal"]
+
+
 def account():
     """Content, lineage and candidate accounting recomputed from committed locks; cross-checked
-    against the independently derived E1 seal summary and coverage. Returns (locks, accounting)."""
-    freeze = m.loads_strict((PILOT / "freeze.json").read_bytes())
-    seal = m.loads_strict((E1 / "seal.json").read_bytes())
-    check(seal["status"] == "SEALED", "E1 seal is not SEALED")
-    pinned = {rel(PILOT / name): d for name, d in freeze["files"].items()} | dict(seal["files"])
-    locks = {}
-    for path, digest in sorted(pinned.items()):
-        if path.startswith(".work/tests/") or "/runs/" in path:
-            continue  # test and per-run records are pinned by their own tests
-        check(sha((ROOT / path).read_bytes()) == digest, f"{path}: differs from its pinned SHA-256")
-        locks[path] = digest
+    against the independently derived E1 seal summary and coverage. Returns (locks, accounting, limitations)."""
+    locks, freeze, seal = freeze_graph()
     raw = gzip.decompress((PILOT / "corpus-lock.json.gz").read_bytes())
     check(sha(raw) == freeze["corpus_lock_canonical_sha256"], "corpus lock: canonical SHA-256 differs")
     corpus = m.loads_strict(raw)
     lock = m.loads_strict((E1 / "candidate-lock.json").read_bytes())
     check(lock["corpus_lock_sha256"] == sha(raw), "candidate lock is bound to another corpus lock")
+    check({k: lock[k] for k in seal["bindings"]} == seal["bindings"], "candidate lock bindings differ from the seal")
     check(lock["planned_pairs_per_codec"] == seal["summary"]["planned_pairs_per_codec"], "seal pair count differs")
     cover = m.loads_strict((E1 / "coverage.json").read_bytes())
 
@@ -132,17 +154,21 @@ def handoff_doc():
             "tools": {name: sha((TOOLS / name).read_bytes()) for name in CODE}}
 
 
+def timing_plan():
+    """Expected (block, arm, position, warmup) sequence: arm order alternates per block."""
+    return [(block, arm, position, block < WARMUPS) for block in range(WARMUPS + BLOCKS)
+            for position, arm in enumerate(ARMS if block % 2 == 0 else ARMS[::-1])]
+
+
 def timing_rows():
     """A/A service timing of one SHA-256 over 8 MiB (2 warmups, 5 blocks, arm order alternates).
     Records the timing recorder only: it does not calibrate a future encoder or change the P1 noise gate."""
     data = bytes(range(256)) * (TIMED_BYTES // 256)
     rows = []
-    for block in range(WARMUPS + BLOCKS):
-        for position, arm in enumerate(ARMS if block % 2 == 0 else ARMS[::-1]):
-            start = time.perf_counter_ns()
-            hashlib.sha256(data).digest()
-            rows.append({"arm": arm, "block": block, "ns": time.perf_counter_ns() - start, "position": position,
-                         "warmup": block < WARMUPS})
+    for block, arm, position, warmup in timing_plan():
+        start = time.perf_counter_ns()
+        hashlib.sha256(data).digest()
+        rows.append({"arm": arm, "block": block, "ns": time.perf_counter_ns() - start, "position": position, "warmup": warmup})
     return rows
 
 
@@ -162,16 +188,16 @@ def checksums(directory):
 
 def check_timings(text):
     rows = [json.loads(line) for line in text.splitlines()]
-    expected = {(b, a) for b in range(WARMUPS + BLOCKS) for a in ARMS}
-    check(len(rows) == len(expected) and {(r["block"], r["arm"]) for r in rows} == expected, "timings: missing or repeated row")
-    for r in rows:
-        check(set(r) == {"arm", "block", "ns", "position", "warmup"} and type(r["ns"]) is int and r["ns"] > 0
-              and r["warmup"] is (r["block"] < WARMUPS), "timings: malformed row")
+    check(all(type(r) is dict and set(r) == {"arm", "block", "ns", "position", "warmup"} and type(r["ns"]) is int and r["ns"] > 0
+              for r in rows), "timings: malformed row")
+    check([(r["block"], r["arm"], r["position"], r["warmup"]) for r in rows] == timing_plan(),
+          "timings: rows differ from the expected block, arm order and warmup sequence")
 
 
-def verify(directory):
+def verify(directory, name=None):
     """Errors for one retained bundle; [] means it recomputes. Checks identities, checksums and accounting."""
     directory = Path(directory)
+    name = name or directory.name
     try:
         present = {p.relative_to(directory).as_posix() for p in directory.rglob("*") if p.is_file()}
         check(present == FILES, f"files: missing {sorted(FILES - present)}, unexpected {sorted(present - FILES)}")
@@ -183,32 +209,37 @@ def verify(directory):
         check(run["status"] == "ok" and run.get("exit_code") == 0, f"run.json: status {run['status']!r} (failed or cancelled attempt)")
         check(HEX40.match(run["source_sha"] or "") and g["GITHUB_SHA"] == g["GITHUB_WORKFLOW_SHA"] == run["source_sha"], "run.json: source/workflow SHA")
         check(g["RUNNER_ARCH"] == "X64" and run["admission"].get("admitted") is True, "run.json: runner arch or admission")
-        check(directory.name == f"{g['GITHUB_RUN_ID']}-{g['GITHUB_RUN_ATTEMPT']}", "directory name differs from run id and attempt")
+        check(name == f"{g['GITHUB_RUN_ID']}-{g['GITHUB_RUN_ATTEMPT']}", "directory name differs from run id and attempt")
         doc = m.loads_strict((directory / "workload" / "handoff.json").read_bytes())
         fresh = handoff_doc()
         check(set(doc) == set(fresh) and set(doc["tools"]) == set(CODE), "handoff.json: unexpected schema")
-        for key in fresh.keys() - {"tools"}:
+        for key in fresh:
             check(doc[key] == fresh[key], f"handoff.json: {key} differs from recomputation")
         check_timings((directory / "workload" / "timings.jsonl").read_text())
     except (FoundationError, KeyError, TypeError, ValueError, AttributeError, OSError) as error:
-        return [f"{directory.name}: {type(error).__name__}: {error}"]
+        return [f"{name}: {type(error).__name__}: {error}"]
     return []
 
 
 def bundle(artifact):
-    """Retain a downloaded foundation artifact; refuses unless the result verifies."""
+    """Retain a downloaded foundation artifact. Copied and verified in a staging sibling, then renamed:
+    a missing or bad artifact leaves nothing under RESULTS."""
     artifact = Path(artifact)
     g = json.loads((artifact / "run.json").read_text())["environment"]["github"]
     dest = RESULTS / f"{g['GITHUB_RUN_ID']}-{g['GITHUB_RUN_ATTEMPT']}"
     check(not dest.exists(), f"{dest.name} is already retained")
-    for name in sorted(FILES - {"checksums.sha256"}):
-        (dest / name).parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(artifact / name, dest / name)
-    (dest / "checksums.sha256").write_text(checksums(dest))
-    errors = verify(dest)
-    if errors:
-        shutil.rmtree(dest)
-        raise FoundationError("; ".join(errors))
+    RESULTS.mkdir(parents=True, exist_ok=True)
+    stage = Path(tempfile.mkdtemp(prefix=f".{dest.name}.", dir=RESULTS))
+    try:
+        for name in sorted(FILES - {"checksums.sha256"}):
+            (stage / name).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(artifact / name, stage / name)
+        (stage / "checksums.sha256").write_text(checksums(stage))
+        errors = verify(stage, dest.name)
+        check(not errors, "; ".join(errors))
+        stage.rename(dest)
+    finally:
+        shutil.rmtree(stage, ignore_errors=True)
     return dest
 
 
