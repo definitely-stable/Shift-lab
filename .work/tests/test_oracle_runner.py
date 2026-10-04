@@ -63,7 +63,9 @@ if not decode:
     if MODE == 'enomem':
         sys.stderr.write('shim: Cannot allocate memory\n')
         sys.exit(1)
-    if MODE == 'bigfile':
+    if MODE == 'bigfile':  # a C codec keeps the default SIGXFSZ action; CPython ignores it unless restored
+        signal.signal(signal.SIGXFSZ, signal.SIG_DFL)
+    if MODE in ('bigfile', 'bigfile-efbig'):
         open(out, 'wb').write(b'\0' * (4 << 20))
     open(out, 'wb').write(b'JUNK' if MODE == 'garbage' else b'SHIM' + data)
     sys.exit(0)
@@ -220,8 +222,10 @@ class Runner(unittest.TestCase):
         self.assertEqual(result['run_status'], 'COMPLETE_WITH_FAILURES')
 
     def test_work_dir_cap_is_resource_limit(self):
-        _, result, _, private = self.run_shims(delta='bigfile', file_cap=1 << 20)
-        self.assertEqual(self.statuses(private), {('resource_limit', 'encode', 'work_dir')})
+        for mode in ('bigfile', 'bigfile-efbig'):  # killed by SIGXFSZ, or EFBIG for a codec that ignores it
+            with self.subTest(mode):
+                _, result, _, private = self.run_shims(delta=mode, file_cap=1 << 20, name=mode)
+                self.assertEqual(self.statuses(private), {('resource_limit', 'encode', 'work_dir')})
 
     def test_wrong_input_sha_is_input_integrity(self):
         store = self.tmp / 'syn' / 'store'
@@ -384,6 +388,17 @@ class SyntheticInputs(unittest.TestCase):
         self.assertEqual(len(gzip.decompress(a['C09'][1])), 48 << 10)
         self.assertEqual([len(a[c][1]) for c in ('C04', 'C06', 'C07')], [0, 0, 1])
         self.assertEqual(a['C08'][0], a['C08'][1])
+
+    def test_committed_golden_is_bound_to_this_lock_and_these_inputs(self):
+        golden = m.loads_strict(orun.GOLDEN.read_bytes())
+        self.assertEqual((golden['schema'], golden['contract_id'], golden['codec_lock_sha256']),
+                         ('delsk.oracle.conformance-golden.v1', 'delsk.oracle-contract.v1', orun.sha256(LOCK_DATA)))
+        inputs = {c: {'base': orun.sha256(b), 'target': orun.sha256(t)} for c, (b, t) in orun.conformance_inputs().items()}
+        self.assertEqual(golden['inputs_sha256'], inputs)
+        self.assertEqual(sorted(golden['golden']), [f'C{i:02d}' for i in range(2, 10)])
+        for digests in golden['golden'].values():
+            self.assertEqual(sorted(digests), ['frame_sha256', 'patch_sha256'])
+            self.assertTrue(all(ev.HEX64.match(d) for d in digests.values()))
 
     def test_frame_parsers(self):
         self.assertEqual(orun.vcdiff_windows(b'\xd6\xc3\xc4\x00\x00' + b'\x01\x05\x00\x02ab'), [1])

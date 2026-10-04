@@ -13,7 +13,7 @@
 | Tier | Trigger и runner | Hard cap | Содержимое / право делать вывод |
 |---|---|---|---|
 | Docs (готов) | push/PR/dispatch, ubuntu-24.04 | 1 job ×5 min | целостность пакета |
-| PR smoke (частично) | PR, x64 | ≤8 min; ≤64 MiB corpus | сейчас — unit tests docs job (contracts, admission, limits, frozen oracle contract и его known-answer vectors на test-only reference); codec build/conformance и production evaluator добавит DELSK-003 Slice B по [oracle contract §12](oracle/contract.md#12-ci-plan); без performance verdict |
+| PR smoke (готов) | PR, x64 | ≤8 min; ≤64 MiB corpus | unit tests docs job (contracts, admission, limits, frozen oracle contract на test-only reference) и `oracle-smoke.yml` DELSK-003 Slice B: сборка закреплённых codecs, conformance C01–C14, production evaluator K01–K42/G01–G09, mutants, fault injection, synthetic mini-run с bundle/verify ([Slice B](oracle/slice-b.md)); без performance verdict и без natural data |
 | Foundation (готов) | workflow_dispatch, ubuntu-24.04 x64 | 1 job ×30 min вместе с подготовкой; workload ≤22 min, work dir ≤1280 MiB, RLIMIT_AS 8 GiB | admission, identities, limits, failure evidence; без oracle и quality |
 | Pilot (план) | workflow_dispatch, x64 | ≤30 min; download≤256MiB; materialized≤1GiB; 4096 pairs/codec | стоимость oracle, noise A/A, baseline calibration; не финальное качество |
 | Decision shard (план) | workflow_dispatch, frozen source SHA, x64+native arm64 | 2×45min + summary≤5min =95 runner-min; ≤2GiB materialized/job; ≤20k pairs/codec/job | natural held-out quality и platform-scoped timing |

@@ -148,11 +148,11 @@ def read_regular(path, limit):
     return data if len(data) <= limit else None
 
 
-def encode_failure(call, output):
+def encode_failure(call, output, capped=False):
     """(status, phase, error_class) of a failed encode-side call, or None (contract section 5)."""
     if call["timed_out"]:
         return "timeout", "encode", "wall_timeout"
-    if call["signal"] == signal.SIGXFSZ:
+    if call["signal"] == signal.SIGXFSZ or (capped and call["exit"] != 0):  # a codec ignoring SIGXFSZ gets EFBIG
         return "resource_limit", "encode", "work_dir"
     if call["exit"] not in (0, None) and call["enomem"]:
         # ponytail: RLIMIT_AS shows up as the codec's own allocation error text; a codec that dies on an unchecked
@@ -196,7 +196,8 @@ def roundtrip(codec, inputs, encode_out, decode_inputs, target, work, file_cap, 
         enc = invoke(argv_for(entry["encode_argv"], codec["exe"], names), d, lim["encode_wall_seconds"],
                      lim["address_space_bytes"], file_cap)
         encoded = read_regular(d / names[encode_out], file_cap)
-        failure = encode_failure(enc, encoded)
+        capped = any(f.stat().st_size >= file_cap for f in d.iterdir() if f.is_file())
+        failure = encode_failure(enc, encoded, capped)
     finally:
         shutil.rmtree(d)
     if failure:

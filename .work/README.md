@@ -18,6 +18,7 @@
 | [E0 construction contract](corpus/e0/construction-spec.md) | Принятые решения A01–A10, ancestry и historical-byte evidence, контракт E1; E0 FROZEN_DESIGN |
 | [E1 sealed candidate universe](corpus/e1/README.md) | Sealed `C_t` (candidate lock v2), builder, независимый verifier, Actions evidence; E1 SEALED |
 | [DELSK-003 oracle contract](oracle/contract.md) | Frozen `delsk.oracle-contract.v1`: codec/framing lock, cost accounting, pair universe, evaluator, schemas, known answers, CI plan; natural oracle NOT_RUN |
+| [DELSK-003 Slice B](oracle/slice-b.md) | Production builder, runner, independent evaluator, codec conformance C01–C14 и PR smoke lane на synthetic data; natural oracle NOT_RUN, G1 NOT_RUN |
 | [План CI](ci-plan.md) | Ограниченные ресурсы, сценарии запуска, provenance |
 | [Гипотезы](hypotheses.md) | Проверяемые утверждения, ablations и stop criteria |
 | [Roadmap и issues](roadmap.md) | Очерёдность, зависимости и ссылки на задачи |
