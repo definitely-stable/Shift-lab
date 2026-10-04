@@ -20,10 +20,11 @@ ARCHIVE_FORMATS = {"tar.gz", "tar.xz", "tar.bz2", "zip"}
 MEMBER_TYPES = {"file", "dir", "symlink", "hardlink", "other"}
 EXCLUSION_REASONS = {
     "category_cap", "cross_split_content", "exact_target_bytes", "license_blocked",
-    "non_regular_member", "not_source_suffix", "out_of_stratum", "self",
+    "non_regular_member", "not_source_suffix", "self",
     "short_tail", "split_mismatch", "temporal_ineligible", "track_mismatch",
     "unknown_time", "vendor_or_shared_origin_path",
 }
+PROVENANCE_KEYS = {"member_path", "transform", "options", "offset", "length"}
 CANDIDATE_CATEGORIES = ("same_path_historical", "same_family_decoy", "foreign_family_decoy")
 # P1 hard ceilings; a policy may be stricter, never looser.
 P1_CAPS = {"acquired_bytes_max": 256 << 20, "materialized_bytes_max": 1 << 30,
@@ -204,6 +205,21 @@ def stratum_of(size, strata):
     return None
 
 
+def family_globs(plan):
+    return {f["family_id"]: [rule["glob"] for rule in f.get("exclude_globs", [])] for f in plan["families"]}
+
+
+def path_exclusion(path, family_id, policy, globs):
+    """(reason, detail) if a regular member path is not retained, else None."""
+    rules = policy["member_rules"]
+    if not path.endswith(tuple(rules["include_suffixes"])):
+        return "not_source_suffix", ""
+    for glob in [*rules["global_exclude_globs"], *globs.get(family_id, [])]:
+        if fnmatch.fnmatchcase(path, glob):
+            return "vendor_or_shared_origin_path", glob
+    return None
+
+
 def select_members(members, policy, family_globs):
     """Retain project-owned C/H members and pick one file-track member per stratum.
 
@@ -213,7 +229,6 @@ def select_members(members, policy, family_globs):
     release, so the same path is preferred in every release, and never reads
     bytes, patch costs or scores.
     """
-    rules = policy["member_rules"]
     seen, retained, exclusions = set(), [], []
     for member in sorted(members, key=lambda m: (m["source_id"], m["path"])):
         key = (member["source_id"], member["path"])
@@ -222,18 +237,10 @@ def select_members(members, policy, family_globs):
         seen.add(key)
         if not valid_member_path(member["path"]) or member["type"] not in MEMBER_TYPES:
             raise ValueError(f"unsafe member: {key}")
-        reason, detail = None, ""
         if member["type"] == "dir":
             continue
-        if member["type"] != "file":
-            reason = "non_regular_member"
-        elif not member["path"].endswith(tuple(rules["include_suffixes"])):
-            reason = "not_source_suffix"
-        else:
-            for glob in [*rules["global_exclude_globs"], *family_globs.get(member["family_id"], [])]:
-                if fnmatch.fnmatchcase(member["path"], glob):
-                    reason, detail = "vendor_or_shared_origin_path", glob
-                    break
+        reason, detail = ("non_regular_member", "") if member["type"] != "file" else \
+            path_exclusion(member["path"], member["family_id"], policy, family_globs) or (None, "")
         if reason:
             exclusions.append({"source_id": key[0], "path": key[1], "reason": reason, "detail": detail})
         else:
@@ -290,7 +297,8 @@ def validate_source_plan(plan):
                 err(f"{fid}: exclude glob needs a relative pattern and a reason")
             globs[fid].add(glob)
         releases = family.get("releases", [])
-        if [r.get("ordinal") for r in releases] != list(range(1, len(releases) + 1)):
+        ordinals = [r.get("ordinal") for r in releases]
+        if any(type(o) is not int for o in ordinals) or ordinals != list(range(1, len(releases) + 1)):
             err(f"{fid}: release ordinals must be 1..n in order")
         previous = None
         for release in releases:
@@ -349,6 +357,8 @@ def validate_selection_policy(policy):
         if track.get("lane") not in {"historical", "modeled"} or not track.get("transform"):
             err(f"track {track.get('id')}: needs lane and transform")
         unit = track.get("unit_bytes")
+        if track.get("per_member") is not (track.get("id") == "file" or unit is not None):
+            err(f"track {track.get('id')}: per_member must be true exactly for file and chunk tracks")
         if unit is not None and not (type(unit) is int and P1_CHUNK_RANGE[0] <= unit <= P1_CHUNK_RANGE[1]):
             err(f"track {track.get('id')}: chunk unit outside P1 chunk range")
     counts = policy.get("splits", {}).get("counts", [])
@@ -365,6 +375,11 @@ def validate_selection_policy(policy):
         err("selection policy: candidate category caps must be non-negative integers")
     elif type(max_targets) is not int or max_targets * per_target > caps.get("planned_pairs_per_codec_max", 0):
         err("selection policy: max_targets x candidate caps can exceed the pair cap")
+    ordinals = policy.get("targets", {}).get("release_ordinals")
+    if not ordinals or any(type(o) is not int or o < 2 for o in ordinals) or not _sorted_unique(ordinals):
+        err("selection policy: target release ordinals must be sorted unique integers >= 2")
+    if any(cand.get(flag) is not True for flag in ("same_split", "same_track", "temporal")):
+        err("selection policy: candidates must require same_split, same_track and temporal eligibility")
     if cand.get("pad_missing_categories") is not False:
         err("selection policy: missing candidate categories must never be padded")
     forbidden = set(policy.get("forbidden_selection_inputs", []))
@@ -384,6 +399,9 @@ def validate_corpus_lock(lock, plan, policy):
     err = errors.append
     if lock.get("schema") != "delsk.corpus.lock.v1":
         return ["corpus lock: unexpected schema"]
+    upstream = validate_source_plan(plan) + validate_selection_policy(policy)
+    if upstream:
+        return [f"corpus lock: invalid input: {e}" for e in upstream]
     if lock.get("source_plan_sha256") != file_sha256(plan):
         err("corpus lock: source plan hash mismatch")
     if lock.get("selection_policy_sha256") != file_sha256(policy):
@@ -398,6 +416,8 @@ def validate_corpus_lock(lock, plan, policy):
 
     planned = {r["release_id"]: (f["family_id"], r) for f in plan["families"] for r in f["releases"]}
     sources = {}
+    if not _sorted_unique([s.get("source_id") for s in lock.get("sources", [])]):
+        err("corpus lock: sources must be sorted by unique source_id")
     for source in lock.get("sources", []):
         sid = source.get("source_id")
         if sid in sources or sid not in planned:
@@ -406,11 +426,14 @@ def validate_corpus_lock(lock, plan, policy):
         family, release = planned[sid]
         if source.get("family_id") != family or source.get("url") != release["archive"]["url"]:
             err(f"source {sid}: family/url differ from source plan")
-        if not SHA256.match(str(source.get("archive_sha256"))) or type(source.get("archive_bytes")) is not int:
-            err(f"source {sid}: needs archive_sha256 and archive_bytes")
+        size = source.get("archive_bytes")
+        if not SHA256.match(str(source.get("archive_sha256"))) or type(size) is not int or size <= 0:
+            err(f"source {sid}: needs archive_sha256 and positive archive_bytes")
         sources[sid] = {**source, "interval": availability(release.get("time")),
                         "ordinal": release["ordinal"]}
-    acquired = sum(s.get("archive_bytes", 0) for s in sources.values() if type(s.get("archive_bytes")) is int)
+    if set(sources) != set(planned):
+        err("corpus lock: every planned release needs a source record (failures stop the lock)")
+    acquired = sum(s["archive_bytes"] for s in sources.values() if type(s.get("archive_bytes")) is int)
     if acquired > policy["caps"]["acquired_bytes_max"]:
         err("corpus lock: acquired bytes exceed cap")
     materialized = lock.get("materialized_bytes")
@@ -418,11 +441,12 @@ def validate_corpus_lock(lock, plan, policy):
         err("corpus lock: materialized_bytes missing or above cap")
 
     tracks = {t["id"]: t for t in policy["tracks"]}
+    globs = family_globs(plan)
     occurrences = lock.get("occurrences", [])
     ids = [o.get("occurrence_id") for o in occurrences]
     if not _sorted_unique(ids):
         err("corpus lock: occurrences must be sorted by unique occurrence_id")
-    by_id, sizes, splits_by_object, file_objects = {}, {}, {}, {}
+    by_id, sizes, splits_by_object, file_objects, positions = {}, {}, {}, {}, set()
     for occ in occurrences:
         oid, source = occ.get("occurrence_id"), sources.get(occ.get("source_id"))
         prov, track = occ.get("provenance", {}), tracks.get(occ.get("track"))
@@ -433,6 +457,13 @@ def validate_corpus_lock(lock, plan, policy):
         if not SHA256.match(str(occ.get("object_id"))) or type(occ.get("bytes")) is not int or occ["bytes"] < 0:
             err(f"occurrence {oid}: invalid object_id or bytes")
             continue
+        if type(prov) is not dict or set(prov) != PROVENANCE_KEYS:
+            err(f"occurrence {oid}: provenance must have exactly {sorted(PROVENANCE_KEYS)}")
+            continue
+        position = (occ["source_id"], occ["track"], prov["member_path"], prov["offset"])
+        if position in positions:
+            err(f"occurrence {oid}: duplicate (source, track, member_path, offset)")
+        positions.add(position)
         if oid != occurrence_id(occ["source_id"], prov):
             err(f"occurrence {oid}: id does not match provenance")
         if occ.get("family_id") != source["family_id"]:
@@ -444,29 +475,35 @@ def validate_corpus_lock(lock, plan, policy):
         path = prov.get("member_path")
         if (path is not None) != bool(track.get("per_member")) or (path is not None and not valid_member_path(path)):
             err(f"occurrence {oid}: member_path invalid for track")
+        elif path is not None and path_exclusion(path, source["family_id"], policy, globs):
+            err(f"occurrence {oid}: member_path is not a retained member (suffix/vendor/shared-origin rules)")
         unit = track.get("unit_bytes")
         if unit is not None:
             offset = prov.get("offset")
             if prov.get("options") != {"unit_bytes": unit} or prov.get("length") != unit or occ["bytes"] != unit \
                     or type(offset) is not int or offset < 0 or offset % unit:
                 err(f"occurrence {oid}: chunk span invalid")
-            if not SHA256.match(str(occ.get("parent_object_id"))):
-                err(f"occurrence {oid}: chunk needs parent_object_id")
-        elif prov.get("offset") is not None or prov.get("length") is not None or occ.get("parent_object_id") is not None:
-            err(f"occurrence {oid}: span/parent fields only allowed on chunk tracks")
+            parent_bytes = occ.get("parent_bytes")
+            if not SHA256.match(str(occ.get("parent_object_id"))) or type(parent_bytes) is not int:
+                err(f"occurrence {oid}: chunk needs parent_object_id and parent_bytes")
+            elif type(offset) is int and offset + unit > parent_bytes:
+                err(f"occurrence {oid}: chunk span exceeds parent_bytes")
+        elif prov["options"] != {} or prov["offset"] is not None or prov["length"] is not None \
+                or occ.get("parent_object_id") is not None or occ.get("parent_bytes") is not None:
+            err(f"occurrence {oid}: options/span/parent fields only allowed on chunk tracks")
         if occ["track"] == "file":
             if occ.get("stratum") != stratum_of(occ["bytes"], policy["file_strata"]) or occ.get("stratum") is None:
                 err(f"occurrence {oid}: stratum does not match size")
-            file_objects[(occ["source_id"], path)] = occ["object_id"]
+            file_objects[(occ["source_id"], path)] = (occ["object_id"], occ["bytes"])
         elif occ.get("stratum") is not None:
             err(f"occurrence {oid}: stratum only allowed on file track")
         if sizes.setdefault(occ["object_id"], occ["bytes"]) != occ["bytes"]:
             err(f"object {occ['object_id']}: same content id with different sizes")
         splits_by_object.setdefault(occ["object_id"], set()).add(occ.get("split"))
     for occ in occurrences:
-        parent = file_objects.get((occ.get("source_id"), occ.get("provenance", {}).get("member_path")))
-        if occ.get("parent_object_id") and parent and parent != occ["parent_object_id"]:
-            err(f"occurrence {occ['occurrence_id']}: parent_object_id differs from the file occurrence")
+        parent = file_objects.get((occ.get("source_id"), (occ.get("provenance") or {}).get("member_path")))
+        if occ.get("parent_object_id") and parent and parent != (occ["parent_object_id"], occ.get("parent_bytes")):
+            err(f"occurrence {occ['occurrence_id']}: parent_object_id/parent_bytes differ from the file occurrence")
 
     exclusions = lock.get("exclusions", [])
     keys = [(e.get("kind"), e.get("subject"), e.get("reason")) for e in exclusions]
@@ -475,8 +512,8 @@ def validate_corpus_lock(lock, plan, policy):
     for kind, subject, reason in keys:
         if reason not in EXCLUSION_REASONS or kind not in {"object", "occurrence", "member", "source"}:
             err(f"exclusion {subject}: unknown kind or reason")
-        if kind == "occurrence" and subject not in by_id:
-            err(f"exclusion {subject}: unknown occurrence")
+        if kind == "occurrence" and subject not in by_id or kind == "source" and subject not in sources:
+            err(f"exclusion {subject}: unknown {kind}")
     excluded_objects = {s for k, s, r in keys if k == "object" and r == "cross_split_content"}
     for object_id, splits in sorted(splits_by_object.items()):
         if len(splits) > 1 and object_id not in excluded_objects:
@@ -484,8 +521,17 @@ def validate_corpus_lock(lock, plan, policy):
     return errors
 
 
+def excluded_occurrences(lock):
+    """Occurrence IDs removed by object, occurrence, source or member (`source_id:path`) exclusions."""
+    subjects = {(e["kind"], e["subject"]) for e in lock.get("exclusions", [])}
+    return {o["occurrence_id"] for o in lock["occurrences"]
+            if ("occurrence", o["occurrence_id"]) in subjects or ("object", o["object_id"]) in subjects
+            or ("source", o["source_id"]) in subjects
+            or ("member", f"{o['source_id']}:{o['provenance']['member_path']}") in subjects}
+
+
 def _eligible(base, target, sources, excluded):
-    return (base["occurrence_id"] not in excluded and base["object_id"] not in excluded
+    return (base["occurrence_id"] not in excluded
             and base["split"] == target["split"] and base["track"] == target["track"]
             and time_eligible(sources[base["source_id"]], sources[target["source_id"]]))
 
@@ -520,7 +566,7 @@ def validate_candidate_lock(clock, lock, plan, policy):
     by_object = {}
     for occ in lock["occurrences"]:
         by_object.setdefault(occ["object_id"], []).append(occ)
-    excluded = {e["subject"] for e in lock.get("exclusions", []) if e["kind"] in {"object", "occurrence"}}
+    excluded = excluded_occurrences(lock)
     cand = policy["candidates"]
     queries = clock.get("queries", [])
     targets = [q.get("target") for q in queries]
@@ -532,7 +578,7 @@ def validate_candidate_lock(clock, lock, plan, policy):
         if target is None:
             err(f"query {tid}: unknown target occurrence")
             continue
-        if target["occurrence_id"] in excluded or target["object_id"] in excluded:
+        if target["occurrence_id"] in excluded:
             err(f"query {tid}: target is excluded")
         if ordinals[target["source_id"]] not in policy["targets"]["release_ordinals"]:
             err(f"query {tid}: target release not allowed")
@@ -542,7 +588,7 @@ def validate_candidate_lock(clock, lock, plan, policy):
         object_ids = [b.get("object_id") for b in bases]
         if not _sorted_unique(object_ids):
             err(f"query {tid}: bases must be sorted unique content IDs")
-        if query.get("candidate_count") != len(bases) or query.get("candidate_list_sha256") != digest(object_ids):
+        if type(query.get("candidate_count")) is not int or query["candidate_count"] != len(bases) or query.get("candidate_list_sha256") != digest(object_ids):
             err(f"query {tid}: candidate count/hash mismatch")
         status, duplicate = query.get("status"), occurrences.get(query.get("duplicate_of"))
         identical = [o for o in by_object[target["object_id"]] if _eligible(o, target, sources, excluded)]
@@ -584,7 +630,7 @@ def validate_candidate_lock(clock, lock, plan, policy):
             pairs += len(bases)
     if near > policy["targets"]["max_targets"]:
         err("candidate lock: too many near-duplicate targets")
-    if clock.get("planned_pairs_per_codec") != pairs:
+    if type(clock.get("planned_pairs_per_codec")) is not int or clock["planned_pairs_per_codec"] != pairs:
         err("candidate lock: planned_pairs_per_codec differs from the sum of |C_t|")
     if pairs > policy["caps"]["planned_pairs_per_codec_max"]:
         err("candidate lock: planned pairs exceed cap")

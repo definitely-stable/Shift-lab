@@ -89,13 +89,13 @@ class World:
     def add(self, sid, path, obj, track="file", offset=0, parent=None):
         t = next(t for t in self.policy["tracks"] if t["id"] == track)
         fam = sid.rsplit("-", 1)[0]
-        prov = {"transform": t["transform"], "member_path": path}
+        prov = {"transform": t["transform"], "member_path": path, "options": {}, "offset": None, "length": None}
         occ = {"source_id": sid, "family_id": fam, "split": self.split[fam], "track": track, "object_id": obj}
         if t["unit_bytes"] is None:
             occ.update(bytes=FILE_SIZE, stratum="f064k")
         else:
             prov.update(offset=offset, length=t["unit_bytes"], options={"unit_bytes": t["unit_bytes"]})
-            occ.update(bytes=t["unit_bytes"], parent_object_id=parent)
+            occ.update(bytes=t["unit_bytes"], parent_object_id=parent, parent_bytes=FILE_SIZE)
         occ.update(provenance=prov, occurrence_id=m.occurrence_id(sid, prov))
         self.lock["occurrences"].append(occ)
         return occ
@@ -579,7 +579,7 @@ class CorpusLockValidator(Base):
     def test_chunk_parent_differs_from_file_occurrence(self):
         chunk = self.w.find(f"{self.w.dev[0]}-1", "lib/a.c", "chunk-4k", 0)
         chunk["parent_object_id"] = h("other parent")
-        self.has(self.w.corpus_errors(), "parent_object_id differs from the file occurrence")
+        self.has(self.w.corpus_errors(), "parent_object_id/parent_bytes differ from the file occurrence")
 
     def test_file_with_parent_or_span_rejected(self):
         self.w.lock["occurrences"][0]["parent_object_id"] = OBJ0
@@ -835,6 +835,97 @@ class CandidateLockValidator(Base):
         w.seal()
         self.assertEqual(self.q["candidate_list_sha256"], digest)
         self.assertEqual(w.cand_errors(), [])
+
+
+class ReviewRegressions(Base):
+    """Holes found by the independent review of the first contract draft."""
+
+    def setUp(self):
+        self.w = World()
+        self.d0 = self.w.dev[0]
+
+    def test_vendor_contrib_and_suffix_paths_rejected_in_lock(self):
+        for path, plan_glob in (("contrib/x.c", None), ("zlibWrapper/gzlib.c", "zlibWrapper/*"), ("lib/a.txt", None)):
+            w = World()
+            if plan_glob:
+                fam = next(f for f in w.plan["families"] if f["family_id"] == w.dev[0])
+                fam["exclude_globs"] = [{"glob": plan_glob, "reason": "shared origin"}]
+            w.add(f"{w.dev[0]}-1", path, h("vendored", path))
+            w.seal()
+            self.has(w.corpus_errors(), "not a retained member")
+
+    def test_duplicate_member_position_rejected(self):
+        self.w.add(f"{self.d0}-1", "lib/b.c", h("other bytes"))
+        self.w.seal()
+        self.has(self.w.corpus_errors(), "duplicate (source, track, member_path, offset)")
+
+    def test_extra_or_missing_provenance_key_rejected(self):
+        occ = self.w.find(f"{self.d0}-1", "lib/b.c")
+        occ["provenance"]["extra"] = 1
+        self.w.reid(occ)
+        self.w.seal()
+        self.has(self.w.corpus_errors(), "provenance must have exactly")
+
+    def test_file_track_options_rejected(self):
+        occ = self.w.find(f"{self.d0}-1", "lib/b.c")
+        occ["provenance"]["options"] = {"x": 1}
+        self.w.reid(occ)
+        self.w.seal()
+        self.has(self.w.corpus_errors(), "only allowed on chunk tracks")
+
+    def test_negative_archive_bytes_cannot_offset_cap(self):
+        self.w.lock["sources"][0]["archive_bytes"] = -(10 ** 12)
+        self.w.lock["sources"][1]["archive_bytes"] = 10 ** 12
+        self.w.seal()
+        self.has(self.w.corpus_errors(), "positive archive_bytes")
+
+    def test_missing_source_record_rejected(self):
+        del self.w.lock["sources"][-1]
+        self.w.seal()
+        self.has(self.w.corpus_errors(), "every planned release needs a source record")
+
+    def test_unsorted_sources_rejected(self):
+        self.w.lock["sources"].reverse()
+        self.w.seal()
+        self.has(self.w.corpus_errors(), "sources must be sorted")
+
+    def test_chunk_beyond_parent_rejected(self):
+        self.w.add(f"{self.d0}-1", "lib/a.c", h("far chunk"), "chunk-4k", 4096 * 1000, h(self.d0, 1, "lib/a.c"))
+        self.w.seal()
+        self.has(self.w.corpus_errors(), "chunk span exceeds parent_bytes")
+
+    def test_source_and_member_exclusions_remove_bases(self):
+        for kind, subject in (("source", f"{self.d0}-2"), ("member", f"{self.d0}-2:lib/b.c")):
+            w = World()
+            w.exclude(kind, subject, "license_blocked")
+            w.seal()
+            self.assertEqual(w.corpus_errors(), [])
+            self.has(w.cand_errors(), "is not eligible")
+
+    def test_bool_counts_rejected(self):
+        w = self.w
+        w.requery(bases=[w.find(f"{self.d0}-1", "lib/a.c")])
+        w.cand["queries"][0]["candidate_count"] = True
+        self.has(w.cand_errors(), "candidate count/hash mismatch")
+        w.seal()
+        w.cand["planned_pairs_per_codec"] = True
+        self.has(w.cand_errors(), "planned_pairs_per_codec differs")
+
+    def test_policy_pins(self):
+        for path, value, text in ((("targets", "release_ordinals"), [1, 2, 3], "release ordinals"),
+                                  (("candidates", "same_split"), False, "same_split"),
+                                  (("candidates", "temporal"), False, "same_split")):
+            policy = copy.deepcopy(POLICY)
+            policy[path[0]][path[1]] = value
+            self.has(m.validate_selection_policy(policy), text)
+        policy = copy.deepcopy(POLICY)
+        policy["tracks"][0]["per_member"] = False
+        self.has(m.validate_selection_policy(policy), "per_member")
+
+    def test_corpus_lock_rejects_invalid_policy(self):
+        self.w.policy["caps"]["acquired_bytes_max"] = 10 ** 13
+        self.w.seal()
+        self.has(self.w.corpus_errors(), "invalid input")
 
 
 if __name__ == "__main__":
