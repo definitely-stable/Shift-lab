@@ -369,9 +369,14 @@ class Rows:
 
     def write(self, row):
         data = (json.dumps(row, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n").encode("utf-8")
-        while data:
-            data = data[os.write(self.fd, data):]
-        os.fsync(self.fd)
+        # An abort signal is delivered between rows, never inside one: a row is whole or absent.
+        blocked = signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGTERM, signal.SIGINT})
+        try:
+            while data:
+                data = data[os.write(self.fd, data):]
+            os.fsync(self.fd)
+        finally:
+            signal.pthread_sigmask(signal.SIG_SETMASK, blocked)
 
     def close(self):
         os.close(self.fd)

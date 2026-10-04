@@ -766,6 +766,7 @@ def check_identity(run, codec_lock_data):
     check(ident["sealed_splits"] == ["evaluation"], "sealed splits must be exactly the evaluation split")
     check(ident["measured_source_sha"] == run["github"]["sha"] == run["github"]["workflow_sha"],
           "measured source, GitHub and workflow SHA differ")
+    check(run["github"]["run_id"] > 0 and run["github"]["run_attempt"] > 0, "run.json: GitHub run ID and attempt")
     return lock
 
 
