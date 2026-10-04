@@ -248,7 +248,7 @@ class LimitTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             marker = Path(tmp) / "late"
             record = self.run_child("import subprocess,sys; subprocess.Popen([sys.executable,'-c',"
-                                    f"'import time,pathlib; time.sleep(2); pathlib.Path({str(marker)!r}).touch()'])")
+                                    f"'import time,pathlib; time.sleep(2); pathlib.Path({json.dumps(str(marker))}).touch()'])")
             self.assertEqual(record["status"], "ok")
             time.sleep(3)
             self.assertFalse(marker.exists())
