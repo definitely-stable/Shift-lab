@@ -36,8 +36,7 @@ SHIM = r'''#!{python}
 import os, signal, sys, time
 MODE, ROLE, PIDS, CALLS = {mode!r}, {role!r}, {pids!r}, {calls!r}
 args = sys.argv[1:]
-open(CALLS, 'a').write(ROLE + ' ' + ' '.join(args[:1]) + '
-')
+print(ROLE, *args[:1], file=open(CALLS, 'a'))
 null = os.stat('/dev/null')
 if set(os.environ) - {{'LC_ALL'}} or os.environ.get('LC_ALL') != 'C' or os.fstat(0).st_rdev != null.st_rdev:
     sys.exit(4)
@@ -487,6 +486,10 @@ class SyntheticInputs(unittest.TestCase):
         self.assertEqual(len(gzip.decompress(a['C09'][1])), 48 << 10)
         self.assertEqual([len(a[c][1]) for c in ('C04', 'C06', 'C07')], [0, 0, 1])
         self.assertEqual(a['C08'][0], a['C08'][1])
+
+    def test_fault_shims_compile(self):
+        for role in ('delta', 'standalone'):
+            compile(SHIM.format(python=sys.executable, mode='ok', role=role, pids='p', calls='c'), 'shim', 'exec')
 
     def test_committed_golden_is_bound_to_this_lock_and_these_inputs(self):
         golden = m.loads_strict(orun.GOLDEN.read_bytes())
