@@ -8,7 +8,7 @@ Gate вычисляется `python3 .work/tools/recompute_foundation.py readine
 
 ## Что должно быть для READY
 
-1. Sealed E1 и все pinned locks пересчитываются без corpus payload: content, lineage и candidate accounting сверяются с независимо выведенными seal summary и coverage (`handoff.json`).
+1. Freeze chain D → E0 → E1 (root records и все закреплённые ими файлы), tools и pinned locks пересчитываются без corpus payload: content, lineage и candidate accounting сверяются с независимо выведенными seal summary и coverage (`handoff.json`).
 2. В `.work/results/R0-FOUNDATION/` лежат минимум два bundle `<run-id>-<attempt>` из **разных** run ID, у которых `handoff.json` совпадает байт в байт. Каждый bundle проходит `verify`: checksums, run/source/workflow identities (x64, admitted, status `ok`), схема, пересчёт, структура A/A timings.
 3. Bundles попадают в репозиторий только через reviewed PR: workflow не получает права записи.
 
