@@ -36,9 +36,9 @@
 | A03 | `duplicate_of = min{id(b) : b ∈ D_t}` по полному eligible `D_t`. | Любой eligible duplicate (v1 M:664–668). | Один lock на один universe (V39). |
 | A04 | Category класса определяется экзистенциально по **всем** eligible aliases: `same_path_historical` если есть alias с `(family, member_path, offset)` = target; иначе `same_family_decoy` если есть alias той же family; иначе `foreign_family_decoy`. Representative на category не влияет. | Category по representative или по первому alias. | Сохраняет executable semantics M:612–619 (V38). |
 | A05 | Все ranks — total orders с secondary key (§4). | Stable sort по порядку входа. | Нет зависимости от iteration order при совпадении digest (V52). |
-| A06 | Только закрытый `delsk.candidate.lock.v2` ([schema](candidate-lock-v2.schema.json)). Bindings: `corpus_lock_sha256` (decompressed canonical D lock), `selection_policy_sha256`, `construction_spec_sha256` (bytes этого документа), `protocol_sha256`, `ancestry_audit_sha256` ([ancestry-audit.json](ancestry-audit.json)). Лишние ключи — ошибка. v1 и v1 extra keys для E sealing не используются. | Permissive v1 и sidecar. | Два исполнителя не могут разойтись extras или скрытыми правилами. Code SHA, run time и environment — только в run evidence. |
-| A07 | Eligibility clock остаётся release interval из B. Literal historical availability exact archive bytes — а значит и всех retained members, file track — **установлена evidence** (§5) для всех 18 archives и всех 62 пар sources, которые E может использовать. Chunk, tar и tar-gz остаются modeled lane: детерминированные преобразования исторически доступных bytes, сами преобразованные bytes исторически опубликованными не объявляются. | Безусловное «bytes были доступны в дату release» без evidence; сужение claim без проверки. | Claim опирается на датированные публичные записи. Время, roster и tracks не меняются. |
-| A08 | Ancestry закрыт reviewed audit всех 15 пар на acquired snapshots (§6). Шесть singleton components подтверждены в проверенной retained scope. | «Шесть labels достаточно». | Split assignment 4/1/1 без изменений; STOP не требуется. |
+| A06 | Только закрытый `delsk.candidate.lock.v2` ([schema](candidate-lock-v2.schema.json)). Bindings: `corpus_lock_sha256` (decompressed canonical D lock), `selection_policy_sha256`, `construction_spec_sha256` (bytes этого документа), `protocol_sha256`, `ancestry_audit_sha256` ([ancestry-audit.json](ancestry-audit.json)), `acquisition_freeze_sha256` (D freeze; транзитивно source lock, licenses, materialization) и `historical_bytes_sha256` ([historical-bytes.json](historical-bytes.json)). Каждый factual input этого contract привязан напрямую. Лишние ключи — ошибка. v1 и v1 extra keys для E sealing не используются. | Permissive v1 и sidecar. | Два исполнителя не могут разойтись extras или скрытыми правилами. Code SHA, run time и environment — только в run evidence. |
+| A07 | Eligibility clock остаётся release interval из B. Evidence (§5) устанавливает **pairwise ordering**: для всех 62 пар sources, которые E может использовать, exact archive bytes base публично засвидетельствованы раньше `lo(target)`. Base никогда не берётся из будущего. Это **не** доказывает, что exact bytes каждого target существовали внутри его release interval: у 11 из 18 archives первая запись позже `hi(release)` (до ~203 дней). Такие snapshots — retrospective, version-indexed. Chunk, tar и tar-gz — modeled lane. | Безусловное «bytes были доступны в дату release»; literal historical availability для всех 18 archives. | Selection и time rule не меняются; claim ограничен тем, что доказано. |
+| A08 | Ancestry проверен bounded audit всех 15 пар на acquired snapshots (§6): shared origin между families roster не установлен, каждый generated lead имеет reviewed disposition. Шесть singleton components — exploratory **upper-bound** assignment, не доказанная независимость. | «Шесть labels достаточно»; «singleton components confirmed». | Split assignment 4/1/1 без изменений; STOP не требуется. Confirmatory cohort требует второго, менее хрупкого clone signal (§6). |
 | A09 | Seal допускается только из полного hash-bound U (corpus lock `e5c288…`) и проходит двухслойную независимую проверку (§7). Schema-valid subset, replacement или reduced reference не являются authority. | «Schema-valid supplied subset». | Недобор bases, неверный first-N и cherry-picked targets отвергаются (V42, V43, V46). |
 | A10 | Construction API принимает только закрытые frozen metadata inputs §7.1. Score, patch cost, codec, encoder, result fields и callbacks — ошибка, а не молча отброшенные поля. Scorer получает проекцию `{object_id, bytes}` только после seal. | «Игнорировать result fields». | Score-free construction проверяема по API и imports (V29–V31). |
 
@@ -76,10 +76,12 @@ Hex digests сравниваются как ASCII-строки, что экви�
 Результат:
 
 - Для всех 18 archives есть хотя бы одна запись с теми же bytes. Архивных захватов с **другими** bytes по проверенным URL нет; найденные несовпадения — только HTML redirect или error pages.
-- SQLite, libpng и zstd подтверждены в день release. bzip2-1.0.6 — захват bzip.org 2010-11-20 (release 2010-09-06). zlib-1.3.1 — захват zlib.net 2024-01-23, на следующий день после release. curl, zlib-1.2.13/1.3 и bzip2-1.0.7/1.0.8 — первые захваты через 10–203 дней после release.
-- E может использовать 62 ordered пары sources (одна split, target ordinal 2/3, `hi(base) < lo(target)`). Во **всех 62** archive bytes base подтверждены раньше `lo(target)`. Поздний первый захват у части targets не создаёт leakage: если target на самом деле появился позже даты release, eligibility становится только консервативнее.
+- Не позже `hi(release)` засвидетельствованы 7 archives: SQLite и libpng (по 3) и zstd-1.5.6. Ещё 3 — сразу после `hi`: zstd-1.5.5 и 1.5.7 (asset загружен через 35 и 26 с после момента release) и zlib-1.3.1 (захват zlib.net через 2,3 ч). У остальных 8 первая запись на 10–203 дня позже: bzip2 (1.0.6 — bzip.org, 2010-11-20), curl, zlib-1.2.13 и 1.3.
+- E может использовать 62 ordered пары sources (одна split, target ordinal 2/3, `hi(base) < lo(target)`). Во **всех 62** archive bytes base засвидетельствованы раньше `lo(target)`.
 
-Допущения: целостность записей Wayback и платформ; стойкость SHA-1 и MD5 ко второму прообразу (для уже существующих archives она не нарушена); для SourceForge дополнительно совпадает size. Members извлекаются из archive детерминированно, поэтому вывод переходит на retained members и file track. Временная модель B (release intervals, strict `hi_b < lo_t`) не меняется; Wayback не стал новым clock.
+Что из этого следует. Доказано **pairwise no-future-base ordering**: ни одна пара E не использует base, чьи exact bytes не были публичны до cutoff target. Не доказано, что exact bytes каждого target существовали внутри его release interval: для 11 archives замена файла до первой записи не исключена, хотя ни одна contrary capture её не показывает. Такие target snapshots считаются retrospective, version-indexed. Leakage это не создаёт: если target на самом деле появился позже даты release, eligibility только консервативнее. Selection и time rule не меняются.
+
+Допущения: целостность записей Wayback и платформ; стойкость SHA-1 и MD5 ко второму прообразу (для уже существующих archives она не нарушена); для SourceForge дополнительно совпадает size. Members извлекаются из archive детерминированно, поэтому ordering переходит на retained members и file track. Временная модель B (release intervals, strict `hi_b < lo_t`) не меняется; записи не стали новым clock.
 
 ## 6. A08: ancestry audit
 
@@ -97,16 +99,17 @@ Workload `ancestry-audit` ([ancestry_audit.py](../../tools/ancestry_audit.py)) �
 
 - **Exact shared text.** 0 общих 12-line windows и 0 одинаковых member objects для всех 15 пар. Positive control того же detector: между releases одной family найдено от 4 325 (bzip2) до 187 563 (SQLite) общих windows. Ноль между families — не отказ detector.
 - **Leads по упоминаниям проектов.** bzip2→zlib (описание zlib-like API), curl↔zlib и curl↔zstd (опциональная линковка; zstd regression tests используют libcurl API), libpng→zlib (линковка; bound «based on deflateBound()» вычисляется собственным кодом), SQLite→zlib (shell extensions). Все — `no_shared_payload`. zlib↔zstd: plan edge `shared origin`, `path_excluded zlibWrapper/*`; после исключения общего текста нет — исключение достаточно на проверенном уровне.
-- **Внешние origins.** LibTomCrypt и libmicrohttpd (curl), Fossil и Keccak (SQLite), FSE/Huff0, xxHash references, folly CpuId и код G. Ottaviano (zstd). Каждый встречается ровно в одной family roster и не связывает две families. OpenSSL, SHA-1 и Unicode — стандартная лексика без общего текста.
-- **Итог.** Merges, новых exclusions и unresolved relations нет. Шесть singleton components, split counts development 4 / calibration 1 / evaluation 1 без изменений.
+- **Внешние origins.** LibTomCrypt, libmicrohttpd, rtmpdump, DJTAR и Heimdal gssapi.h (curl), Fossil и Keccak (SQLite), FSE/Huff0, xxHash references, folly CpuId и код G. Ottaviano (zstd). Каждый встречается ровно в одной family roster и не связывает две families. OpenSSL, SHA-1 и Unicode — стандартная лексика без общего текста.
+- **Полнота review.** [origin_leads.py](../../tools/origin_leads.py) детерминированно выводит из evidence 598 leads со стабильными ID: упоминания других проектов по (family, path), provenance markers и notices с именами авторов других families. В audit у каждого ID ровно одна disposition; `unresolved` вычисляется из dispositions. CI требует точного равенства множеств generated и reviewed leads ([test_e0_freeze.py](../../tests/test_e0_freeze.py)). Unresolved leads нет.
+- **Итог.** В пределах этого bounded audit shared origin между families roster не установлен; merges и новых exclusions нет. Split counts development 4 / calibration 1 / evaluation 1 без изменений.
 
-Границы: метод находит только точный последовательный текст. Изменённые, переформатированные или непоследовательные копии могут быть пропущены. Отрицательная строка означает «в проверенной retained scope shared origin не установлен», не абсолютную независимость проектов. Шесть components остаются верхней границей независимых lineage units; held-out lineage count = 1 per split, exploratory статус pilot не меняется.
+Границы: detector находит только точный последовательный текст. Positive control показывает чувствительность к почти неизменённым копиям, но не оценивает false negatives для изменённого или переформатированного shared code. Поэтому шесть singleton components — exploratory **upper-bound** assignment, а не подтверждённая независимость. Held-out lineage count = 1 per split, exploratory статус pilot не меняется. Для confirmatory cohort нужен второй, менее хрупкий clone signal (normalized-token или winnowing fingerprints) с disposition найденных leads.
 
 ## 7. E1 contract
 
 ### 7.1 Inputs
 
-`plan, policy, source_lock, corpus_lock, acquisition_freeze, ancestry_audit, construction_spec` — strict canonical bytes с ожидаемыми hashes из §2 и [freeze.json](freeze.json). Других inputs нет. Unknown field, unknown recipe или mismatch hash → отказ без частичного вывода.
+`plan, policy, source_lock, corpus_lock, acquisition_freeze, ancestry_audit, historical_bytes, construction_spec` — strict canonical bytes с ожидаемыми hashes из §2 и [freeze.json](freeze.json). Других inputs нет. Unknown field, unknown recipe или mismatch hash → отказ без частичного вывода.
 
 ### 7.2 Двухслойная независимая проверка (A09)
 
@@ -119,7 +122,7 @@ Verifier не импортирует selector, category или scheduler E1 и �
 
 ### 7.3 Обязательные tests до seal
 
-Все 56 adversarial cases и 18 properties спецификации §§13–14 с ожидаемыми исходами оттуда. Concrete golden vectors V01, V23, V28, V38, V39, V40, V47, V52 уже закреплены в [golden-vectors.json](golden-vectors.json) и проверяются в CI ([test_e0_vectors.py](../../tests/test_e0_vectors.py)): каждый hash пересчитывается, а ожидаемые queries и traversal воспроизводит медленный test-only reference evaluator правил этого документа. E1 builder обязан давать те же bytes, но не может импортировать этот evaluator.
+Все 56 adversarial cases и 18 properties спецификации §§13–14 с ожидаемыми исходами оттуда. Concrete golden vectors V01, V23, V28, V38, V39, V40, V47, V52 уже закреплены в [golden-vectors.json](golden-vectors.json) и проверяются в CI ([test_e0_vectors.py](../../tests/test_e0_vectors.py)): каждый hash пересчитывается, а ожидаемые queries и traversal воспроизводит медленный test-only reference evaluator правил этого документа. Mutant tests там же показывают, что vectors различают правила: max вместо min для `duplicate_of` и representative, нестрогая граница времени, identity в near quota и отключённый same-family precedence — каждый проваливает хотя бы один vector. E1 builder обязан давать те же bytes, но не может импортировать этот evaluator.
 
 ## 8. Coverage contract
 
@@ -130,9 +133,14 @@ Verifier не импортирует selector, category или scheduler E1 и �
 | Замечание | Решение |
 |---|---|
 | A01–A06, A09, A10 — semantic decisions, принимаются до encoder/scorer | Приняты в §3 |
-| A07 и A08 нельзя «принять решением», нужна evidence | Закрыты фактами: §5 (датированные публичные записи тех же archive bytes для 18/18 archives и 62/62 пар) и §6 (audit всех 15 пар на acquired snapshots) |
+| A07 и A08 нельзя «принять решением», нужна evidence | Закрыты фактами в доказанном объёме: §5 (pairwise ordering для 62/62 пар по датированным публичным записям) и §6 (bounded audit всех 15 пар на acquired snapshots) |
 | Нужна двухслойная проверка source→U и U→queries | §7.2 нормативно |
 | Нет governance для rulings | §1 |
 | Противоречие в спецификации §2.3 о локальных probes | Исправлено: контрпримеры выведены статически, локальные вызовы validator evidence не являются |
 | Не оценена трудоёмкость ancestry audit | Фактически: три foundation runs по ~1 мин и review leads. Метод масштабируется на новые families тем же workload |
 | Независимость двух аудитов недоказуема изнутри workspace | Принято как ограничение процесса. Решения опираются на воспроизводимые hashes и Actions evidence, а не на согласие аудитов |
+| PR review: A07 overclaim (target bytes вне release interval у 11/18) | A07 сужен до pairwise no-future-base ordering; delayed target snapshots — retrospective, version-indexed (§3, §5) |
+| PR review: lock v2 не привязывал D freeze и A07 evidence | `acquisition_freeze_sha256` и `historical_bytes_sha256` добавлены в schema, golden lock vector, freeze и tests (A06) |
+| PR review: полнота A08 review не проверялась CI | Stable lead IDs и exact set closure generated = reviewed; `unresolved` выводится (§6) |
+| PR review: «components confirmed» сильнее exact-text evidence | Формулировка сужена до bounded audit и upper-bound assignment; второй clone signal — требование confirmatory cohort (A08, §6) |
+| PR review: утверждение о mutation tests не подкреплено кодом | Добавлены `MutantTests` в test_e0_vectors.py (§7.3) |

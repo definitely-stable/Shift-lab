@@ -217,6 +217,10 @@
   "additionalProperties": false,
   "description": "Closed structural contract for the adopted E0 pilot design. Passing this schema does not establish canonical bytes, complete input admission, exact scheduling or first-N selection. Semantics: construction-spec.md; concrete expectations: golden-vectors.json.",
   "properties": {
+    "acquisition_freeze_sha256": {
+      "$ref": "#/$defs/sha256",
+      "description": "SHA-256 of the exact Slice D acquisition freeze record; transitively pins source lock, licenses and materialization."
+    },
     "ancestry_audit_sha256": {
       "$ref": "#/$defs/sha256",
       "description": "SHA-256 of the adopted ancestry audit in canonical file form."
@@ -228,6 +232,10 @@
     "corpus_lock_sha256": {
       "$ref": "#/$defs/sha256",
       "description": "SHA-256 of the complete decompressed D lock in canonical file form, not the gzip container."
+    },
+    "historical_bytes_sha256": {
+      "$ref": "#/$defs/sha256",
+      "description": "SHA-256 of the adopted A07 historical-bytes evidence in canonical file form."
     },
     "planned_pairs_per_codec": {
       "maximum": 4096,
@@ -275,6 +283,8 @@
     "construction_spec_sha256",
     "protocol_sha256",
     "ancestry_audit_sha256",
+    "acquisition_freeze_sha256",
+    "historical_bytes_sha256",
     "planned_pairs_per_codec",
     "queries"
   ],

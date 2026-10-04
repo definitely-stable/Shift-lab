@@ -12,6 +12,7 @@ WORK = ROOT / '.work'
 E0 = WORK / 'corpus' / 'e0'
 sys.path.insert(0, str(WORK / 'tools'))
 import manifests as m
+import origin_leads
 
 
 def sha(path):
@@ -47,7 +48,9 @@ class E0FreezeTests(unittest.TestCase):
             'selection_policy_sha256': inputs['.work/corpus/selection-policy.json'],
             'protocol_sha256': inputs['.work/protocol.md'],
             'construction_spec_sha256': files['.work/corpus/e0/construction-spec.md'],
-            'ancestry_audit_sha256': files['.work/corpus/e0/ancestry-audit.json']})
+            'ancestry_audit_sha256': files['.work/corpus/e0/ancestry-audit.json'],
+            'acquisition_freeze_sha256': inputs['.work/corpus/pilot-v1/freeze.json'],
+            'historical_bytes_sha256': files['.work/corpus/e0/historical-bytes.json']})
         self.assertEqual(self.source_lock['source_plan_sha256'], inputs['.work/corpus/source-plan.json'])
         self.assertEqual(self.source_lock['selection_policy_sha256'], inputs['.work/corpus/selection-policy.json'])
 
@@ -82,7 +85,7 @@ class E0FreezeTests(unittest.TestCase):
             self.assertEqual((row['shared_window_hashes'], row['identical_member_objects']),
                              (e['shared_window_hashes'], e['identical_member_objects']))
         self.assertTrue(all(evidence['within_family_cross_release_window_hashes'][f] > 0 for f in families))
-        self.assertEqual(audit['result']['unresolved'], [])
+        self.assert_leads_closed(audit, evidence)
         self.assertEqual(audit['result']['merges'], [])
         components, assigned = m._family_splits(self.plan, self.policy)
         self.assertEqual([list(c) for c in components], audit['result']['components'])
@@ -91,6 +94,29 @@ class E0FreezeTests(unittest.TestCase):
             counts[split] = counts.get(split, 0) + 1
         self.assertEqual(counts, audit['result']['split_component_counts'])
         self.assertEqual(counts, dict(self.policy['splits']['counts']))
+
+    def assert_leads_closed(self, audit, evidence):
+        """Every generated lead has exactly one reviewed disposition; unresolved is derived, not declared."""
+        generated = origin_leads.generate(evidence)
+        reviewed = [{k: v for k, v in lead.items() if k not in ('disposition', 'reference')}
+                    for lead in audit['leads']]
+        self.assertEqual(reviewed, generated)
+        dispositions = {'algorithm_or_standard_reference', 'api_dependency', 'contributor_credit',
+                        'descriptive_text', 'external_origin', 'generated_first_party', 'intra_family',
+                        'public_domain_notice', 'roster_api_reference', 'standard_vocabulary', 'unresolved'}
+        origins = {o['origin']: o for o in audit['external_origins']}
+        pairs = {p['a'] + '-' + p['b']: p for p in audit['pairs']}
+        for lead in audit['leads']:
+            self.assertIn(lead['disposition'], dispositions)
+            if lead['disposition'] == 'external_origin':
+                self.assertEqual(origins[lead['reference']]['families'], [lead['family_id']])
+            if lead['disposition'] == 'roster_api_reference':
+                self.assertIn(lead['family_id'], lead['reference'].split('-'))
+                self.assertNotEqual(pairs[lead['reference']]['relation'], 'none_found')
+        self.assertTrue(all(len(o['families']) == 1 for o in origins.values()))
+        self.assertEqual(audit['result']['unresolved'],
+                         [lead['id'] for lead in audit['leads'] if lead['disposition'] == 'unresolved'])
+        self.assertEqual(audit['result']['unresolved'], [])
 
     def test_historical_bytes_match_acquired_archives(self):
         history = load(E0 / 'historical-bytes.json')

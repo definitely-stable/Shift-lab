@@ -23,7 +23,8 @@ CAPS = {'same_path_historical': 2, 'same_family_decoy': 30, 'foreign_family_deco
 QUERY_KEYS = {'target', 'status', 'duplicate_of', 'bases', 'candidate_count', 'candidate_list_sha256'}
 BASE_KEYS = {'object_id', 'representative', 'category'}
 LOCK_KEYS = {'schema', 'corpus_lock_sha256', 'selection_policy_sha256', 'construction_spec_sha256',
-             'protocol_sha256', 'ancestry_audit_sha256', 'planned_pairs_per_codec', 'queries'}
+             'protocol_sha256', 'ancestry_audit_sha256', 'acquisition_freeze_sha256', 'historical_bytes_sha256',
+             'planned_pairs_per_codec', 'queries'}
 
 
 def compact(value):
@@ -46,6 +47,9 @@ def load_vectors():
 class World:
     """Reference E predicates over one synthetic projection (exclusions are empty)."""
 
+    # Rule knobs exist only so MutantTests can show the vectors reject wrong rules; defaults are the adopted ones.
+    pick, strict_time, identity_takes_quota, same_family_precedence = min, True, False, True
+
     def __init__(self, world):
         self.sources = {s['source_id']: s for s in world['sources']}
         self.occ = world['occurrences']
@@ -64,7 +68,8 @@ class World:
         return (b['object_id'] not in self.cross_split and b['occurrence_id'] != t['occurrence_id']
                 and b['split'] == t['split'] and b['track'] == t['track']
                 and b['provenance']['options'] == t['provenance']['options']
-                and self.interval(b)[1] < self.interval(t)[0])
+                and (self.interval(b)[1] < self.interval(t)[0] if self.strict_time
+                     else self.interval(b)[1] <= self.interval(t)[0]))
 
     def query(self, t):
         pool = collections.defaultdict(list)  # A_t: object -> eligible occurrences
@@ -74,7 +79,7 @@ class World:
         dup = pool.pop(t['object_id'], None)
         if dup:
             return {'target': t['occurrence_id'], 'status': 'identity_only',
-                    'duplicate_of': min(b['occurrence_id'] for b in dup), 'bases': [],
+                    'duplicate_of': self.pick(b['occurrence_id'] for b in dup), 'bases': [],
                     'candidate_count': 0, 'candidate_list_sha256': hc([])}
         pos = (t['family_id'], t['provenance']['member_path'], t['provenance']['offset'])
         by_category = collections.defaultdict(list)
@@ -82,7 +87,7 @@ class World:
             if any((b['family_id'], b['provenance']['member_path'], b['provenance']['offset']) == pos
                    for b in aliases):
                 k = 'same_path_historical'
-            elif any(b['family_id'] == t['family_id'] for b in aliases):
+            elif self.same_family_precedence and any(b['family_id'] == t['family_id'] for b in aliases):
                 k = 'same_family_decoy'
             else:
                 k = 'foreign_family_decoy'
@@ -91,7 +96,7 @@ class World:
         for k, xs in by_category.items():
             xs.sort(key=lambda x: (hc(['candidate', SEED, t['occurrence_id'], x]), x))
             bases += [{'object_id': x, 'category': k,
-                       'representative': min(b['occurrence_id'] for b in pool[x])} for x in xs[:CAPS[k]]]
+                       'representative': self.pick(b['occurrence_id'] for b in pool[x])} for x in xs[:CAPS[k]]]
         bases.sort(key=lambda v: v['object_id'])
         ids = [v['object_id'] for v in bases]
         return {'target': t['occurrence_id'], 'status': 'near_duplicate', 'duplicate_of': None,
@@ -113,7 +118,7 @@ class World:
                     continue
                 q = self.query(groups[g].pop(0))
                 visited.append((g, q))
-                near += q['status'] == 'near_duplicate'
+                near += self.identity_takes_quota or q['status'] == 'near_duplicate'
         return visited, [t['occurrence_id'] for g in order for t in groups[g]]
 
 
@@ -169,7 +174,9 @@ class VectorHashTests(unittest.TestCase):
         for key, name in (('corpus_lock_sha256', 'corpus_projection'), ('protocol_sha256', 'protocol'),
                           ('selection_policy_sha256', 'selection_policy'),
                           ('construction_spec_sha256', 'construction_spec'),
-                          ('ancestry_audit_sha256', 'ancestry_audit')):
+                          ('ancestry_audit_sha256', 'ancestry_audit'),
+                          ('acquisition_freeze_sha256', 'acquisition_freeze'),
+                          ('historical_bytes_sha256', 'historical_bytes')):
             self.assertEqual(lock[key], hf(b[name]), key)
         schema = m.loads_strict((E0 / 'candidate-lock-v2.schema.json').read_bytes())
         self.assertEqual(set(schema['required']), LOCK_KEYS)
@@ -188,11 +195,13 @@ class VectorHashTests(unittest.TestCase):
 
 
 class ReferenceEvaluatorTests(unittest.TestCase):
+    world = World
+
     def setUp(self):
         self.cases = {c['id']: c for c in load_vectors()['cases']}
 
     def queries(self, case):
-        w = World(case['input'])
+        w = self.world(case['input'])
         return w, {o['occurrence_id']: w.query(o) for o in w.occ if w.is_target(o)}
 
     def assert_query_shape(self, q):
@@ -215,7 +224,7 @@ class ReferenceEvaluatorTests(unittest.TestCase):
             world = dict(c['input'])
             if permute:
                 world['occurrences'] = list(reversed(world['occurrences']))
-            visited, unvisited = World(world).schedule(c['fixture_only_near_quota'])
+            visited, unvisited = self.world(world).schedule(c['fixture_only_near_quota'])
             self.assertEqual([q['target'] for _, q in visited], e['visited_target_ids'])
             self.assertEqual(unvisited, e['unvisited_target_ids'])
             self.assertEqual([list(g) for g, _ in visited], [t['group'] for t in e['traversal']])
@@ -232,6 +241,27 @@ class ReferenceEvaluatorTests(unittest.TestCase):
         self.assert_query_shape(q)
         self.assertEqual(got[q['target']], q)
         self.assertEqual(q['bases'][0]['representative'], c['roles']['foreign_representative'])
+
+
+
+class MutantTests(unittest.TestCase):
+    """Each wrong rule makes at least one golden vector fail, so the vectors discriminate."""
+
+    MUTANTS = {'max duplicate/representative': {'pick': max},
+               'non-strict time boundary': {'strict_time': False},
+               'identity consumes near quota': {'identity_takes_quota': True},
+               'no same-family precedence': {'same_family_precedence': False}}
+
+    def test_vectors_reject_mutants(self):
+        tests = [n for n in dir(ReferenceEvaluatorTests) if n.startswith('test_')]
+        for name, knobs in self.MUTANTS.items():
+            mutant = type('Mutant', (World,), {k: (staticmethod(v) if callable(v) else v) for k, v in knobs.items()})
+            case = type('Case', (ReferenceEvaluatorTests,), {'world': mutant})
+            result = unittest.TestResult()
+            unittest.TestSuite(case(n) for n in tests).run(result)
+            with self.subTest(mutant=name):
+                self.assertEqual(result.errors, [])
+                self.assertTrue(result.failures, name + ' passed all golden vectors')
 
 
 if __name__ == '__main__':

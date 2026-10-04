@@ -2,6 +2,10 @@
   "canonical_vectors": {
     "candidate_lock_file": {
       "binding_values": {
+        "acquisition_freeze": {
+          "schema": "delsk.fixture.acquisition-freeze.v1",
+          "scope": "synthetic; no reviewed acquisition"
+        },
         "ancestry_audit": {
           "schema": "delsk.fixture.ancestry.v1",
           "scope": "synthetic; no reviewed ancestry claim"
@@ -149,6 +153,10 @@
             }
           ]
         },
+        "historical_bytes": {
+          "schema": "delsk.fixture.historical-bytes.v1",
+          "scope": "synthetic; no historical-byte claim"
+        },
         "protocol": {
           "schema": "delsk.fixture.protocol.v1",
           "scope": "synthetic; not the frozen protocol"
@@ -163,14 +171,16 @@
           "seed": 20261004
         }
       },
-      "byte_length": 1489,
-      "canonical_utf8": "{\n  \"ancestry_audit_sha256\": \"da7b56002df22e9c0a25d6c4d8f7e010351df0b0dcecd62bd010967ea6580a1c\",\n  \"construction_spec_sha256\": \"4dd3f43e1f5042e56ae42ee7d485d6ca9c56e9c5da855a72a9b2d9df3ad1a54e\",\n  \"corpus_lock_sha256\": \"2aaf3a39e77a403507ba9715c98d74a97081642a08df153c180d89b7bf99727a\",\n  \"planned_pairs_per_codec\": 1,\n  \"protocol_sha256\": \"4940c009ab43fa4a2ac9b38fb051c9ae106dcdba29eae5693761e63a0f5b3da2\",\n  \"queries\": [\n    {\n      \"bases\": [],\n      \"candidate_count\": 0,\n      \"candidate_list_sha256\": \"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945\",\n      \"duplicate_of\": \"6ff137c56a2e8555b630d2be2d70f018e728f4ba7368edcb8cc8b7f6d789ba3b\",\n      \"status\": \"identity_only\",\n      \"target\": \"6a6364379956483435811461efc47c6bcd160e322663353a20c7df2098ed6510\"\n    },\n    {\n      \"bases\": [\n        {\n          \"category\": \"same_family_decoy\",\n          \"object_id\": \"267e5d2bb42138bdf23ccb5fbdea09385169de4c686f7c12034ccd7bb0c6899d\",\n          \"representative\": \"6ff137c56a2e8555b630d2be2d70f018e728f4ba7368edcb8cc8b7f6d789ba3b\"\n        }\n      ],\n      \"candidate_count\": 1,\n      \"candidate_list_sha256\": \"8dd3c167ee9c77ae6a48324462ec121a301a83a15f7d28c2e0a3b8f31cbde650\",\n      \"duplicate_of\": null,\n      \"status\": \"near_duplicate\",\n      \"target\": \"9fe82b4e51878b3140d66e61651572a90fd3e15cefb7c5152f4138341ddff995\"\n    }\n  ],\n  \"schema\": \"delsk.candidate.lock.v2\",\n  \"selection_policy_sha256\": \"2ea8cf5e6b3af3d88f25776b4bf6e94f972a59cda887f100649eb08dbbaee4fa\"\n}\n",
+      "byte_length": 1685,
+      "canonical_utf8": "{\n  \"acquisition_freeze_sha256\": \"a6e32fa372162acabcd7b8a6f4f7d8b8ee6c382390e819d7b1ed00b83deee5f0\",\n  \"ancestry_audit_sha256\": \"da7b56002df22e9c0a25d6c4d8f7e010351df0b0dcecd62bd010967ea6580a1c\",\n  \"construction_spec_sha256\": \"4dd3f43e1f5042e56ae42ee7d485d6ca9c56e9c5da855a72a9b2d9df3ad1a54e\",\n  \"corpus_lock_sha256\": \"2aaf3a39e77a403507ba9715c98d74a97081642a08df153c180d89b7bf99727a\",\n  \"historical_bytes_sha256\": \"96992343bd5702babf243e2a8794fa55d48e6944a78e66e5dc40ec7b33697079\",\n  \"planned_pairs_per_codec\": 1,\n  \"protocol_sha256\": \"4940c009ab43fa4a2ac9b38fb051c9ae106dcdba29eae5693761e63a0f5b3da2\",\n  \"queries\": [\n    {\n      \"bases\": [],\n      \"candidate_count\": 0,\n      \"candidate_list_sha256\": \"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945\",\n      \"duplicate_of\": \"6ff137c56a2e8555b630d2be2d70f018e728f4ba7368edcb8cc8b7f6d789ba3b\",\n      \"status\": \"identity_only\",\n      \"target\": \"6a6364379956483435811461efc47c6bcd160e322663353a20c7df2098ed6510\"\n    },\n    {\n      \"bases\": [\n        {\n          \"category\": \"same_family_decoy\",\n          \"object_id\": \"267e5d2bb42138bdf23ccb5fbdea09385169de4c686f7c12034ccd7bb0c6899d\",\n          \"representative\": \"6ff137c56a2e8555b630d2be2d70f018e728f4ba7368edcb8cc8b7f6d789ba3b\"\n        }\n      ],\n      \"candidate_count\": 1,\n      \"candidate_list_sha256\": \"8dd3c167ee9c77ae6a48324462ec121a301a83a15f7d28c2e0a3b8f31cbde650\",\n      \"duplicate_of\": null,\n      \"status\": \"near_duplicate\",\n      \"target\": \"9fe82b4e51878b3140d66e61651572a90fd3e15cefb7c5152f4138341ddff995\"\n    }\n  ],\n  \"schema\": \"delsk.candidate.lock.v2\",\n  \"selection_policy_sha256\": \"2ea8cf5e6b3af3d88f25776b4bf6e94f972a59cda887f100649eb08dbbaee4fa\"\n}\n",
       "scope": "schema-shape and serialization example only; synthetic bindings, requested-target projection, not a complete scheduled/admissible lock",
-      "sha256": "e85bd93fb426c7e4dfbef90ec6bab78f8be534151de862abbbd686631e51adc0",
+      "sha256": "8281dfea57e43049172ecbabe97b5a6d39cc67c06f4fa9f020091d586428ba50",
       "value": {
+        "acquisition_freeze_sha256": "a6e32fa372162acabcd7b8a6f4f7d8b8ee6c382390e819d7b1ed00b83deee5f0",
         "ancestry_audit_sha256": "da7b56002df22e9c0a25d6c4d8f7e010351df0b0dcecd62bd010967ea6580a1c",
         "construction_spec_sha256": "4dd3f43e1f5042e56ae42ee7d485d6ca9c56e9c5da855a72a9b2d9df3ad1a54e",
         "corpus_lock_sha256": "2aaf3a39e77a403507ba9715c98d74a97081642a08df153c180d89b7bf99727a",
+        "historical_bytes_sha256": "96992343bd5702babf243e2a8794fa55d48e6944a78e66e5dc40ec7b33697079",
         "planned_pairs_per_codec": 1,
         "protocol_sha256": "4940c009ab43fa4a2ac9b38fb051c9ae106dcdba29eae5693761e63a0f5b3da2",
         "queries": [
