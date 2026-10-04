@@ -1,0 +1,23 @@
+{
+  "checks": {
+    "source_to_u": {
+      "actual_positions": 32391,
+      "cross_split_objects": 0,
+      "expected_positions": 32391,
+      "extra": 0,
+      "materialized_bytes": 446924313,
+      "missing": 0,
+      "sources": 18
+    },
+    "u_to_queries": {
+      "candidate_lock_sha256": "cb16d53b164ff393187e0115bdf31c52ac717a5172fb1e91889b5988ac019d2e",
+      "near_queries": 64,
+      "planned_pairs_per_codec": 1961,
+      "queries": 79,
+      "targets_all": 21724
+    }
+  },
+  "errors": [],
+  "schema": "delsk.e1.verification.v1",
+  "status": "ok"
+}

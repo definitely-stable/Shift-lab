@@ -1,0 +1,59 @@
+{
+  "bindings": {
+    "acquisition_freeze_sha256": "8814ce0221b2b890f1710476da0c1a31771e7528d81cfc3a99ffa10acc88e8da",
+    "ancestry_audit_sha256": "99d6c4142c0e3a1796d6e877af456f7683ebdf32cbf9519004152b3b59b6b04f",
+    "construction_spec_sha256": "b91e54d62aae22ed9cc898abb65e62dd78e47505f63a51a929d445947abf54f8",
+    "corpus_lock_sha256": "e5c288256bed284572a9f111186411517b4c73d097d13aea4cf48e2fb9f6fffa",
+    "historical_bytes_sha256": "bf48bb970327a53be751cffe7d60ef0e142da7414f2539cdc332a3ce2a0a0b0c",
+    "protocol_sha256": "a0c518247d111e8ad1294562d65eb34c28da87c7027c009efb64a39e6f4e0038",
+    "selection_policy_sha256": "539642ffb9a65f4fe49f42ea99d26b416c2ab40583021b3fe8d2aa8d415cbd50"
+  },
+  "candidate_lock_sha256": "cb16d53b164ff393187e0115bdf31c52ac717a5172fb1e91889b5988ac019d2e",
+  "code_sha256": {
+    "candidate_verify.py": "70269c1a188d8163a57e0c1b68fd71a25136deb31232bdd23ca19a38e5114281",
+    "candidates.py": "daffe336bcea38861e6a2c0f3c5cb6f9f174c7e5c55f8016d353daf42d6093ca",
+    "e1_seal.py": "fdbd53dd5df690a4ca178186897a453b20dba7542b7cd0fa4b4395d25cfc20c6",
+    "manifests.py": "c1b394781b2cf55e347dca5cf25b00cea422b03df695f7aea83b5283a85c30b4"
+  },
+  "files": {
+    ".work/corpus/e1/candidate-lock.json": "cb16d53b164ff393187e0115bdf31c52ac717a5172fb1e91889b5988ac019d2e",
+    ".work/corpus/e1/coverage.json": "5c2035694fb290004c98798ec2492c558eed6b5f4db35ef76eb5ce6320f9aa60",
+    ".work/corpus/e1/runs/candidate-seal-37202367307-1-run.json": "cb372b68678e5d5317a521e64c19b92068bff71eedd10e611058326bd2b227ac",
+    ".work/corpus/e1/runs/candidate-seal-37202367307-1-verification.json": "faeb87cf19fd242f01e74565a0029625a1e766c86f74c02031594a3c23d872b3",
+    ".work/corpus/e1/runs/candidate-seal-37202367307-1.json": "1f90b7f5bc0a867197f0faa3a2eb06499d5b8dd16bd745acbae42b2dcd868a48",
+    ".work/corpus/e1/runs/candidate-seal-37202375349-1-run.json": "4399b66ff61a9419b90a3aae7b0f22fb49cf4ffb134378295de61949ad8cb526",
+    ".work/corpus/e1/runs/candidate-seal-37202375349-1-verification.json": "faeb87cf19fd242f01e74565a0029625a1e766c86f74c02031594a3c23d872b3",
+    ".work/corpus/e1/runs/candidate-seal-37202375349-1.json": "74ae594f8775b4813f1f002395925653a6507368e0ecfb44e5882884b4820f00",
+    ".work/corpus/e1/selection.json": "65740efb41f93688ccc5c8538117def770f73c119ad0cd3633771a6e17ee3b1b",
+    ".work/tests/test_e1_candidates.py": "f2739d232ad2d08c104bedc79202be67e85da96be1ff92f4b8466718c3d8b4f4"
+  },
+  "governance": "Takes effect when a maintainer merges this record into main. The lock is immutable; any change of inputs, rules or code needs a new versioned seal and keeps this one.",
+  "limitations": [
+    "Exploratory pilot: six singleton lineage components (upper bound, A08); one held-out lineage each in calibration (curl) and evaluation (bzip2); no confirmatory sufficiency.",
+    "Evaluation (bzip2) has no file track; calibration and evaluation hold one family each, so their foreign-family pools are always empty (structural, known before sealing).",
+    "Temporal claim is retrospective and version-indexed (A07); chunk, tar and tar-gz are the modeled lane, not historical replay.",
+    "Two Actions runs share one source commit and one implementation of each layer; independence is between builder and verifier code paths, not between authors."
+  ],
+  "run_urls": [
+    "https://github.com/definitely-stable/Shift-lab/actions/runs/37202367307",
+    "https://github.com/definitely-stable/Shift-lab/actions/runs/37202375349"
+  ],
+  "runs": [
+    "candidate-seal-37202367307-1.json",
+    "candidate-seal-37202375349-1.json"
+  ],
+  "schema": "delsk.e1.candidate-seal.v1",
+  "scope": "Slice E1 sealed candidate universe C_t for the R0 exploratory pilot under construction-spec.md (E0 FROZEN_DESIGN). Metadata only: no scorer, encoder, oracle, patch cost or utility result exists or was read.",
+  "sealed_on": "2026-10-04",
+  "source_sha": "45d3bf122a964ccbf541c4d2351d0223b8537fd4",
+  "status": "SEALED",
+  "summary": {
+    "empty_pool_near_queries": 0,
+    "identity_all": 3914,
+    "identity_queries": 15,
+    "near_queries": 64,
+    "planned_pairs_per_codec": 1961,
+    "queries": 79,
+    "targets_all": 21724
+  }
+}
