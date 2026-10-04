@@ -1,0 +1,201 @@
+{
+  "corpus_lock_canonical_sha256": "e5c288256bed284572a9f111186411517b4c73d097d13aea4cf48e2fb9f6fffa",
+  "files": {
+    "corpus-lock.json.gz": "86009552183230ab13f9366684eedb4fcfcea746b25cbbed10ab2aabceb8f56b",
+    "licenses.json": "c7e7d7d85e17d2b4bcd31ca08c985a128fcc947f16bb1e49f99e345bc0d55f7c",
+    "materialization.json": "11e5913293bedcf74d801f5d69afd0879115c30c811fa7c45b8acbcbaab6942b",
+    "source-lock.json": "2154224d9b8af255f4f48662b7f03a6b9865c3e976079dbad33c939eb3a5903c"
+  },
+  "license_review": [
+    {
+      "family_id": "bzip2",
+      "finding": "All three root LICENSE texts match release tags; terms unchanged, years/contact/release footer vary. Retained .c/.h notices belong to Julian Seward.",
+      "selected_license": "bzip2-1.0.6",
+      "sources": [
+        {
+          "matches_acquired_snapshot": true,
+          "path": "LICENSE",
+          "sha256": "4919cfb14a73cd64fcef67b107613970cf1659a09aa675dba31314f373bc7204",
+          "source_id": "bzip2-1.0.6",
+          "upstream_url": "https://github.com/libarchive/bzip2/blob/bzip2-1.0.6/LICENSE"
+        },
+        {
+          "matches_acquired_snapshot": true,
+          "path": "LICENSE",
+          "sha256": "d498e3c1cf14b712ee42a9850d870c0c53784a9515891505c8ebbc68f1a2a117",
+          "source_id": "bzip2-1.0.7",
+          "upstream_url": "https://github.com/libarchive/bzip2/blob/bzip2-1.0.7/LICENSE"
+        },
+        {
+          "matches_acquired_snapshot": true,
+          "path": "LICENSE",
+          "sha256": "c6dbbf828498be844a89eaa3b84adbab3199e342eb5cb2ed2f0d4ba7ec0f38a3",
+          "source_id": "bzip2-1.0.8",
+          "upstream_url": "https://github.com/libarchive/bzip2/blob/bzip2-1.0.8/LICENSE"
+        }
+      ],
+      "status": "REVIEWED_FOR_PILOT"
+    },
+    {
+      "family_id": "curl",
+      "finding": "Root COPYING identical across all three snapshots and release tags. Retained SPDX tags are curl; seven foreign-origin source paths excluded by plan. Contributor notices retain the project permission notice.",
+      "selected_license": "curl",
+      "sources": [
+        {
+          "matches_acquired_snapshot": true,
+          "path": "COPYING",
+          "sha256": "adb1fc06547fd136244179809f7b7c2d2ae6c4534f160aa513af9b6a12866a32",
+          "source_id": "curl-8.6.0",
+          "upstream_url": "https://github.com/curl/curl/blob/curl-8_6_0/COPYING"
+        },
+        {
+          "matches_acquired_snapshot": true,
+          "path": "COPYING",
+          "sha256": "adb1fc06547fd136244179809f7b7c2d2ae6c4534f160aa513af9b6a12866a32",
+          "source_id": "curl-8.7.1",
+          "upstream_url": "https://github.com/curl/curl/blob/curl-8_7_1/COPYING"
+        },
+        {
+          "matches_acquired_snapshot": true,
+          "path": "COPYING",
+          "sha256": "adb1fc06547fd136244179809f7b7c2d2ae6c4534f160aa513af9b6a12866a32",
+          "source_id": "curl-8.8.0",
+          "upstream_url": "https://github.com/curl/curl/blob/curl-8_8_0/COPYING"
+        }
+      ],
+      "status": "REVIEWED_FOR_PILOT"
+    },
+    {
+      "family_id": "libpng",
+      "finding": "Root LICENSE texts match release tags, including legacy notices; changes in author years do not alter v2 terms. contrib and scripts excluded; LICENSE files under excluded paths do not assign their terms to retained payload. ARM/Loongson files retain project notices.",
+      "selected_license": "libpng-2.0",
+      "sources": [
+        {
+          "matches_acquired_snapshot": true,
+          "path": "LICENSE",
+          "sha256": "5c0bb4b05b1354ae7c173532b6702ea68b611047ff9b91c4d3af77da39c195d9",
+          "source_id": "libpng-1.6.40",
+          "upstream_url": "https://github.com/pnggroup/libpng/blob/v1.6.40/LICENSE"
+        },
+        {
+          "matches_acquired_snapshot": true,
+          "path": "LICENSE",
+          "sha256": "7317e078e2d3b5d7ba5a6159e650945153262b44b76f6700f8e9edb261c5143e",
+          "source_id": "libpng-1.6.43",
+          "upstream_url": "https://github.com/pnggroup/libpng/blob/v1.6.43/LICENSE"
+        },
+        {
+          "matches_acquired_snapshot": true,
+          "path": "LICENSE",
+          "sha256": "7317e078e2d3b5d7ba5a6159e650945153262b44b76f6700f8e9edb261c5143e",
+          "source_id": "libpng-1.6.44",
+          "upstream_url": "https://github.com/pnggroup/libpng/blob/v1.6.44/LICENSE"
+        }
+      ],
+      "status": "REVIEWED_FOR_PILOT"
+    },
+    {
+      "family_id": "sqlite",
+      "finding": "No root license file in amalgamation archives. Retained notices disclaim copyright; official copyright page states the code and documentation are dedicated to the public domain. No extension or binary input acquired.",
+      "selected_license": "LicenseRef-SQLite-public-domain",
+      "sources": [
+        {
+          "evidence_url": "https://sqlite.org/copyright.html",
+          "source_id": "sqlite-3.45.3"
+        },
+        {
+          "evidence_url": "https://sqlite.org/copyright.html",
+          "source_id": "sqlite-3.46.1"
+        },
+        {
+          "evidence_url": "https://sqlite.org/copyright.html",
+          "source_id": "sqlite-3.47.2"
+        }
+      ],
+      "status": "REVIEWED_FOR_PILOT"
+    },
+    {
+      "family_id": "zlib",
+      "finding": "Root LICENSE identical across all three snapshots and release tags. Retained source headers reference zlib.h or retain author notices; public-domain examples remain so. contrib/dotzlib and its Boost license excluded.",
+      "selected_license": "Zlib",
+      "sources": [
+        {
+          "matches_acquired_snapshot": true,
+          "path": "LICENSE",
+          "sha256": "845efc77857d485d91fb3e0b884aaa929368c717ae8186b66fe1ed2495753243",
+          "source_id": "zlib-1.2.13",
+          "upstream_url": "https://github.com/madler/zlib/blob/v1.2.13/LICENSE"
+        },
+        {
+          "matches_acquired_snapshot": true,
+          "path": "LICENSE",
+          "sha256": "845efc77857d485d91fb3e0b884aaa929368c717ae8186b66fe1ed2495753243",
+          "source_id": "zlib-1.3",
+          "upstream_url": "https://github.com/madler/zlib/blob/v1.3/LICENSE"
+        },
+        {
+          "matches_acquired_snapshot": true,
+          "path": "LICENSE",
+          "sha256": "845efc77857d485d91fb3e0b884aaa929368c717ae8186b66fe1ed2495753243",
+          "source_id": "zlib-1.3.1",
+          "upstream_url": "https://github.com/madler/zlib/blob/v1.3.1/LICENSE"
+        }
+      ],
+      "status": "REVIEWED_FOR_PILOT"
+    },
+    {
+      "family_id": "zstd",
+      "finding": "Root LICENSE identical across all three snapshots and release tags; BSD branch selected from BSD OR GPL. Retained source notices include BSD terms or dual-license notice. xxhash/divsufsort/zlibWrapper excluded. COPYING is the alternative GPL text; build/LICENSE is empty and excluded.",
+      "selected_license": "BSD-3-Clause",
+      "sources": [
+        {
+          "matches_acquired_snapshot": true,
+          "path": "LICENSE",
+          "sha256": "7055266497633c9025b777c78eb7235af13922117480ed5c674677adc381c9d8",
+          "source_id": "zstd-1.5.5",
+          "upstream_url": "https://github.com/facebook/zstd/blob/v1.5.5/LICENSE"
+        },
+        {
+          "matches_acquired_snapshot": true,
+          "path": "LICENSE",
+          "sha256": "7055266497633c9025b777c78eb7235af13922117480ed5c674677adc381c9d8",
+          "source_id": "zstd-1.5.6",
+          "upstream_url": "https://github.com/facebook/zstd/blob/v1.5.6/LICENSE"
+        },
+        {
+          "matches_acquired_snapshot": true,
+          "path": "LICENSE",
+          "sha256": "7055266497633c9025b777c78eb7235af13922117480ed5c674677adc381c9d8",
+          "source_id": "zstd-1.5.7",
+          "upstream_url": "https://github.com/facebook/zstd/blob/v1.5.7/LICENSE"
+        }
+      ],
+      "status": "REVIEWED_FOR_PILOT"
+    }
+  ],
+  "limitations": [
+    "15 archive digests are observed SHA-256, not authenticated upstream signatures; zstd upstream SHA-256 was separately compared.",
+    "libpng archive bytes are pinned but not asserted identical to upstream git trees.",
+    "Six lineages: exploratory pilot only; no confirmatory sufficiency.",
+    "Ancestry/candidate audit and full foundation evidence remain Slices E/F."
+  ],
+  "reviewed_on": "2026-10-04",
+  "rulings": [
+    "Keep the complete corpus lock as gzip-compressed canonical JSON in Git: 22 MB raw metadata is reviewable through decompression, hash and offline validation; CI expiry no longer removes the universe. Cost if wrong: repository size; no payload included.",
+    "Record license review separately from the source plan and acquired evidence: changing pinned plan status would invalidate both verified materializations. Cost if wrong: consumers must read freeze.json for current review state.",
+    "Accept unused non-regular archive paths as explicit exclusions and allow HTTPS mirror redirects with exact archive byte verification; retained links and unsafe paths fail. Cost if wrong: upstream authenticity remains trust-on-first-use for unsigned digests."
+  ],
+  "runs": [
+    "discover-37186134266-1.json",
+    "verify-37186222325-1.json"
+  ],
+  "schema": "delsk.corpus.acquisition-freeze.v1",
+  "scope": "Slice D exploratory source/chunk/modeled-archive pilot; acquisition identities and transforms only. No frozen candidate universe, confirmatory sufficiency or scientific gate verdict.",
+  "status": "FROZEN_ACQUISITION",
+  "usage_constraints": [
+    "Natural payload remains in Actions memory and is not committed or redistributed.",
+    "Retain original notices/license files and provenance for any future payload redistribution; generated tar and chunks are derived representations, not upstream originals.",
+    "Review applies to retained members of these exact snapshots; excluded license files do not license retained payload.",
+    "No project-wide legal/FTO conclusion or binary/model authorization."
+  ]
+}

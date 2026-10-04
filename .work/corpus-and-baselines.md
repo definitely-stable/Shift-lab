@@ -1,6 +1,6 @@
 # Корпус и baseline matrix
 
-Статус: **план**, ни один download manifest здесь ещё не выдаётся за materialized corpus. DELSK-002 фиксирует реальные версии, URLs, лицензии и SHA-256 в отдельном lock перед runs. Загружать данные и запускать эксперименты — только в Actions. Публичный URL не означает разрешение redistributing.
+Статус: **exploratory acquisition pilot frozen (Slice D)**; source/corpus locks, snapshot license review и две совпавшие materializations — в [pilot-v1](corpus/pilot-v1/README.md). Ancestry/candidate audit (Slice E), expansion и confirmatory sufficiency ещё не завершены. Загружать данные и запускать эксперименты — только в Actions. Публичный URL не означает разрешение redistributing.
 
 ## Coverage
 

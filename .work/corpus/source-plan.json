@@ -120,6 +120,10 @@
           "reason": "build scaffolding"
         },
         {
+          "glob": "lib/curl_path.c",
+          "reason": "foreign origin: OpenSSH code by Damien Miller, ISC notice (SPDX curl AND ISC)"
+        },
+        {
           "glob": "lib/inet_ntop.c",
           "reason": "foreign origin: Internet Software Consortium notice"
         },
@@ -130,6 +134,14 @@
         {
           "glob": "lib/krb5.c",
           "reason": "foreign origin: Kungliga Tekniska Hogskolan BSD notice"
+        },
+        {
+          "glob": "lib/md4.c",
+          "reason": "foreign origin: Alexander Peslyak public-domain MD4 implementation"
+        },
+        {
+          "glob": "lib/md5.c",
+          "reason": "foreign origin: Alexander Peslyak public-domain MD5 implementation"
         },
         {
           "glob": "packages/*",
@@ -146,6 +158,10 @@
         {
           "glob": "scripts/*",
           "reason": "build helpers"
+        },
+        {
+          "glob": "tests/server/tftpd.c",
+          "reason": "foreign origin: BSD tftpd, Regents of the University of California (SPDX BSD-4-Clause-UC)"
         },
         {
           "glob": "winbuild/*",
@@ -495,7 +511,7 @@
   "known_limitations": [
     "Six C projects biased toward compression libraries; not representative of other domains.",
     "Six ancestry components give one calibration and one evaluation family: exploratory only under DELSK-P1 (<10 held-out lineages).",
-    "Exclusion globs come from git-tree inventories; release tarballs are re-inventoried member by member during acquisition review."
+    "Exclusion globs come from git-tree inventories and the member-level notice review of the pilot-v1 release archives (discovery runs 37185935970, 37186057381)."
   ],
   "metadata_checked_on": "2026-10-04",
   "metadata_method": "HTTP HEAD (status 200, no bodies), GitHub API and upstream changelog pages; no archive was downloaded outside Actions",

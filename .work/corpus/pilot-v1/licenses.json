@@ -1,0 +1,1694 @@
+{
+  "families": [
+    {
+      "family_id": "bzip2",
+      "license_files": [
+        {
+          "bytes": 1901,
+          "path": "LICENSE",
+          "sha256": "4919cfb14a73cd64fcef67b107613970cf1659a09aa675dba31314f373bc7204",
+          "source_id": "bzip2-1.0.6"
+        },
+        {
+          "bytes": 1896,
+          "path": "LICENSE",
+          "sha256": "d498e3c1cf14b712ee42a9850d870c0c53784a9515891505c8ebbc68f1a2a117",
+          "source_id": "bzip2-1.0.7"
+        },
+        {
+          "bytes": 1896,
+          "path": "LICENSE",
+          "sha256": "c6dbbf828498be844a89eaa3b84adbab3199e342eb5cb2ed2f0d4ba7ec0f38a3",
+          "source_id": "bzip2-1.0.8"
+        }
+      ],
+      "notice_lines": 5,
+      "notices": [
+        {
+          "line": "Copyright (C) 1996-2010 Julian Seward <jseward@acm.org>",
+          "members": 14,
+          "paths": [
+            "blocksort.c",
+            "bzip2.c",
+            "bzip2recover.c",
+            "bzlib.c",
+            "bzlib.h"
+          ]
+        },
+        {
+          "line": "Copyright (C) 1996-2010 Julian Seward <jseward@bzip.org>",
+          "members": 14,
+          "paths": [
+            "blocksort.c",
+            "bzip2.c",
+            "bzip2recover.c",
+            "bzlib.c",
+            "bzlib.h"
+          ]
+        },
+        {
+          "line": "Copyright (C) 1996-2019 Julian Seward <jseward@acm.org>",
+          "members": 14,
+          "paths": [
+            "blocksort.c",
+            "bzip2.c",
+            "bzip2recover.c",
+            "bzlib.c",
+            "bzlib.h"
+          ]
+        },
+        {
+          "line": "\" Copyright (C) 1996-2010 by Julian Seward.\\n\"",
+          "members": 2,
+          "paths": [
+            "bzip2.c"
+          ]
+        },
+        {
+          "line": "\" Copyright (C) 1996-2019 by Julian Seward.\\n\"",
+          "members": 1,
+          "paths": [
+            "bzip2.c"
+          ]
+        }
+      ],
+      "notices_truncated": false,
+      "plan_license": {
+        "evidence_url": "https://sourceware.org/git/?p=bzip2.git;a=blob_plain;f=LICENSE;hb=refs/tags/bzip2-1.0.8",
+        "spdx": "bzip2-1.0.6",
+        "status": "PENDING_SNAPSHOT_REVIEW"
+      },
+      "spdx_tags": []
+    },
+    {
+      "family_id": "curl",
+      "license_files": [
+        {
+          "bytes": 1088,
+          "path": "COPYING",
+          "sha256": "adb1fc06547fd136244179809f7b7c2d2ae6c4534f160aa513af9b6a12866a32",
+          "source_id": "curl-8.6.0"
+        },
+        {
+          "bytes": 1088,
+          "path": "COPYING",
+          "sha256": "adb1fc06547fd136244179809f7b7c2d2ae6c4534f160aa513af9b6a12866a32",
+          "source_id": "curl-8.7.1"
+        },
+        {
+          "bytes": 1088,
+          "path": "COPYING",
+          "sha256": "adb1fc06547fd136244179809f7b7c2d2ae6c4534f160aa513af9b6a12866a32",
+          "source_id": "curl-8.8.0"
+        }
+      ],
+      "notice_lines": 36,
+      "notices": [
+        {
+          "line": "are also available at https://curl.se/docs/copyright.html.",
+          "members": 2451,
+          "paths": [
+            "docs/examples/10-at-a-time.c",
+            "docs/examples/address-scope.c",
+            "docs/examples/altsvc.c",
+            "docs/examples/anyauthput.c",
+            "docs/examples/cacertinmem.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) Daniel Stenberg, <daniel@haxx.se>, et al.",
+          "members": 2408,
+          "paths": [
+            "docs/examples/10-at-a-time.c",
+            "docs/examples/address-scope.c",
+            "docs/examples/altsvc.c",
+            "docs/examples/anyauthput.c",
+            "docs/examples/cacertinmem.c"
+          ]
+        },
+        {
+          "line": "are also available at https://curl.haxx.se/docs/copyright.html.",
+          "members": 84,
+          "paths": [
+            "lib/c-hyper.c",
+            "lib/c-hyper.h",
+            "lib/http_aws_sigv4.c",
+            "lib/http_aws_sigv4.h",
+            "tests/libtest/lib1933.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) Steve Holme, <steve_holme@hotmail.com>.",
+          "members": 36,
+          "paths": [
+            "lib/curl_des.c",
+            "lib/curl_des.h",
+            "lib/system_win32.c",
+            "lib/system_win32.h",
+            "lib/vauth/digest_sspi.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) Linus Nielsen Feltzing <linus@haxx.se>",
+          "members": 21,
+          "paths": [
+            "tests/libtest/lib1506.c",
+            "tests/libtest/lib1508.c",
+            "tests/libtest/lib1510.c",
+            "tests/libtest/lib1512.c",
+            "tests/libtest/lib2402.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 1998 - 2022, Daniel Stenberg, <daniel@haxx.se>, et al.",
+          "members": 18,
+          "paths": [
+            "tests/libtest/lib1970.c",
+            "tests/libtest/lib1971.c",
+            "tests/libtest/lib1972.c",
+            "tests/libtest/lib1973.c",
+            "tests/libtest/lib1974.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) Hoi-Ho Chan, <hoiho.chan@gmail.com>",
+          "members": 12,
+          "paths": [
+            "lib/vtls/mbedtls.c",
+            "lib/vtls/mbedtls.h",
+            "lib/vtls/mbedtls_threadlock.c",
+            "lib/vtls/mbedtls_threadlock.h"
+          ]
+        },
+        {
+          "line": "Copyright (C) Linus Nielsen Feltzing, <linus@haxx.se>",
+          "members": 12,
+          "paths": [
+            "lib/conncache.c",
+            "lib/conncache.h",
+            "tests/libtest/lib1908.c",
+            "tests/libtest/lib1910.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) Vijay Panghal, <vpanghal@maginatics.com>, et al.",
+          "members": 9,
+          "paths": [
+            "tests/libtest/lib1525.c",
+            "tests/libtest/lib1526.c",
+            "tests/libtest/lib1527.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) Bill Nagel <wnagel@tycoint.com>, Exacq Technologies",
+          "members": 6,
+          "paths": [
+            "lib/smb.c",
+            "lib/smb.h"
+          ]
+        },
+        {
+          "line": "Copyright (C) Björn Stenberg, <bjorn@haxx.se>",
+          "members": 6,
+          "paths": [
+            "lib/mqtt.c",
+            "lib/mqtt.h"
+          ]
+        },
+        {
+          "line": "Copyright (C) Evgeny Grin (Karlson2k), <k2k@narod.ru>.",
+          "members": 6,
+          "paths": [
+            "lib/curl_sha512_256.c",
+            "lib/curl_sha512_256.h",
+            "tests/unit/unit1615.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) Florin Petriuc, <petriuc.florin@gmail.com>",
+          "members": 6,
+          "paths": [
+            "lib/curl_sha256.h",
+            "lib/sha256.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) Howard Chu, <hyc@highlandsun.com>",
+          "members": 6,
+          "paths": [
+            "lib/curl_rtmp.c",
+            "lib/curl_rtmp.h"
+          ]
+        },
+        {
+          "line": "Copyright (C) Jacob Hoffman-Andrews,",
+          "members": 6,
+          "paths": [
+            "lib/vtls/rustls.c",
+            "lib/vtls/rustls.h"
+          ]
+        },
+        {
+          "line": "Copyright (C) Marc Hoersken, <info@marc-hoersken.de>",
+          "members": 6,
+          "paths": [
+            "lib/vtls/schannel.c",
+            "lib/vtls/schannel_verify.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) Marc Hoersken, <info@marc-hoersken.de>, et al.",
+          "members": 6,
+          "paths": [
+            "lib/vtls/schannel.h",
+            "lib/vtls/schannel_int.h"
+          ]
+        },
+        {
+          "line": "Copyright (C) Mark Salisbury, <mark.salisbury@hp.com>",
+          "members": 6,
+          "paths": [
+            "lib/vtls/schannel.c",
+            "lib/vtls/schannel_verify.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) Markus Moeller, <markus_moeller@compuserve.com>",
+          "members": 6,
+          "paths": [
+            "lib/socks_gssapi.c",
+            "lib/socks_sspi.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) Michael Forney, <mforney@mforney.org>",
+          "members": 6,
+          "paths": [
+            "lib/vtls/bearssl.c",
+            "lib/vtls/bearssl.h"
+          ]
+        },
+        {
+          "line": "Copyright (C) Nick Zitzmann, <nickzman@gmail.com>.",
+          "members": 6,
+          "paths": [
+            "lib/vtls/sectransp.c",
+            "lib/vtls/sectransp.h"
+          ]
+        },
+        {
+          "line": "Copyright (C) Howard Chu, <hyc@openldap.org>",
+          "members": 3,
+          "paths": [
+            "lib/openldap.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) James Fuller, <jim@webcomposite.com>, et al.",
+          "members": 3,
+          "paths": [
+            "docs/examples/maxconnects.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) Jan Venekamp, <jan@venekamp.net>",
+          "members": 3,
+          "paths": [
+            "lib/vtls/cipher_suite.c",
+            "lib/vtls/cipher_suite.h",
+            "tests/unit/unit3205.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) Jeroen Ooms <jeroenooms@gmail.com>",
+          "members": 3,
+          "paths": [
+            "docs/examples/crawler.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) Mandy Wu, <mandy.wu@intel.com>",
+          "members": 3,
+          "paths": [
+            "tests/server/fake_ntlm.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) Max Dymond, <max.dymond@microsoft.com>",
+          "members": 3,
+          "paths": [
+            "tests/libtest/libprereq.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) Nicolas Sterchele, <nicolas@sterchelen.net>",
+          "members": 3,
+          "paths": [
+            "tests/libtest/lib3010.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) Red Hat, Inc.",
+          "members": 3,
+          "paths": [
+            "lib/vssh/libssh.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) Simon Josefsson, <simon@josefsson.org>, et al.",
+          "members": 3,
+          "paths": [
+            "lib/vauth/gsasl.c"
+          ]
+        },
+        {
+          "line": "This is the global package copyright",
+          "members": 3,
+          "paths": [
+            "include/curl/curlver.h"
+          ]
+        },
+        {
+          "line": "define CURL_COPYRIGHT LIBCURL_COPYRIGHT",
+          "members": 3,
+          "paths": [
+            "src/tool_version.h"
+          ]
+        },
+        {
+          "line": "define LIBCURL_COPYRIGHT \"Daniel Stenberg, <daniel@haxx.se>.\"",
+          "members": 3,
+          "paths": [
+            "include/curl/curlver.h"
+          ]
+        },
+        {
+          "line": "Copyright (C) Daniel Stenberg, <daniel.se>, et al.",
+          "members": 2,
+          "paths": [
+            "lib/easygetopt.c",
+            "lib/easyoptions.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) kpcyrd, <kpcyrd@archlinux.org>",
+          "members": 2,
+          "paths": [
+            "lib/vtls/rustls.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) Dmitry Karpov <dkarpov1970@gmail.com>",
+          "members": 1,
+          "paths": [
+            "tests/libtest/lib2405.c"
+          ]
+        }
+      ],
+      "notices_truncated": false,
+      "plan_license": {
+        "evidence_url": "https://github.com/curl/curl/blob/curl-8_8_0/COPYING",
+        "spdx": "curl",
+        "status": "PENDING_SNAPSHOT_REVIEW"
+      },
+      "spdx_tags": [
+        {
+          "members": 2535,
+          "paths": [
+            "docs/examples/10-at-a-time.c",
+            "docs/examples/address-scope.c",
+            "docs/examples/altsvc.c",
+            "docs/examples/anyauthput.c",
+            "docs/examples/cacertinmem.c"
+          ],
+          "tag": "curl"
+        }
+      ]
+    },
+    {
+      "family_id": "libpng",
+      "license_files": [
+        {
+          "bytes": 5345,
+          "path": "LICENSE",
+          "sha256": "5c0bb4b05b1354ae7c173532b6702ea68b611047ff9b91c4d3af77da39c195d9",
+          "source_id": "libpng-1.6.40"
+        },
+        {
+          "bytes": 18097,
+          "path": "contrib/gregbook/COPYING",
+          "sha256": "d6cb0e9e560f51085556949a84af12b79a00f10ab8b66c752537faf7cd665572",
+          "source_id": "libpng-1.6.40"
+        },
+        {
+          "bytes": 2373,
+          "path": "contrib/gregbook/LICENSE",
+          "sha256": "b6a03c1803eb58ffb1f1278d5c7d4096c4c116e66dce8a7553e8c77d163c3438",
+          "source_id": "libpng-1.6.40"
+        },
+        {
+          "bytes": 1165,
+          "path": "contrib/pngminus/LICENSE.txt",
+          "sha256": "eeb50cca0bf0537aeeef00874e1e22f0de50cb035f5db37e36036dc9b8218e8d",
+          "source_id": "libpng-1.6.40"
+        },
+        {
+          "bytes": 5345,
+          "path": "LICENSE",
+          "sha256": "7317e078e2d3b5d7ba5a6159e650945153262b44b76f6700f8e9edb261c5143e",
+          "source_id": "libpng-1.6.43"
+        },
+        {
+          "bytes": 1036,
+          "path": "ci/LICENSE_MIT.txt",
+          "sha256": "508a77d2e7b51d98adeed32648ad124b7b30241a8e70b2e72c99f92d8e5874d1",
+          "source_id": "libpng-1.6.43"
+        },
+        {
+          "bytes": 18097,
+          "path": "contrib/gregbook/COPYING",
+          "sha256": "d6cb0e9e560f51085556949a84af12b79a00f10ab8b66c752537faf7cd665572",
+          "source_id": "libpng-1.6.43"
+        },
+        {
+          "bytes": 2373,
+          "path": "contrib/gregbook/LICENSE",
+          "sha256": "b6a03c1803eb58ffb1f1278d5c7d4096c4c116e66dce8a7553e8c77d163c3438",
+          "source_id": "libpng-1.6.43"
+        },
+        {
+          "bytes": 1036,
+          "path": "contrib/pngexif/LICENSE_MIT.txt",
+          "sha256": "508a77d2e7b51d98adeed32648ad124b7b30241a8e70b2e72c99f92d8e5874d1",
+          "source_id": "libpng-1.6.43"
+        },
+        {
+          "bytes": 1165,
+          "path": "contrib/pngminus/LICENSE.txt",
+          "sha256": "eeb50cca0bf0537aeeef00874e1e22f0de50cb035f5db37e36036dc9b8218e8d",
+          "source_id": "libpng-1.6.43"
+        },
+        {
+          "bytes": 5345,
+          "path": "LICENSE",
+          "sha256": "7317e078e2d3b5d7ba5a6159e650945153262b44b76f6700f8e9edb261c5143e",
+          "source_id": "libpng-1.6.44"
+        },
+        {
+          "bytes": 1036,
+          "path": "ci/LICENSE_MIT.txt",
+          "sha256": "508a77d2e7b51d98adeed32648ad124b7b30241a8e70b2e72c99f92d8e5874d1",
+          "source_id": "libpng-1.6.44"
+        },
+        {
+          "bytes": 18097,
+          "path": "contrib/gregbook/COPYING",
+          "sha256": "d6cb0e9e560f51085556949a84af12b79a00f10ab8b66c752537faf7cd665572",
+          "source_id": "libpng-1.6.44"
+        },
+        {
+          "bytes": 2373,
+          "path": "contrib/gregbook/LICENSE",
+          "sha256": "b6a03c1803eb58ffb1f1278d5c7d4096c4c116e66dce8a7553e8c77d163c3438",
+          "source_id": "libpng-1.6.44"
+        },
+        {
+          "bytes": 1036,
+          "path": "contrib/pngexif/LICENSE_MIT.txt",
+          "sha256": "508a77d2e7b51d98adeed32648ad124b7b30241a8e70b2e72c99f92d8e5874d1",
+          "source_id": "libpng-1.6.44"
+        },
+        {
+          "bytes": 1165,
+          "path": "contrib/pngminus/LICENSE.txt",
+          "sha256": "eeb50cca0bf0537aeeef00874e1e22f0de50cb035f5db37e36036dc9b8218e8d",
+          "source_id": "libpng-1.6.44"
+        }
+      ],
+      "notice_lines": 56,
+      "notices": [
+        {
+          "line": "Copyright (c) 1995-1996 Guy Eric Schalnat, Group 42, Inc.",
+          "members": 66,
+          "paths": [
+            "png.c",
+            "png.h",
+            "pngconf.h",
+            "pngdebug.h",
+            "pngerror.c"
+          ]
+        },
+        {
+          "line": "Copyright (c) 1996-1997 Andreas Dilger",
+          "members": 66,
+          "paths": [
+            "png.c",
+            "png.h",
+            "pngconf.h",
+            "pngdebug.h",
+            "pngerror.c"
+          ]
+        },
+        {
+          "line": "Copyright (c) 2018 Cosmin Truta",
+          "members": 40,
+          "paths": [
+            "arm/filter_neon_intrinsics.c",
+            "intel/filter_sse2_intrinsics.c",
+            "intel/intel_init.c",
+            "loongarch/filter_lsx_intrinsics.c",
+            "mips/filter_msa_intrinsics.c"
+          ]
+        },
+        {
+          "line": "Copyright (c) 1998-2002,2004,2006-2018 Glenn Randers-Pehrson",
+          "members": 39,
+          "paths": [
+            "png.c",
+            "png.h",
+            "pngget.c",
+            "pngpread.c",
+            "pngpriv.h"
+          ]
+        },
+        {
+          "line": "Copyright (c) 2018-2024 Cosmin Truta",
+          "members": 34,
+          "paths": [
+            "mips/filter_msa_intrinsics.c",
+            "mips/mips_init.c",
+            "png.c",
+            "png.h",
+            "pngconf.h"
+          ]
+        },
+        {
+          "line": "Copyright (c) 1998-2002,2004,2006-2016,2018 Glenn Randers-Pehrson",
+          "members": 9,
+          "paths": [
+            "pngconf.h",
+            "pngrio.c",
+            "pngwtran.c"
+          ]
+        },
+        {
+          "line": "Copyright (c) 2018-2022 Cosmin Truta",
+          "members": 9,
+          "paths": [
+            "arm/arm_init.c",
+            "pngconf.h",
+            "pngrutil.c",
+            "pngstruct.h",
+            "pngwutil.c"
+          ]
+        },
+        {
+          "line": "Copyright (c) 2016 Glenn Randers-Pehrson",
+          "members": 8,
+          "paths": [
+            "loongarch/filter_lsx_intrinsics.c",
+            "mips/filter_msa_intrinsics.c",
+            "mips/mips_init.c"
+          ]
+        },
+        {
+          "line": "Copyright (c) 2014,2016 Glenn Randers-Pehrson",
+          "members": 6,
+          "paths": [
+            "arm/arm_init.c",
+            "arm/filter_neon_intrinsics.c"
+          ]
+        },
+        {
+          "line": "Copyright (c) 2016-2017 Glenn Randers-Pehrson",
+          "members": 6,
+          "paths": [
+            "intel/filter_sse2_intrinsics.c",
+            "intel/intel_init.c"
+          ]
+        },
+        {
+          "line": "Copyright (c) 2017 Glenn Randers-Pehrson",
+          "members": 6,
+          "paths": [
+            "powerpc/filter_vsx_intrinsics.c",
+            "powerpc/powerpc_init.c"
+          ]
+        },
+        {
+          "line": "Copyright (c) 2018-2019 Cosmin Truta",
+          "members": 6,
+          "paths": [
+            "arm/palette_neon_intrinsics.c",
+            "pngread.c",
+            "pngrtran.c",
+            "pngtest.c"
+          ]
+        },
+        {
+          "line": "Copyright (c) 2018-2023 Cosmin Truta",
+          "members": 6,
+          "paths": [
+            "png.c",
+            "png.h",
+            "pngget.c",
+            "pngpriv.h",
+            "pngset.c"
+          ]
+        },
+        {
+          "line": "Copyright (c) 2021 Loongson Technology Corporation Limited",
+          "members": 4,
+          "paths": [
+            "loongarch/filter_lsx_intrinsics.c",
+            "loongarch/loongarch_lsx_init.c"
+          ]
+        },
+        {
+          "line": "\"Copyright (c) 1995-1996 Guy Eric Schalnat, Group 42, Inc.\" \\",
+          "members": 3,
+          "paths": [
+            "png.c"
+          ]
+        },
+        {
+          "line": "\"Copyright (c) 1996-1997 Andreas Dilger\" PNG_STRING_NEWLINE \\",
+          "members": 3,
+          "paths": [
+            "png.c"
+          ]
+        },
+        {
+          "line": "\"Copyright (c) 1998-2002,2004,2006-2018 Glenn Randers-Pehrson\" \\",
+          "members": 3,
+          "paths": [
+            "png.c"
+          ]
+        },
+        {
+          "line": "* Copyright (c) 1995-1996 Guy Eric Schalnat, Group 42, Inc.",
+          "members": 3,
+          "paths": [
+            "png.h"
+          ]
+        },
+        {
+          "line": "* Copyright (c) 1996-1997 Andreas Dilger.",
+          "members": 3,
+          "paths": [
+            "png.h"
+          ]
+        },
+        {
+          "line": "* Copyright (c) 2000-2002, 2004, 2006-2018 Glenn Randers-Pehrson.",
+          "members": 3,
+          "paths": [
+            "png.h"
+          ]
+        },
+        {
+          "line": "3. This Copyright notice may not be removed or altered from any",
+          "members": 3,
+          "paths": [
+            "png.h"
+          ]
+        },
+        {
+          "line": "A \"png_get_copyright\" function is available, for convenient use in \"about\"",
+          "members": 3,
+          "paths": [
+            "png.h"
+          ]
+        },
+        {
+          "line": "COPYRIGHT NOTICE, DISCLAIMER, and LICENSE",
+          "members": 3,
+          "paths": [
+            "png.h"
+          ]
+        },
+        {
+          "line": "Copyright (c) 1996-1997 Andreas Dilger, are derived from libpng-0.88,",
+          "members": 3,
+          "paths": [
+            "png.h"
+          ]
+        },
+        {
+          "line": "Copyright (c) 1998-2000 Glenn Randers-Pehrson, are derived from",
+          "members": 3,
+          "paths": [
+            "png.h"
+          ]
+        },
+        {
+          "line": "Copyright (c) 1998-2002,2004,2006-2013 Glenn Randers-Pehrson",
+          "members": 3,
+          "paths": [
+            "pngdebug.h"
+          ]
+        },
+        {
+          "line": "Copyright (c) 1998-2002,2004,2006-2013,2018 Glenn Randers-Pehrson",
+          "members": 3,
+          "paths": [
+            "pnginfo.h"
+          ]
+        },
+        {
+          "line": "Copyright (c) 1998-2002,2004,2006-2014,2016 Glenn Randers-Pehrson",
+          "members": 3,
+          "paths": [
+            "pngmem.c"
+          ]
+        },
+        {
+          "line": "Copyright (c) 1998-2002,2004,2006-2014,2016,2018 Glenn Randers-Pehrson",
+          "members": 3,
+          "paths": [
+            "pngwio.c"
+          ]
+        },
+        {
+          "line": "Copyright (c) 1998-2002,2004,2006-2017 Glenn Randers-Pehrson",
+          "members": 3,
+          "paths": [
+            "pngerror.c"
+          ]
+        },
+        {
+          "line": "Copyright (c) 1998-2018 Glenn Randers-Pehrson",
+          "members": 3,
+          "paths": [
+            "pngset.c"
+          ]
+        },
+        {
+          "line": "Copyright (c) 2000-2002, 2004, 2006-2018 Glenn Randers-Pehrson, are",
+          "members": 3,
+          "paths": [
+            "png.h"
+          ]
+        },
+        {
+          "line": "Copyright (c) 2017-2018 Arm Holdings. All rights reserved.",
+          "members": 3,
+          "paths": [
+            "arm/palette_neon_intrinsics.c"
+          ]
+        },
+        {
+          "line": "END OF COPYRIGHT NOTICE, DISCLAIMER, and LICENSE.",
+          "members": 3,
+          "paths": [
+            "png.h"
+          ]
+        },
+        {
+          "line": "For the purposes of this copyright and license, \"Contributing Authors\"",
+          "members": 3,
+          "paths": [
+            "png.h"
+          ]
+        },
+        {
+          "line": "PNG_EXPORT(180, png_const_charp, png_get_copyright,",
+          "members": 3,
+          "paths": [
+            "png.h"
+          ]
+        },
+        {
+          "line": "Some files in the \"scripts\" directory have other copyright owners,",
+          "members": 3,
+          "paths": [
+            "png.h"
+          ]
+        },
+        {
+          "line": "The name \"libpng\" has not been registered by the Copyright owners",
+          "members": 3,
+          "paths": [
+            "png.h"
+          ]
+        },
+        {
+          "line": "all copyright and related or neighboring rights to this file.",
+          "members": 3,
+          "paths": [
+            "example.c"
+          ]
+        },
+        {
+          "line": "files that are distributed with libpng have other copyright owners, and",
+          "members": 3,
+          "paths": [
+            "png.h"
+          ]
+        },
+        {
+          "line": "fprintf(STDERR, \"%s\", png_get_copyright(NULL))",
+          "members": 3,
+          "paths": [
+            "pngtest.c"
+          ]
+        },
+        {
+          "line": "ifdef PNG_STRING_COPYRIGHT",
+          "members": 3,
+          "paths": [
+            "png.c"
+          ]
+        },
+        {
+          "line": "in the public domain, and therefore does not require a copyright notice.",
+          "members": 3,
+          "paths": [
+            "example.c"
+          ]
+        },
+        {
+          "line": "most ancillary chunks. If you need to write text chunks (e.g. for copyright",
+          "members": 3,
+          "paths": [
+            "png.h"
+          ]
+        },
+        {
+          "line": "non-infringement. In no event shall the Copyright owners, or",
+          "members": 3,
+          "paths": [
+            "png.h"
+          ]
+        },
+        {
+          "line": "png_get_copyright(png_const_structrp png_ptr)",
+          "members": 3,
+          "paths": [
+            "png.c"
+          ]
+        },
+        {
+          "line": "printf(\"%s\", png_get_copyright(NULL))",
+          "members": 3,
+          "paths": [
+            "png.h"
+          ]
+        },
+        {
+          "line": "return PNG_STRING_COPYRIGHT",
+          "members": 3,
+          "paths": [
+            "png.c"
+          ]
+        },
+        {
+          "line": "the Copyright owners claim \"common-law trademark protection\" in any",
+          "members": 3,
+          "paths": [
+            "png.h"
+          ]
+        },
+        {
+          "line": "\"Copyright (c) 2018-2024 Cosmin Truta\" PNG_STRING_NEWLINE \\",
+          "members": 2,
+          "paths": [
+            "png.c"
+          ]
+        },
+        {
+          "line": "* Copyright (c) 1995-2024 The PNG Reference Library Authors.",
+          "members": 2,
+          "paths": [
+            "png.h"
+          ]
+        },
+        {
+          "line": "* Copyright (c) 2018-2024 Cosmin Truta.",
+          "members": 2,
+          "paths": [
+            "png.h"
+          ]
+        },
+        {
+          "line": "Copyright (c) 2024 Cosmin Truta",
+          "members": 2,
+          "paths": [
+            "mips/filter_mmi_inline_assembly.c"
+          ]
+        },
+        {
+          "line": "\"Copyright (c) 2018-2023 Cosmin Truta\" PNG_STRING_NEWLINE \\",
+          "members": 1,
+          "paths": [
+            "png.c"
+          ]
+        },
+        {
+          "line": "* Copyright (c) 1995-2023 The PNG Reference Library Authors.",
+          "members": 1,
+          "paths": [
+            "png.h"
+          ]
+        },
+        {
+          "line": "* Copyright (c) 2018-2023 Cosmin Truta.",
+          "members": 1,
+          "paths": [
+            "png.h"
+          ]
+        }
+      ],
+      "notices_truncated": false,
+      "plan_license": {
+        "evidence_url": "https://github.com/pnggroup/libpng/blob/v1.6.44/LICENSE",
+        "spdx": "libpng-2.0",
+        "status": "PENDING_SNAPSHOT_REVIEW"
+      },
+      "spdx_tags": []
+    },
+    {
+      "family_id": "sqlite",
+      "license_files": [],
+      "notice_lines": 2,
+      "notices": [
+        {
+          "line": "The author disclaims copyright to this source code. In place of",
+          "members": 12,
+          "paths": [
+            "shell.c",
+            "sqlite3.c",
+            "sqlite3.h",
+            "sqlite3ext.h"
+          ]
+        },
+        {
+          "line": "The author disclaims copyright to this source code.",
+          "members": 3,
+          "paths": [
+            "sqlite3.c"
+          ]
+        }
+      ],
+      "notices_truncated": false,
+      "plan_license": {
+        "evidence_url": "https://sqlite.org/copyright.html",
+        "spdx": "LicenseRef-SQLite-public-domain",
+        "status": "PENDING_SNAPSHOT_REVIEW"
+      },
+      "spdx_tags": []
+    },
+    {
+      "family_id": "zlib",
+      "license_files": [
+        {
+          "bytes": 1002,
+          "path": "LICENSE",
+          "sha256": "845efc77857d485d91fb3e0b884aaa929368c717ae8186b66fe1ed2495753243",
+          "source_id": "zlib-1.2.13"
+        },
+        {
+          "bytes": 1359,
+          "path": "contrib/dotzlib/LICENSE_1_0.txt",
+          "sha256": "36266a8fd073568394cb81cdb2b124f7fdae2c64c1a7ed09db34b4d22efa2951",
+          "source_id": "zlib-1.2.13"
+        },
+        {
+          "bytes": 1002,
+          "path": "LICENSE",
+          "sha256": "845efc77857d485d91fb3e0b884aaa929368c717ae8186b66fe1ed2495753243",
+          "source_id": "zlib-1.3"
+        },
+        {
+          "bytes": 1359,
+          "path": "contrib/dotzlib/LICENSE_1_0.txt",
+          "sha256": "36266a8fd073568394cb81cdb2b124f7fdae2c64c1a7ed09db34b4d22efa2951",
+          "source_id": "zlib-1.3"
+        },
+        {
+          "bytes": 1002,
+          "path": "LICENSE",
+          "sha256": "845efc77857d485d91fb3e0b884aaa929368c717ae8186b66fe1ed2495753243",
+          "source_id": "zlib-1.3.1"
+        },
+        {
+          "bytes": 1359,
+          "path": "contrib/dotzlib/LICENSE_1_0.txt",
+          "sha256": "36266a8fd073568394cb81cdb2b124f7fdae2c64c1a7ed09db34b4d22efa2951",
+          "source_id": "zlib-1.3.1"
+        }
+      ],
+      "notice_lines": 54,
+      "notices": [
+        {
+          "line": "For conditions of distribution and use, see copyright notice in zlib.h",
+          "members": 87,
+          "paths": [
+            "adler32.c",
+            "compress.c",
+            "crc32.c",
+            "deflate.c",
+            "deflate.h"
+          ]
+        },
+        {
+          "line": "Copyright (C) 1995-2022 Mark Adler",
+          "members": 10,
+          "paths": [
+            "crc32.c",
+            "infback.c",
+            "inflate.c",
+            "inftrees.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 2004-2019 Mark Adler",
+          "members": 7,
+          "paths": [
+            "gzguts.h",
+            "gzlib.c",
+            "gzwrite.c"
+          ]
+        },
+        {
+          "line": "Not copyrighted -- provided to the public domain",
+          "members": 6,
+          "paths": [
+            "examples/fitblk.c",
+            "examples/zpipe.c"
+          ]
+        },
+        {
+          "line": "copyright string in the executable of your product.",
+          "members": 6,
+          "paths": [
+            "deflate.c",
+            "inftrees.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 2005, 2012, 2018, 2023 Mark Adler",
+          "members": 4,
+          "paths": [
+            "examples/zran.c",
+            "examples/zran.h"
+          ]
+        },
+        {
+          "line": "\"gzappend 1.2 (11 Oct 2012) Copyright (C) 2003, 2012 Mark Adler\\n\"",
+          "members": 3,
+          "paths": [
+            "examples/gzappend.c"
+          ]
+        },
+        {
+          "line": "- Add version and copyright to help",
+          "members": 3,
+          "paths": [
+            "examples/gzappend.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 1995-2003, 2010 Mark Adler",
+          "members": 3,
+          "paths": [
+            "inffast.h"
+          ]
+        },
+        {
+          "line": "Copyright (C) 1995-2003, 2010, 2014, 2016 Jean-loup Gailly, Mark Adler",
+          "members": 3,
+          "paths": [
+            "uncompr.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 1995-2005, 2010 Mark Adler",
+          "members": 3,
+          "paths": [
+            "inftrees.h"
+          ]
+        },
+        {
+          "line": "Copyright (C) 1995-2005, 2014, 2016 Jean-loup Gailly, Mark Adler",
+          "members": 3,
+          "paths": [
+            "compress.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 1995-2006, 2010, 2011, 2016 Jean-loup Gailly",
+          "members": 3,
+          "paths": [
+            "test/minigzip.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 1995-2006, 2011, 2016 Jean-loup Gailly",
+          "members": 3,
+          "paths": [
+            "test/example.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 1995-2011, 2016 Mark Adler",
+          "members": 3,
+          "paths": [
+            "adler32.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 1995-2017 Jean-loup Gailly",
+          "members": 3,
+          "paths": [
+            "zutil.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 1995-2017 Mark Adler",
+          "members": 3,
+          "paths": [
+            "inffast.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 1995-2019 Mark Adler",
+          "members": 3,
+          "paths": [
+            "inflate.h"
+          ]
+        },
+        {
+          "line": "Copyright (C) 2003, 2005, 2008, 2010, 2012 Mark Adler",
+          "members": 3,
+          "paths": [
+            "examples/gun.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 2003, 2012 Mark Adler, all rights reserved",
+          "members": 3,
+          "paths": [
+            "examples/gzappend.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 2004, 2005, 2012 Mark Adler, all rights reserved",
+          "members": 3,
+          "paths": [
+            "examples/gzjoin.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 2004, 2008, 2012 Mark Adler, all rights reserved",
+          "members": 3,
+          "paths": [
+            "examples/gzlog.h"
+          ]
+        },
+        {
+          "line": "Copyright (C) 2004, 2008, 2012, 2016, 2019 Mark Adler, all rights reserved",
+          "members": 3,
+          "paths": [
+            "examples/gzlog.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 2004, 2010 Mark Adler",
+          "members": 3,
+          "paths": [
+            "gzclose.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 2004-2017 Mark Adler",
+          "members": 3,
+          "paths": [
+            "gzread.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 2007, 2008, 2012, 2018 Mark Adler",
+          "members": 3,
+          "paths": [
+            "examples/enough.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 2011, 2016 Mark Adler",
+          "members": 3,
+          "paths": [
+            "test/infcover.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 2018 Mark Adler",
+          "members": 3,
+          "paths": [
+            "examples/gznorm.c"
+          ]
+        },
+        {
+          "line": "For conditions of distribution and use, see copyright notice in gzlog.h",
+          "members": 3,
+          "paths": [
+            "examples/gzlog.c"
+          ]
+        },
+        {
+          "line": "const char deflate_copyright[] =",
+          "members": 3,
+          "paths": [
+            "deflate.c"
+          ]
+        },
+        {
+          "line": "const char inflate_copyright[] =",
+          "members": 3,
+          "paths": [
+            "inftrees.c"
+          ]
+        },
+        {
+          "line": "define deflate_copyright z_deflate_copyright",
+          "members": 3,
+          "paths": [
+            "zconf.h"
+          ]
+        },
+        {
+          "line": "define inflate_copyright z_inflate_copyright",
+          "members": 3,
+          "paths": [
+            "zconf.h"
+          ]
+        },
+        {
+          "line": "fprintf(stderr, \"Copyright (C) 2003-2010 Mark Adler\\n\")",
+          "members": 3,
+          "paths": [
+            "examples/gun.c"
+          ]
+        },
+        {
+          "line": "pragma map(inflate_copyright,\"INCOPY\")",
+          "members": 3,
+          "paths": [
+            "zconf.h"
+          ]
+        },
+        {
+          "line": "Copyright (C) 1995-2016 Jean-loup Gailly, Mark Adler",
+          "members": 2,
+          "paths": [
+            "zconf.h"
+          ]
+        },
+        {
+          "line": "Copyright (C) 1995-2018 Jean-loup Gailly",
+          "members": 2,
+          "paths": [
+            "deflate.h"
+          ]
+        },
+        {
+          "line": "Copyright (C) 1995-2021 Jean-loup Gailly",
+          "members": 2,
+          "paths": [
+            "trees.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 1995-2022 Jean-loup Gailly and Mark Adler",
+          "members": 2,
+          "paths": [
+            "deflate.c",
+            "zlib.h"
+          ]
+        },
+        {
+          "line": "Copyright (C) 1995-2022 Jean-loup Gailly, Mark Adler",
+          "members": 2,
+          "paths": [
+            "zutil.h"
+          ]
+        },
+        {
+          "line": "Copyright (C) 1995-2023 Jean-loup Gailly and Mark Adler",
+          "members": 2,
+          "paths": [
+            "deflate.c",
+            "zlib.h"
+          ]
+        },
+        {
+          "line": "Copyright (C) 1995-2024 Jean-loup Gailly",
+          "members": 2,
+          "paths": [
+            "deflate.h",
+            "trees.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 1995-2024 Jean-loup Gailly and Mark Adler",
+          "members": 2,
+          "paths": [
+            "deflate.c",
+            "zlib.h"
+          ]
+        },
+        {
+          "line": "Copyright (C) 1995-2024 Jean-loup Gailly, Mark Adler",
+          "members": 2,
+          "paths": [
+            "zconf.h",
+            "zutil.h"
+          ]
+        },
+        {
+          "line": "Copyright (C) 2004-2024 Mark Adler",
+          "members": 2,
+          "paths": [
+            "gzguts.h",
+            "gzlib.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 2005, 2012, 2018 Mark Adler",
+          "members": 2,
+          "paths": [
+            "examples/zran.c",
+            "examples/zran.h"
+          ]
+        },
+        {
+          "line": "\" deflate 1.2.13 Copyright 1995-2022 Jean-loup Gailly and Mark Adler \"",
+          "members": 1,
+          "paths": [
+            "deflate.c"
+          ]
+        },
+        {
+          "line": "\" deflate 1.3 Copyright 1995-2023 Jean-loup Gailly and Mark Adler \"",
+          "members": 1,
+          "paths": [
+            "deflate.c"
+          ]
+        },
+        {
+          "line": "\" deflate 1.3.1 Copyright 1995-2024 Jean-loup Gailly and Mark Adler \"",
+          "members": 1,
+          "paths": [
+            "deflate.c"
+          ]
+        },
+        {
+          "line": "\" inflate 1.2.13 Copyright 1995-2022 Mark Adler \"",
+          "members": 1,
+          "paths": [
+            "inftrees.c"
+          ]
+        },
+        {
+          "line": "\" inflate 1.3 Copyright 1995-2023 Mark Adler \"",
+          "members": 1,
+          "paths": [
+            "inftrees.c"
+          ]
+        },
+        {
+          "line": "\" inflate 1.3.1 Copyright 1995-2024 Mark Adler \"",
+          "members": 1,
+          "paths": [
+            "inftrees.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 1995-2023 Mark Adler",
+          "members": 1,
+          "paths": [
+            "inftrees.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 1995-2024 Mark Adler",
+          "members": 1,
+          "paths": [
+            "inftrees.c"
+          ]
+        }
+      ],
+      "notices_truncated": false,
+      "plan_license": {
+        "evidence_url": "https://zlib.net/zlib_license.html",
+        "spdx": "Zlib",
+        "status": "PENDING_SNAPSHOT_REVIEW"
+      },
+      "spdx_tags": []
+    },
+    {
+      "family_id": "zstd",
+      "license_files": [
+        {
+          "bytes": 18091,
+          "path": "COPYING",
+          "sha256": "f9c375a1be4a41f7b70301dd83c91cb89e41567478859b77eef375a52d782505",
+          "source_id": "zstd-1.5.5"
+        },
+        {
+          "bytes": 1549,
+          "path": "LICENSE",
+          "sha256": "7055266497633c9025b777c78eb7235af13922117480ed5c674677adc381c9d8",
+          "source_id": "zstd-1.5.5"
+        },
+        {
+          "bytes": 0,
+          "path": "build/LICENSE",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "source_id": "zstd-1.5.5"
+        },
+        {
+          "bytes": 18091,
+          "path": "COPYING",
+          "sha256": "f9c375a1be4a41f7b70301dd83c91cb89e41567478859b77eef375a52d782505",
+          "source_id": "zstd-1.5.6"
+        },
+        {
+          "bytes": 1549,
+          "path": "LICENSE",
+          "sha256": "7055266497633c9025b777c78eb7235af13922117480ed5c674677adc381c9d8",
+          "source_id": "zstd-1.5.6"
+        },
+        {
+          "bytes": 0,
+          "path": "build/LICENSE",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "source_id": "zstd-1.5.6"
+        },
+        {
+          "bytes": 18091,
+          "path": "COPYING",
+          "sha256": "f9c375a1be4a41f7b70301dd83c91cb89e41567478859b77eef375a52d782505",
+          "source_id": "zstd-1.5.7"
+        },
+        {
+          "bytes": 1549,
+          "path": "LICENSE",
+          "sha256": "7055266497633c9025b777c78eb7235af13922117480ed5c674677adc381c9d8",
+          "source_id": "zstd-1.5.7"
+        },
+        {
+          "bytes": 0,
+          "path": "build/LICENSE",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "source_id": "zstd-1.5.7"
+        }
+      ],
+      "notice_lines": 18,
+      "notices": [
+        {
+          "line": "Copyright (c) Meta Platforms, Inc. and affiliates.",
+          "members": 477,
+          "paths": [
+            "doc/educational_decoder/harness.c",
+            "doc/educational_decoder/zstd_decompress.c",
+            "doc/educational_decoder/zstd_decompress.h",
+            "examples/common.h",
+            "examples/dictionary_compression.c"
+          ]
+        },
+        {
+          "line": "Copyright (c) Yann Collet, Meta Platforms, Inc. and affiliates.",
+          "members": 42,
+          "paths": [
+            "lib/legacy/zstd_v01.c",
+            "lib/legacy/zstd_v01.h",
+            "lib/legacy/zstd_v02.c",
+            "lib/legacy/zstd_v02.h",
+            "lib/legacy/zstd_v03.c"
+          ]
+        },
+        {
+          "line": "A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT",
+          "members": 21,
+          "paths": [
+            "lib/legacy/zstd_v01.c",
+            "lib/legacy/zstd_v02.c",
+            "lib/legacy/zstd_v03.c",
+            "lib/legacy/zstd_v04.c",
+            "lib/legacy/zstd_v05.c"
+          ]
+        },
+        {
+          "line": "Redistributions of source code must retain the above copyright",
+          "members": 21,
+          "paths": [
+            "lib/legacy/zstd_v01.c",
+            "lib/legacy/zstd_v02.c",
+            "lib/legacy/zstd_v03.c",
+            "lib/legacy/zstd_v04.c",
+            "lib/legacy/zstd_v05.c"
+          ]
+        },
+        {
+          "line": "THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS",
+          "members": 21,
+          "paths": [
+            "lib/legacy/zstd_v01.c",
+            "lib/legacy/zstd_v02.c",
+            "lib/legacy/zstd_v03.c",
+            "lib/legacy/zstd_v04.c",
+            "lib/legacy/zstd_v05.c"
+          ]
+        },
+        {
+          "line": "copyright notice, this list of conditions and the following disclaimer",
+          "members": 21,
+          "paths": [
+            "lib/legacy/zstd_v01.c",
+            "lib/legacy/zstd_v02.c",
+            "lib/legacy/zstd_v03.c",
+            "lib/legacy/zstd_v04.c",
+            "lib/legacy/zstd_v05.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 2013-2015, Yann Collet.",
+          "members": 18,
+          "paths": [
+            "lib/legacy/zstd_v02.c",
+            "lib/legacy/zstd_v03.c",
+            "lib/legacy/zstd_v04.c",
+            "lib/legacy/zstd_v05.c",
+            "lib/legacy/zstd_v06.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 2013-2015, Yann Collet",
+          "members": 15,
+          "paths": [
+            "lib/legacy/zstd_v02.c",
+            "lib/legacy/zstd_v03.c",
+            "lib/legacy/zstd_v04.c",
+            "lib/legacy/zstd_v05.c",
+            "lib/legacy/zstd_v06.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 2015-2016, Yann Collet.",
+          "members": 12,
+          "paths": [
+            "lib/legacy/zstd_v04.c",
+            "lib/legacy/zstd_v05.c",
+            "lib/legacy/zstd_v06.c",
+            "lib/legacy/zstd_v07.c"
+          ]
+        },
+        {
+          "line": "Copyright (c) Yann Collet, Meta Platforms, Inc.",
+          "members": 12,
+          "paths": [
+            "tests/external_matchfinder.c",
+            "tests/external_matchfinder.h",
+            "tests/fuzz/fuzz_third_party_seq_prod.h",
+            "tests/fuzz/seq_prod_fuzz_example/example_seq_prod.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 2013-2016, Yann Collet.",
+          "members": 9,
+          "paths": [
+            "lib/legacy/zstd_v05.c",
+            "lib/legacy/zstd_v06.c",
+            "lib/legacy/zstd_v07.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 2014-2015, Yann Collet.",
+          "members": 9,
+          "paths": [
+            "lib/legacy/zstd_v01.c",
+            "lib/legacy/zstd_v02.c",
+            "lib/legacy/zstd_v03.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 2014-2016, Yann Collet.",
+          "members": 9,
+          "paths": [
+            "lib/legacy/zstd_v05.c",
+            "lib/legacy/zstd_v06.c",
+            "lib/legacy/zstd_v07.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 2013-2016, Yann Collet",
+          "members": 6,
+          "paths": [
+            "lib/legacy/zstd_v05.c",
+            "lib/legacy/zstd_v06.c"
+          ]
+        },
+        {
+          "line": "Copyright (C) 2016, Yann Collet.",
+          "members": 6,
+          "paths": [
+            "lib/legacy/zstd_v06.c",
+            "lib/legacy/zstd_v07.c"
+          ]
+        },
+        {
+          "line": "Copyright (c) 2016 Tino Reichardt",
+          "members": 6,
+          "paths": [
+            "lib/common/threading.c",
+            "lib/common/threading.h"
+          ]
+        },
+        {
+          "line": "Copyright (C) 2015, Yann Collet.",
+          "members": 3,
+          "paths": [
+            "lib/legacy/zstd_v04.c"
+          ]
+        },
+        {
+          "line": "Copyright (c) Martin Liska, SUSE, Meta Platforms, Inc. and affiliates.",
+          "members": 3,
+          "paths": [
+            "examples/streaming_compression_thread_pool.c"
+          ]
+        }
+      ],
+      "notices_truncated": false,
+      "plan_license": {
+        "evidence_url": "https://github.com/facebook/zstd/blob/v1.5.7/LICENSE",
+        "spdx": "BSD-3-Clause OR GPL-2.0-only",
+        "status": "PENDING_SNAPSHOT_REVIEW"
+      },
+      "spdx_tags": []
+    }
+  ],
+  "schema": "delsk.corpus.license-evidence.v1",
+  "scope": "license files of every release and copyright/SPDX lines of retained members; review status is recorded in pilot-v1/README.md, never here"
+}

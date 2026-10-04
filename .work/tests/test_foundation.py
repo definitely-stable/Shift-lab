@@ -223,6 +223,20 @@ class DispatchTests(unittest.TestCase):
             self.assertEqual(fr.main([tmp, f"{tmp}/work", str(admission)], self.GOOD), 1)
             self.assertEqual(json.loads((Path(tmp) / "run.json").read_text())["status"], "not_admitted")
 
+    def test_workload_evidence_is_copied_next_to_run_record(self):
+        def fake_run(argv, work_dir, limits):
+            (Path(work_dir) / fr.WORKLOAD_EVIDENCE).mkdir(parents=True)
+            (Path(work_dir) / fr.WORKLOAD_EVIDENCE / "report.json").write_text("{}", encoding="utf-8")
+            return {"status": "failed"}
+        with tempfile.TemporaryDirectory() as tmp, \
+                unittest.mock.patch.object(fr, "environment", lambda env: {}), \
+                unittest.mock.patch.object(fr, "run_bounded", fake_run):
+            admission = Path(tmp) / "admission.json"
+            admission.write_text(json.dumps({"admitted": True}), encoding="utf-8")
+            env = {**self.GOOD, "WORKLOAD": "materialize-discover"}
+            self.assertEqual(fr.main([f"{tmp}/out", f"{tmp}/work", str(admission)], env), 1)
+            self.assertTrue((Path(tmp) / "out/workload/report.json").is_file())
+
     def test_runner_error_still_writes_evidence(self):
         def explode(*args):
             raise RuntimeError("boom")

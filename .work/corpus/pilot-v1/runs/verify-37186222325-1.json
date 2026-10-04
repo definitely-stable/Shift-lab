@@ -1,0 +1,185 @@
+{
+  "downloads": [
+    {
+      "attempts": 1,
+      "bytes": 782025,
+      "final_host": "sourceware.org",
+      "seconds": 0.201,
+      "sha256": "a2848f34fcd5d6cf47def00461fcb528a0484d8edef8208d6d2e2909dc61d9cd",
+      "source_id": "bzip2-1.0.6"
+    },
+    {
+      "attempts": 1,
+      "bytes": 809680,
+      "final_host": "sourceware.org",
+      "seconds": 0.241,
+      "sha256": "e768a87c5b1a79511499beb41500bcc4caf203726fff46a6f5f9ad27fe08ab2b",
+      "source_id": "bzip2-1.0.7"
+    },
+    {
+      "attempts": 1,
+      "bytes": 810029,
+      "final_host": "sourceware.org",
+      "seconds": 0.145,
+      "sha256": "ab5a03176ee106d3f0fa90e381da478ddae405918153cca248e682cd0c4a2269",
+      "source_id": "bzip2-1.0.8"
+    },
+    {
+      "attempts": 1,
+      "bytes": 2630108,
+      "final_host": "curl.se",
+      "seconds": 0.549,
+      "sha256": "3ccd55d91af9516539df80625f818c734dc6f2ecf9bada33c76765e99121db15",
+      "source_id": "curl-8.6.0"
+    },
+    {
+      "attempts": 1,
+      "bytes": 2707016,
+      "final_host": "curl.se",
+      "seconds": 0.144,
+      "sha256": "6fea2aac6a4610fbd0400afb0bcddbe7258a64c63f1f68e5855ebc0c659710cd",
+      "source_id": "curl-8.7.1"
+    },
+    {
+      "attempts": 1,
+      "bytes": 2748860,
+      "final_host": "curl.se",
+      "seconds": 0.647,
+      "sha256": "0f58bb95fc330c8a46eeb3df5701b0d90c9d9bfcc42bd1cd08791d12551d4400",
+      "source_id": "curl-8.8.0"
+    },
+    {
+      "attempts": 1,
+      "bytes": 1021332,
+      "final_host": "cytranet-dal.dl.sourceforge.net",
+      "seconds": 0.578,
+      "sha256": "535b479b2467ff231a3ec6d92a525906fb8ef27978be4f66dbe05d3f3a01b3a1",
+      "source_id": "libpng-1.6.40"
+    },
+    {
+      "attempts": 1,
+      "bytes": 1044076,
+      "final_host": "pilotfiber.dl.sourceforge.net",
+      "seconds": 0.286,
+      "sha256": "6a5ca0652392a2d7c9db2ae5b40210843c0bbc081cbd410825ab00cc59f14a6c",
+      "source_id": "libpng-1.6.43"
+    },
+    {
+      "attempts": 1,
+      "bytes": 1045640,
+      "final_host": "cytranet-dal.dl.sourceforge.net",
+      "seconds": 0.521,
+      "sha256": "60c4da1d5b7f0aa8d158da48e8f8afa9773c1c8baa5d21974df61f1886b8ce8e",
+      "source_id": "libpng-1.6.44"
+    },
+    {
+      "attempts": 1,
+      "bytes": 2733959,
+      "final_host": "sqlite.org",
+      "seconds": 0.308,
+      "sha256": "ea170e73e447703e8359308ca2e4366a3ae0c4304a8665896f068c736781c651",
+      "source_id": "sqlite-3.45.3"
+    },
+    {
+      "attempts": 1,
+      "bytes": 2764032,
+      "final_host": "sqlite.org",
+      "seconds": 0.301,
+      "sha256": "77823cb110929c2bcb0f5d48e4833b5c59a8a6e40cdea3936b99e199dbbe5784",
+      "source_id": "sqlite-3.46.1"
+    },
+    {
+      "attempts": 1,
+      "bytes": 2811504,
+      "final_host": "sqlite.org",
+      "seconds": 0.278,
+      "sha256": "aa73d8748095808471deaa8e6f34aa700e37f2f787f4425744f53fdd15a89c40",
+      "source_id": "sqlite-3.47.2"
+    },
+    {
+      "attempts": 1,
+      "bytes": 1497445,
+      "final_host": "zlib.net",
+      "seconds": 0.792,
+      "sha256": "b3a24de97a8fdbc835b9833169501030b8977031bcb54b3b3ac13740f846ab30",
+      "source_id": "zlib-1.2.13"
+    },
+    {
+      "attempts": 1,
+      "bytes": 1495873,
+      "final_host": "zlib.net",
+      "seconds": 0.697,
+      "sha256": "ff0ba4c292013dbc27530b3a81e1f9a813cd39de01ca5e0f8bf355702efa593e",
+      "source_id": "zlib-1.3"
+    },
+    {
+      "attempts": 1,
+      "bytes": 1512791,
+      "final_host": "zlib.net",
+      "seconds": 0.708,
+      "sha256": "9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23",
+      "source_id": "zlib-1.3.1"
+    },
+    {
+      "attempts": 1,
+      "bytes": 2368543,
+      "final_host": "release-assets.githubusercontent.com",
+      "seconds": 0.135,
+      "sha256": "9c4396cc829cfae319a6e2615202e82aad41372073482fce286fac78646d3ee4",
+      "source_id": "zstd-1.5.5"
+    },
+    {
+      "attempts": 1,
+      "bytes": 2406875,
+      "final_host": "release-assets.githubusercontent.com",
+      "seconds": 0.146,
+      "sha256": "8c29e06cf42aacc1eafc4077ae2ec6c6fcb96a626157e0593d5e82a34fd403c1",
+      "source_id": "zstd-1.5.6"
+    },
+    {
+      "attempts": 1,
+      "bytes": 2434947,
+      "final_host": "release-assets.githubusercontent.com",
+      "seconds": 0.151,
+      "sha256": "eb33e51f49a15e023950cd7825ca74a4a2b43db8354825ac24fc1b7ee09e6fa3",
+      "source_id": "zstd-1.5.7"
+    }
+  ],
+  "errors": [],
+  "matches": {
+    "licenses.json": true,
+    "materialization.json": true,
+    "source-lock.json": true
+  },
+  "mode": "verify",
+  "outputs": {
+    "corpus-lock.json": {
+      "bytes": 22414998,
+      "sha256": "e5c288256bed284572a9f111186411517b4c73d097d13aea4cf48e2fb9f6fffa"
+    },
+    "licenses.json": {
+      "bytes": 46914,
+      "sha256": "c7e7d7d85e17d2b4bcd31ca08c985a128fcc947f16bb1e49f99e345bc0d55f7c"
+    },
+    "materialization.json": {
+      "bytes": 45609,
+      "sha256": "11e5913293bedcf74d801f5d69afd0879115c30c811fa7c45b8acbcbaab6942b"
+    },
+    "source-lock.json": {
+      "bytes": 697562,
+      "sha256": "2154224d9b8af255f4f48662b7f03a6b9865c3e976079dbad33c939eb3a5903c"
+    }
+  },
+  "run": {
+    "GITHUB_REPOSITORY": "definitely-stable/Shift-lab",
+    "GITHUB_RUN_ATTEMPT": "1",
+    "GITHUB_RUN_ID": "37186222325",
+    "GITHUB_SHA": "ac9037ccefd316ea4e6b5c7c040cffddb2215cd0",
+    "GITHUB_WORKFLOW_SHA": "ac9037ccefd316ea4e6b5c7c040cffddb2215cd0",
+    "SOURCE_SHA": "ac9037ccefd316ea4e6b5c7c040cffddb2215cd0"
+  },
+  "schema": "delsk.corpus.materialization-report.v1",
+  "seconds": 21.171,
+  "started_at": "2026-10-04T07:35:04.395330+00:00",
+  "status": "ok"
+}

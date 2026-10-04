@@ -38,4 +38,4 @@ GitHub URLs и номера хранятся в [реестре](issues/index.js
 
 ## Первый следующий шаг
 
-Claim register DELSK-001 и corpus contracts DELSK-002 приняты; milestone `005-foundation` (admission до compute и bounded foundation workflow) — в [CI plan](ci-plan.md). Далее DELSK-002: materialization и acquisition locks в Actions, ancestry audit и frozen `C_t`; затем durable foundation evidence. После R0 DELSK-003 создаёт oracle. Это конкретный путь к первым измерениям; наличие пакета документации не закрывает G1–G5.
+Claim register DELSK-001 и corpus contracts DELSK-002 приняты; milestone `005-foundation` (admission до compute и bounded foundation workflow) — в [CI plan](ci-plan.md). Acquisition DELSK-002 (Slice D) frozen: source/corpus locks, snapshot license review и две совпавшие materializations — в [pilot-v1](corpus/pilot-v1/README.md). Далее ancestry audit и frozen `C_t` (Slice E), затем durable foundation evidence. После R0 DELSK-003 создаёт oracle. Это конкретный путь к первым измерениям; наличие пакета документации не закрывает G1–G5.

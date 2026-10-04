@@ -1,0 +1,1505 @@
+{
+  "corpus_lock_sha256": "e5c288256bed284572a9f111186411517b4c73d097d13aea4cf48e2fb9f6fffa",
+  "cross_split_objects": 0,
+  "file_track": [
+    {
+      "bytes": 82220,
+      "member_path": "lib/urldata.h",
+      "object_id": "47cf3fd69b97cbe84e81a06aff18669c521244779dae5e2905481a613cb2d321",
+      "source_id": "curl-8.6.0",
+      "stratum": "f064k"
+    },
+    {
+      "bytes": 749740,
+      "member_path": "src/tool_hugehelp.c",
+      "object_id": "4e9521dec327af755a2976f54904f6ab461f912f279ed2633f2c767c0e36e0bf",
+      "source_id": "curl-8.6.0",
+      "stratum": "f256k"
+    },
+    {
+      "bytes": 75871,
+      "member_path": "lib/urldata.h",
+      "object_id": "3544ce0900759090b4e7df76d6b16d640cd27edb36640a21e27b3af3e87a550c",
+      "source_id": "curl-8.7.1",
+      "stratum": "f064k"
+    },
+    {
+      "bytes": 706982,
+      "member_path": "src/tool_hugehelp.c",
+      "object_id": "a8fedacbc79e8c21898cc5119d19594272a7467198545c0b7a684a922fcfeada",
+      "source_id": "curl-8.7.1",
+      "stratum": "f256k"
+    },
+    {
+      "bytes": 77036,
+      "member_path": "lib/urldata.h",
+      "object_id": "7e095ae793d6994d79d136f8e873bc3e40f68d8a91fbb498985b9a0d674a3f67",
+      "source_id": "curl-8.8.0",
+      "stratum": "f064k"
+    },
+    {
+      "bytes": 711442,
+      "member_path": "src/tool_hugehelp.c",
+      "object_id": "2b40d221c9a0219c597de20d480955678f8c4b4896146ff9a7fe8140ed301fd8",
+      "source_id": "curl-8.8.0",
+      "stratum": "f256k"
+    },
+    {
+      "bytes": 80348,
+      "member_path": "pngwutil.c",
+      "object_id": "c27d15b648b65b56079b528714429584172fcd0a595595e2d765d7b5752e61e4",
+      "source_id": "libpng-1.6.40",
+      "stratum": "f064k"
+    },
+    {
+      "bytes": 80340,
+      "member_path": "pngwutil.c",
+      "object_id": "341ab864d6f5f402ac012c91226562952831754189177b08c7c81853c4421b5f",
+      "source_id": "libpng-1.6.43",
+      "stratum": "f064k"
+    },
+    {
+      "bytes": 80340,
+      "member_path": "pngwutil.c",
+      "object_id": "341ab864d6f5f402ac012c91226562952831754189177b08c7c81853c4421b5f",
+      "source_id": "libpng-1.6.44",
+      "stratum": "f064k"
+    },
+    {
+      "bytes": 9027389,
+      "member_path": "sqlite3.c",
+      "object_id": "9ca336fbcbff9f1d78b4f45b6a19583fcc097192310dd2f5f6cd43b9a33d7d69",
+      "source_id": "sqlite-3.45.3",
+      "stratum": "f004m"
+    },
+    {
+      "bytes": 912165,
+      "member_path": "shell.c",
+      "object_id": "cfbc5b9bc4c94d8caeb3d55dc9e224038683f14a1faec5872407ba81f3b4f66a",
+      "source_id": "sqlite-3.45.3",
+      "stratum": "f256k"
+    },
+    {
+      "bytes": 9089564,
+      "member_path": "sqlite3.c",
+      "object_id": "6c35bc5f7f85eac9c49928bacbb02bb694b547aabf69197e058cca245ad80e83",
+      "source_id": "sqlite-3.46.1",
+      "stratum": "f004m"
+    },
+    {
+      "bytes": 958266,
+      "member_path": "shell.c",
+      "object_id": "bed3cd2ea73b5afa4d43d7db400c66fe2b8127a21e1b6e4b7c96a48e6862165d",
+      "source_id": "sqlite-3.46.1",
+      "stratum": "f256k"
+    },
+    {
+      "bytes": 9195458,
+      "member_path": "sqlite3.c",
+      "object_id": "b947b84b8c45d1513ecf2df8f46bf099d9f6d7a0acac0928061ddbb4ea6fe54b",
+      "source_id": "sqlite-3.47.2",
+      "stratum": "f004m"
+    },
+    {
+      "bytes": 1044214,
+      "member_path": "shell.c",
+      "object_id": "62ed7b0c0e1c4b32aa05e3744f3332a65cea9b23512e036c0a552b153784ca90",
+      "source_id": "sqlite-3.47.2",
+      "stratum": "f256k"
+    },
+    {
+      "bytes": 82274,
+      "member_path": "deflate.c",
+      "object_id": "4470e36709ce7d6067fa3e8f60bb7f693b055bee42a0d6655ed71faa2db87fde",
+      "source_id": "zlib-1.2.13",
+      "stratum": "f064k"
+    },
+    {
+      "bytes": 591749,
+      "member_path": "crc32.h",
+      "object_id": "9a2223575183ac2ee8a247f20bf3ac066e8bd0140369556bdbdffc777435749e",
+      "source_id": "zlib-1.2.13",
+      "stratum": "f256k"
+    },
+    {
+      "bytes": 80985,
+      "member_path": "deflate.c",
+      "object_id": "45a600ccf05e0fc45398295daae9852a355f6f738723df8c1b0702a429f9915b",
+      "source_id": "zlib-1.3",
+      "stratum": "f064k"
+    },
+    {
+      "bytes": 591749,
+      "member_path": "crc32.h",
+      "object_id": "9a2223575183ac2ee8a247f20bf3ac066e8bd0140369556bdbdffc777435749e",
+      "source_id": "zlib-1.3",
+      "stratum": "f256k"
+    },
+    {
+      "bytes": 81731,
+      "member_path": "deflate.c",
+      "object_id": "3b956337350f94c34987750f785587ef33d9c89ceaebb7c2afb189c956360cbe",
+      "source_id": "zlib-1.3.1",
+      "stratum": "f064k"
+    },
+    {
+      "bytes": 591749,
+      "member_path": "crc32.h",
+      "object_id": "9a2223575183ac2ee8a247f20bf3ac066e8bd0140369556bdbdffc777435749e",
+      "source_id": "zlib-1.3.1",
+      "stratum": "f256k"
+    },
+    {
+      "bytes": 81334,
+      "member_path": "lib/compress/zstdmt_compress.c",
+      "object_id": "246c2cfb2367c46fbae3608b8e7b86243a33069b64130a5b7439d4be1046ff26",
+      "source_id": "zstd-1.5.5",
+      "stratum": "f064k"
+    },
+    {
+      "bytes": 312776,
+      "member_path": "lib/compress/zstd_compress.c",
+      "object_id": "298f4c03c87dc1c8443dc1d3ec24668d3834d8146c9c366bfb442836489245fe",
+      "source_id": "zstd-1.5.5",
+      "stratum": "f256k"
+    },
+    {
+      "bytes": 82559,
+      "member_path": "lib/compress/zstdmt_compress.c",
+      "object_id": "187a79d4886ecbbd4dcd7ea4e262800a858394901f360e5bdabfd0634f858844",
+      "source_id": "zstd-1.5.6",
+      "stratum": "f064k"
+    },
+    {
+      "bytes": 316523,
+      "member_path": "lib/compress/zstd_compress.c",
+      "object_id": "ca09a08cf57d8422c0fd0722328844cf3a8ece039bed7acc74788cffe5513bab",
+      "source_id": "zstd-1.5.6",
+      "stratum": "f256k"
+    },
+    {
+      "bytes": 84098,
+      "member_path": "lib/compress/zstdmt_compress.c",
+      "object_id": "c83db699b4041bf4db89c5558db490dd295635f1eeefd60b643fbc862bbac7b5",
+      "source_id": "zstd-1.5.7",
+      "stratum": "f064k"
+    },
+    {
+      "bytes": 345541,
+      "member_path": "lib/compress/zstd_compress.c",
+      "object_id": "10c315ae609d49b2fc431521aa95908086e69fd917991c5ed9a875af3d1208e8",
+      "source_id": "zstd-1.5.7",
+      "stratum": "f256k"
+    }
+  ],
+  "licenses_sha256": "c7e7d7d85e17d2b4bcd31ca08c985a128fcc947f16bb1e49f99e345bc0d55f7c",
+  "materialized_bytes": 446924313,
+  "objects": 28477,
+  "occurrences": 32391,
+  "plan_id": "pilot-v1",
+  "schema": "delsk.corpus.materialization.v1",
+  "source_lock_sha256": "2154224d9b8af255f4f48662b7f03a6b9865c3e976079dbad33c939eb3a5903c",
+  "toolchain": {
+    "materializer_sha256": "7f2cf01a71605769ccdb3061d478a4c10c5ba9c20426ba12281ba466f79d7da6",
+    "python": "3.12.3",
+    "zlib_runtime": "1.3"
+  },
+  "tracks": [
+    {
+      "bytes": 0,
+      "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "occurrences": 0,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "bzip2-1.0.6",
+      "track": "file"
+    },
+    {
+      "bytes": 212992,
+      "digest": "dbd4d045c37869b50ad16e874b3ac90ef4f71b1348163512467619089a00620a",
+      "occurrences": 52,
+      "short_tail_bytes": 24517,
+      "short_tail_members": 15,
+      "source_id": "bzip2-1.0.6",
+      "track": "chunk-4k"
+    },
+    {
+      "bytes": 172032,
+      "digest": "96d196a2f456bb3407f18fbe5fcde2d39d3886c5436f8e0133961f92396de8d2",
+      "occurrences": 21,
+      "short_tail_bytes": 65477,
+      "short_tail_members": 15,
+      "source_id": "bzip2-1.0.6",
+      "track": "chunk-8k"
+    },
+    {
+      "bytes": 131072,
+      "digest": "8f6f83026a0bdcf691434e3d3838b0ab1860aec681d8812a4a5ed76f91e8e1e0",
+      "occurrences": 8,
+      "short_tail_bytes": 106437,
+      "short_tail_members": 15,
+      "source_id": "bzip2-1.0.6",
+      "track": "chunk-16k"
+    },
+    {
+      "bytes": 65536,
+      "digest": "0946b3fa3489a44b9e6afcbd58db762ca3eb7a2c7e186bf9bb080d21e96220fb",
+      "occurrences": 2,
+      "short_tail_bytes": 171973,
+      "short_tail_members": 15,
+      "source_id": "bzip2-1.0.6",
+      "track": "chunk-32k"
+    },
+    {
+      "bytes": 0,
+      "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "occurrences": 0,
+      "short_tail_bytes": 237509,
+      "short_tail_members": 15,
+      "source_id": "bzip2-1.0.6",
+      "track": "chunk-64k"
+    },
+    {
+      "bytes": 256000,
+      "digest": "75fd472c48001604411796262d0316bfc8b820a0b218a01f4a0db998dd8763f5",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "bzip2-1.0.6",
+      "track": "tar"
+    },
+    {
+      "bytes": 53442,
+      "digest": "b971736d5d3be03e09f6b3e12f65bd1d4915764031cc2a43b8aaebeb674cb3a9",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "bzip2-1.0.6",
+      "track": "tar-gz"
+    },
+    {
+      "bytes": 0,
+      "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "occurrences": 0,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "bzip2-1.0.7",
+      "track": "file"
+    },
+    {
+      "bytes": 212992,
+      "digest": "0b59f3906bb00cbd9994fb72760d63f738bbe4915f7650da6c260130de35c644",
+      "occurrences": 52,
+      "short_tail_bytes": 24601,
+      "short_tail_members": 15,
+      "source_id": "bzip2-1.0.7",
+      "track": "chunk-4k"
+    },
+    {
+      "bytes": 172032,
+      "digest": "b3855dd1482424380c1e4517e23efb805c52354f2b28864de3129fdffb28c3fc",
+      "occurrences": 21,
+      "short_tail_bytes": 65561,
+      "short_tail_members": 15,
+      "source_id": "bzip2-1.0.7",
+      "track": "chunk-8k"
+    },
+    {
+      "bytes": 131072,
+      "digest": "e10aee666d293dde38bc1f32657d0d00b623c9814abe2ba0bd280119a675a3f4",
+      "occurrences": 8,
+      "short_tail_bytes": 106521,
+      "short_tail_members": 15,
+      "source_id": "bzip2-1.0.7",
+      "track": "chunk-16k"
+    },
+    {
+      "bytes": 65536,
+      "digest": "a7fcfb59244c3068f4f7742746a9cc27995e0dd5f57821dbf9d77114c36c0639",
+      "occurrences": 2,
+      "short_tail_bytes": 172057,
+      "short_tail_members": 15,
+      "source_id": "bzip2-1.0.7",
+      "track": "chunk-32k"
+    },
+    {
+      "bytes": 0,
+      "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "occurrences": 0,
+      "short_tail_bytes": 237593,
+      "short_tail_members": 15,
+      "source_id": "bzip2-1.0.7",
+      "track": "chunk-64k"
+    },
+    {
+      "bytes": 256000,
+      "digest": "d15a8a87815be5c263df004f3682cb0b0acd532a9e3ef798dc48494791e27739",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "bzip2-1.0.7",
+      "track": "tar"
+    },
+    {
+      "bytes": 53484,
+      "digest": "79c25f8503e662a7b318d060cf6845592f4a268dc45d69c16022a4ed47a98728",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "bzip2-1.0.7",
+      "track": "tar-gz"
+    },
+    {
+      "bytes": 0,
+      "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "occurrences": 0,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "bzip2-1.0.8",
+      "track": "file"
+    },
+    {
+      "bytes": 212992,
+      "digest": "ea40591f204ca18533fe3d34d12b060d65d2c1e948cfdd98d8dad2836898468f",
+      "occurrences": 52,
+      "short_tail_bytes": 24884,
+      "short_tail_members": 15,
+      "source_id": "bzip2-1.0.8",
+      "track": "chunk-4k"
+    },
+    {
+      "bytes": 172032,
+      "digest": "ab03e4e35a3eb301849eb3e5bf69a54f4636df0bc86769ac4196c87341e5621f",
+      "occurrences": 21,
+      "short_tail_bytes": 65844,
+      "short_tail_members": 15,
+      "source_id": "bzip2-1.0.8",
+      "track": "chunk-8k"
+    },
+    {
+      "bytes": 131072,
+      "digest": "06f81b9b8e64cf3501fdfd72a70aa2b6165f4cffb70360ae0f347a85fe1c9882",
+      "occurrences": 8,
+      "short_tail_bytes": 106804,
+      "short_tail_members": 15,
+      "source_id": "bzip2-1.0.8",
+      "track": "chunk-16k"
+    },
+    {
+      "bytes": 65536,
+      "digest": "22ae77010dbffcacd2ad48a4c5aeff0fa5e1d263e28e2597a5a3beebfa578708",
+      "occurrences": 2,
+      "short_tail_bytes": 172340,
+      "short_tail_members": 15,
+      "source_id": "bzip2-1.0.8",
+      "track": "chunk-32k"
+    },
+    {
+      "bytes": 0,
+      "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "occurrences": 0,
+      "short_tail_bytes": 237876,
+      "short_tail_members": 15,
+      "source_id": "bzip2-1.0.8",
+      "track": "chunk-64k"
+    },
+    {
+      "bytes": 256000,
+      "digest": "c7184af681b97d7bc60244fb4aa77c296a2edd36f4632f9e3c53f64244e93553",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "bzip2-1.0.8",
+      "track": "tar"
+    },
+    {
+      "bytes": 53587,
+      "digest": "7e896264eaadb2aeca4f87657bac0b178a85f63715fc31dc860b4edcbf3921e0",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "bzip2-1.0.8",
+      "track": "tar-gz"
+    },
+    {
+      "bytes": 831960,
+      "digest": "0aefb51369e8b14c702d3b7081dd5e928a942a53a7042c08383e689116eb63f8",
+      "occurrences": 2,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "curl-8.6.0",
+      "track": "file"
+    },
+    {
+      "bytes": 6504448,
+      "digest": "61535c42653b44ecfaffaa3a28369a64c77ae0019e6560d9712800eab4417de9",
+      "occurrences": 1588,
+      "short_tail_bytes": 1804493,
+      "short_tail_members": 836,
+      "source_id": "curl-8.6.0",
+      "track": "chunk-4k"
+    },
+    {
+      "bytes": 5537792,
+      "digest": "e666a6288de3beb2bc6b9d805d353cf525d0930ea7fa8926d124ac78f58422ef",
+      "occurrences": 676,
+      "short_tail_bytes": 2771149,
+      "short_tail_members": 836,
+      "source_id": "curl-8.6.0",
+      "track": "chunk-8k"
+    },
+    {
+      "bytes": 4603904,
+      "digest": "38b53cd2738a41a86b22602f0a259bf849d6f201dffff21a0af0d8dedcd4ef51",
+      "occurrences": 281,
+      "short_tail_bytes": 3705037,
+      "short_tail_members": 836,
+      "source_id": "curl-8.6.0",
+      "track": "chunk-16k"
+    },
+    {
+      "bytes": 3375104,
+      "digest": "c2e2a161dbc505114e4be6d0ad36aec884fa713316ceda433f32115e6b22b3ca",
+      "occurrences": 103,
+      "short_tail_bytes": 4933837,
+      "short_tail_members": 836,
+      "source_id": "curl-8.6.0",
+      "track": "chunk-32k"
+    },
+    {
+      "bytes": 2162688,
+      "digest": "00a64f0db6f93e40fe9cf710710e5c6ffa2c579ea7a7a8553e36aeebbd514a49",
+      "occurrences": 33,
+      "short_tail_bytes": 6146253,
+      "short_tail_members": 836,
+      "source_id": "curl-8.6.0",
+      "track": "chunk-64k"
+    },
+    {
+      "bytes": 8960000,
+      "digest": "928ce3fcb5fe3294b57c0c40d67e225adaf2b8137687e6eec2bd22748167eadd",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "curl-8.6.0",
+      "track": "tar"
+    },
+    {
+      "bytes": 1754305,
+      "digest": "a50676f549919874736f8374d85f6024ad454e43b6408dbd9cd6ff17c5d725b0",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "curl-8.6.0",
+      "track": "tar-gz"
+    },
+    {
+      "bytes": 782853,
+      "digest": "194ae2153f6256fbb8681e1b5256f3ca67aa291ea00619e2af7c823499f7125c",
+      "occurrences": 2,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "curl-8.7.1",
+      "track": "file"
+    },
+    {
+      "bytes": 6541312,
+      "digest": "f71d8dfbca9cac5ac855a673f2f6f74bb72a4ecd2aaece84bf2787edec23d55e",
+      "occurrences": 1597,
+      "short_tail_bytes": 1836190,
+      "short_tail_members": 847,
+      "source_id": "curl-8.7.1",
+      "track": "chunk-4k"
+    },
+    {
+      "bytes": 5578752,
+      "digest": "d0c22adf9184cebc2e6fd1f05f5896bf8194511fefba3473813088ea9c9b646c",
+      "occurrences": 681,
+      "short_tail_bytes": 2798750,
+      "short_tail_members": 847,
+      "source_id": "curl-8.7.1",
+      "track": "chunk-8k"
+    },
+    {
+      "bytes": 4571136,
+      "digest": "1a62596b3691af9627aa3e5b4969f86dd107ce03ba1f2497015337dc3d7d4d24",
+      "occurrences": 279,
+      "short_tail_bytes": 3806366,
+      "short_tail_members": 847,
+      "source_id": "curl-8.7.1",
+      "track": "chunk-16k"
+    },
+    {
+      "bytes": 3375104,
+      "digest": "5ce55038d58c229fc593cadc61794f1118cd2e6168259de073295ff9c2ad66c8",
+      "occurrences": 103,
+      "short_tail_bytes": 5002398,
+      "short_tail_members": 847,
+      "source_id": "curl-8.7.1",
+      "track": "chunk-32k"
+    },
+    {
+      "bytes": 2097152,
+      "digest": "72ebdfb2909a149049a760a037302a7907ee38d177f1e4fdf1c93c6c99895267",
+      "occurrences": 32,
+      "short_tail_bytes": 6280350,
+      "short_tail_members": 847,
+      "source_id": "curl-8.7.1",
+      "track": "chunk-64k"
+    },
+    {
+      "bytes": 9041920,
+      "digest": "fa0dc417a0abab70364aee66102b6f1a6053f5f1c478b1858498750610cad298",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "curl-8.7.1",
+      "track": "tar"
+    },
+    {
+      "bytes": 1772192,
+      "digest": "6c3c74ae2ed823a81559cbdcf466157726ebb0935ca71ca3827b976ba188ceb2",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "curl-8.7.1",
+      "track": "tar-gz"
+    },
+    {
+      "bytes": 788478,
+      "digest": "4deb1ea0a4feb2c6be54fa89b013580cdbdc4eff33c1bbce59f07c120bbed5d5",
+      "occurrences": 2,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "curl-8.8.0",
+      "track": "file"
+    },
+    {
+      "bytes": 6696960,
+      "digest": "38ae14083c9529400d72b0727ac72bb9c3da53c94440f0d12482d9783f905a88",
+      "occurrences": 1635,
+      "short_tail_bytes": 1846503,
+      "short_tail_members": 855,
+      "source_id": "curl-8.8.0",
+      "track": "chunk-4k"
+    },
+    {
+      "bytes": 5701632,
+      "digest": "b93e32cfe24b379e2a926d244d73175396887f8c6f3f835e47313d72ef0bb070",
+      "occurrences": 696,
+      "short_tail_bytes": 2841831,
+      "short_tail_members": 855,
+      "source_id": "curl-8.8.0",
+      "track": "chunk-8k"
+    },
+    {
+      "bytes": 4603904,
+      "digest": "95750592618bca533086e4784b6d22468fc975c27423a895fe3457e699a560e5",
+      "occurrences": 281,
+      "short_tail_bytes": 3939559,
+      "short_tail_members": 855,
+      "source_id": "curl-8.8.0",
+      "track": "chunk-16k"
+    },
+    {
+      "bytes": 3407872,
+      "digest": "244eb667c9eb44e33b6f6f9d8bf8d9027566ca89fb8a1ecb99c7c1c3e6573fc1",
+      "occurrences": 104,
+      "short_tail_bytes": 5135591,
+      "short_tail_members": 855,
+      "source_id": "curl-8.8.0",
+      "track": "chunk-32k"
+    },
+    {
+      "bytes": 2097152,
+      "digest": "e376f6872ae9503f7efa0dd4dc46e4ca711615049c8995215fbb4e03669e572a",
+      "occurrences": 32,
+      "short_tail_bytes": 6446311,
+      "short_tail_members": 855,
+      "source_id": "curl-8.8.0",
+      "track": "chunk-64k"
+    },
+    {
+      "bytes": 9205760,
+      "digest": "70aea1be29f1bb3765c515f40be1865328b5a6641436b318da78708c7adf2f4c",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "curl-8.8.0",
+      "track": "tar"
+    },
+    {
+      "bytes": 1804044,
+      "digest": "a88e2bd4b5187dfe0ef7c8fef4ae24693f9f5c4cb612eb6674d96fdde946b03d",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "curl-8.8.0",
+      "track": "tar-gz"
+    },
+    {
+      "bytes": 80348,
+      "digest": "9a2674e94382c73a75ddfd6c75323e0326995e050a8556f23bf0a96f74e95f10",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "libpng-1.6.40",
+      "track": "file"
+    },
+    {
+      "bytes": 1409024,
+      "digest": "e6fa0f5182ebbfb1cf5c78bf08dd7b9109174bc0fe7bec5831327592a30fb677",
+      "occurrences": 344,
+      "short_tail_bytes": 62093,
+      "short_tail_members": 32,
+      "source_id": "libpng-1.6.40",
+      "track": "chunk-4k"
+    },
+    {
+      "bytes": 1343488,
+      "digest": "4c711266317be0d0266801dad796c42fb0b35592e975368435d8c944351fc9ba",
+      "occurrences": 164,
+      "short_tail_bytes": 127629,
+      "short_tail_members": 32,
+      "source_id": "libpng-1.6.40",
+      "track": "chunk-8k"
+    },
+    {
+      "bytes": 1212416,
+      "digest": "2c3ab7a5cb415c5437fc5ddc56a07f1b382871dcf653ccbd6aca0a5791daaf3d",
+      "occurrences": 74,
+      "short_tail_bytes": 258701,
+      "short_tail_members": 32,
+      "source_id": "libpng-1.6.40",
+      "track": "chunk-16k"
+    },
+    {
+      "bytes": 1015808,
+      "digest": "3a3dd25b540dbecd0b083fca9b091efe875dd37b8b5e52c46ff37bd58f4c82a6",
+      "occurrences": 31,
+      "short_tail_bytes": 455309,
+      "short_tail_members": 32,
+      "source_id": "libpng-1.6.40",
+      "track": "chunk-32k"
+    },
+    {
+      "bytes": 851968,
+      "digest": "dcf1c4d215d3b00fe53498386fd6036f94ae8c0950a15aaf46bc8d2887b504db",
+      "occurrences": 13,
+      "short_tail_bytes": 619149,
+      "short_tail_members": 32,
+      "source_id": "libpng-1.6.40",
+      "track": "chunk-64k"
+    },
+    {
+      "bytes": 1505280,
+      "digest": "9ca396d7f5fc6f2d3358678bccaa90ab8e7ec448cd3efa650133e246d406c37c",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "libpng-1.6.40",
+      "track": "tar"
+    },
+    {
+      "bytes": 337436,
+      "digest": "68c8bb5fce309c2fa135ff4afc01b49038a151d9c7285628c769d8be6d83864a",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "libpng-1.6.40",
+      "track": "tar-gz"
+    },
+    {
+      "bytes": 80340,
+      "digest": "e22b380e1de1fcce23982de331be20a5f16c2e4998fcd121ff8b53a3a5735262",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "libpng-1.6.43",
+      "track": "file"
+    },
+    {
+      "bytes": 1441792,
+      "digest": "324b366f98c241f07a1c9a8815a7e20a035b4b476027a8ca78349c6f40346189",
+      "occurrences": 352,
+      "short_tail_bytes": 73319,
+      "short_tail_members": 35,
+      "source_id": "libpng-1.6.43",
+      "track": "chunk-4k"
+    },
+    {
+      "bytes": 1376256,
+      "digest": "f656a168dcd073d5261970c807e1f3fb327ce9c6a3933cd4a7c21a7ee1560948",
+      "occurrences": 168,
+      "short_tail_bytes": 138855,
+      "short_tail_members": 35,
+      "source_id": "libpng-1.6.43",
+      "track": "chunk-8k"
+    },
+    {
+      "bytes": 1212416,
+      "digest": "0735d7ae386dc834d6e9118f998c2dbcc2f7df7a4229af0375d3123f2ab481f2",
+      "occurrences": 74,
+      "short_tail_bytes": 302695,
+      "short_tail_members": 35,
+      "source_id": "libpng-1.6.43",
+      "track": "chunk-16k"
+    },
+    {
+      "bytes": 1015808,
+      "digest": "ef106cf560de02eb3ba5cbcef5403ec0d596192ed9817d7e030699b6a444b37e",
+      "occurrences": 31,
+      "short_tail_bytes": 499303,
+      "short_tail_members": 35,
+      "source_id": "libpng-1.6.43",
+      "track": "chunk-32k"
+    },
+    {
+      "bytes": 851968,
+      "digest": "2b44652bd0f2646f1073cac8c656c0661324190ca979ba9978ea619a226093af",
+      "occurrences": 13,
+      "short_tail_bytes": 663143,
+      "short_tail_members": 35,
+      "source_id": "libpng-1.6.43",
+      "track": "chunk-64k"
+    },
+    {
+      "bytes": 1546240,
+      "digest": "c601771aae4a74a567e3a9e7bd744bf0718c78fd9c4e3c07832b9d20f201f3bd",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "libpng-1.6.43",
+      "track": "tar"
+    },
+    {
+      "bytes": 341746,
+      "digest": "3dd93d01ff87092180367e11d54bcd0e306be64ba6c439a24c3752971b59f359",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "libpng-1.6.43",
+      "track": "tar-gz"
+    },
+    {
+      "bytes": 80340,
+      "digest": "49bbcef53feab8bee5103bed5720780853b344fcb388f251a5975e1c9cb19773",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "libpng-1.6.44",
+      "track": "file"
+    },
+    {
+      "bytes": 1437696,
+      "digest": "6b107933ab8411309a2915e4749032c502751ab268530859fbd36ffa68fd2057",
+      "occurrences": 351,
+      "short_tail_bytes": 75085,
+      "short_tail_members": 35,
+      "source_id": "libpng-1.6.44",
+      "track": "chunk-4k"
+    },
+    {
+      "bytes": 1368064,
+      "digest": "9862a33a5278a8db85f7104e1935ef100069e779d9eebe7983b62a1277bdd5c3",
+      "occurrences": 167,
+      "short_tail_bytes": 144717,
+      "short_tail_members": 35,
+      "source_id": "libpng-1.6.44",
+      "track": "chunk-8k"
+    },
+    {
+      "bytes": 1212416,
+      "digest": "c337594ffe3698e6c8da3a7ca0d82aa714e97166141032a4830ff4d0f150acf3",
+      "occurrences": 74,
+      "short_tail_bytes": 300365,
+      "short_tail_members": 35,
+      "source_id": "libpng-1.6.44",
+      "track": "chunk-16k"
+    },
+    {
+      "bytes": 1015808,
+      "digest": "0ded54782b57d54c1fe6b8ee9dfea9dbaddcf17bdcefe1224f1f1bd9be4f25c0",
+      "occurrences": 31,
+      "short_tail_bytes": 496973,
+      "short_tail_members": 35,
+      "source_id": "libpng-1.6.44",
+      "track": "chunk-32k"
+    },
+    {
+      "bytes": 851968,
+      "digest": "353a1a67aa861b126d289f43d2ec26c1f84cef9c4ab47faa8325f04278e68867",
+      "occurrences": 13,
+      "short_tail_bytes": 660813,
+      "short_tail_members": 35,
+      "source_id": "libpng-1.6.44",
+      "track": "chunk-64k"
+    },
+    {
+      "bytes": 1546240,
+      "digest": "6c13728714a8b85798ba631b2b29826c7b33f8f247721123cc3d90ceaaef5333",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "libpng-1.6.44",
+      "track": "tar"
+    },
+    {
+      "bytes": 341154,
+      "digest": "9e5566c3255d8c7c1e9a48725f68f341c060712637a19d2b87ea3e4016e9a07c",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "libpng-1.6.44",
+      "track": "tar-gz"
+    },
+    {
+      "bytes": 9939554,
+      "digest": "c7d31365e2c3359039792dc19bcf3ba3a397c8d429f22179df2da1c7e0cd9c29",
+      "occurrences": 2,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "sqlite-3.45.3",
+      "track": "file"
+    },
+    {
+      "bytes": 10608640,
+      "digest": "dc21b3b9dacd15b18b28ce149c03a0b9020881678b3065eaf4c69cd4f5cb9ff2",
+      "occurrences": 2590,
+      "short_tail_bytes": 10952,
+      "short_tail_members": 4,
+      "source_id": "sqlite-3.45.3",
+      "track": "chunk-4k"
+    },
+    {
+      "bytes": 10600448,
+      "digest": "59a11e42cc740b477cbe469082bb02dbb5f1ecd05efbaaa24541bf49bb983de6",
+      "occurrences": 1294,
+      "short_tail_bytes": 19144,
+      "short_tail_members": 4,
+      "source_id": "sqlite-3.45.3",
+      "track": "chunk-8k"
+    },
+    {
+      "bytes": 10584064,
+      "digest": "73cf86721e660b6de32d7aa2410c8dbfdec16c8f1e0021b0f3f3d2d9b274d00b",
+      "occurrences": 646,
+      "short_tail_bytes": 35528,
+      "short_tail_members": 4,
+      "source_id": "sqlite-3.45.3",
+      "track": "chunk-16k"
+    },
+    {
+      "bytes": 10551296,
+      "digest": "c8125836d8d67a81e893300dcfa83dbfce68f8d04d1c5f3c2b93fab4ec761895",
+      "occurrences": 322,
+      "short_tail_bytes": 68296,
+      "short_tail_members": 4,
+      "source_id": "sqlite-3.45.3",
+      "track": "chunk-32k"
+    },
+    {
+      "bytes": 10420224,
+      "digest": "baec3e526f0735cfe487cc360e9dedd4c0f605be190c300cdbcf3bbbad4a454b",
+      "occurrences": 159,
+      "short_tail_bytes": 199368,
+      "short_tail_members": 4,
+      "source_id": "sqlite-3.45.3",
+      "track": "chunk-64k"
+    },
+    {
+      "bytes": 10629120,
+      "digest": "9187b34a66832d70333d3fecac6aab086c52d9492b8b154bf8b5a829e947f166",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "sqlite-3.45.3",
+      "track": "tar"
+    },
+    {
+      "bytes": 2712097,
+      "digest": "090c9bf1e8eccae12041132989af0068ccdf009a005f23f68f31afc706fe60e6",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "sqlite-3.45.3",
+      "track": "tar-gz"
+    },
+    {
+      "bytes": 10047830,
+      "digest": "779c0e4ff9abd346be9189a2bf0f9e2a8ad69852d4eb81a9925189171228973e",
+      "occurrences": 2,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "sqlite-3.46.1",
+      "track": "file"
+    },
+    {
+      "bytes": 10723328,
+      "digest": "780b78a22de484f271937f5aa9ed7bf31d873244ca7050cd239c54e8468195cd",
+      "occurrences": 2618,
+      "short_tail_bytes": 6720,
+      "short_tail_members": 4,
+      "source_id": "sqlite-3.46.1",
+      "track": "chunk-4k"
+    },
+    {
+      "bytes": 10706944,
+      "digest": "9008bc28d8b101f462dd4836e1dad415b0bd72f973b471492da7b9c330fbdfd4",
+      "occurrences": 1307,
+      "short_tail_bytes": 23104,
+      "short_tail_members": 4,
+      "source_id": "sqlite-3.46.1",
+      "track": "chunk-8k"
+    },
+    {
+      "bytes": 10698752,
+      "digest": "db191bb30c19bc440dc49368781ded34078d50a9fe8c3cf8ff987d6ae90887e3",
+      "occurrences": 653,
+      "short_tail_bytes": 31296,
+      "short_tail_members": 4,
+      "source_id": "sqlite-3.46.1",
+      "track": "chunk-16k"
+    },
+    {
+      "bytes": 10682368,
+      "digest": "f558fe9ef13ccc0b3717ab925a97a26eb345762a6efa584e768f778c1182c530",
+      "occurrences": 326,
+      "short_tail_bytes": 47680,
+      "short_tail_members": 4,
+      "source_id": "sqlite-3.46.1",
+      "track": "chunk-32k"
+    },
+    {
+      "bytes": 10551296,
+      "digest": "ec3b394c06d665cf4d3a15dbf82b1b801faae517354933c662c11a478cdcc473",
+      "occurrences": 161,
+      "short_tail_bytes": 178752,
+      "short_tail_members": 4,
+      "source_id": "sqlite-3.46.1",
+      "track": "chunk-64k"
+    },
+    {
+      "bytes": 10741760,
+      "digest": "efa7cfb6259c92317ff592590acb2513978404d3b25ae4610dece7e27bcb5a16",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "sqlite-3.46.1",
+      "track": "tar"
+    },
+    {
+      "bytes": 2741563,
+      "digest": "0be639a73425bb7700703208f0e85cdf32e84892cb5c70972a181d2e166f0246",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "sqlite-3.46.1",
+      "track": "tar-gz"
+    },
+    {
+      "bytes": 10239672,
+      "digest": "8d83d3a19dee36642a0253a87df36e55e539b966c83c7a5b0b6aa6efe98a2f09",
+      "occurrences": 2,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "sqlite-3.47.2",
+      "track": "file"
+    },
+    {
+      "bytes": 10915840,
+      "digest": "f271f6247e6204c9b609ac84dd969ca914db2bf96be837a87a6eb4b6b96f0246",
+      "occurrences": 2665,
+      "short_tail_bytes": 13167,
+      "short_tail_members": 4,
+      "source_id": "sqlite-3.47.2",
+      "track": "chunk-4k"
+    },
+    {
+      "bytes": 10911744,
+      "digest": "36dd6426c3099e09bfd470b5d0131f09b80d1c2b410c7a723bb99818bd6c9144",
+      "occurrences": 1332,
+      "short_tail_bytes": 17263,
+      "short_tail_members": 4,
+      "source_id": "sqlite-3.47.2",
+      "track": "chunk-8k"
+    },
+    {
+      "bytes": 10895360,
+      "digest": "89764ac4fdbff185d6ad2c90bc3d3659f225c03d1c15db908ea74b6bfe9c790a",
+      "occurrences": 665,
+      "short_tail_bytes": 33647,
+      "short_tail_members": 4,
+      "source_id": "sqlite-3.47.2",
+      "track": "chunk-16k"
+    },
+    {
+      "bytes": 10846208,
+      "digest": "c148ecb74d4caf6f6063fd85e207fd34c4a023323cded7de5f48e2c229f8c5b3",
+      "occurrences": 331,
+      "short_tail_bytes": 82799,
+      "short_tail_members": 4,
+      "source_id": "sqlite-3.47.2",
+      "track": "chunk-32k"
+    },
+    {
+      "bytes": 10747904,
+      "digest": "b63f879613c584b0b4158f133d4bcdb53c831673a1d425a54e19c5e4dcd50f77",
+      "occurrences": 164,
+      "short_tail_bytes": 181103,
+      "short_tail_members": 4,
+      "source_id": "sqlite-3.47.2",
+      "track": "chunk-64k"
+    },
+    {
+      "bytes": 10936320,
+      "digest": "171ebac60c5b9467d6ae23937a4da12234ee664bf1d37c6fb49c26d789e01179",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "sqlite-3.47.2",
+      "track": "tar"
+    },
+    {
+      "bytes": 2788716,
+      "digest": "60f54cbd6a5835f8e4e57b15051670ece0dcfad2a328b15805ba7567b2ca3cb5",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "sqlite-3.47.2",
+      "track": "tar-gz"
+    },
+    {
+      "bytes": 674023,
+      "digest": "5aaf63dbb4cc4b809b9d9732dc171d78846ff6f50ead800e974e436726cec78a",
+      "occurrences": 2,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "zlib-1.2.13",
+      "track": "file"
+    },
+    {
+      "bytes": 1269760,
+      "digest": "5f796514aedd5391c29bedb1d0c81270548d8622ba35ff8ccacb597012305e24",
+      "occurrences": 310,
+      "short_tail_bytes": 68800,
+      "short_tail_members": 40,
+      "source_id": "zlib-1.2.13",
+      "track": "chunk-4k"
+    },
+    {
+      "bytes": 1196032,
+      "digest": "7e6c0db1bebb4d9a08ab668fbf146789c60fe6e6ba6cc87089caa2a3ebf3b954",
+      "occurrences": 146,
+      "short_tail_bytes": 142528,
+      "short_tail_members": 40,
+      "source_id": "zlib-1.2.13",
+      "track": "chunk-8k"
+    },
+    {
+      "bytes": 1081344,
+      "digest": "d97e60d6628fe92db0ff4dcc9ae08695647456c33be53c27c22acbb975265199",
+      "occurrences": 66,
+      "short_tail_bytes": 257216,
+      "short_tail_members": 40,
+      "source_id": "zlib-1.2.13",
+      "track": "chunk-16k"
+    },
+    {
+      "bytes": 819200,
+      "digest": "c9c32a86cb6cc88e1aaa14722966b7e3f5cf00cb50e2b74baeac09f5fb01727c",
+      "occurrences": 25,
+      "short_tail_bytes": 519360,
+      "short_tail_members": 40,
+      "source_id": "zlib-1.2.13",
+      "track": "chunk-32k"
+    },
+    {
+      "bytes": 720896,
+      "digest": "a29c28cd9d5452e05447bf809f17a9994733ed0d115b51558004e3e6de9d3e9a",
+      "occurrences": 11,
+      "short_tail_bytes": 617664,
+      "short_tail_members": 40,
+      "source_id": "zlib-1.2.13",
+      "track": "chunk-64k"
+    },
+    {
+      "bytes": 1372160,
+      "digest": "2cfa90729782c4a050adef5bc86cdba0e68e35c9931c1b1dbbaece8cc9452246",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "zlib-1.2.13",
+      "track": "tar"
+    },
+    {
+      "bytes": 411825,
+      "digest": "79d9b765a59cb5e5772e8d625c56eb4ed5e672300b6cac9e1a6a0ec76be604bf",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "zlib-1.2.13",
+      "track": "tar-gz"
+    },
+    {
+      "bytes": 672734,
+      "digest": "0c9da45b057f0ac6c7a52fa3bf14033ac29d25a564b73613867a5e5ce5f94c45",
+      "occurrences": 2,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "zlib-1.3",
+      "track": "file"
+    },
+    {
+      "bytes": 1257472,
+      "digest": "25a2c747ca4b7d6afed0c2cc0de38a5c15e321eb632dc083b515810d9a049108",
+      "occurrences": 307,
+      "short_tail_bytes": 75007,
+      "short_tail_members": 40,
+      "source_id": "zlib-1.3",
+      "track": "chunk-4k"
+    },
+    {
+      "bytes": 1163264,
+      "digest": "8bada14958aa49e5dec0e23bdb036be01e61022438eba096bd24a0b7eebaeeb9",
+      "occurrences": 142,
+      "short_tail_bytes": 169215,
+      "short_tail_members": 40,
+      "source_id": "zlib-1.3",
+      "track": "chunk-8k"
+    },
+    {
+      "bytes": 1032192,
+      "digest": "bca0c283735f0cf5ce7b83d44ff1939fa2693d12393de664854ca0bf8bd139aa",
+      "occurrences": 63,
+      "short_tail_bytes": 300287,
+      "short_tail_members": 40,
+      "source_id": "zlib-1.3",
+      "track": "chunk-16k"
+    },
+    {
+      "bytes": 819200,
+      "digest": "8f4dabcc6db6c652987f24936cf9de7532db6a057d06710d9ecabdb64b092e4b",
+      "occurrences": 25,
+      "short_tail_bytes": 513279,
+      "short_tail_members": 40,
+      "source_id": "zlib-1.3",
+      "track": "chunk-32k"
+    },
+    {
+      "bytes": 720896,
+      "digest": "53009b480f7900a0662a39749c6dd6b5049ce290240aa5d24722a47c696240fc",
+      "occurrences": 11,
+      "short_tail_bytes": 611583,
+      "short_tail_members": 40,
+      "source_id": "zlib-1.3",
+      "track": "chunk-64k"
+    },
+    {
+      "bytes": 1372160,
+      "digest": "6818b575287de411561507fb8f01865d25f3d2b8c24510e69999d22de6bbe011",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "zlib-1.3",
+      "track": "tar"
+    },
+    {
+      "bytes": 411933,
+      "digest": "11b2105875735e950971147f3e3c8a064bd20c1de0374ab113de4e89f18719f8",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "zlib-1.3",
+      "track": "tar-gz"
+    },
+    {
+      "bytes": 673480,
+      "digest": "aeec4b455fc55abb14e9e07085708256186cc5917803eee494067bd57b8237b2",
+      "occurrences": 2,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "zlib-1.3.1",
+      "track": "file"
+    },
+    {
+      "bytes": 1257472,
+      "digest": "e450c021981c9df7def529d7470b96a784fc844e2e285ffa50a5e1cb7a15effa",
+      "occurrences": 307,
+      "short_tail_bytes": 76381,
+      "short_tail_members": 40,
+      "source_id": "zlib-1.3.1",
+      "track": "chunk-4k"
+    },
+    {
+      "bytes": 1163264,
+      "digest": "69b4a878acc4b2be0eeb2d626727a851e0b7b789078fe1afefb60e6fffc6d280",
+      "occurrences": 142,
+      "short_tail_bytes": 170589,
+      "short_tail_members": 40,
+      "source_id": "zlib-1.3.1",
+      "track": "chunk-8k"
+    },
+    {
+      "bytes": 1032192,
+      "digest": "0a26a76461f2b8c72b484c1276c1ed737df6357fa4c4a3b41a5f3b3e558ec4b5",
+      "occurrences": 63,
+      "short_tail_bytes": 301661,
+      "short_tail_members": 40,
+      "source_id": "zlib-1.3.1",
+      "track": "chunk-16k"
+    },
+    {
+      "bytes": 819200,
+      "digest": "c978d6e072701ae6a437957baef5ebff0b2bc66fc436f6598238381551f9638f",
+      "occurrences": 25,
+      "short_tail_bytes": 514653,
+      "short_tail_members": 40,
+      "source_id": "zlib-1.3.1",
+      "track": "chunk-32k"
+    },
+    {
+      "bytes": 720896,
+      "digest": "beebc91deb01e1b7a71f159db6ac98c3991cef5df30c3617d26c5e5622af35b1",
+      "occurrences": 11,
+      "short_tail_bytes": 612957,
+      "short_tail_members": 40,
+      "source_id": "zlib-1.3.1",
+      "track": "chunk-64k"
+    },
+    {
+      "bytes": 1372160,
+      "digest": "2963417b46a0fe5d9e72473fbb7a6dd87558e5bed303cacba57c34b971801f7e",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "zlib-1.3.1",
+      "track": "tar"
+    },
+    {
+      "bytes": 412121,
+      "digest": "1ca963329e8d2f0af58211032fad9feaf4d70ece532981a517538ee39f0d5897",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "zlib-1.3.1",
+      "track": "tar-gz"
+    },
+    {
+      "bytes": 394110,
+      "digest": "fee2d08595e28446b3216a94bec49612c60bbb9dd9944f0a7dd9f6b8779b1689",
+      "occurrences": 2,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "zstd-1.5.5",
+      "track": "file"
+    },
+    {
+      "bytes": 3825664,
+      "digest": "2bc04b764cc628f5430dbfa65b20763e021dae133cd0f2bd9bb1c116de44264f",
+      "occurrences": 934,
+      "short_tail_bytes": 373164,
+      "short_tail_members": 175,
+      "source_id": "zstd-1.5.5",
+      "track": "chunk-4k"
+    },
+    {
+      "bytes": 3555328,
+      "digest": "ddfcecdf3823e098cb7ae49ec577478e85a127ecc509b86f7f1dd2e309bf46f7",
+      "occurrences": 434,
+      "short_tail_bytes": 643500,
+      "short_tail_members": 175,
+      "source_id": "zstd-1.5.5",
+      "track": "chunk-8k"
+    },
+    {
+      "bytes": 3244032,
+      "digest": "d03f7fd60d0d452f88418ea3ecdf7a7036ee45c05e4508cbe1b3a08d353f4485",
+      "occurrences": 198,
+      "short_tail_bytes": 954796,
+      "short_tail_members": 175,
+      "source_id": "zstd-1.5.5",
+      "track": "chunk-16k"
+    },
+    {
+      "bytes": 2850816,
+      "digest": "d2f7db65507981df15f03ec530e97ed248993f6d1efc41a875f59377497a1181",
+      "occurrences": 87,
+      "short_tail_bytes": 1348012,
+      "short_tail_members": 175,
+      "source_id": "zstd-1.5.5",
+      "track": "chunk-32k"
+    },
+    {
+      "bytes": 2228224,
+      "digest": "c781e70c6aa31a14fca95d03734394fa66174f524fa6fafd6788b8fa212ebec4",
+      "occurrences": 34,
+      "short_tail_bytes": 1970604,
+      "short_tail_members": 175,
+      "source_id": "zstd-1.5.5",
+      "track": "chunk-64k"
+    },
+    {
+      "bytes": 4341760,
+      "digest": "a3e52fc6e18981f1d75ffa4f6fe6b6d8d41ae417fe0c5c9bd2dccd8208db00f2",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "zstd-1.5.5",
+      "track": "tar"
+    },
+    {
+      "bytes": 864010,
+      "digest": "2c22c1814d915797bedfc02cf0ea16e0c4eb1f6283bb45584f36f6fa9ca721bb",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "zstd-1.5.5",
+      "track": "tar-gz"
+    },
+    {
+      "bytes": 399082,
+      "digest": "f97ebaf986632b128b8f82fe7e56d743ed726486cf20588ac75e7e0d4a8f13a3",
+      "occurrences": 2,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "zstd-1.5.6",
+      "track": "file"
+    },
+    {
+      "bytes": 3899392,
+      "digest": "76f6d688c2fff52722b52118f92e3b20e12c953ae709b35b7557d92527be09bc",
+      "occurrences": 952,
+      "short_tail_bytes": 387726,
+      "short_tail_members": 181,
+      "source_id": "zstd-1.5.6",
+      "track": "chunk-4k"
+    },
+    {
+      "bytes": 3620864,
+      "digest": "8ada1a12269ccadb705ba7dedef908abd77964a0158bc2079b865be0da43745f",
+      "occurrences": 442,
+      "short_tail_bytes": 666254,
+      "short_tail_members": 181,
+      "source_id": "zstd-1.5.6",
+      "track": "chunk-8k"
+    },
+    {
+      "bytes": 3293184,
+      "digest": "9c0b5405fc0f3d2abdb82f3948cd6f24a19ccb1914dad8a33ffc592c001ae71d",
+      "occurrences": 201,
+      "short_tail_bytes": 993934,
+      "short_tail_members": 181,
+      "source_id": "zstd-1.5.6",
+      "track": "chunk-16k"
+    },
+    {
+      "bytes": 2916352,
+      "digest": "922c539f083a14cb741fa93dc657049003b47eebadbaa0ba1866c7324cd3f3c4",
+      "occurrences": 89,
+      "short_tail_bytes": 1370766,
+      "short_tail_members": 181,
+      "source_id": "zstd-1.5.6",
+      "track": "chunk-32k"
+    },
+    {
+      "bytes": 2228224,
+      "digest": "14a0fe53560bfb36c3c619a31e5d8cab74044bc4e3f4c72a5113c732982574eb",
+      "occurrences": 34,
+      "short_tail_bytes": 2058894,
+      "short_tail_members": 181,
+      "source_id": "zstd-1.5.6",
+      "track": "chunk-64k"
+    },
+    {
+      "bytes": 4433920,
+      "digest": "d784e9edcb4340bb57e6c87c1dfdafaab719b9be6a9abf2b105b8023c56d7b12",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "zstd-1.5.6",
+      "track": "tar"
+    },
+    {
+      "bytes": 883661,
+      "digest": "0f539f352201124e49bfd924105f33ec0c577cc23f97bad97d13a7d438cd27a3",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "zstd-1.5.6",
+      "track": "tar-gz"
+    },
+    {
+      "bytes": 429639,
+      "digest": "0836770142f58eb05aee0430bd99c6a6b4953f2942c45e780b923f078a415bd2",
+      "occurrences": 2,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "zstd-1.5.7",
+      "track": "file"
+    },
+    {
+      "bytes": 3997696,
+      "digest": "abb86c278b518273a7468f05b238179ec8b9f01820db1fdf63210202217647b7",
+      "occurrences": 976,
+      "short_tail_bytes": 377259,
+      "short_tail_members": 183,
+      "source_id": "zstd-1.5.7",
+      "track": "chunk-4k"
+    },
+    {
+      "bytes": 3727360,
+      "digest": "86900a83e89b3cf4d39eb8730cbed88eb050def370c0ba889dcbdf9d811778c9",
+      "occurrences": 455,
+      "short_tail_bytes": 647595,
+      "short_tail_members": 184,
+      "source_id": "zstd-1.5.7",
+      "track": "chunk-8k"
+    },
+    {
+      "bytes": 3407872,
+      "digest": "a773656a6be5897d71d088e8c9b0371b0addba4adab1fe6e7c8dda6a4a269d0c",
+      "occurrences": 208,
+      "short_tail_bytes": 967083,
+      "short_tail_members": 184,
+      "source_id": "zstd-1.5.7",
+      "track": "chunk-16k"
+    },
+    {
+      "bytes": 2981888,
+      "digest": "c51f8e21a913de0813d4ba2932972d5fa238e008db73c5f6dd14a11a167a1461",
+      "occurrences": 91,
+      "short_tail_bytes": 1393067,
+      "short_tail_members": 184,
+      "source_id": "zstd-1.5.7",
+      "track": "chunk-32k"
+    },
+    {
+      "bytes": 2359296,
+      "digest": "cbfc31764d7f6d5e6220888c94c0caa8855f90384ffdf8c75b2163fa2991dc97",
+      "occurrences": 36,
+      "short_tail_bytes": 2015659,
+      "short_tail_members": 184,
+      "source_id": "zstd-1.5.7",
+      "track": "chunk-64k"
+    },
+    {
+      "bytes": 4526080,
+      "digest": "8547574d825a70497703c4a3146af42c6eb56ac0cd017abd02cf94ae6df2bda2",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "zstd-1.5.7",
+      "track": "tar"
+    },
+    {
+      "bytes": 903082,
+      "digest": "4d968e5806a61d23a2812796e919b494c4c34431488275c543e0582156f8377f",
+      "occurrences": 1,
+      "short_tail_bytes": null,
+      "short_tail_members": null,
+      "source_id": "zstd-1.5.7",
+      "track": "tar-gz"
+    }
+  ]
+}

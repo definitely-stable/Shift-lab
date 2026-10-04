@@ -6,7 +6,7 @@
 
 `.github/workflows/research-docs.yml` запускает `.work/tools/validate.py` (Markdown-ссылки, обязательные документы, IDs, backlog DAG, citation markers) и unit tests `.work/tests` на ubuntu-24.04: corpus contracts DELSK-002 и admission/limits DELSK-005. Это **проверка исследовательского пакета и harness**, не benchmark Delsk.
 
-`.github/workflows/foundation.yml` — DELSK-005 milestone `005-foundation`: admission до compute и один bounded allowlisted workload на frozen commit. Сейчас allowlist содержит только служебный `selftest` (SHA-256 детерминированного потока 64 MiB); materialization добавит Slice D. Oracle, decision lane, A/A и ARM в этом workflow не выполняются; `run.json` фиксирует `evidence_scope=foundation`, `oracle=NOT_RUN`, `quality_verdict=N/A`.
+`.github/workflows/foundation.yml` — DELSK-005 milestone `005-foundation`: admission до compute и один bounded allowlisted workload на frozen commit. Allowlist: служебный `selftest` (SHA-256 детерминированного потока 64 MiB) и DELSK-002 `materialize-discover` / `materialize-verify` ([materialize.py](tools/materialize.py), правила — [corpus contracts](corpus/README.md#acquisition-и-materialization-slice-d)). Workload пишет evidence только в `./evidence` внутри опрашиваемого work dir; runner копирует её в `workload/` рядом с `run.json`, в том числе после отказа. Oracle, decision lane, A/A и ARM в этом workflow не выполняются; `run.json` фиксирует `evidence_scope=foundation`, `oracle=NOT_RUN`, `quality_verdict=N/A`.
 
 ## Tiers и caps
 

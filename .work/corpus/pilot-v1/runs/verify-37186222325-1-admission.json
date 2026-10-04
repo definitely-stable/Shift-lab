@@ -1,0 +1,46 @@
+{
+  "accounting_complete": true,
+  "admitted": true,
+  "artifact_bytes": 12361301,
+  "artifact_total_cap": 268435456,
+  "budget_minutes": 600,
+  "budget_mode": "warn",
+  "ledger": [
+    {
+      "attempts": 1,
+      "minutes": 1,
+      "run_id": 37185129729,
+      "run_number": 1,
+      "workflow": "foundation.yml"
+    },
+    {
+      "attempts": 1,
+      "minutes": 1,
+      "run_id": 37185935970,
+      "run_number": 2,
+      "workflow": "foundation.yml"
+    },
+    {
+      "attempts": 1,
+      "minutes": 1,
+      "run_id": 37186057381,
+      "run_number": 3,
+      "workflow": "foundation.yml"
+    },
+    {
+      "attempts": 1,
+      "minutes": 1,
+      "run_id": 37186134266,
+      "run_number": 4,
+      "workflow": "foundation.yml"
+    }
+  ],
+  "reserved_minutes": 30,
+  "run_artifact_cap": 16777216,
+  "schema": "delsk.ci.admission.v1",
+  "used_minutes": 4,
+  "warnings": [],
+  "window_end": "2026-10-04T07:35:03+00:00",
+  "window_start": "2026-09-27T07:35:03+00:00",
+  "within_budget": true
+}
