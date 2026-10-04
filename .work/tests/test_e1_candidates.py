@@ -682,6 +682,13 @@ class Categories(Base):
 # V24-V32, V45, V48, V50: refusals and closed contracts
 # =============================================================================================================
 
+def without_accounting(res):
+    res = copy.deepcopy(res)
+    for r in res['selection']['near_queries']:
+        del r['accounting']
+    return res
+
+
 def valid_world():
     fx = Fx().std('a')
     fx.add('a1', 'x.c', 'X'), fx.add('a2', 'p0.c', 'T')
@@ -1156,9 +1163,16 @@ class Coverage(Base):
             self.assertEqual(cov['rates']['identity_all'], [t['identity'], t['all']])
             self.assertEqual(cov['rates']['identity_visited'], [len(idq), len(res['queries'])])
             self.assertEqual(cov['rates']['empty_pool_selected_near'], [sum(q['candidate_count'] == 0 for q in near), len(near)])
-            self.assertEqual([r['target'] for r in cov['base_outcomes']], [q['target'] for q in near])
-            for row in cov['base_outcomes']:  # exclusive attribution covers all of U
-                self.assertEqual(sum(v for k, v in row.items() if k != 'target'), len(w['occurrences']))
+            rows = res['selection']['near_queries']
+            self.assertEqual([r['target'] for r in rows], [q['target'] for q in near])
+            for row, q in zip(rows, near):  # exclusive attribution covers all of U
+                a = row['accounting']
+                self.assertEqual(sum(a['outcomes'].values()), len(w['occurrences']))
+                self.assertEqual(a['eligible_aliases'], sum(a['outcomes'][k] for k in
+                                                            ('exact_target_class', 'category_truncation', 'selected_class')))
+                self.assertEqual(a['exact_duplicates'], 0)  # near: D_t is empty
+                self.assertEqual(a['full_pool_classes'], sum(e['pool_size'] for e in row['categories'].values()))
+                self.assertEqual([x['object_id'] for x in row['witnesses']], [b['object_id'] for b in q['bases']])
 
     def test_zero_rows_are_kept(self):  # V17, V21 (zero denominators retained)
         fx = Fx().std('a')
@@ -1245,7 +1259,11 @@ class Properties(Base):
                 if flavor == 'excluded':
                     w2['exclusions'].append(excl('occurrence', rec['occurrence_id']))
                 with self.subTest(world=i, flavor=flavor):
-                    self.assertEqual(c.construct(w2, p), res)  # T_all and X_U unchanged -> identical
+                    got = c.construct(w2, p)
+                    # T_all and X_U unchanged -> identical selection; only per-stage U accounting sees the alias
+                    self.assertEqual(without_accounting(got), without_accounting(res))
+                    for r in got['selection']['near_queries']:
+                        self.assertEqual(r['accounting']['universe_occurrences'], len(w2['occurrences']))
                     self.assertEqual(cv.derive(w2, p)['queries'], res['queries'])
 
     def pick(self, w, p, i, need_alias=True):
@@ -1584,6 +1602,71 @@ class Matrix(unittest.TestCase):
         seen = set(re.findall(r'\b([VP]\d\d)\b', ' '.join(marked)))
         want = {f'V{i:02d}' for i in range(1, 57)} | {f'P{i:02d}' for i in range(1, 19)}
         self.assertEqual(sorted(want - seen), [])
+
+
+class ReviewRegressions(Base):
+    """PR #21 review: durable witnesses/accounting, closed v2 boundary, fail-closed evidence rows, verifier I33."""
+
+    def test_category_witness_is_recorded_independently_of_representative(self):  # A04
+        case = golden('class-category-independent-of-representative')
+        res = self.both(case['input'])
+        row = next(r for r in res['selection']['near_queries'] if r['target'] == case['roles']['target'])
+        w, = row['witnesses']
+        self.assertEqual((w['category'], w['category_witness'], w['representative']),
+                         ('same_path_historical', case['roles']['same_path_witness'],
+                          case['roles']['foreign_representative']))
+        self.assertEqual(w['eligible_aliases'], 3)
+
+    def test_witness_and_accounting_tampering_detected(self):
+        w, p = valid_world()
+        res = c.construct(w, p)
+        lock = lock_of(res, p)
+        for part, mutate in (('witnesses', lambda r: r['witnesses'][0].update(category_witness='0' * 64)),
+                             ('accounting', lambda r: r['accounting']['outcomes'].update(temporal=99))):
+            sel = copy.deepcopy(res['selection'])
+            mutate(sel['near_queries'][0])
+            with self.subTest(part):
+                self.has(cv.compare(cv.derive(w, p), lock, sel), f'{part} evidence differs')
+
+    def test_verifier_evidence_rows_fail_closed(self):
+        w, p = valid_world()
+        res = c.construct(w, p)
+        lock, ref = lock_of(res, p), cv.derive(w, p)
+        self.assertEqual(cv.compare(ref, lock, res['selection']), [])
+        rows = res['selection']['near_queries']
+        for name, value in (('duplicate row', rows + [copy.deepcopy(rows[-1])]),
+                            ('open row', [{**rows[0], 'score': 1}] + rows[1:]),
+                            ('missing row', rows[:-1]), ('not a list', {r['target']: r for r in rows})):
+            with self.subTest(name):
+                self.assertTrue(cv.compare(ref, lock, {**res['selection'], 'near_queries': value}))
+        dup = {**lock, 'queries': lock['queries'] + [copy.deepcopy(lock['queries'][-1])]}
+        self.has(cv.compare(ref, dup, res['selection']), 'repeat a target')
+
+    def test_make_lock_enforces_v2_ids_status_and_types(self):
+        w, p = valid_world()
+        res = c.construct(w, p)
+        q0 = next(i for i, q in enumerate(res['queries']) if q['bases'])
+        for name, mutate in (('short target', lambda r: r['queries'][q0].update(target='ab')),
+                             ('uppercase object', lambda r: r['queries'][q0]['bases'][0].update(
+                                 object_id=r['queries'][q0]['bases'][0]['object_id'].upper())),
+                             ('int representative', lambda r: r['queries'][q0]['bases'][0].update(representative=1)),
+                             ('unknown status', lambda r: r['queries'][q0].update(status='near')),
+                             ('bool pairs', lambda r: r.update(planned_pairs_per_codec=True)),
+                             ('str pairs', lambda r: r.update(planned_pairs_per_codec='1'))):
+            bad = copy.deepcopy(res)
+            mutate(bad)
+            with self.subTest(name), self.assertRaises(c.CandidateError):
+                c.make_lock(BIND, bad, p)
+
+    def test_verifier_independently_refuses_license_composite(self):  # I33, V50
+        fx = Fx().std('a')
+        fx.add('a1', 'bad.c', 'B'), fx.add('a1', None, 'TAR', 'tar'), fx.add('a2', 'p0.c', 'T')
+        for exclusion in (excl('member', 'a1:bad.c'), excl('occurrence', fx.occs[0]['occurrence_id'])):
+            fx.exclusions = [exclusion]
+            with self.subTest(exclusion['kind']), self.assertRaisesRegex(ValueError, 'license-excluded member'):
+                cv.derive(fx.world(), P())
+        fx.exclusions = [excl('source', 'a1')]
+        self.both(fx.world())
 
 
 if __name__ == '__main__':

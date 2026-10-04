@@ -236,6 +236,7 @@ def construct(world, params):
                 and b["provenance"]["options"] == t["provenance"]["options"]
                 and ib is not None and it is not None and ib[1] < it[0])
 
+    universe = [occ[oid] for oid in sorted(occ)]
     by_object = collections.defaultdict(list)
     buckets = collections.defaultdict(list)
     for oid in sorted(occ):
@@ -271,10 +272,11 @@ def construct(world, params):
             if tid in duplicate_of:
                 queries.append(_query(tid, "identity_only", duplicate_of[tid], []))
             else:
-                bases, evidence = _select(occ[tid], buckets[occ[tid]["split"], occ[tid]["track"]],
-                                          eligible, seed, caps)
+                bases, evidence, witnesses = _select(occ[tid], buckets[occ[tid]["split"], occ[tid]["track"]],
+                                                     eligible, seed, caps)
                 queries.append(_query(tid, "near_duplicate", None, bases))
-                selection.append({"categories": evidence, "target": tid})
+                selection.append({"accounting": _accounting(occ[tid], universe, flags, interval, bases),
+                                  "categories": evidence, "target": tid, "witnesses": witnesses})
                 near += 1
             trace.append({"group": list(g), "near_count_after": near, "round": rnd,
                           "status": queries[-1]["status"], "target": tid})
@@ -316,17 +318,58 @@ def _select(t, bucket, eligible, seed, caps):
             by_category["same_family_decoy"].append(x)
         else:
             by_category["foreign_family_decoy"].append(x)
-    bases, evidence = [], {}
+    witness = {"same_path_historical": lambda b: (b["family_id"], b["provenance"]["member_path"],
+                                                  b["provenance"]["offset"]) == position,
+               "same_family_decoy": lambda b: b["family_id"] == t["family_id"],
+               "foreign_family_decoy": lambda b: True}
+    bases, evidence, witnesses = [], {}, []
     for k in CATEGORIES:
         keyed = sorted((m.rank("candidate", seed, t["occurrence_id"], x), x) for x in by_category[k])
         chosen = keyed[:caps[k]]
         bases += [{"category": k, "object_id": x,
                    "representative": min(b["occurrence_id"] for b in pool[x])} for _, x in chosen]
+        witnesses += [{"category": k, "category_witness": min(b["occurrence_id"] for b in pool[x] if witness[k](b)),
+                       "eligible_aliases": len(pool[x]), "object_id": x,
+                       "representative": min(b["occurrence_id"] for b in pool[x])} for _, x in chosen]
         evidence[k] = {"cap": caps[k], "last_selected_key": list(chosen[-1]) if chosen else None,
                        "pool_object_ids_sha256": m.digest(sorted(by_category[k])), "pool_size": len(keyed),
                        "selected_object_ids": sorted(x for _, x in chosen),
                        "shortage": max(0, caps[k] - len(keyed)), "truncation": max(0, len(keyed) - caps[k])}
-    return sorted(bases, key=lambda b: b["object_id"]), evidence
+    return (sorted(bases, key=lambda b: b["object_id"]), evidence,
+            sorted(witnesses, key=lambda w: w["object_id"]))
+
+
+def _accounting(t, universe, flags, interval, bases):
+    """Per-stage base accounting over all of U for one near target (research spec §17.2 "Bases per target").
+
+    Each occurrence gets the first failing stage of BASE_OUTCOME_ORDER (diagnostic attribution only).
+    """
+    selected = {b["object_id"] for b in bases}
+    counts = dict.fromkeys(BASE_OUTCOME_ORDER, 0)
+    classes, it = set(), interval(t)
+    for b in universe:
+        ib = interval(b)
+        if flags[b["occurrence_id"]]:
+            outcome = "lock_excluded"
+        elif b["occurrence_id"] == t["occurrence_id"]:
+            outcome = "self"
+        elif b["split"] != t["split"]:
+            outcome = "split"
+        elif b["track"] != t["track"] or b["provenance"]["options"] != t["provenance"]["options"]:
+            outcome = "track_unit"
+        elif ib is None:
+            outcome = "unknown_time"
+        elif not ib[1] < it[0]:
+            outcome = "temporal"
+        else:
+            classes.add(b["object_id"])
+            outcome = ("exact_target_class" if b["object_id"] == t["object_id"]
+                       else "selected_class" if b["object_id"] in selected else "category_truncation")
+        counts[outcome] += 1
+    eligible = counts["exact_target_class"] + counts["category_truncation"] + counts["selected_class"]
+    return {"eligible_aliases": eligible, "exact_duplicates": counts["exact_target_class"],
+            "full_pool_classes": len(classes - {t["object_id"]}), "outcomes": counts,
+            "universe_occurrences": len(universe)}
 
 
 def _query(tid, status, duplicate, bases):
@@ -351,11 +394,15 @@ def make_lock(bindings, result, params):
     if not near:
         raise CandidateError("no near_duplicate target; identity-only or empty universe is not sealable")
     pairs = sum(q["candidate_count"] for q in near)
-    if pairs != result["planned_pairs_per_codec"] or pairs > params["pairs_max"] or len(near) > params["max_targets"]:
+    if type(result["planned_pairs_per_codec"]) is not int or pairs != result["planned_pairs_per_codec"] or pairs > params["pairs_max"] or len(near) > params["max_targets"]:
         raise CandidateError("planned pairs differ from the near-query sum or exceed the cap")
     lock = {"planned_pairs_per_codec": pairs, "queries": result["queries"], "schema": SCHEMA, **bindings}
     assert set(lock) == LOCK_KEYS
     return m.canonical_bytes(lock)
+
+
+def _is_sha256(value):
+    return type(value) is str and bool(m.SHA256.match(value))
 
 
 def _query_errors(q, caps):
@@ -364,8 +411,11 @@ def _query_errors(q, caps):
         return ["closed query key set required"]
     bases = q["bases"]
     if type(bases) is not list or any(type(b) is not dict or set(b) != BASE_KEYS or b["category"] not in caps
+                                      or not _is_sha256(b["object_id"]) or not _is_sha256(b["representative"])
                                       for b in bases):
-        return ["bases must be closed base records"]
+        return ["bases must be closed base records with SHA-256 IDs"]
+    if not _is_sha256(q["target"]) or q["status"] not in ("identity_only", "near_duplicate"):
+        return ["target must be a SHA-256 ID and status identity_only or near_duplicate"]
     ids = [b["object_id"] for b in bases]
     errors = []
     if ids != sorted(set(ids)):
@@ -377,9 +427,9 @@ def _query_errors(q, caps):
     if any(sum(b["category"] == k for b in bases) > caps[k] for k in caps):
         errors.append("category above cap")
     if q["status"] == "identity_only":
-        if bases or type(q["duplicate_of"]) is not str or not m.SHA256.match(q["duplicate_of"]):
+        if bases or not _is_sha256(q["duplicate_of"]):
             errors.append("identity_only needs duplicate_of and no bases")
-    elif q["status"] != "near_duplicate" or q["duplicate_of"] is not None:
+    elif q["duplicate_of"] is not None:
         errors.append("near_duplicate needs duplicate_of null")
     return errors
 
@@ -461,7 +511,6 @@ def coverage(world, params, result, layout=None):
         "rates": {"identity_all": [population["identity"], population["all"]],
                   "identity_visited": [len(identities), len(result["queries"])],
                   "empty_pool_selected_near": [sum(q["candidate_count"] == 0 for q in near), len(near)]},
-        "base_outcomes": _base_outcomes(occ, sources, flags, result),
         "cells": rows,
         "pair_plan": {"total": result["planned_pairs_per_codec"],
                       "by_track": _sum_by(rows, "track"), "by_component": _sum_by(rows, "component"),
@@ -474,37 +523,3 @@ def _sum_by(rows, key):
     for row in rows:
         totals[row[key]] += row["planned_pairs"]
     return dict(sorted(totals.items()))
-
-
-def _base_outcomes(occ, sources, flags, result):
-    """Exclusive base attribution per selected near query over all of U (precedence BASE_OUTCOME_ORDER)."""
-    rows = []
-    for q in result["queries"]:
-        if q["status"] != "near_duplicate":
-            continue
-        t, selected = occ[q["target"]], {b["object_id"] for b in q["bases"]}
-        it = sources[t["source_id"]]["availability_interval_utc_seconds"]
-        counts = dict.fromkeys(BASE_OUTCOME_ORDER, 0)
-        for oid, b in occ.items():
-            ib = sources[b["source_id"]]["availability_interval_utc_seconds"]
-            if flags[oid]:
-                outcome = "lock_excluded"
-            elif oid == t["occurrence_id"]:
-                outcome = "self"
-            elif b["split"] != t["split"]:
-                outcome = "split"
-            elif b["track"] != t["track"] or b["provenance"]["options"] != t["provenance"]["options"]:
-                outcome = "track_unit"
-            elif ib is None:
-                outcome = "unknown_time"
-            elif not ib[1] < it[0]:
-                outcome = "temporal"
-            elif b["object_id"] == t["object_id"]:
-                outcome = "exact_target_class"
-            elif b["object_id"] in selected:
-                outcome = "selected_class"
-            else:
-                outcome = "category_truncation"
-            counts[outcome] += 1
-        rows.append({"target": q["target"], **counts})
-    return rows

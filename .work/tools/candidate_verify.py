@@ -182,6 +182,17 @@ def derive(world, params):
             if subject == e["subject"]:
                 dead.add(o["occurrence_id"])
     dead |= {o["occurrence_id"] for o in occs if len(splits[o["object_id"]]) > 1}
+    # I33: a license exclusion of a member or occurrence leaves its bytes inside that source's tar.
+    by_id = {o["occurrence_id"]: o for o in occs}
+    tainted = set()
+    for e in world["exclusions"]:
+        if e["reason"] == "license_blocked" and e["kind"] == "member":
+            tainted.add(e["subject"].split(":", 1)[0])
+        elif e["reason"] == "license_blocked" and e["kind"] == "occurrence" and e["subject"] in by_id:
+            tainted.add(by_id[e["subject"]]["source_id"])
+    for o in occs:
+        if o["source_id"] in tainted and o["provenance"]["member_path"] is None and o["occurrence_id"] not in dead:
+            raise ValueError(f"composite {o['occurrence_id']} keeps a license-excluded member of {o['source_id']}")
 
     def iv(o):
         return src[o["source_id"]]["availability_interval_utc_seconds"]
@@ -224,7 +235,7 @@ def derive(world, params):
             q = {"bases": [], "candidate_count": 0, "candidate_list_sha256": hc([]), "duplicate_of": dup[tid],
                  "status": "identity_only", "target": tid}
         else:
-            q, row = near_query(t, occs, base_ok, params)
+            q, row = near_query(t, occs, base_ok, params, dead, iv)
             near_rows.append(row)
             near += 1
         queries.append(q)
@@ -244,7 +255,7 @@ def derive(world, params):
                             "near_opportunity": len(T) - len(dup)}}}
 
 
-def near_query(t, occs, base_ok, params):
+def near_query(t, occs, base_ok, params, dead, iv):
     classes = {}
     for b in occs:  # full-U scan, no index
         if base_ok(b, t):
@@ -256,14 +267,19 @@ def near_query(t, occs, base_ok, params):
         positions = {(b["family_id"], b["provenance"]["member_path"], b["provenance"]["offset"]) for b in members}
         families = {b["family_id"] for b in members}
         pools[CATS[0] if here in positions else CATS[1] if t["family_id"] in families else CATS[2]].append(x)
-    bases, row = [], {"categories": {}, "target": t["occurrence_id"]}
+    bases, row = [], {"categories": {}, "target": t["occurrence_id"], "witnesses": []}
     for k in CATS:
         cap = params["caps"][k]
         ranked = sorted(pools[k], key=lambda x: (hc(["candidate", params["seed"], t["occurrence_id"], x]), x))
         keep = ranked[:cap]
         for x in keep:
-            bases.append({"category": k, "object_id": x,
-                          "representative": sorted(b["occurrence_id"] for b in classes[x])[0]})
+            ids = sorted(b["occurrence_id"] for b in classes[x])
+            bases.append({"category": k, "object_id": x, "representative": ids[0]})
+            proof = [b["occurrence_id"] for b in classes[x]
+                     if k == CATS[2] or (k == CATS[1] and b["family_id"] == t["family_id"])
+                     or (b["family_id"], b["provenance"]["member_path"], b["provenance"]["offset"]) == here]
+            row["witnesses"].append({"category": k, "category_witness": sorted(proof)[0],
+                                     "eligible_aliases": len(ids), "object_id": x, "representative": ids[0]})
         row["categories"][k] = {
             "cap": cap, "pool_size": len(ranked), "pool_object_ids_sha256": hc(sorted(ranked)),
             "selected_object_ids": sorted(keep), "shortage": cap - len(ranked) if len(ranked) < cap else 0,
@@ -271,16 +287,51 @@ def near_query(t, occs, base_ok, params):
             "last_selected_key": [hc(["candidate", params["seed"], t["occurrence_id"], keep[-1]]), keep[-1]]
             if keep else None}
     bases.sort(key=lambda b: b["object_id"])
+    row["witnesses"].sort(key=lambda w: w["object_id"])
+    row["accounting"] = accounting(t, occs, base_ok, dead, iv, {b["object_id"] for b in bases})
     ids = [b["object_id"] for b in bases]
     return ({"bases": bases, "candidate_count": len(ids), "candidate_list_sha256": hc(ids), "duplicate_of": None,
              "status": "near_duplicate", "target": t["occurrence_id"]}, row)
+
+
+STAGES = ("lock_excluded", "self", "split", "track_unit", "unknown_time", "temporal")
+
+
+def accounting(t, occs, base_ok, dead, iv, chosen):
+    """First failed stage per occurrence; eligible ones split into exact / selected / truncated classes."""
+    fails = (lambda b: b["occurrence_id"] in dead, lambda b: b["occurrence_id"] == t["occurrence_id"],
+             lambda b: b["split"] != t["split"],
+             lambda b: (b["track"], hc(b["provenance"]["options"])) != (t["track"], hc(t["provenance"]["options"])),
+             lambda b: iv(b) is None, lambda b: iv(b)[1] >= iv(t)[0])
+    outcomes = {name: 0 for name in STAGES + ("exact_target_class", "category_truncation", "selected_class")}
+    eligible = [b for b in occs if base_ok(b, t)]
+    for b in occs:
+        failed = next((name for name, test in zip(STAGES, fails) if test(b)), None)
+        if failed:
+            outcomes[failed] += 1
+    for b in eligible:
+        outcomes["exact_target_class" if b["object_id"] == t["object_id"] else
+                 "selected_class" if b["object_id"] in chosen else "category_truncation"] += 1
+    if sum(outcomes.values()) != len(occs):
+        raise ValueError("stage attribution does not partition U")
+    return {"eligible_aliases": len(eligible), "exact_duplicates": outcomes["exact_target_class"],
+            "full_pool_classes": len({b["object_id"] for b in eligible} - {t["object_id"]}),
+            "outcomes": outcomes, "universe_occurrences": len(occs)}
+
+
+ROW_KEYS = {"accounting", "categories", "target", "witnesses"}
 
 
 def compare(expected, lock, selection):
     """Exact per-target and per-category mismatches between the derivation and the artifacts."""
     errors = []
     want = {q["target"]: q for q in expected["queries"]}
-    got = {q.get("target"): q for q in lock.get("queries", [])}
+    listed = lock.get("queries")
+    if type(listed) is not list or any(type(q) is not dict for q in listed):
+        return ["lock queries must be a list of records"]
+    got = {q.get("target"): q for q in listed}
+    if len(got) != len(listed):
+        errors.append("lock queries repeat a target")
     for tid in sorted(want.keys() - got.keys()):
         errors.append(f"target {tid}: scheduled but absent from the lock")
     for tid in sorted(got.keys() - want.keys(), key=str):
@@ -294,13 +345,16 @@ def compare(expected, lock, selection):
     for part in ("targets", "schedule"):
         if hc([selection.get(part)]) != hc([expected["selection"][part]]):
             errors.append(f"selection evidence {part} differs")
-    rows = {r["target"]: r for r in selection.get("near_queries", [])}
+    listed = selection.get("near_queries")
+    if type(listed) is not list or any(type(r) is not dict or set(r) != ROW_KEYS for r in listed):
+        return errors + ["near query evidence must be a list of closed rows"]
+    rows = {r["target"]: r for r in listed}
+    if len(rows) != len(listed) or len(listed) != len(expected["selection"]["near_queries"]):
+        errors.append("near query evidence rows repeat a target or differ in count")
     for row in expected["selection"]["near_queries"]:
-        for k in CATS:
-            if hc([rows.get(row["target"], {}).get("categories", {}).get(k)]) != hc([row["categories"][k]]):
-                errors.append(f"target {row['target']}: category {k} evidence differs")
-    if len(rows) != len(expected["selection"]["near_queries"]):
-        errors.append("near query evidence row count differs")
+        for part in sorted(ROW_KEYS - {"target"}):
+            if hc([rows.get(row["target"], {}).get(part)]) != hc([row[part]]):
+                errors.append(f"target {row['target']}: {part} evidence differs")
     return errors
 
 

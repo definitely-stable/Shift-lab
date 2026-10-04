@@ -42,7 +42,7 @@ def main(argv, env):
     out = Path(argv[0])
     out.mkdir(parents=True, exist_ok=True)
     order_key = f"{env.get('GITHUB_RUN_ID', 'local')}-{env.get('GITHUB_RUN_ATTEMPT', '0')}"
-    run = {"schema": "delsk.e1.seal-run.v1", "status": "refused", "order_key": order_key,
+    run = {"schema": "delsk.e1.seal-run.v1", "status": "failed", "order_key": order_key,
            "code_sha256": {name: sha((TOOLS / name).read_bytes()) for name in CODE},
            "scorer": "NOT_RUN", "encoder": "NOT_RUN", "oracle": "NOT_RUN"}
     try:
@@ -75,7 +75,7 @@ def main(argv, env):
         else:
             run["status"] = "verification_failed"
     except (candidates.CandidateError, ValueError, KeyError, TypeError, OSError) as error:
-        run["error"] = f"{type(error).__name__}: {error}"
+        run.update(status="failed", error=f"{type(error).__name__}: {error}")
     (out / "seal-run.json").write_bytes(m.canonical_bytes(run))
     print(json.dumps({k: run.get(k) for k in ("status", "candidate_lock_sha256", "verification", "error")}))
     return 0 if run["status"] == "ok" else 1
