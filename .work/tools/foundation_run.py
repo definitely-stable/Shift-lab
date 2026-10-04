@@ -56,7 +56,9 @@ WORKLOADS = {"selftest": [sys.executable, os.path.abspath(__file__), "--selftest
              "ancestry-audit": [sys.executable, os.path.join(os.path.dirname(MATERIALIZE), "ancestry_audit.py"),
                                 WORKLOAD_EVIDENCE],
              "candidate-seal": [sys.executable, os.path.join(os.path.dirname(MATERIALIZE), "e1_seal.py"),
-                                WORKLOAD_EVIDENCE]}
+                                WORKLOAD_EVIDENCE],
+             "foundation-handoff": [sys.executable, os.path.join(os.path.dirname(MATERIALIZE), "recompute_foundation.py"),
+                                    "handoff", WORKLOAD_EVIDENCE]}
 
 
 def validate_dispatch(env):
