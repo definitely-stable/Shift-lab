@@ -1,0 +1,69 @@
+{
+  "adopted_on": "2026-10-04",
+  "candidate_lock_bindings": {
+    "acquisition_freeze_sha256": "8814ce0221b2b890f1710476da0c1a31771e7528d81cfc3a99ffa10acc88e8da",
+    "ancestry_audit_sha256": "99d6c4142c0e3a1796d6e877af456f7683ebdf32cbf9519004152b3b59b6b04f",
+    "construction_spec_sha256": "b91e54d62aae22ed9cc898abb65e62dd78e47505f63a51a929d445947abf54f8",
+    "corpus_lock_sha256": "e5c288256bed284572a9f111186411517b4c73d097d13aea4cf48e2fb9f6fffa",
+    "historical_bytes_sha256": "bf48bb970327a53be751cffe7d60ef0e142da7414f2539cdc332a3ce2a0a0b0c",
+    "protocol_sha256": "a0c518247d111e8ad1294562d65eb34c28da87c7027c009efb64a39e6f4e0038",
+    "selection_policy_sha256": "539642ffb9a65f4fe49f42ea99d26b416c2ab40583021b3fe8d2aa8d415cbd50"
+  },
+  "corpus_lock_canonical_sha256": "e5c288256bed284572a9f111186411517b4c73d097d13aea4cf48e2fb9f6fffa",
+  "e1_prerequisites": [
+    "Implement builder and an independent verifier per construction-spec.md section 7 without shared selection code.",
+    "Execute all adversarial cases and properties of the research specification sections 13-14 in Actions.",
+    "Two independent Actions recomputations produce the same canonical candidate lock and coverage evidence."
+  ],
+  "files": {
+    ".work/corpus/e0/ancestry-audit.json": "99d6c4142c0e3a1796d6e877af456f7683ebdf32cbf9519004152b3b59b6b04f",
+    ".work/corpus/e0/candidate-lock-v2.schema.json": "1466f5b3bafa1a9f6c11d87f361a95add4f38808337bcdd8668b0f0d4b8de006",
+    ".work/corpus/e0/construction-spec.md": "b91e54d62aae22ed9cc898abb65e62dd78e47505f63a51a929d445947abf54f8",
+    ".work/corpus/e0/golden-vectors.json": "01e7f504e6f7b919b829db1372160839cc456a253522276057bc18a9e0eab745",
+    ".work/corpus/e0/historical-bytes.json": "bf48bb970327a53be751cffe7d60ef0e142da7414f2539cdc332a3ce2a0a0b0c",
+    ".work/corpus/e0/origin-evidence.json.gz": "88113947711b3238dae4f1f867dc484832986453a4bbe13403410028d2f342fc",
+    ".work/corpus/e0/runs/ancestry-audit-37196309671-1.json": "46fcb25193d0539eb31fff44513053fc5218690fb927eff012e16bdcd3e3b9c1",
+    ".work/corpus/e0/runs/ancestry-audit-37196505949-1.json": "a8d7e9707a44e96ef3d2bdb60c8de5cde25d2d4c7269d63a3cff16ae2b112191",
+    ".work/corpus/e0/runs/ancestry-audit-37197318303-1.json": "fb04dad7bd63e3c69c3a96a32c0ac930540bdd98dc7c68e2d9555c288020ac30",
+    ".work/research/DELSK-002-E0-candidate-universe.md": "0d5b6137623651b5f6ff0ea92427bc217e5b348c889d8aeedfc5b986709203e9",
+    ".work/tools/ancestry_audit.py": "5b0cb53ffa4273e57e6fc8ea2d8a977bd8ef5f5d77d5a3c338fb0ccf7b8ac683",
+    ".work/tools/origin_leads.py": "9917eb20458cefe008ee0cc294c5bc5b1a6c7c00f2e4c82d675209c529af7190"
+  },
+  "governance": "Takes effect when a maintainer merges this record into main. Changes only through a new versioned construction spec and a new freeze record; earlier bytes and records are kept.",
+  "inputs": {
+    ".work/corpus/pilot-v1/corpus-lock.json.gz": "86009552183230ab13f9366684eedb4fcfcea746b25cbbed10ab2aabceb8f56b",
+    ".work/corpus/pilot-v1/freeze.json": "8814ce0221b2b890f1710476da0c1a31771e7528d81cfc3a99ffa10acc88e8da",
+    ".work/corpus/pilot-v1/licenses.json": "c7e7d7d85e17d2b4bcd31ca08c985a128fcc947f16bb1e49f99e345bc0d55f7c",
+    ".work/corpus/pilot-v1/materialization.json": "11e5913293bedcf74d801f5d69afd0879115c30c811fa7c45b8acbcbaab6942b",
+    ".work/corpus/pilot-v1/source-lock.json": "2154224d9b8af255f4f48662b7f03a6b9865c3e976079dbad33c939eb3a5903c",
+    ".work/corpus/selection-policy.json": "539642ffb9a65f4fe49f42ea99d26b416c2ab40583021b3fe8d2aa8d415cbd50",
+    ".work/corpus/source-plan.json": "75d879fd50ba8d7c749694ab091a61fa59c20ddc5fa3689a0e592692ae221074",
+    ".work/protocol.md": "a0c518247d111e8ad1294562d65eb34c28da87c7027c009efb64a39e6f4e0038"
+  },
+  "limitations": [
+    "Exploratory pilot: six lineages, one held-out lineage per calibration/evaluation split; no confirmatory sufficiency.",
+    "Ancestry negatives cover exact consecutive text in retained members; modified or reformatted copies can be missed, so components are an upper bound. A confirmatory cohort needs a second clone signal.",
+    "Historical-byte evidence proves pairwise base-before-target ordering, not release-time existence of every target snapshot; it relies on Wayback and platform record integrity and SHA-1/MD5 second-preimage resistance.",
+    "Run 37196309671 lacks the positive control and is superseded; 37196505949 and 37197318303 produce identical evidence, the latter also records archive MD5. All runs are kept."
+  ],
+  "rulings": {
+    "A01": "Global cross-split quarantine on raw U; retrospective temporal sample, not online causal simulation; only the restricted alias invariances hold.",
+    "A02": "Round-robin over groups holding all potential targets; identity consumes a group turn, not near quota; stop at 64 near targets or exhaustion; visited identities and near targets enter the lock.",
+    "A03": "duplicate_of is the minimum eligible duplicate occurrence ID.",
+    "A04": "Category from all eligible aliases with precedence same-path, same-family, foreign; independent of the representative.",
+    "A05": "Every rank is a total order with the identity as secondary key.",
+    "A06": "Closed delsk.candidate.lock.v2 binding corpus, policy, construction spec, protocol, ancestry audit, acquisition freeze and historical-bytes evidence.",
+    "A07": "Eligibility clock stays the B release interval. Dated public records establish pairwise no-future-base ordering: exact base archive bytes attested before lo(target) for 62/62 usable source pairs. Target bytes are not proven inside their own release interval (11/18 attested later); such snapshots are retrospective, version-indexed. Chunk and tar tracks are modeled.",
+    "A08": "Bounded acquired-snapshot audit of all 15 family pairs with stable lead IDs and a reviewed disposition per lead: no shared origin established between roster families, no merge, no new exclusion. Six singleton components are the exploratory upper-bound assignment; split counts 4/1/1 unchanged.",
+    "A09": "Seal only from the complete hash-bound U with independent source-to-U and U-to-queries checks.",
+    "A10": "Construction accepts closed frozen metadata only; score, encoder, codec, result fields and callbacks are errors."
+  },
+  "runs": [
+    "ancestry-audit-37196309671-1.json",
+    "ancestry-audit-37196505949-1.json",
+    "ancestry-audit-37197318303-1.json"
+  ],
+  "schema": "delsk.e0.construction-freeze.v1",
+  "scope": "Slice E0 candidate construction design for the R0 exploratory pilot: adopted semantics A01-A10, closed candidate-lock v2 schema, total orders, golden vectors, retained-origin ancestry audit and historical-byte scope. No candidate lock is sealed; no scorer, encoder, oracle or utility result exists.",
+  "status": "FROZEN_DESIGN"
+}

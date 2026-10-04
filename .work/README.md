@@ -14,6 +14,8 @@
 | [Практики лабораторий](research/lab-practices.md) | ChunkShift, внешние лаборатории и реальные ограничения Actions |
 | [Протокол DELSK-P1](protocol.md) | Ground truth, метрики, статистика, gates |
 | [Корпус и baseline matrix](corpus-and-baselines.md) | Объекты, lineage split, лицензии, воспроизведение |
+| [Slice E0: candidate-universe design audit](research/DELSK-002-E0-candidate-universe.md) | Формальная модель, counterexamples и варианты решений до E freeze |
+| [E0 construction contract](corpus/e0/construction-spec.md) | Принятые решения A01–A10, ancestry и historical-byte evidence, контракт E1; E0 FROZEN_DESIGN |
 | [План CI](ci-plan.md) | Ограниченные ресурсы, сценарии запуска, provenance |
 | [Гипотезы](hypotheses.md) | Проверяемые утверждения, ablations и stop criteria |
 | [Roadmap и issues](roadmap.md) | Очерёдность, зависимости и ссылки на задачи |

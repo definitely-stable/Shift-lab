@@ -10,7 +10,7 @@ on:
       workload:
         description: Allowlisted workload
         type: choice
-        options: [selftest, materialize-discover, materialize-verify]
+        options: [selftest, materialize-discover, materialize-verify, ancestry-audit]
         required: true
       source_sha:
         description: Full commit SHA that must equal the dispatched ref head

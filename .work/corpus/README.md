@@ -1,6 +1,6 @@
 # Corpus и candidate contracts (DELSK-002, pilot-v1)
 
-Статус: **PROPOSED**. Здесь зафиксированы identities, provenance, время, splits и sampling **до** acquisition и до просмотра любых scores. Source plan не содержит acquisition hashes: они появляются только из CI materialization (Slice D, [pilot-v1](pilot-v1/README.md)); ancestry/candidate sealing — Slice E. Это private research interfaces, не public API Delsk.
+Статус: **PROPOSED**. Здесь зафиксированы identities, provenance, время, splits и sampling **до** acquisition и до просмотра любых scores. Source plan не содержит acquisition hashes: они появляются только из CI materialization (Slice D, [pilot-v1](pilot-v1/README.md)); ancestry audit и принятый candidate construction contract — [Slice E0](e0/construction-spec.md), sealing — Slice E1. Это private research interfaces, не public API Delsk.
 
 | Файл | Содержание |
 |---|---|

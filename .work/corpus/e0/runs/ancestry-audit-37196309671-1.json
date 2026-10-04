@@ -1,0 +1,164 @@
+{
+  "candidates": "NOT_CONSTRUCTED",
+  "downloads": [
+    {
+      "archive_bytes": 782025,
+      "attempts": 1,
+      "retained_members": 15,
+      "sha1_base32": "H6E7QYJATTUBU25LD7IZTDAO6MIXCIAC",
+      "sha256": "a2848f34fcd5d6cf47def00461fcb528a0484d8edef8208d6d2e2909dc61d9cd",
+      "source_id": "bzip2-1.0.6"
+    },
+    {
+      "archive_bytes": 809680,
+      "attempts": 1,
+      "retained_members": 15,
+      "sha1_base32": "THPB6CFPLPIRTK5YAA4XXI7D25HUUZJX",
+      "sha256": "e768a87c5b1a79511499beb41500bcc4caf203726fff46a6f5f9ad27fe08ab2b",
+      "source_id": "bzip2-1.0.7"
+    },
+    {
+      "archive_bytes": 810029,
+      "attempts": 1,
+      "retained_members": 15,
+      "sha1_base32": "X552357CJDQOZ5DF2M6C6WXOY52CBERH",
+      "sha256": "ab5a03176ee106d3f0fa90e381da478ddae405918153cca248e682cd0c4a2269",
+      "source_id": "bzip2-1.0.8"
+    },
+    {
+      "archive_bytes": 2630108,
+      "attempts": 1,
+      "retained_members": 836,
+      "sha1_base32": "LOTQHXXJ47N2OS23UUDHJTQSW23KCK5N",
+      "sha256": "3ccd55d91af9516539df80625f818c734dc6f2ecf9bada33c76765e99121db15",
+      "source_id": "curl-8.6.0"
+    },
+    {
+      "archive_bytes": 2707016,
+      "attempts": 1,
+      "retained_members": 847,
+      "sha1_base32": "U4EWHS5BEISLIS4NOVEUJOH7MGFGUO2X",
+      "sha256": "6fea2aac6a4610fbd0400afb0bcddbe7258a64c63f1f68e5855ebc0c659710cd",
+      "source_id": "curl-8.7.1"
+    },
+    {
+      "archive_bytes": 2748860,
+      "attempts": 1,
+      "retained_members": 855,
+      "sha1_base32": "GV5EWK3ICKXTPOJGPRU3KXJ5VYMKOBSZ",
+      "sha256": "0f58bb95fc330c8a46eeb3df5701b0d90c9d9bfcc42bd1cd08791d12551d4400",
+      "source_id": "curl-8.8.0"
+    },
+    {
+      "archive_bytes": 1021332,
+      "attempts": 1,
+      "retained_members": 32,
+      "sha1_base32": "DQ3WBHR7A5AK4UWKTYVGVX6JOQ2JPODQ",
+      "sha256": "535b479b2467ff231a3ec6d92a525906fb8ef27978be4f66dbe05d3f3a01b3a1",
+      "source_id": "libpng-1.6.40"
+    },
+    {
+      "archive_bytes": 1044076,
+      "attempts": 1,
+      "retained_members": 35,
+      "sha1_base32": "VWPQQ63TVTYB4LBFFEQICCYAL3TJ2PQO",
+      "sha256": "6a5ca0652392a2d7c9db2ae5b40210843c0bbc081cbd410825ab00cc59f14a6c",
+      "source_id": "libpng-1.6.43"
+    },
+    {
+      "archive_bytes": 1045640,
+      "attempts": 1,
+      "retained_members": 35,
+      "sha1_base32": "HKXKHE5TH6ONHM3GMH73BRLLIQ7WIPCC",
+      "sha256": "60c4da1d5b7f0aa8d158da48e8f8afa9773c1c8baa5d21974df61f1886b8ce8e",
+      "source_id": "libpng-1.6.44"
+    },
+    {
+      "archive_bytes": 2733959,
+      "attempts": 1,
+      "retained_members": 4,
+      "sha1_base32": "O26GN6BZEGK3ZUI3GU2FMCP36KTEUD7D",
+      "sha256": "ea170e73e447703e8359308ca2e4366a3ae0c4304a8665896f068c736781c651",
+      "source_id": "sqlite-3.45.3"
+    },
+    {
+      "archive_bytes": 2764032,
+      "attempts": 1,
+      "retained_members": 4,
+      "sha1_base32": "UUYNIXWBHKIHGN7J4RU3LQSO2EJ4MJYC",
+      "sha256": "77823cb110929c2bcb0f5d48e4833b5c59a8a6e40cdea3936b99e199dbbe5784",
+      "source_id": "sqlite-3.46.1"
+    },
+    {
+      "archive_bytes": 2811504,
+      "attempts": 1,
+      "retained_members": 4,
+      "sha1_base32": "CZXPOLROAZ6CCYLHIFZA7UFB7MYXESDN",
+      "sha256": "aa73d8748095808471deaa8e6f34aa700e37f2f787f4425744f53fdd15a89c40",
+      "source_id": "sqlite-3.47.2"
+    },
+    {
+      "archive_bytes": 1497445,
+      "attempts": 1,
+      "retained_members": 40,
+      "sha1_base32": "KXVKQSIG6MNMEDLSLKRGZUQIHEMWW25G",
+      "sha256": "b3a24de97a8fdbc835b9833169501030b8977031bcb54b3b3ac13740f846ab30",
+      "source_id": "zlib-1.2.13"
+    },
+    {
+      "archive_bytes": 1495873,
+      "attempts": 1,
+      "retained_members": 40,
+      "sha1_base32": "ATIFHZGUAZFA7OHQZPISP4F7WX7E5NKU",
+      "sha256": "ff0ba4c292013dbc27530b3a81e1f9a813cd39de01ca5e0f8bf355702efa593e",
+      "source_id": "zlib-1.3"
+    },
+    {
+      "archive_bytes": 1512791,
+      "attempts": 1,
+      "retained_members": 40,
+      "sha1_base32": "6U2TM6Y2CHRPTLB35RZD7MAH7PANDCPF",
+      "sha256": "9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23",
+      "source_id": "zlib-1.3.1"
+    },
+    {
+      "archive_bytes": 2368543,
+      "attempts": 1,
+      "retained_members": 175,
+      "sha1_base32": "IR46ZR2DADJDHEOZT67L6L652R5O3GZI",
+      "sha256": "9c4396cc829cfae319a6e2615202e82aad41372073482fce286fac78646d3ee4",
+      "source_id": "zstd-1.5.5"
+    },
+    {
+      "archive_bytes": 2406875,
+      "attempts": 1,
+      "retained_members": 181,
+      "sha1_base32": "IWNLRXUMET6DZZSIUNNAPMY7ZVTBNLPC",
+      "sha256": "8c29e06cf42aacc1eafc4077ae2ec6c6fcb96a626157e0593d5e82a34fd403c1",
+      "source_id": "zstd-1.5.6"
+    },
+    {
+      "archive_bytes": 2434947,
+      "attempts": 1,
+      "retained_members": 184,
+      "sha1_base32": "NR65TSBJKYNMKR23OJMSUB42AGVX6PVL",
+      "sha256": "eb33e51f49a15e023950cd7825ca74a4a2b43db8354825ac24fc1b7ee09e6fa3",
+      "source_id": "zstd-1.5.7"
+    }
+  ],
+  "errors": [],
+  "evidence_bytes": 3223220,
+  "evidence_sha256": "16d18f6166da6339a94ba2069cfb4f3d9ddbcf6877e126152b2878bcfa68cc8d",
+  "family_pairs": 15,
+  "oracle": "NOT_RUN",
+  "retained_member_records": 3357,
+  "run": {
+    "GITHUB_REPOSITORY": "definitely-stable/Shift-lab",
+    "GITHUB_RUN_ATTEMPT": "1",
+    "GITHUB_RUN_ID": "37196309671",
+    "GITHUB_SHA": "3b620c19565194a4c8639b67672c261e9857735e",
+    "SOURCE_SHA": "3b620c19565194a4c8639b67672c261e9857735e"
+  },
+  "schema": "delsk.e0.origin-audit-run.v1",
+  "status": "ok"
+}

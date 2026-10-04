@@ -1,0 +1,293 @@
+{
+  "$defs": {
+    "base": {
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "enum": [
+            "same_path_historical",
+            "same_family_decoy",
+            "foreign_family_decoy"
+          ]
+        },
+        "object_id": {
+          "$ref": "#/$defs/sha256"
+        },
+        "representative": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "required": [
+        "object_id",
+        "representative",
+        "category"
+      ],
+      "type": "object"
+    },
+    "query": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "else": {
+            "properties": {
+              "duplicate_of": {
+                "type": "null"
+              }
+            }
+          },
+          "if": {
+            "properties": {
+              "status": {
+                "const": "identity_only"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "bases": {
+                "maxItems": 0
+              },
+              "candidate_count": {
+                "const": 0
+              },
+              "candidate_list_sha256": {
+                "const": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+              },
+              "duplicate_of": {
+                "$ref": "#/$defs/sha256"
+              }
+            }
+          }
+        },
+        {
+          "else": {
+            "properties": {
+              "candidate_count": {
+                "minimum": 1
+              }
+            }
+          },
+          "if": {
+            "properties": {
+              "bases": {
+                "maxItems": 0
+              }
+            },
+            "required": [
+              "bases"
+            ]
+          },
+          "then": {
+            "properties": {
+              "candidate_count": {
+                "const": 0
+              },
+              "candidate_list_sha256": {
+                "const": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "candidate_count": {
+                "const": 0
+              }
+            },
+            "required": [
+              "candidate_count"
+            ]
+          },
+          "then": {
+            "properties": {
+              "bases": {
+                "maxItems": 0
+              }
+            }
+          }
+        }
+      ],
+      "properties": {
+        "bases": {
+          "allOf": [
+            {
+              "contains": {
+                "properties": {
+                  "category": {
+                    "const": "same_path_historical"
+                  }
+                },
+                "required": [
+                  "category"
+                ],
+                "type": "object"
+              },
+              "maxContains": 2,
+              "minContains": 0
+            },
+            {
+              "contains": {
+                "properties": {
+                  "category": {
+                    "const": "same_family_decoy"
+                  }
+                },
+                "required": [
+                  "category"
+                ],
+                "type": "object"
+              },
+              "maxContains": 30,
+              "minContains": 0
+            },
+            {
+              "contains": {
+                "properties": {
+                  "category": {
+                    "const": "foreign_family_decoy"
+                  }
+                },
+                "required": [
+                  "category"
+                ],
+                "type": "object"
+              },
+              "maxContains": 32,
+              "minContains": 0
+            }
+          ],
+          "items": {
+            "$ref": "#/$defs/base"
+          },
+          "maxItems": 64,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "candidate_count": {
+          "maximum": 64,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "candidate_list_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "duplicate_of": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "enum": [
+            "identity_only",
+            "near_duplicate"
+          ]
+        },
+        "target": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "required": [
+        "target",
+        "status",
+        "duplicate_of",
+        "bases",
+        "candidate_count",
+        "candidate_list_sha256"
+      ],
+      "type": "object"
+    },
+    "sha256": {
+      "maxLength": 64,
+      "minLength": 64,
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    }
+  },
+  "$id": "urn:delsk:candidate-lock:v2",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Closed structural contract for the adopted E0 pilot design. Passing this schema does not establish canonical bytes, complete input admission, exact scheduling or first-N selection. Semantics: construction-spec.md; concrete expectations: golden-vectors.json.",
+  "properties": {
+    "acquisition_freeze_sha256": {
+      "$ref": "#/$defs/sha256",
+      "description": "SHA-256 of the exact Slice D acquisition freeze record; transitively pins source lock, licenses and materialization."
+    },
+    "ancestry_audit_sha256": {
+      "$ref": "#/$defs/sha256",
+      "description": "SHA-256 of the adopted ancestry audit in canonical file form."
+    },
+    "construction_spec_sha256": {
+      "$ref": "#/$defs/sha256",
+      "description": "SHA-256 of the exact adopted construction specification blob."
+    },
+    "corpus_lock_sha256": {
+      "$ref": "#/$defs/sha256",
+      "description": "SHA-256 of the complete decompressed D lock in canonical file form, not the gzip container."
+    },
+    "historical_bytes_sha256": {
+      "$ref": "#/$defs/sha256",
+      "description": "SHA-256 of the adopted A07 historical-bytes evidence in canonical file form."
+    },
+    "planned_pairs_per_codec": {
+      "maximum": 4096,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "protocol_sha256": {
+      "$ref": "#/$defs/sha256",
+      "description": "SHA-256 of the exact protocol blob, not its protocol identifier."
+    },
+    "queries": {
+      "contains": {
+        "properties": {
+          "status": {
+            "const": "near_duplicate"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "type": "object"
+      },
+      "description": "Final rows are sorted by unique target occurrence ID, not traversal order. Identity rows have no fixed 64-row ceiling. At least one near row is required; an empty-pool near row is allowed.",
+      "items": {
+        "$ref": "#/$defs/query"
+      },
+      "maxContains": 64,
+      "minContains": 1,
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "schema": {
+      "const": "delsk.candidate.lock.v2"
+    },
+    "selection_policy_sha256": {
+      "$ref": "#/$defs/sha256",
+      "description": "SHA-256 of the exact frozen B selection policy bytes."
+    }
+  },
+  "required": [
+    "schema",
+    "corpus_lock_sha256",
+    "selection_policy_sha256",
+    "construction_spec_sha256",
+    "protocol_sha256",
+    "ancestry_audit_sha256",
+    "acquisition_freeze_sha256",
+    "historical_bytes_sha256",
+    "planned_pairs_per_codec",
+    "queries"
+  ],
+  "title": "DELSK candidate lock v2",
+  "type": "object"
+}

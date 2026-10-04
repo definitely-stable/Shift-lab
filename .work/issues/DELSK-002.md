@@ -12,7 +12,7 @@
 
 **Зависимости:** нет; готово к исследовательской подготовке.
 
-Milestone Slice D: acquisition exploratory pilot заморожена в [pilot-v1](../corpus/pilot-v1/README.md): source/corpus locks, snapshot license review, две независимые совпавшие materializations в Actions и offline integrity checks. Полный metadata universe сохранён в git в compressed lock. Issue остаётся открытой: ancestry audit и frozen `C_t` — Slice E; полный foundation handoff — Slice F; confirmatory sufficiency не установлена.
+Milestone Slice D: acquisition exploratory pilot заморожена в [pilot-v1](../corpus/pilot-v1/README.md): source/corpus locks, snapshot license review, две независимые совпавшие materializations в Actions и offline integrity checks. Полный metadata universe сохранён в git в compressed lock. Milestone Slice E0: candidate construction design принят в [e0](../corpus/e0/construction-spec.md) — решения A01–A10, закрытая candidate-lock v2 schema, golden vectors, ancestry audit всех 15 пар на acquired snapshots и historical-byte scope. Issue остаётся открытой: frozen `C_t` — Slice E1; полный foundation handoff — Slice F; confirmatory sufficiency не установлена.
 
 ## Шаги
 
