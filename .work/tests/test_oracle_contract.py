@@ -189,14 +189,14 @@ class Schemas(unittest.TestCase):
     def test_expanded_vector_rows_satisfy_schemas(self):
         d = SCHEMAS['$defs']
         for case in KAT['cases']:
-            _, standalone_rows, pairs, _ = ref.expand(case, LOCK)
-            for row in pairs + standalone_rows:
+            _, standalone_rows, pairs, _, targets = ref.expand(case, LOCK)
+            for row in pairs + standalone_rows + targets:
                 kind = row['schema'][len('delsk.oracle.'):-len('.v1')].replace('-', '_')
                 with self.subTest(case['id'], kind=kind):
                     self.assertEqual(ref.schema_errors(row, d[kind], SCHEMAS), [])
 
     def test_schemas_fail_closed(self):
-        _, _, pairs, _ = ref.expand(CASES['K01'], LOCK)
+        _, _, pairs, _, _ = ref.expand(CASES['K01'], LOCK)
         for name, mutate in (('extra key', lambda r: r.update(score=1)),
                              ('ok without payload', lambda r: r.update(patch_payload_bytes=None)),
                              ('failure with cost', lambda r: r.update(status='timeout', error_class='wall_timeout',
@@ -231,8 +231,22 @@ class KnownAnswers(unittest.TestCase):
                 self.assertEqual(list(ref.g1(case['runs'])), case['expect'])
 
     def test_sealed_commitment_survives_a_reveal_run(self):  # contract section 9.1
-        _, standalone_rows, pairs, _ = ref.expand(CASES['K30'], LOCK)
-        _, _, full, _ = ref.expand({**CASES['K30'], 'leak': True}, LOCK)
+        _, standalone_rows, pairs, _, targets = ref.expand(CASES['K30'], LOCK)
+        _, full_standalone, full, _, full_targets = ref.expand({**CASES['K30'], 'leak': True, 'leak_target': True},
+                                                               LOCK)
+        for published, revealed in ((standalone_rows, full_standalone), (targets, full_targets)):
+            sealed = [r for r in published if r['schema'].endswith('-sealed.v1')]
+            self.assertEqual(len(sealed), 1)
+            reveal = next(r for r in revealed if r['target_occurrence_id'] == sealed[0]['target_occurrence_id'])
+            moved = {**reveal, 'measurement_identity_sha256': 'e' * 64}
+            self.assertEqual(ref.commitment(moved), sealed[0]['row_sha256'])
+            changed = {**moved, 'standalone_status': 'timeout'} if 'oracle_tie_bases' not in moved else                 {**moved, 'oracle_tie_bases': [], 'oracle_total_bytes': moved['oracle_total_bytes'] + 1}
+            self.assertNotEqual(ref.commitment(changed), sealed[0]['row_sha256'])
+            self.assertTrue(set(sealed[0]) - {'schema', 'row_sha256', 'decoded_sha256'}
+                            <= set(ref.TARGET_SEALED_FIELDS) | set(reveal))
+        target_published = [k for r in targets if r['schema'].endswith('-sealed.v1') for k in r]
+        self.assertFalse({'standalone_total_bytes', 'oracle_total_bytes', 'oracle_delta_total_bytes',
+                          'oracle_tie_bases', 'useful_delta', 'oracle_choice', 'target_bytes'} & set(target_published))
         sealed = {r['pair_id']: r for r in pairs if r['schema'] == 'delsk.oracle.pair-sealed.v1'}
         self.assertEqual(len(sealed), 2)
         for row in full:
@@ -245,6 +259,27 @@ class KnownAnswers(unittest.TestCase):
         published = [k for r in pairs + standalone_rows if r['schema'].endswith('-sealed.v1') for k in r]
         self.assertFalse({'patch_payload_bytes', 'delta_total_bytes', 'patch_sha256', 'compressed_payload_bytes',
                           'compressed_total_bytes', 'target_bytes', 'raw_total_bytes'} & set(published))
+
+    def test_repeat_gate_sees_hidden_evaluation_changes(self):  # review: non-winning sealed base changes
+        base = CASES['K30']
+        drift = copy.deepcopy(base)
+        next(p for p in drift['pairs'] if p['b'] == 'b4')['payload'] = 130  # not the winner (b3 = 100)
+        a, b = ref.run_case(base, LOCK), ref.run_case(drift, LOCK)
+        for key in ('cost_projection_sha256', 'targets_canonical_sha256'):
+            self.assertEqual(a[key], b[key])
+        sealed_target = [ref.expand(c, LOCK)[4] for c in (base, drift)]
+        self.assertEqual([r['row_sha256'] for r in sealed_target[0] if r['schema'].endswith('-sealed.v1')],
+                         [r['row_sha256'] for r in sealed_target[1] if r['schema'].endswith('-sealed.v1')])
+        self.assertNotEqual(a['sealed_commitments_sha256'], b['sealed_commitments_sha256'])
+        runs = [{'github_run_id': i, 'run_status': o['run_status'], 'cost_projection_sha256': o['cost_projection_sha256'],
+                 'targets_sha256': o['targets_canonical_sha256'],
+                 'sealed_commitments_sha256': o['sealed_commitments_sha256'], 'conformance': True,
+                 'bundle_verified': True} for i, o in ((1, a), (2, b))]
+        self.assertEqual(ref.g1(runs), ('INVALID', ['REPEAT_MISMATCH']))
+        winner = copy.deepcopy(base)
+        next(p for p in winner['pairs'] if p['b'] == 'b3')['payload'] = 90
+        self.assertNotEqual([r['row_sha256'] for r in ref.expand(winner, LOCK)[4] if r['schema'].endswith('-sealed.v1')],
+                            [r['row_sha256'] for r in sealed_target[0] if r['schema'].endswith('-sealed.v1')])
 
     def test_evaluator_identity_is_separate_from_measurement(self):  # K20
         out = ref.run_case(CASES['K20'], LOCK)
@@ -362,8 +397,8 @@ MUTANTS = {
                                    "'ties': sorted(b for b, c in finite.items() if c == od)[:1],"),
     'M04 timeout counted as success': ("failed = counts['timeout'] + counts['codec_error']", "failed = counts['codec_error']"),
     'M05 decode mismatch ignored': ("FATAL = {'decode_mismatch': 'DECODE_MISMATCH', ", "FATAL = {"),
-    'M06 payload instead of total': ("seen[(t, b['object_id'])]['delta_total_bytes'] for b",
-                                     "seen[(t, b['object_id'])]['patch_payload_bytes'] for b"),
+    'M06 payload instead of total': ("rows[b['object_id']]['delta_total_bytes'] for b",
+                                     "rows[b['object_id']]['patch_payload_bytes'] for b"),
     'M07 base reference omitted': ("return payload + wrapper_bytes(payload) + BASE_REFERENCE_BYTES + CODEC_METADATA_BYTES",
                                    "return payload + wrapper_bytes(payload) + CODEC_METADATA_BYTES"),
     'M08 N/A as 100%': ("return None if den == 0 else Fraction(num, den)", "return Fraction(1) if den == 0 else Fraction(num, den)"),
@@ -377,7 +412,7 @@ MUTANTS = {
         "and set(by_target[t]['bases']) & set(targets[t]['ties'])]"),
     'M11 row order changes result': (
         "rows = sorted(({k: v for k, v in r.items() if k not in drop} for r in rows),\n"
-        "                  key=lambda r: (r['target_occurrence_id'], r.get('base_object_id', '')))",
+        "                  key=lambda r: (r['target_occurrence_id'], r.get('base_object_id', ''), r['schema']))",
         "rows = [{k: v for k, v in r.items() if k not in drop} for r in rows]"),
     'M12 duplicate row silently collapsed': ("            reasons.add('DUPLICATE_PAIR')\n            continue\n",
                                              "            continue\n"),
@@ -396,9 +431,19 @@ MUTANTS = {
                                    "                != (row['wrapper_bytes'], row['base_reference_bytes'], "
                                    "row['codec_metadata_bytes'], row['delta_total_bytes']):"),
     'M22 G1 from one run': ("if len({r['github_run_id'] for r in good}) < 2:", "if len({r['github_run_id'] for r in good}) < 1:"),
-    'M23 G1 repeat mismatch ignored': ("if len({(r['cost_projection_sha256'], r['targets_sha256']) for r in complete}) > 1:",
-                                       "if False:"),
+    'M23 G1 repeat mismatch ignored': ("            for r in complete}) > 1:", "            for r in complete}) > 99:"),
     'M24 G1 invalid attempt outvoted': ("if any(r['run_status'] == 'INVALID' for r in runs):", "if False:"),
+    'M25 sealed standalone decode unchecked': (
+        "common(row, world['standalone_codec'], fact)\n        if row['schema'] in SEALED:\n"
+        "            if row['status'] == 'ok' and row['decoded_sha256'] != fact['object_id']:",
+        "common(row, world['standalone_codec'], fact)\n        if row['schema'] in SEALED:\n            if False:"),
+    'M26 G1 ignores sealed commitments': ("r['targets_sha256'], r['sealed_commitments_sha256'])", "r['targets_sha256'])"),
+    'M27 sealed target structure unchecked': ("            if any(row[k] != v for k, v in claim.items()):", "            if False:"),
+    'M28 full target allowed on sealed split': (
+        "        if sealed_row != (world['facts'][t]['split'] in sealed_splits):\n            reasons.add('SEALING_VIOLATION')\n",
+        "        if False:\n            pass\n"),
+    'M29 published target not recomputed': ("        if published[t] != full[-1]:", "        if False:"),
+    'M30 missing target rows not counted': ("'targets_missing': sum(t not in published for t in queries)}", "'targets_missing': 0}"),
 }
 
 

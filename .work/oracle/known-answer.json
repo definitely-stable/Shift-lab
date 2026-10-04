@@ -18,6 +18,7 @@
           "sealed_targets": 0,
           "standalone_failed": 0,
           "standalone_missing": 0,
+          "targets_missing": 0,
           "timeout": 0
         },
         "invalid_reasons": [],
@@ -143,6 +144,7 @@
           "sealed_targets": 0,
           "standalone_failed": 0,
           "standalone_missing": 0,
+          "targets_missing": 0,
           "timeout": 0
         },
         "invalid_reasons": [],
@@ -260,6 +262,7 @@
           "sealed_targets": 0,
           "standalone_failed": 0,
           "standalone_missing": 0,
+          "targets_missing": 0,
           "timeout": 0
         },
         "invalid_reasons": [],
@@ -370,6 +373,7 @@
           "sealed_targets": 0,
           "standalone_failed": 0,
           "standalone_missing": 0,
+          "targets_missing": 0,
           "timeout": 0
         },
         "invalid_reasons": [],
@@ -467,6 +471,7 @@
           "sealed_targets": 0,
           "standalone_failed": 0,
           "standalone_missing": 0,
+          "targets_missing": 0,
           "timeout": 1
         },
         "invalid_reasons": [],
@@ -580,6 +585,7 @@
           "sealed_targets": 0,
           "standalone_failed": 0,
           "standalone_missing": 0,
+          "targets_missing": 0,
           "timeout": 1
         },
         "invalid_reasons": [],
@@ -692,6 +698,7 @@
           "sealed_targets": 0,
           "standalone_failed": 0,
           "standalone_missing": 0,
+          "targets_missing": 1,
           "timeout": 0
         },
         "invalid_reasons": [],
@@ -887,6 +894,7 @@
           "sealed_targets": 0,
           "standalone_failed": 0,
           "standalone_missing": 0,
+          "targets_missing": 0,
           "timeout": 0
         },
         "invalid_reasons": [],
@@ -997,6 +1005,7 @@
           "sealed_targets": 0,
           "standalone_failed": 0,
           "standalone_missing": 0,
+          "targets_missing": 0,
           "timeout": 0
         },
         "invalid_reasons": [],
@@ -1107,6 +1116,7 @@
           "sealed_targets": 0,
           "standalone_failed": 0,
           "standalone_missing": 0,
+          "targets_missing": 0,
           "timeout": 0
         },
         "invalid_reasons": [],
@@ -1224,6 +1234,7 @@
           "sealed_targets": 0,
           "standalone_failed": 0,
           "standalone_missing": 0,
+          "targets_missing": 0,
           "timeout": 0
         },
         "invalid_reasons": [],
@@ -1334,6 +1345,7 @@
           "sealed_targets": 0,
           "standalone_failed": 0,
           "standalone_missing": 0,
+          "targets_missing": 0,
           "timeout": 0
         },
         "invalid_reasons": [],
@@ -1468,6 +1480,7 @@
           "sealed_targets": 0,
           "standalone_failed": 0,
           "standalone_missing": 0,
+          "targets_missing": 0,
           "timeout": 0
         },
         "invalid_reasons": [],
@@ -1585,6 +1598,7 @@
           "sealed_targets": 0,
           "standalone_failed": 0,
           "standalone_missing": 0,
+          "targets_missing": 0,
           "timeout": 0
         },
         "invalid_reasons": [],
@@ -2067,6 +2081,7 @@
           "sealed_targets": 0,
           "standalone_failed": 0,
           "standalone_missing": 0,
+          "targets_missing": 0,
           "timeout": 0
         },
         "invalid_reasons": [],
@@ -2162,6 +2177,7 @@
           "sealed_targets": 0,
           "standalone_failed": 0,
           "standalone_missing": 0,
+          "targets_missing": 0,
           "timeout": 0
         },
         "invalid_reasons": [],
@@ -2327,6 +2343,7 @@
           "sealed_targets": 0,
           "standalone_failed": 0,
           "standalone_missing": 0,
+          "targets_missing": 0,
           "timeout": 0
         },
         "invalid_reasons": [],
@@ -2463,6 +2480,7 @@
           "sealed_targets": 0,
           "standalone_failed": 0,
           "standalone_missing": 0,
+          "targets_missing": 0,
           "timeout": 0
         },
         "invalid_reasons": [],
@@ -2562,6 +2580,7 @@
           "sealed_targets": 0,
           "standalone_failed": 1,
           "standalone_missing": 0,
+          "targets_missing": 0,
           "timeout": 0
         },
         "invalid_reasons": [],
@@ -2687,6 +2706,7 @@
           "sealed_targets": 0,
           "standalone_failed": 0,
           "standalone_missing": 0,
+          "targets_missing": 0,
           "timeout": 0
         },
         "invalid_reasons": [],
@@ -2802,6 +2822,7 @@
           "sealed_targets": 0,
           "standalone_failed": 0,
           "standalone_missing": 0,
+          "targets_missing": 0,
           "timeout": 0
         },
         "invalid_reasons": [],
@@ -2897,6 +2918,7 @@
           "sealed_targets": 1,
           "standalone_failed": 0,
           "standalone_missing": 0,
+          "targets_missing": 0,
           "timeout": 0
         },
         "invalid_reasons": [],
@@ -3248,6 +3270,7 @@
           "sealed_targets": 0,
           "standalone_failed": 0,
           "standalone_missing": 0,
+          "targets_missing": 1,
           "timeout": 0
         },
         "invalid_reasons": [],
@@ -3323,6 +3346,7 @@
           "sealed_targets": 0,
           "standalone_failed": 0,
           "standalone_missing": 0,
+          "targets_missing": 0,
           "timeout": 0
         },
         "invalid_reasons": [],
@@ -3433,6 +3457,7 @@
           "sealed_targets": 0,
           "standalone_failed": 0,
           "standalone_missing": 0,
+          "targets_missing": 0,
           "timeout": 0
         },
         "invalid_reasons": [],
@@ -3621,6 +3646,412 @@
         }
       ],
       "title": "sealed ok row whose decoded SHA-256 differs from the target: INVALID even without published costs"
+    },
+    {
+      "expect": {
+        "coverage": null,
+        "invalid_reasons": [
+          "DECODE_MISMATCH"
+        ],
+        "metrics": null,
+        "retrieval_reasons": [],
+        "retrieval_status": "NOT_EVALUATED",
+        "run_status": "INVALID",
+        "targets": null
+      },
+      "id": "K38",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "payload": 120,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b3",
+          "payload": 100,
+          "status": "ok",
+          "t": "t2"
+        },
+        {
+          "b": "b4",
+          "payload": 120,
+          "status": "ok",
+          "t": "t2"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        },
+        {
+          "bases": [
+            "b3",
+            "b4"
+          ],
+          "split": "evaluation",
+          "status": "near_duplicate",
+          "t": "t2"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b2"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "sealed_splits": [
+        "evaluation"
+      ],
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        },
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "set": {
+            "decoded_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "t": "t2"
+        }
+      ],
+      "title": "sealed standalone ok row whose decoded SHA-256 differs from the target: INVALID"
+    },
+    {
+      "expect": {
+        "coverage": null,
+        "invalid_reasons": [
+          "SEALING_VIOLATION"
+        ],
+        "metrics": null,
+        "retrieval_reasons": [],
+        "retrieval_status": "NOT_EVALUATED",
+        "run_status": "INVALID",
+        "targets": null
+      },
+      "id": "K39",
+      "leak_target": true,
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "payload": 120,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b3",
+          "payload": 100,
+          "status": "ok",
+          "t": "t2"
+        },
+        {
+          "b": "b4",
+          "payload": 120,
+          "status": "ok",
+          "t": "t2"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        },
+        {
+          "bases": [
+            "b3",
+            "b4"
+          ],
+          "split": "evaluation",
+          "status": "near_duplicate",
+          "t": "t2"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b2"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "sealed_splits": [
+        "evaluation"
+      ],
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        },
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t2"
+        }
+      ],
+      "title": "full target row (S, O, ties) published for a sealed split: INVALID (leakage)"
+    },
+    {
+      "expect": {
+        "coverage": null,
+        "invalid_reasons": [
+          "INCONSISTENT_ROW"
+        ],
+        "metrics": null,
+        "retrieval_reasons": [],
+        "retrieval_status": "NOT_EVALUATED",
+        "run_status": "INVALID",
+        "targets": null
+      },
+      "id": "K40",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "payload": 120,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b3",
+          "payload": 100,
+          "status": "ok",
+          "t": "t2"
+        },
+        {
+          "b": "b4",
+          "status": "timeout",
+          "t": "t2"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        },
+        {
+          "bases": [
+            "b3",
+            "b4"
+          ],
+          "split": "evaluation",
+          "status": "near_duplicate",
+          "t": "t2"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b2"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "sealed_splits": [
+        "evaluation"
+      ],
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        },
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t2"
+        }
+      ],
+      "target_set": {
+        "t2": {
+          "pairs_ok": 2,
+          "pairs_timeout": 0
+        }
+      },
+      "title": "sealed target row whose published pair counts disagree with the sealed pair rows: INVALID"
+    },
+    {
+      "expect": {
+        "coverage": null,
+        "invalid_reasons": [
+          "INCONSISTENT_ROW"
+        ],
+        "metrics": null,
+        "retrieval_reasons": [],
+        "retrieval_status": "NOT_EVALUATED",
+        "run_status": "INVALID",
+        "targets": null
+      },
+      "id": "K41",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "payload": 120,
+          "status": "ok",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b2"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        }
+      ],
+      "target_set": {
+        "t1": {
+          "oracle_total_bytes": 133
+        }
+      },
+      "title": "published full target row that differs from the recomputation from retained rows: INVALID"
+    },
+    {
+      "drop_targets": [
+        "t1"
+      ],
+      "expect": {
+        "coverage": {
+          "codec_error": 0,
+          "expected_pairs": 2,
+          "identity_targets": 0,
+          "missing": 0,
+          "near_targets": 1,
+          "ok": 2,
+          "resource_limit": 0,
+          "sealed_pairs": 0,
+          "sealed_targets": 0,
+          "standalone_failed": 0,
+          "standalone_missing": 0,
+          "targets_missing": 1,
+          "timeout": 0
+        },
+        "invalid_reasons": [],
+        "metrics": null,
+        "retrieval_reasons": [],
+        "retrieval_status": "NOT_EVALUATED",
+        "run_status": "INCOMPLETE",
+        "targets": null
+      },
+      "id": "K42",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "payload": 120,
+          "status": "ok",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b2"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        }
+      ],
+      "title": "every pair and standalone row present but the target row is not published: INCOMPLETE"
     }
   ],
   "contract_id": "delsk.oracle-contract.v1",
@@ -3639,6 +4070,7 @@
           "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
           "github_run_id": 1,
           "run_status": "COMPLETE",
+          "sealed_commitments_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
           "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
         },
         {
@@ -3647,6 +4079,7 @@
           "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
           "github_run_id": 2,
           "run_status": "COMPLETE",
+          "sealed_commitments_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
           "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
         }
       ],
@@ -3667,6 +4100,7 @@
           "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
           "github_run_id": 1,
           "run_status": "COMPLETE",
+          "sealed_commitments_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
           "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
         }
       ],
@@ -3687,6 +4121,7 @@
           "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
           "github_run_id": 1,
           "run_status": "COMPLETE",
+          "sealed_commitments_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
           "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
         },
         {
@@ -3695,6 +4130,7 @@
           "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
           "github_run_id": 1,
           "run_status": "COMPLETE",
+          "sealed_commitments_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
           "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
         }
       ],
@@ -3715,6 +4151,7 @@
           "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
           "github_run_id": 1,
           "run_status": "COMPLETE",
+          "sealed_commitments_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
           "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
         },
         {
@@ -3723,6 +4160,7 @@
           "cost_projection_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
           "github_run_id": 2,
           "run_status": "COMPLETE",
+          "sealed_commitments_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
           "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
         }
       ],
@@ -3743,6 +4181,7 @@
           "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
           "github_run_id": 1,
           "run_status": "INVALID",
+          "sealed_commitments_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
           "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
         },
         {
@@ -3751,6 +4190,7 @@
           "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
           "github_run_id": 2,
           "run_status": "COMPLETE",
+          "sealed_commitments_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
           "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
         },
         {
@@ -3759,6 +4199,7 @@
           "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
           "github_run_id": 3,
           "run_status": "COMPLETE",
+          "sealed_commitments_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
           "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
         }
       ],
@@ -3779,6 +4220,7 @@
           "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
           "github_run_id": 1,
           "run_status": "COMPLETE",
+          "sealed_commitments_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
           "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
         },
         {
@@ -3787,6 +4229,7 @@
           "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
           "github_run_id": 2,
           "run_status": "COMPLETE",
+          "sealed_commitments_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
           "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
         },
         {
@@ -3795,6 +4238,7 @@
           "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
           "github_run_id": 3,
           "run_status": "COMPLETE_WITH_FAILURES",
+          "sealed_commitments_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
           "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
         }
       ],
@@ -3815,6 +4259,7 @@
           "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
           "github_run_id": 1,
           "run_status": "COMPLETE",
+          "sealed_commitments_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
           "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
         },
         {
@@ -3823,6 +4268,7 @@
           "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
           "github_run_id": 2,
           "run_status": "COMPLETE",
+          "sealed_commitments_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
           "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
         },
         {
@@ -3831,6 +4277,7 @@
           "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
           "github_run_id": 3,
           "run_status": "INCOMPLETE",
+          "sealed_commitments_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
           "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
         }
       ],
@@ -3852,6 +4299,7 @@
           "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
           "github_run_id": 1,
           "run_status": "COMPLETE",
+          "sealed_commitments_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
           "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
         },
         {
@@ -3860,10 +4308,41 @@
           "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
           "github_run_id": 2,
           "run_status": "COMPLETE",
+          "sealed_commitments_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
           "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
         }
       ],
       "title": "a run without codec conformance does not count as a repeat"
+    },
+    {
+      "expect": [
+        "INVALID",
+        [
+          "REPEAT_MISMATCH"
+        ]
+      ],
+      "id": "G09",
+      "runs": [
+        {
+          "bundle_verified": true,
+          "conformance": true,
+          "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "github_run_id": 1,
+          "run_status": "COMPLETE",
+          "sealed_commitments_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        },
+        {
+          "bundle_verified": true,
+          "conformance": true,
+          "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "github_run_id": 2,
+          "run_status": "COMPLETE",
+          "sealed_commitments_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+          "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      ],
+      "title": "repeats agree on every published digest but one hidden evaluation commitment differs"
     }
   ],
   "schema": "delsk.oracle.known-answer.v1",

@@ -10,11 +10,11 @@
   "contract_id": "delsk.oracle-contract.v1",
   "files": {
     ".work/oracle/codec-lock.json": "9823e4c933c27fb4116bfce5add59ef6e926e43d2f0ebae258d7bb869a38f7b1",
-    ".work/oracle/contract.md": "3400bd4fca78159d41e06a8c0e3f4e327874b38bfc07389b12989065e13c50cf",
-    ".work/oracle/known-answer.json": "d9a1ac3b59ce7dc337e0d96cf501da915d60347f1ee50aad9d851296482dbe6d",
-    ".work/oracle/schemas.json": "de8383875ef472b666784362b6ae561822ba88a14f8beadc42954612d0e63131",
-    ".work/tests/oracle_reference.py": "23c651ed269452a26826f5b84988e04dc1a3f2e14f042516133317a21915f2e8",
-    ".work/tests/test_oracle_contract.py": "ccb6d635acbe8e264af6528ed5ee0a755d8001c5dbfd4129564e982710d9dd3d"
+    ".work/oracle/contract.md": "d3bde26f6abf642dacc1ea8b767c0d3262928a9d27547d0e311c682b542c8387",
+    ".work/oracle/known-answer.json": "911eab6897a72fd9bf3cd27bed8ce9733b4da45a2bebc8f974a9a2e3c8fab3d6",
+    ".work/oracle/schemas.json": "bdd46170b426161e7b455cc4b93545de7e46354df1a5fe072c9af46168698124",
+    ".work/tests/oracle_reference.py": "be84b37e66916b1172a575b842b327a018fbac2c24154b06e6ffef8caaed338f",
+    ".work/tests/test_oracle_contract.py": "2b5e60c69829588f502575cf45175e3d13ecc58192ac176cb2e80fb11937d8f1"
   },
   "governance": "Takes effect when a maintainer merges this record into main. Immutable for the first natural oracle run and its repeats; any change of accounting, codec, options, framing, failure or evaluator semantics needs delsk.oracle-contract.v2 with a new freeze record and a new run. Earlier bytes, records and results are kept.",
   "limitations": [

@@ -431,6 +431,9 @@
                 "standalone_missing": {
                   "$ref": "#/$defs/uint"
                 },
+                "targets_missing": {
+                  "$ref": "#/$defs/uint"
+                },
                 "timeout": {
                   "$ref": "#/$defs/uint"
                 }
@@ -447,7 +450,8 @@
                 "identity_targets",
                 "sealed_targets",
                 "standalone_missing",
-                "standalone_failed"
+                "standalone_failed",
+                "targets_missing"
               ],
               "type": "object"
             }
@@ -790,6 +794,8 @@
         "INCONSISTENT_ROW",
         "FOREIGN_STANDALONE",
         "DUPLICATE_STANDALONE",
+        "FOREIGN_TARGET",
+        "DUPLICATE_TARGET",
         "SCHEMA",
         "BINDING_MISMATCH",
         "NONCANONICAL"
@@ -1133,6 +1139,20 @@
     },
     "pair_sealed": {
       "additionalProperties": false,
+      "else": {
+        "properties": {
+          "decoded_sha256": {
+            "type": "null"
+          }
+        }
+      },
+      "if": {
+        "properties": {
+          "status": {
+            "const": "ok"
+          }
+        }
+      },
       "properties": {
         "base_object_id": {
           "$ref": "#/$defs/hex64"
@@ -1208,6 +1228,19 @@
         "status",
         "target_occurrence_id"
       ],
+      "then": {
+        "properties": {
+          "decoded_sha256": {
+            "$ref": "#/$defs/hex64"
+          },
+          "error_class": {
+            "const": null
+          },
+          "failure_phase": {
+            "const": null
+          }
+        }
+      },
       "type": "object"
     },
     "pair_status": {
@@ -1839,6 +1872,20 @@
     },
     "standalone_sealed": {
       "additionalProperties": false,
+      "else": {
+        "properties": {
+          "decoded_sha256": {
+            "type": "null"
+          }
+        }
+      },
+      "if": {
+        "properties": {
+          "status": {
+            "const": "ok"
+          }
+        }
+      },
       "properties": {
         "candidate_lock_sha256": {
           "$ref": "#/$defs/hex64"
@@ -1848,6 +1895,16 @@
         },
         "corpus_lock_sha256": {
           "$ref": "#/$defs/hex64"
+        },
+        "decoded_sha256": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/hex64"
+            }
+          ]
         },
         "error_class": {
           "$ref": "#/$defs/error_class"
@@ -1887,6 +1944,7 @@
         "candidate_lock_sha256",
         "codec_id",
         "corpus_lock_sha256",
+        "decoded_sha256",
         "error_class",
         "failure_phase",
         "measured_source_sha",
@@ -1899,6 +1957,19 @@
         "status",
         "target_occurrence_id"
       ],
+      "then": {
+        "properties": {
+          "decoded_sha256": {
+            "$ref": "#/$defs/hex64"
+          },
+          "error_class": {
+            "const": null
+          },
+          "failure_phase": {
+            "const": null
+          }
+        }
+      },
       "type": "object"
     },
     "summary": {

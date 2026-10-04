@@ -206,8 +206,8 @@ Precedence: `INVALID` > `INCOMPLETE` > `COMPLETE_WITH_FAILURES` > `COMPLETE`.
 
 | `run_status` | Условие | Что выпускается |
 |---|---|---|
-| `INVALID` | любая invalid reason: `IDENTITY_MISMATCH`, `OPTIONS_MISMATCH`, `FOREIGN_PAIR`, `DUPLICATE_PAIR` (даже byte-identical), `PAIR_ID_MISMATCH`, `LOCK_FIELD_MISMATCH`, `SEALING_VIOLATION`, `ACCOUNTING_MISMATCH`, `DECODE_MISMATCH`, `INPUT_INTEGRITY`, `INCONSISTENT_ROW`, `FOREIGN_STANDALONE`, `DUPLICATE_STANDALONE`, `SCHEMA`, `BINDING_MISMATCH`, `NONCANONICAL` | только reasons; coverage, targets и metrics — нет |
-| `INCOMPLETE` | валидные rows, но missing pair (нет row или `not_run`) или missing standalone | coverage; targets и metrics — нет (incomplete oracle запрещает exact claim) |
+| `INVALID` | любая invalid reason: `IDENTITY_MISMATCH`, `OPTIONS_MISMATCH`, `FOREIGN_PAIR`, `DUPLICATE_PAIR` (даже byte-identical), `PAIR_ID_MISMATCH`, `LOCK_FIELD_MISMATCH`, `SEALING_VIOLATION`, `ACCOUNTING_MISMATCH`, `DECODE_MISMATCH`, `INPUT_INTEGRITY`, `INCONSISTENT_ROW` (в том числе опубликованная target row ≠ пересчёту или sealed target с чужими counts), `FOREIGN_STANDALONE`, `DUPLICATE_STANDALONE`, `FOREIGN_TARGET`, `DUPLICATE_TARGET`, `SCHEMA`, `BINDING_MISMATCH`, `NONCANONICAL` | только reasons; coverage, targets и metrics — нет |
+| `INCOMPLETE` | валидные rows, но missing pair (нет row или `not_run`), missing standalone или нет published target row для query | coverage; targets и metrics — нет (incomplete oracle запрещает exact claim) |
 | `COMPLETE_WITH_FAILURES` | все пары и standalone есть, ≥1 timeout/codec/resource failure | coverage, failure rate, targets, metrics с меткой `bounded` |
 | `COMPLETE` | все пары `ok`, все standalone `ok` | всё, метка `exhaustive` |
 
@@ -216,7 +216,7 @@ Precedence: `INVALID` > `INCOMPLETE` > `COMPLETE_WITH_FAILURES` > `COMPLETE`.
 | Ситуация | G1 |
 |---|---|
 | любой attempt `INVALID` | `INVALID` (исправлять измерение; хорошие runs его не перекрывают) |
-| `COMPLETE` runs с разными `cost_projection_sha256` или `targets_canonical_sha256` | `INVALID` (`REPEAT_MISMATCH`: недетерминированное измерение) |
+| `COMPLETE` runs с разными `cost_projection_sha256`, `targets_canonical_sha256` **или `sealed_commitments_sha256`** | `INVALID` (`REPEAT_MISMATCH`: недетерминированное измерение, в том числе скрытое в sealed evaluation split, G09) |
 | любой attempt `INCOMPLETE` или `COMPLETE_WITH_FAILURES` | `NOT_PASSED` |
 | `COMPLETE` run без conformance PASS или без verified bundle | `NOT_PASSED` (`CONFORMANCE_OR_BUNDLE`) |
 | меньше двух verified `COMPLETE` runs с **разными** GitHub run ID (attempts одного run не считаются) | `NOT_PASSED` (`REPEAT_MISSING`) |
@@ -256,7 +256,7 @@ A(t) = min(S(t), min{ D_E(b,t) : b ∈ R_K(t), row(t,b).status = ok })     faile
 
 ### 8.1 Retained outputs
 
-`targets.jsonl` (`delsk.oracle.target.v1`): `S`, `standalone_choice`, finite `O_delta` или null + `oracle_delta_status`, `O`, полный tie set, `oracle_choice`, `useful_delta`, pair coverage и failure counts по классам. `coverage.json`, `summary.json`, `evaluation.json` — schemas в [schemas.json](schemas.json).
+`targets.jsonl` — ровно одна row на каждую query lock, в canonical order по `target_occurrence_id`. Для unsealed split — `delsk.oracle.target.v1`: `S`, `standalone_choice`, finite `O_delta` или null + `oracle_delta_status`, `O`, полный tie set, `oracle_choice`, `useful_delta`, pair coverage и failure counts по классам; evaluator пересчитывает её из retained rows и требует точного равенства (иначе `INCONSISTENT_ROW`, K41). Для sealed split — `delsk.oracle.target-sealed.v1` (§9.1). Отсутствующая row → `INCOMPLETE` (K42). `coverage.json`, `summary.json`, `evaluation.json` — schemas в [schemas.json](schemas.json).
 
 ## 9. Identities, digests и schemas
 
@@ -267,9 +267,18 @@ measurement_identity = { contract_id, contract_freeze_sha256, codec_lock_sha256,
                          oracle_code_sha256, phase, sealed_splits }
 measurement_identity_sha256 = Hc(measurement_identity)          (GitHub run ID и время сюда не входят)
 canonical JSONL = rows в canonical order, compact canonical JSON + "\n"
-pairs_canonical_sha256, standalone_canonical_sha256, targets_canonical_sha256 = SHA-256(canonical JSONL)
-cost_projection_sha256 = то же для pair rows без encode/decode wall ns и peak RSS
+canonical order    = (target_occurrence_id, base_object_id или "", schema) по ASCII
+pairs_canonical_sha256, standalone_canonical_sha256 = SHA-256(canonical JSONL unsealed rows)
+targets_canonical_sha256  = SHA-256(canonical JSONL unsealed full target rows)
+cost_projection_sha256    = то же для unsealed pair rows без encode/decode wall ns и peak RSS
+RUN_SPECIFIC              = { encode/decode/compress/decompress wall ns, peak RSS,
+                              measurement_identity_sha256, measured_source_sha }
+commitment(row)           = Hc(row без RUN_SPECIFIC)                         (row_sha256 sealed rows)
+sealed_commitments_sha256 = SHA-256(canonical JSONL всех sealed rows — pair_sealed, standalone_sealed,
+                              target_sealed — без RUN_SPECIFIC)
 ```
+
+Repeat equality G1 (§7) — кортеж `(cost_projection_sha256, targets_canonical_sha256, sealed_commitments_sha256)`. Третий элемент обязателен: изменение стоимости или patch не-победителя в sealed split не меняет ни unsealed projection, ни tie set, но меняет commitment его pair row (тест `test_repeat_gate_sees_hidden_evaluation_changes`).
 
 Каждая pair row несёт `measurement_identity_sha256`, `measured_source_sha`, `corpus_lock_sha256`, `candidate_lock_sha256`, `codec_id`, `options_sha256`, status, payload/total bytes, `patch_sha256`, decoded SHA-256, encode/decode wall ns, peak RSS и failure class. GitHub run/attempt — в `run.json`.
 
@@ -279,15 +288,16 @@ cost_projection_sha256 = то же для pair rows без encode/decode wall ns
 
 Опубликованные oracle costs evaluation lineage до freeze scorer/baselines — прямой путь leakage held-out (P1 §4). Поэтому для `sealed_splits = ["evaluation"]`:
 
-- runner измеряет **все** 1 961 пар (полнота и correctness G1 проверяются на всех), но для evaluation split публикует только sealed rows (`pair_sealed`, `standalone_sealed`): identity, `pair_id`/target/base, split, status, failure phase/class, `decoded_sha256` (для `ok` равен публичному target object ID, поэтому ничего не раскрывает) и `row_sha256 = Hc(полная row без wall ns, peak RSS, measurement_identity_sha256 и measured_source_sha)`. Cost fields, `patch_sha256`, target/decoded size и standalone sizes этого split не попадают ни в artifact, ни в лог;
-- evaluator считает sealed rows в completeness и correctness (status `decode_mismatch`/`input_integrity` или `ok` с чужим `decoded_sha256` → `INVALID`, K37), а metrics — только по unsealed targets; unsealed row для sealed split → `SEALING_VIOLATION` (`INVALID`);
-- reveal после freeze scorer/baselines: отдельный run той же codec identity, corpus и candidate lock (phase `reveal`) воспроизводит полные rows; commitment каждой row, вычисленный тем же правилом, обязан равняться опубликованному `row_sha256`, иначе evaluation split `INVALID`. Run-specific поля исключены именно для того, чтобы детерминированный повтор мог совпасть; `patch_sha256` внутри commitment делает перебор sizes невозможным (тест `test_sealed_commitment_survives_a_reveal_run`).
+- runner измеряет **все** 1 961 пар (полнота и correctness G1 проверяются на всех), но для evaluation split публикует только sealed rows. `pair_sealed`: identity, codec/options, `pair_id`, target, base, split, status, failure phase/class, `decoded_sha256`, `row_sha256 = commitment(полная pair row)`. `standalone_sealed`: identity, codec/options, target, split, query status, status, failure phase/class, `decoded_sha256`, `row_sha256 = commitment(полная standalone row)`. `decoded_sha256` обязателен для `ok` (= публичный target object ID, поэтому ничего не раскрывает) и null для failure (schema `if/then/else`). Cost fields, `patch_sha256`, `compressed_sha256`, target/decoded size и standalone sizes этого split не попадают ни в artifact, ни в лог;
+- **target sealing.** Внутри job, до sealing, evaluator того же commit выводит полную `target.v1` row каждой evaluation target из полных pair/standalone rows (§6, §8.1). Публикуется только `target_sealed`: `measurement_identity_sha256`, `target_occurrence_id`, split, query status, `candidate_count`, `pairs_expected/ok/timeout/codec_error/resource_limit`, `standalone_status` и `row_sha256 = commitment(полная target row)`. `S`, `O`, `O_delta`, ties, `useful_delta`, `oracle_choice`, `target_bytes` и `candidate_list_sha256` не публикуются. Sealed target rows не входят в `targets_canonical_sha256`; они входят в `sealed_commitments_sha256`;
+- evaluator считает sealed rows в completeness и correctness: status `decode_mismatch`/`input_integrity`, `ok` pair или standalone с чужим `decoded_sha256` → `INVALID` (K37, K38); counts, `candidate_count`, query status и `standalone_status` sealed target обязаны совпасть со значениями, выведенными из lock и опубликованных sealed pair/standalone rows (иначе `INCONSISTENT_ROW`, K40); unsealed pair, standalone или полная target row для sealed split → `SEALING_VIOLATION` (K31, K39); metrics — только по unsealed targets;
+- reveal после freeze scorer/baselines: отдельный run той же codec identity, corpus и candidate lock (phase `reveal`) воспроизводит полные pair и standalone rows; evaluator выводит из них полные target rows; commitment каждой pair, standalone и target row, вычисленный тем же правилом, обязан равняться опубликованному `row_sha256`, а sealed structural fields — значениям полной row, иначе evaluation split `INVALID`. Run-specific поля исключены именно для того, чтобы детерминированный повтор мог совпасть; `patch_sha256` внутри pair commitment делает перебор sizes невозможным (тест `test_sealed_commitment_survives_a_reveal_run`: смена run-specific полей сохраняет commitment, смена cost или tie set меняет его).
 
 Development и calibration публикуются полностью (calibration предназначена для выбора scorer).
 
 ## 10. Known-answer vectors
 
-Нормативные vectors — [known-answer.json](known-answer.json): 37 oracle/evaluator cases `K01–K37` и 8 G1 cases `G01–G08`. Расширение compact формы: label → `Hc(["delsk.oracle.kat.v1","occurrence"|"object",label])`; опущенные поля берут значения frame v1 и lock; `set` переопределяет поля полной row после расширения; rationals — reduced строки `p/q`; null `O_delta` = `+inf`. Расширенные rows проходят schemas. Test-only reference ([oracle_reference.py](../tests/oracle_reference.py)) воспроизводит все expectations; production evaluator Slice B обязан воспроизвести их, не импортируя reference.
+Нормативные vectors — [known-answer.json](known-answer.json): 42 oracle/evaluator cases `K01–K42` и 9 G1 cases `G01–G09`. Расширение compact формы: label → `Hc(["delsk.oracle.kat.v1","occurrence"|"object",label])`; опущенные поля берут значения frame v1 и lock; `set` переопределяет поля полной row после расширения; rationals — reduced строки `p/q`; null `O_delta` = `+inf`. Расширенные rows проходят schemas. Test-only reference ([oracle_reference.py](../tests/oracle_reference.py)) воспроизводит все expectations; production evaluator Slice B обязан воспроизвести их, не импортируя reference.
 
 | # | Требование | Vector | Ожидание |
 |---|---|---|---|
@@ -312,7 +322,7 @@ Development и calibration публикуются полностью (calibratio
 | 19 | wrong codec/options hash | K19 | `INVALID OPTIONS_MISMATCH` |
 | 20 | evaluator SHA changed | K20 | те же measurement digests и metrics, новая evaluation record |
 
-Дополнительно: K22/K23/K26/K29 — retrieval validation; K24 — accounting tamper; K25 — identity target; K27 — standalone timeout; K28 — пустой retrieval; K30/K31/K37 — sealing; K33 — input integrity; K34 — `not_run`; K35 — `O_delta = S`; K36 — floor 64 B в normalized regret. G01–G08 — матрица §7.
+Дополнительно: K22/K23/K26/K29 — retrieval validation; K24 — accounting tamper; K25 — identity target; K27 — standalone timeout; K28 — пустой retrieval; K30/K31/K37/K38/K39/K40 — sealing (pair и standalone decode, полная target row, sealed target counts); K33 — input integrity; K34 — `not_run`; K35 — `O_delta = S`; K36 — floor 64 B в normalized regret; K41 — опубликованная target row ≠ пересчёту; K42 — нет target row. G01–G09 — матрица §7 (G09 — расхождение только в скрытом commitment).
 
 ### 10.3 Codec conformance (выполняется в Slice B, synthetic only)
 
@@ -346,8 +356,14 @@ Development и calibration публикуются полностью (calibratio
 | M20 missing не считается | K07, K34 |
 | M21 accounting не проверяется | K24 |
 | M22 G1 по одному run | G02, G03, G08 |
-| M23 repeat mismatch игнорируется | G04 |
+| M23 repeat mismatch игнорируется | G04, G09 |
 | M24 INVALID attempt перекрывается хорошими | G05 |
+| M25 decode sealed standalone не проверяется | K38 |
+| M26 G1 без sealed commitments | G09 |
+| M27 counts sealed target не проверяются | K40 |
+| M28 полная target row на sealed split разрешена | K39 |
+| M29 опубликованная target row не пересчитывается | K41 |
+| M30 missing target row не считается | K07, K34, K42 |
 
 Metamorphic properties (`test_oracle_contract.Metamorphic`, 60 сгенерированных vectors, seed 20261004): перестановка pair/standalone rows не меняет результат; добавление dominated finite candidate не улучшает oracle (`O`, finite `O_delta`, ties неизменны); повышение стоимости не-победителя ничего не меняет; база с равной стоимостью входит в tie set без изменения `O`; fallback дешевле всех delta даёт `O=S`; повторный пересчёт из rows детерминирован. Генератор обязан порождать finite, empty и all-failed targets.
 
@@ -358,12 +374,12 @@ Metamorphic properties (`test_oracle_contract.Metamorphic`, 60 сгенерир�
 | Lane | Trigger | Caps | Содержимое | Вывод |
 |---|---|---|---|---|
 | Docs + unit (есть) | push/PR | 1 job × 5 min | `validate.py`, `unittest discover` (включая этот контракт) | целостность |
-| PR smoke known-answer (Slice B) | PR на пути oracle | 1 job ≤ 8 min, ≤ 64 MiB synthetic data, без admission (вне experimental budget) | сборка codecs из закреплённых archives, conformance C01–C14, fault injection, runner на synthetic mini-corpus, evaluator KAT K01–K37/G01–G08, mutants | без performance и quality verdict |
+| PR smoke known-answer (Slice B) | PR на пути oracle | 1 job ≤ 8 min, ≤ 64 MiB synthetic data, без admission (вне experimental budget) | сборка codecs из закреплённых archives, conformance C01–C14, fault injection, runner на synthetic mini-corpus, evaluator KAT K01–K42/G01–G09, mutants | без performance и quality verdict |
 | Pilot oracle (Slice C, после отдельного подтверждения) | `workflow_dispatch`, frozen source SHA, admission `budget.py`, concurrency `delsk-experimental` | job 30 min вместе с setup; workload ≤ 22 min; ≤ 4096 pairs/codec (план 1 961); download ≤ 256 MiB (34 MB archives + ~2.7 MB codec sources); work dir ≤ 1 280 MiB (нужно ~161 MB objects); RLIMIT_AS workload 8 GiB, codec 2 GiB/вызов | materialize → verify SHA → build → conformance → 1 961 pairs + 79 standalone → evaluator → bundle | G1 evidence (bounded/exhaustive), не quality G3 |
 | Independent repeat | второй dispatch того же frozen SHA, другой run ID | те же | тот же | G1 требует равных cost projection и targets digests |
 | Reveal (позже) | после freeze scorer/baselines | те же | только evaluation split | проверка commitments §9.1 |
 
-Artifacts pilot (≤ 16 MiB, `retention-days: 30`): `run.json`, `codec-lock.json`, `tools.json` (archives, executables, compiler, self reports, conformance), `pairs.jsonl`, `standalone.jsonl` (sealed rows для evaluation), `targets.jsonl`, `coverage.json`, `summary.json`, `evaluation.json` (oracle self-retrieval sanity: `R_K = ties`), `checksums.sha256`. Retained bundle — `.work/results/DELSK-003-ORACLE/<run-id>-<attempt>/` через reviewed PR, транзакционно и только после verify (как R0 bundle). Rows пишутся инкрементально; при abort, timeout job или нарушении limit `run.json` и уже записанные rows всё равно загружаются (failure evidence), run остаётся `INCOMPLETE` и не удаляется. Cache для measurement outputs не используется (`cache: none`); каждый input перепроверяется по SHA-256. Логи не содержат cost values sealed split.
+Artifacts pilot (≤ 16 MiB, `retention-days: 30`): `run.json`, `codec-lock.json`, `tools.json` (archives, executables, compiler, self reports, conformance), `pairs.jsonl`, `standalone.jsonl`, `targets.jsonl` (sealed rows для evaluation split во всех трёх), `coverage.json`, `summary.json`, `evaluation.json` (oracle self-retrieval sanity: `R_K = ties`), `checksums.sha256`. Retained bundle — `.work/results/DELSK-003-ORACLE/<run-id>-<attempt>/` через reviewed PR, транзакционно и только после verify (как R0 bundle). Rows пишутся инкрементально; при abort, timeout job или нарушении limit `run.json` и уже записанные rows всё равно загружаются (failure evidence), run остаётся `INCOMPLETE` и не удаляется. Cache для measurement outputs не используется (`cache: none`); каждый input перепроверяется по SHA-256. Логи не содержат cost values sealed split.
 
 Decision shards (≤ 20k pairs/codec, 45 min/job), native ARM, A/A timing и paired A/B/A — вне этого контракта.
 
@@ -401,7 +417,7 @@ Decision shards (≤ 20k pairs/codec, 45 min/job), native ARM, A/A timing и pai
 1. `.work/tools/oracle_build.py` — скачивание закреплённых archives, проверка size/SHA-256, безопасная распаковка, сборка точными argv, `tools.json`.
 2. `.work/tools/oracle_run.py` — runner: materialization по pilot-v1 recipe, SHA-проверка, expected set из lock, encode/decode по lock, rows, sealing, limits, `not_run` при abort.
 3. `.work/tools/oracle_eval.py` — независимый evaluator (stdlib, не импортирует runner и reference): validation, targets/coverage/summary/evaluation, `bundle`, `verify`, `g1`.
-4. Tests: KAT K01–K37 и G01–G08 против production evaluator; mutants M01–M24 на его исходнике; metamorphic; runner с fault-injection shims; conformance C01–C14 в smoke lane.
+4. Tests: KAT K01–K42 и G01–G09 против production evaluator; mutants M01–M30 на его исходнике; metamorphic; runner с fault-injection shims; conformance C01–C14 в smoke lane.
 5. Workflow PR smoke (§12). Первый зелёный smoke фиксирует `conformance.json` reviewed PR.
 6. Exit Slice B: всё зелёное, natural run не запускался. Slice C (pilot + repeat) — только после отдельного подтверждения maintainer.
 
@@ -415,5 +431,13 @@ Decision shards (≤ 20k pairs/codec, 45 min/job), native ARM, A/A timing и pai
 | Missing-pair / decode-mismatch | abort без rows; decode error как `codec_error`; `ok` row с чужим decoded SHA; base не того object | `not_run`/missing → INCOMPLETE (K34); decode errors → INVALID (K32); decoded SHA check (K21); input integrity (K33) |
 | Evaluator молча теряет failures | denominator из rows; failure rate только по успешным; missing retrieval → oracle-best | populations из lock; M10, M20; K26/K28 |
 | Один payload — разные total | wrapper от total вместо payload; разные checksum/header режимы | total — функция `(representation, payload)`; switches закреплены; K01/K12 |
+
+**Freeze review round 2** ([PR #24](https://github.com/definitely-stable/Shift-lab/pull/24), head `a0cb762`): три blocker в sealed evaluation evidence закрыты до merge.
+
+| Замечание | Исправление |
+|---|---|
+| `standalone_sealed` без `decoded_sha256`: zstd roundtrip evaluation split не проверялся до reveal | поле добавлено (schema `if/then/else`: `ok` → hex64, failure → null), evaluator проверяет `= target_object_id`; K38, M25 |
+| Repeat gate не видел изменений в sealed split (не-победитель меняет patch, unsealed digests и ties прежние) | `sealed_commitments_sha256` (все sealed rows без `RUN_SPECIFIC`) входит в repeat tuple G1; G09, M26, тест контрпримера |
+| `target_sealed` без нормативной конструкции и reveal | §9.1: in-job вывод полной target row, список публикуемых полей, `row_sha256 = commitment(полная target row)`, проверка counts, reveal-сверка, `targets_canonical_sha256` только по unsealed; K39–K42, M27–M30 |
 
 Остаточные ограничения: оба codec builds не выполнялись в этом slice (сборка и conformance — первый шаг Slice B; провал = `BLOCKED BY CODEC/FRAMING EVIDENCE` и v2); reference и vectors написаны одним автором (независимость обеспечит отдельная реализация evaluator в Slice B); pilot остаётся exploratory (одна held-out lineage на split).

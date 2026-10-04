@@ -22,7 +22,7 @@ EPSILON_PERCENT = (1, 2, 5)
 PAIR_STATUSES = ('ok', 'timeout', 'codec_error', 'resource_limit', 'decode_mismatch', 'input_integrity', 'not_run')
 BOUNDED = {'timeout', 'codec_error', 'resource_limit'}
 FATAL = {'decode_mismatch': 'DECODE_MISMATCH', 'input_integrity': 'INPUT_INTEGRITY'}
-SEALED = {'delsk.oracle.pair-sealed.v1', 'delsk.oracle.standalone-sealed.v1'}
+SEALED = {'delsk.oracle.pair-sealed.v1', 'delsk.oracle.standalone-sealed.v1', 'delsk.oracle.target-sealed.v1'}
 TIMING_FIELDS = ('encode_wall_ns', 'decode_wall_ns', 'encode_peak_rss_bytes', 'decode_peak_rss_bytes',
                  'compress_wall_ns', 'decompress_wall_ns')
 # Fields a reveal run cannot reproduce: run timings and the measurement identity of the publishing run.
@@ -30,6 +30,10 @@ RUN_SPECIFIC = (*TIMING_FIELDS, 'measurement_identity_sha256', 'measured_source_
 COST_FIELDS = ('patch_payload_bytes', 'patch_sha256', 'wrapper_bytes', 'base_reference_bytes', 'codec_metadata_bytes',
                'delta_total_bytes', 'decoded_bytes', 'decoded_sha256')
 IDENTITY_FIELDS = ('measurement_identity_sha256', 'measured_source_sha', 'corpus_lock_sha256', 'candidate_lock_sha256')
+COUNT_FIELDS = ('pairs_expected', 'pairs_ok', 'pairs_timeout', 'pairs_codec_error', 'pairs_resource_limit')
+# Published fields of a sealed target row besides its commitment (contract section 9.1): no cost, size or tie.
+TARGET_SEALED_FIELDS = ('measurement_identity_sha256', 'target_occurrence_id', 'split', 'query_status',
+                        'candidate_count', *COUNT_FIELDS, 'standalone_status')
 
 
 # --- frame v1 accounting (contract section 3) -----------------------------------------------------------------------
@@ -69,7 +73,7 @@ def commitment(row):
 
 def jsonl_sha256(rows, drop=()):
     rows = sorted(({k: v for k, v in r.items() if k not in drop} for r in rows),
-                  key=lambda r: (r['target_occurrence_id'], r.get('base_object_id', '')))
+                  key=lambda r: (r['target_occurrence_id'], r.get('base_object_id', ''), r['schema']))
     text = ''.join(json.dumps(r, ensure_ascii=False, sort_keys=True, separators=(',', ':')) + '\n' for r in rows)
     return hashlib.sha256(text.encode('utf-8')).hexdigest()
 
@@ -90,7 +94,51 @@ def ratio(num, den):
 
 # --- oracle run validation and derivation (contract sections 4-7) ---------------------------------------------------
 
-def evaluate(world, standalone_rows, pair_rows, retrieval=None):
+def derive_target(q, srow, rows):
+    """Oracle values of one target from its full standalone row and its full pair rows {base: row}."""
+    raw = srow['raw_total_bytes']
+    comp = srow['compressed_total_bytes'] if srow['status'] == 'ok' else None
+    s = raw if comp is None or raw <= comp else comp
+    finite = {b['object_id']: rows[b['object_id']]['delta_total_bytes'] for b in q['bases']
+              if rows[b['object_id']]['status'] == 'ok'}
+    od = min(finite.values()) if finite else None
+    status = ('identity_only' if q['status'] == 'identity_only' else 'finite' if finite
+              else 'empty_candidate_set' if not q['bases'] else 'all_pairs_failed')
+    useful = od is not None and od < s
+    return {'S': s, 'S_choice': 'raw' if s == raw else 'compressed', 'O_delta': od, 'delta_status': status,
+            'ties': sorted(b for b, c in finite.items() if c == od), 'O': od if useful else s,
+            'useful': useful}, finite
+
+
+def target_counts(q, rows):
+    statuses = [rows[b['object_id']]['status'] if b['object_id'] in rows else None for b in q['bases']]
+    return {'pairs_expected': len(q['bases']),
+            **{f'pairs_{s}': statuses.count(s) for s in ('ok', 'timeout', 'codec_error', 'resource_limit')}}
+
+
+def target_row(world, q, srow, rows, tr):
+    """Full delsk.oracle.target.v1 row (contract section 8.1)."""
+    t, fact = q['target'], world['facts'][q['target']]
+    bases = [b['object_id'] for b in q['bases']]
+    return {'schema': 'delsk.oracle.target.v1',
+            'measurement_identity_sha256': world['identity']['measurement_identity_sha256'],
+            'target_occurrence_id': t, 'target_object_id': fact['object_id'], 'family_id': fact.get('family_id', 'kat'),
+            'split': fact['split'], 'track': fact.get('track', 'kat'), 'query_status': q['status'],
+            'target_bytes': fact['bytes'], 'candidate_count': len(bases), 'candidate_list_sha256': m.digest(bases),
+            **target_counts(q, rows), 'raw_total_bytes': srow['raw_total_bytes'], 'standalone_status': srow['status'],
+            'standalone_compressed_total_bytes': srow['compressed_total_bytes'] if srow['status'] == 'ok' else None,
+            'standalone_total_bytes': tr['S'], 'standalone_choice': tr['S_choice'],
+            'oracle_delta_total_bytes': tr['O_delta'], 'oracle_delta_status': tr['delta_status'],
+            'oracle_tie_bases': tr['ties'], 'oracle_total_bytes': tr['O'],
+            'oracle_choice': 'delta' if tr['useful'] else 'standalone', 'useful_delta': tr['useful']}
+
+
+def seal_target(row):
+    return {'schema': 'delsk.oracle.target-sealed.v1', **{k: row[k] for k in TARGET_SEALED_FIELDS},
+            'row_sha256': commitment(row)}
+
+
+def evaluate(world, standalone_rows, pair_rows, retrieval=None, target_rows=()):
     """world: identity, codec, standalone_codec, facts{target: object_id, bytes, split}, base_bytes{base: n},
     queries[{target, status, bases[{object_id, representative}]}], sealed_splits. Returns a plain dict."""
     ident, queries = world['identity'], {q['target']: q for q in world['queries']}
@@ -158,6 +206,8 @@ def evaluate(world, standalone_rows, pair_rows, retrieval=None):
         fact = world['facts'][t]
         common(row, world['standalone_codec'], fact)
         if row['schema'] in SEALED:
+            if row['status'] == 'ok' and row['decoded_sha256'] != fact['object_id']:
+                reasons.add('DECODE_MISMATCH')
             continue
         if (row['target_object_id'], row['target_bytes']) != (fact['object_id'], fact['bytes']):
             reasons.add('LOCK_FIELD_MISMATCH')
@@ -174,6 +224,29 @@ def evaluate(world, standalone_rows, pair_rows, retrieval=None):
             reasons.add('DECODE_MISMATCH')
         elif row['compressed_total_bytes'] != standalone_total(c):
             reasons.add('ACCOUNTING_MISMATCH')
+
+    published = {}
+    for row in target_rows:
+        t = row['target_occurrence_id']
+        if t not in queries:
+            reasons.add('FOREIGN_TARGET')
+            continue
+        if t in published:
+            reasons.add('DUPLICATE_TARGET')
+            continue
+        published[t] = row
+        if row['measurement_identity_sha256'] != ident['measurement_identity_sha256']:
+            reasons.add('IDENTITY_MISMATCH')
+        sealed_row = row['schema'] == 'delsk.oracle.target-sealed.v1'
+        if sealed_row != (world['facts'][t]['split'] in sealed_splits):
+            reasons.add('SEALING_VIOLATION')
+        elif sealed_row:
+            q = queries[t]
+            claim = {'split': world['facts'][t]['split'], 'query_status': q['status'], 'candidate_count': len(q['bases']),
+                     **target_counts(q, {k[1]: r for k, r in seen.items() if k[0] == t}),
+                     'standalone_status': standalone[t]['status'] if t in standalone else None}
+            if any(row[k] != v for k, v in claim.items()):
+                reasons.add('INCONSISTENT_ROW')
 
     out = {'invalid_reasons': sorted(reasons), 'coverage': None, 'targets': None, 'metrics': None,
            'retrieval_status': 'NOT_EVALUATED', 'retrieval_reasons': []}
@@ -192,34 +265,26 @@ def evaluate(world, standalone_rows, pair_rows, retrieval=None):
                 'near_targets': len(near), 'identity_targets': len(queries) - len(near),
                 'sealed_targets': len(sealed_t),
                 'standalone_missing': sum(t not in standalone or standalone[t]['status'] == 'not_run' for t in queries),
-                'standalone_failed': sum(r['status'] in BOUNDED for r in standalone.values())}
+                'standalone_failed': sum(r['status'] in BOUNDED for r in standalone.values()),
+                'targets_missing': sum(t not in published for t in queries)}
     out['coverage'] = coverage
-    if coverage['missing'] or coverage['standalone_missing']:
+    if coverage['missing'] or coverage['standalone_missing'] or coverage['targets_missing']:
         out['run_status'] = 'INCOMPLETE'
         return out
     failed = counts['timeout'] + counts['codec_error'] + counts['resource_limit'] + coverage['standalone_failed']
     out['run_status'] = 'COMPLETE_WITH_FAILURES' if failed else 'COMPLETE'
     out['oracle_kind'] = 'exhaustive' if not failed else 'bounded'
 
-    targets, cost = {}, {}
+    targets, cost, full = {}, {}, []
     for t, q in queries.items():
         if t in sealed_t:
             targets[t] = {'sealed': True}
             continue
-        row = standalone[t]
-        raw = row['raw_total_bytes']
-        comp = row['compressed_total_bytes'] if row['status'] == 'ok' else None
-        s = raw if comp is None or raw <= comp else comp
-        finite = {b['object_id']: seen[(t, b['object_id'])]['delta_total_bytes'] for b in q['bases']
-                  if seen[(t, b['object_id'])]['status'] == 'ok'}
-        cost[t] = finite
-        od = min(finite.values()) if finite else None
-        status = ('identity_only' if q['status'] == 'identity_only' else 'finite' if finite
-                  else 'empty_candidate_set' if not q['bases'] else 'all_pairs_failed')
-        useful = od is not None and od < s
-        targets[t] = {'S': s, 'S_choice': 'raw' if s == raw else 'compressed', 'O_delta': od, 'delta_status': status,
-                      'ties': sorted(b for b, c in finite.items() if c == od), 'O': od if useful else s,
-                      'useful': useful}
+        rows = {b['object_id']: seen[(t, b['object_id'])] for b in q['bases']}
+        targets[t], cost[t] = derive_target(q, standalone[t], rows)
+        full.append(target_row(world, q, standalone[t], rows, targets[t]))
+        if published[t] != full[-1]:  # a published full target row must equal the recomputation from rows
+            return {**out, 'run_status': 'INVALID', 'invalid_reasons': ['INCONSISTENT_ROW'], 'coverage': None}
     out['targets'] = targets
     for key, test in (('near_empty', lambda v: v.get('delta_status') == 'empty_candidate_set'),
                       ('near_all_failed', lambda v: v.get('delta_status') == 'all_pairs_failed'),
@@ -229,6 +294,9 @@ def evaluate(world, standalone_rows, pair_rows, retrieval=None):
     unsealed = [r for r in pair_rows if r['schema'] not in SEALED]
     out['pairs_canonical_sha256'] = jsonl_sha256(unsealed)
     out['cost_projection_sha256'] = jsonl_sha256(unsealed, TIMING_FIELDS)
+    out['targets_canonical_sha256'] = jsonl_sha256(full)
+    out['sealed_commitments_sha256'] = jsonl_sha256(
+        [r for r in [*pair_rows, *standalone_rows, *target_rows] if r['schema'] in SEALED], RUN_SPECIFIC)
     if retrieval is not None:
         evaluate_retrieval(out, queries, [t for t in near if t not in sealed_t], cost, retrieval)
     return out
@@ -301,7 +369,8 @@ def g1(runs):
     if any(r['run_status'] == 'INVALID' for r in runs):
         return 'INVALID', ['RUN_INVALID']
     complete = [r for r in runs if r['run_status'] == 'COMPLETE']
-    if len({(r['cost_projection_sha256'], r['targets_sha256']) for r in complete}) > 1:
+    if len({(r['cost_projection_sha256'], r['targets_sha256'], r['sealed_commitments_sha256'])
+            for r in complete}) > 1:
         return 'INVALID', ['REPEAT_MISMATCH']
     blockers = sorted({f'RUN_{r["run_status"]}' for r in runs if r['run_status'] != 'COMPLETE'})
     good = [r for r in complete if r['conformance'] and r['bundle_verified']]
@@ -327,7 +396,7 @@ DEFAULT_ERROR = {'timeout': 'wall_timeout', 'codec_error': 'nonzero_exit', 'reso
 
 
 def expand(case, codec_lock):
-    """Compact vector -> (world, standalone rows, pair rows, retrieval) in full durable row form."""
+    """Compact vector -> (world, standalone rows, pair rows, retrieval, target rows) in full durable row form."""
     ident = {'measured_source_sha': 'a' * 40, 'corpus_lock_sha256': m.digest(['delsk.oracle.kat.v1', 'corpus']),
              'candidate_lock_sha256': m.digest(['delsk.oracle.kat.v1', 'candidate'])}
     ident['measurement_identity_sha256'] = m.digest(['delsk.oracle.kat.v1', 'identity', ident])
@@ -350,13 +419,13 @@ def expand(case, codec_lock):
 
     def seal(row, keys):
         return {'schema': row['schema'].replace('.v1', '-sealed.v1'), **{k: row[k] for k in keys},
-                **({'decoded_sha256': row['decoded_sha256']} if 'base_object_id' in keys else {}),
+                'decoded_sha256': row['decoded_sha256'],
                 'row_sha256': commitment(row)}
 
     hide = set() if case.get('leak') else set(sealed_splits)  # 'leak': rows of a sealed split stay unsealed
     common = (*IDENTITY_FIELDS, 'codec_id', 'options_sha256', 'target_occurrence_id', 'split', 'status',
               'failure_phase', 'error_class')
-    pairs = []
+    pairs, full_pairs, full_standalone = [], {}, {}
     for p in case['pairs']:
         t, b, fact = occ(p['t']), obj(p['b']), facts[occ(p['t'])]
         ok, n = p['status'] == 'ok', p.get('payload')
@@ -384,6 +453,7 @@ def expand(case, codec_lock):
         elif p['status'] == 'input_integrity':
             row['failure_phase'] = 'materialize'
         row.update(p.get('set', {}))
+        full_pairs.setdefault(t, {})[b] = row
         pairs.append(seal(row, (*common, 'pair_id', 'base_object_id')) if fact['split'] in hide else row)
     standalone_rows = []
     for s in case['standalone']:
@@ -404,20 +474,34 @@ def expand(case, codec_lock):
                'decoded_sha256': fact['object_id'] if ok else None,
                'compress_wall_ns': 1000 if ok else None, 'decompress_wall_ns': 1000 if ok else None}
         row.update(s.get('set', {}))
+        full_standalone[t] = row
         standalone_rows.append(seal(row, (*common, 'query_status')) if fact['split'] in hide else row)
+    # Published targets.jsonl: one row per derivable target; a sealed split gets sealed rows (contract section 9.1).
+    labels_of = {occ(q['t']): q['t'] for q in case['queries']}
+    targets = []
+    for q in world['queries']:
+        t, rows, srow = q['target'], full_pairs.get(q['target'], {}), full_standalone.get(q['target'])
+        if labels_of[t] in case.get('drop_targets', ()) or srow is None or srow['status'] == 'not_run' or any(
+                b['object_id'] not in rows or rows[b['object_id']]['status'] == 'not_run' for b in q['bases']):
+            continue
+        row = target_row(world, q, srow, rows, derive_target(q, srow, rows)[0])
+        if facts[t]['split'] in sealed_splits and not case.get('leak_target'):
+            row = seal_target(row)
+        row.update(case.get('target_set', {}).get(labels_of[t], {}))
+        targets.append(row)
     retrieval = None
     if case.get('retrieval') is not None:
         r = case['retrieval']
         retrieval = {'method_id': 'kat', 'K': r['K'],
                      'rows': [{'target_occurrence_id': occ(x['t']), 'bases': [obj(b) for b in x['bases']],
                                'encode_calls': x['encode_calls']} for x in r['rows']]}
-    return world, standalone_rows, pairs, retrieval
+    return world, standalone_rows, pairs, retrieval, targets
 
 
 def run_case(case, codec_lock, module=None):
     module = module or sys.modules[__name__]
-    world, standalone_rows, pairs, retrieval = module.expand(case, codec_lock)
-    return module.evaluate(world, standalone_rows, pairs, retrieval)
+    world, standalone_rows, pairs, retrieval, targets = module.expand(case, codec_lock)
+    return module.evaluate(world, standalone_rows, pairs, retrieval, targets)
 
 
 def render(out, case):
