@@ -62,7 +62,7 @@ Pairs по lane: historical (file) 115, modeled 1 846. Полные cells, вк�
 - В evaluation нет file track. Calibration и evaluation содержат по одной family, поэтому их foreign pools всегда пусты. Это известно заранее и не является результатом.
 - Temporal claim retrospective и version-indexed (A07). Chunk, tar и tar-gz — modeled lane, не historical replay.
 - Оба runs используют один commit и одну реализацию каждого слоя. Независимость здесь — между кодом builder и verifier, а не между авторами.
-- Seal не закрывает DELSK-002. Остаются Slice F (foundation handoff) и DELSK-003 oracle.
+- Seal не закрывает DELSK-002. Slice F (foundation handoff) вынесен в [R0 readiness](../../research/R0-readiness.md); остаётся DELSK-003 oracle.
 
 ## Разбор review PR #21
 
