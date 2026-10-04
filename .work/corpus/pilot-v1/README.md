@@ -1,12 +1,14 @@
 # pilot-v1: acquisition locks (DELSK-002, Slice D)
 
-Статус: **PROPOSED — discovery reviewed, verify pending**. Файлы получены CI run `materialize-discover` ([foundation.yml](../../../.github/workflows/foundation.yml)); правила и schemas — в [corpus contracts](../README.md#acquisition-и-materialization-slice-d). Natural data на рабочей станции не скачивались; payloads в git не попадают. Freeze — после независимого `materialize-verify`, воспроизводящего эти файлы байт в байт, и review maintainer.
+Статус: **FROZEN_ACQUISITION — Slice D**. Решение, точные hashes и snapshot license review записаны в [freeze.json](freeze.json). Файлы получены CI run `materialize-discover` ([foundation.yml](../../../.github/workflows/foundation.yml)); правила и schemas — в [corpus contracts](../README.md#acquisition-и-materialization-slice-d). Natural data на рабочей станции не скачивались; payloads в git не попадают. Независимый `materialize-verify` воспроизвёл committed manifests байт в байт. Freeze относится к acquisition и transforms exploratory pilot; ancestry audit, frozen `C_t` и confirmatory sufficiency здесь не установлены.
 
 | Файл | SHA-256 / содержание |
 |---|---|
 | `source-lock.json` | 18 archives, 33 624 735 B acquired, 174 109 815 B expanded; retained members, исключённые по globs и non-regular пути |
 | `licenses.json` | license files, copyright lines и SPDX tags retained members с путями |
-| `materialization.json` | полный `delsk.corpus.lock.v1`: SHA-256 `e5c288256bed…` (в artifact run как `corpus-lock.json.gz`), 32 391 occurrences, 28 477 content objects, 446 924 313 materialized bytes, 0 cross-split objects |
+| `materialization.json` | полный `delsk.corpus.lock.v1`: SHA-256 `e5c288256bed…`, 32 391 occurrences, 28 477 content objects, 446 924 313 materialized bytes, 0 cross-split objects |
+| `corpus-lock.json.gz` | полный canonical JSON metadata lock из verification artifact; 3 924 534 B gzip, 22 414 998 B после распаковки; payload отсутствует |
+| [freeze.json](freeze.json) | acquisition freeze, license review шести families, hashes и ограничения; hash corpus lock считается отдельно для compressed file и canonical JSON |
 | `runs/<mode>-<run_id>-<attempt>.json` | `report.json` каждого run, включая superseded |
 
 ## Runs
@@ -16,8 +18,9 @@
 | [37185935970](https://github.com/definitely-stable/Shift-lab/actions/runs/37185935970) | `93c600e` | discover | ok; superseded: notices без путей не позволяли review |
 | [37186057381](https://github.com/definitely-stable/Shift-lab/actions/runs/37186057381) | `4e8cbf5` | discover | ok; `source-lock.json` байт в байт равен run 37185935970 (другой runner и commit, тот же plan/policy); notices с путями выявили 4 foreign-origin members curl |
 | [37186134266](https://github.com/definitely-stable/Shift-lab/actions/runs/37186134266) | `200b9c5` | discover | ok; **текущие файлы** после исключения этих members |
+| [37186222325](https://github.com/definitely-stable/Shift-lab/actions/runs/37186222325) | `ac9037c` | verify | ok; только committed lock: 18/18 archives совпали по size и SHA-256, `source-lock.json`, `licenses.json`, `materialization.json` воспроизведены байт в байт, полный corpus lock — тот же SHA-256 `e5c288256bed…` |
 
-Все runs без retry downloads; workload ≤25 s.
+Все runs без retry downloads; workload ≤25 s; image `ubuntu-24.04` 20260927.320.1; CPU AMD EPYC 9V45 (run 37185935970) и EPYC 7763 (остальные) — `source-lock.json` совпал на обоих.
 
 ## Review discovery
 
@@ -29,4 +32,12 @@
 
 ## License review
 
-Status каждой family остаётся `PENDING_SNAPSHOT_REVIEW`: tool evidence собрана, решение maintainer о совместимости snapshot (license files и notices из `licenses.json` против SPDX source plan) ещё не записано. zlib/libpng/curl/bzip2 LICENSE/COPYING хешируются по releases; у SQLite license file нет — public-domain заявление в заголовках (`The author disclaims copyright`); zstd несёт `LICENSE` (BSD) и `COPYING` (GPLv2), pilot опирается на BSD-3-Clause.
+Все шесть families имеют `REVIEWED_FOR_PILOT` в [freeze.json](freeze.json). Root LICENSE/COPYING всех 15 архивов bzip2/curl/libpng/zlib/zstd сверены с официальными release tags: SHA-256 совпали с acquired snapshots. Прочитаны условия и notices retained members; ни один family notice set не обрезан. У SQLite license file нет: retained notices отказываются от copyright, а [официальное заявление](https://sqlite.org/copyright.html) распространяет public-domain dedication на код и документацию. zstd несёт BSD `LICENSE` и альтернативный GPLv2 `COPYING`; для pilot выбрана BSD-3-Clause. Лицензии исключённых `contrib`, `build` и foreign-origin paths не переносятся на retained payload.
+
+Review разрешает acquisition и исследовательские transforms этих snapshots. Payload не публикуется. Для будущей redistribution нужно сохранить исходные notices/license files и явно пометить derived representations; это не project-wide legal/FTO verdict и не разрешение binary/model track. Статусы исходного source plan оставлены историческими: его bytes уже закреплены в двух runs, текущий review state читается из freeze record.
+
+## Offline verification и границы
+
+`python -m unittest discover -s .work/tests -p test_pilot_freeze.py` распаковывает сохранённый lock, проверяет полный SHA-256, schema, occurrence/content/byte accounting и plan/policy contracts; отдельно проверяет freeze hashes, license review coverage и discovery/verification identities. Network и corpus payload не нужны. Сохранены admission и runner evidence verification run в `runs/verify-37186222325-1-{admission,run}.json`: accounting complete, 4 used + 30 reserved runner-min ≤600, artifact storage ≤cap. Budget mode этого run — `warn`, но accounting и budget проверки фактически полны и успешны.
+
+Independent branch review обнаружил два недостающих acceptance пункта: durable полный lock и записанный snapshot license review. Оба закрыты этим freeze record и offline checks. Upstream подписи, libpng archive/git-tree equivalence и юридическая оценка вне этого review; ограничения сохранены. Linux resource enforcement проверяется в CI; локально эти семь тестов пропускаются на Windows. Следующие Slices E/F выполняют ancestry/candidate audit и durable foundation handoff; DELSK-002 и весь R0 здесь не закрываются.

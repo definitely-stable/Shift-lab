@@ -1,0 +1,103 @@
+{
+  "admission": {
+    "accounting_complete": true,
+    "admitted": true,
+    "artifact_bytes": 12361301,
+    "artifact_total_cap": 268435456,
+    "budget_minutes": 600,
+    "budget_mode": "warn",
+    "ledger": [
+      {
+        "attempts": 1,
+        "minutes": 1,
+        "run_id": 37185129729,
+        "run_number": 1,
+        "workflow": "foundation.yml"
+      },
+      {
+        "attempts": 1,
+        "minutes": 1,
+        "run_id": 37185935970,
+        "run_number": 2,
+        "workflow": "foundation.yml"
+      },
+      {
+        "attempts": 1,
+        "minutes": 1,
+        "run_id": 37186057381,
+        "run_number": 3,
+        "workflow": "foundation.yml"
+      },
+      {
+        "attempts": 1,
+        "minutes": 1,
+        "run_id": 37186134266,
+        "run_number": 4,
+        "workflow": "foundation.yml"
+      }
+    ],
+    "reserved_minutes": 30,
+    "run_artifact_cap": 16777216,
+    "schema": "delsk.ci.admission.v1",
+    "used_minutes": 4,
+    "warnings": [],
+    "window_end": "2026-10-04T07:35:03+00:00",
+    "window_start": "2026-09-27T07:35:03+00:00",
+    "within_budget": true
+  },
+  "argv": [
+    "/home/runner/work/Shift-lab/Shift-lab/.work/tools/materialize.py",
+    "verify",
+    "evidence"
+  ],
+  "completed_at": "2026-10-04T07:35:26.324398+00:00",
+  "environment": {
+    "cpu_model": "AMD EPYC 7763 64-Core Processor",
+    "github": {
+      "GITHUB_ACTOR": "MrFr3di",
+      "GITHUB_REF": "refs/heads/corpus/delsk-002-materialization",
+      "GITHUB_REPOSITORY": "definitely-stable/Shift-lab",
+      "GITHUB_RUN_ATTEMPT": "1",
+      "GITHUB_RUN_ID": "37186222325",
+      "GITHUB_SHA": "ac9037ccefd316ea4e6b5c7c040cffddb2215cd0",
+      "GITHUB_WORKFLOW_REF": "definitely-stable/Shift-lab/.github/workflows/foundation.yml@refs/heads/corpus/delsk-002-materialization",
+      "GITHUB_WORKFLOW_SHA": "ac9037ccefd316ea4e6b5c7c040cffddb2215cd0",
+      "ImageOS": "ubuntu24",
+      "ImageVersion": "20260927.320.1",
+      "RUNNER_ARCH": "X64",
+      "RUNNER_OS": "Linux"
+    },
+    "logical_cpus": 4,
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]"
+  },
+  "evidence_scope": "foundation",
+  "exit_code": 0,
+  "limit_methods": {
+    "address_space_bytes": "RLIMIT_AS",
+    "wall_seconds": "poll+SIGKILL process group",
+    "work_dir_bytes": "poll+SIGKILL process group"
+  },
+  "limits": {
+    "address_space_bytes": 8589934592,
+    "wall_seconds": 1320,
+    "work_dir_bytes": 1342177280
+  },
+  "oracle": "NOT_RUN",
+  "peak_children_rss_bytes": 236863488,
+  "peak_work_dir_bytes": 4720221,
+  "precheck": {
+    "free_disk_bytes": 92410683392,
+    "mem_available_bytes": 15277072384
+  },
+  "quality_verdict": "N/A",
+  "schema": "delsk.ci.foundation-run.v1",
+  "signal": null,
+  "source_sha": "ac9037ccefd316ea4e6b5c7c040cffddb2215cd0",
+  "started_at": "2026-10-04T07:35:04.316717+00:00",
+  "status": "ok",
+  "stderr_tail": "",
+  "stdout_tail": "{\"mode\": \"verify\", \"status\": \"ok\", \"errors\": []}\n",
+  "wall_seconds": 22.008,
+  "workload": "materialize-verify"
+}
