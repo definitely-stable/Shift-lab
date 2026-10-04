@@ -13,17 +13,13 @@
 | Models | публичные base/fine-tuned BF16/FP16 safetensors при совместимой лицензии | маленькие tensor slices, одна ancestor family в одной split; synthetic XOR не даёт model-domain claim; full checkpoint loading не требуется |
 | Assets / VM / Stack Overflow | открытые versioned assets, traces из paper artifacts при доступности | deferred пока нет лицензированной, ограниченной и воспроизводимой выборки; отсутствие данных явно остаётся coverage gap |
 
-Реальные source projects для chunk/file oracle начать с GCC/Linux/Node.js и нескольких малых независимых проектов; три lineage недостаточны для широкого confirmatory вывода. Реалистичный пилот может иметь 4–8 семейств, но G3 требует расширения. Уже проведённые исследования не определяют автоматически пригодность конкретного доступного snapshot.
+Pilot-v1 (exploratory) — шесть небольших независимых C-проектов по три исторических release: zlib, Zstandard, curl, libpng, SQLite amalgamation, bzip2; recipe, publication time и license evidence — в [source plan](corpus/source-plan.json). Roster смещён к compression libraries и проверяет acquisition plumbing и contracts, не репрезентативность. GCC/Linux/Node.js и остальные domains таблицы — expansion backlog с отдельными acquisition/license budgets. Шесть lineages недостаточны для confirmatory вывода: G3 требует расширения и precision analysis до freeze. Уже проведённые исследования не определяют автоматически пригодность конкретного доступного snapshot.
 
 Synthetic suite: empty, all 256 repeated bytes, periodic/zero regions, seeded random, insert/delete 1/8/64/4096 B, block permutation, containment в обе стороны, repeated motifs, metadata edit, recompression, equal-length XOR perturbation, unrelated high entropy. Генератор и seed фиксируются; это correctness/diagnostic evidence, не замена natural corpus.
 
 ## Manifest contract
 
-Для каждого object: `object_id_sha256, bytes, domain, lineage_id, ancestor_family_id, version/time, source_url, immutable_revision, archive_sha256, member_path, transform_id/options, license_id/url, redistribution_allowed, split, unit_kind`. Локальные пути и порядок download не идентичность.
-
-Для каждого query: `target_id, sorted eligible_base_ids, candidate_policy_id, candidate_count, temporal_cutoff, seed, exclusions(reason), candidate_list_sha256`. Вселенная кандидатов перечисляется полностью. Target bytes не хранятся в results git, если лицензия не разрешает.
-
-Для bundle: канонический UTF-8 JSON, стабильный порядок ключей/objects, LF и SHA-256 **точных файлов** manifest. Сохранять acquisition bytes hashes и transformed bytes hashes. Bad hash, missing member, unexpected expansion и недоступный URL прерывают materialization, без silent substitution.
+Точные schemas, canonical JSON, identities, time intervals, splits и правила `C_t` — в [corpus contracts](corpus/README.md); детерминированные правила — в [selection policy](corpus/selection-policy.json), validators — в `tools/manifests.py` с тестами в Actions. Кратко: content identity `object_id=sha256(bytes)` отделена от provenance `occurrence_id`; release time — interval из publication evidence, база eligible только при `base.hi < target.lo`; split назначается ancestry component, transforms наследуют split; каждый `C_t` — sorted unique content IDs с `candidate_list_sha256`, self и target bytes исключены, identity-only targets идут в dedup branch. Target bytes не хранятся в results git, если лицензия не разрешает. Bad hash, missing member, unexpected expansion и недоступный URL прерывают materialization, без silent substitution.
 
 Pilot caps: ≤256 MiB acquired, ≤1 GiB materialized, ≤64 targets ×64 candidates, максимум 4096 ordered pairs на codec. Shards confirmation ≤2 GiB materialized, ≤20,000 pairs/codec и time cap. Допускается меньший детерминированный sample; нельзя принудительно достичь pair limit за счёт утечки evaluation.
 

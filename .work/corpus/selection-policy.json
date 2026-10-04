@@ -1,0 +1,191 @@
+{
+  "candidates": {
+    "category_order": "inside a category, content classes sorted by rank('candidate', seed, target occurrence_id, object_id); first N kept",
+    "category_semantics": "same_path_historical = same family, member_path and offset; same_family_decoy = same family, other position; foreign_family_decoy = other family in the same split",
+    "foreign_family_decoy_max": 32,
+    "pad_missing_categories": false,
+    "representative": "smallest eligible occurrence_id of the content class",
+    "same_family_decoy_max": 30,
+    "same_path_historical_max": 2,
+    "same_split": true,
+    "same_track": true,
+    "temporal": true
+  },
+  "caps": {
+    "acquired_bytes_max": 268435456,
+    "materialized_bytes_max": 1073741824,
+    "planned_pairs_per_codec_max": 4096
+  },
+  "duplicates": {
+    "aliases": "all occurrences are kept; a content class counts once in C_t",
+    "content_identity": "object_id = sha256(bytes)",
+    "cross_split_content": "content present in more than one split is excluded as base and target and reported",
+    "identity_only_targets": "target bytes equal to an eligible base -> status identity_only, no pairs, does not consume max_targets",
+    "occurrence_identity": "occurrence_id = sha256 compact JSON ['delsk.occurrence.v1', source_id, provenance]"
+  },
+  "file_strata": [
+    {
+      "id": "f064k",
+      "max_bytes": 262144,
+      "min_bytes": 65536
+    },
+    {
+      "id": "f256k",
+      "max_bytes": 1048576,
+      "min_bytes": 262144
+    },
+    {
+      "id": "f001m",
+      "max_bytes": 4194304,
+      "min_bytes": 1048576
+    },
+    {
+      "id": "f004m",
+      "max_bytes": 16777216,
+      "min_bytes": 4194304
+    }
+  ],
+  "forbidden_selection_inputs": [
+    "compressibility",
+    "encoder_output",
+    "patch_bytes",
+    "scorer_output"
+  ],
+  "member_rules": {
+    "family_exclude_globs": "source-plan.json families[].exclude_globs",
+    "glob_semantics": "fnmatch.fnmatchcase on the member path relative to the archive root after stripping one top-level directory; '*' also matches '/'",
+    "global_exclude_globs": [
+      "3rdparty/*",
+      "*/3rdparty/*",
+      "contrib/*",
+      "*/contrib/*",
+      "external/*",
+      "*/external/*",
+      "third_party/*",
+      "*/third_party/*",
+      "thirdparty/*",
+      "*/thirdparty/*",
+      "vendor/*",
+      "*/vendor/*"
+    ],
+    "include_suffixes": [
+      ".c",
+      ".h"
+    ],
+    "regular_files_only": true,
+    "selection_key": "rank('member', seed, family_id, path) = sha256 of compact canonical JSON; smallest wins per (release, stratum); release is not part of the key"
+  },
+  "on_cap_violation": "fail; a reviewed new lock is required; no hidden trimming",
+  "policy_id": "pilot-v1",
+  "protocol": "delsk.protocol.v1",
+  "schema": "delsk.corpus.selection-policy.v1",
+  "scorer_visibility_note": "relatedness categories, family, path, release and time are audit-only until a separate deployment metadata policy is declared",
+  "scorer_visible_fields": [
+    "object_id",
+    "bytes"
+  ],
+  "seed": 20261004,
+  "splits": {
+    "counts": [
+      [
+        "development",
+        4
+      ],
+      [
+        "calibration",
+        1
+      ],
+      [
+        "evaluation",
+        1
+      ]
+    ],
+    "on_component_count_mismatch": "stop sealing; review the source policy; never redistribute silently",
+    "order": "components sorted by rank('split', seed, smallest family_id); counts filled in order",
+    "transforms": "every derived representation inherits the split of its source release",
+    "unit": "ancestry component (families joined by merge edges)"
+  },
+  "status": "PROPOSED",
+  "strata_semantics": "half-open [min_bytes, max_bytes); missing strata stay empty, no substitutes",
+  "targets": {
+    "max_targets": 64,
+    "order": "groups (family_id, track, stratum) sorted by rank('target-group', seed, family_id, track, stratum or ''); inside a group occurrences sorted by rank('target', seed, occurrence_id); take one per group per round until max_targets near_duplicate targets or exhaustion",
+    "pad_to_max": false,
+    "release_ordinals": [
+      2,
+      3
+    ]
+  },
+  "time_rule": {
+    "date_only": "interval [day-14h, day+1d+12h] UTC",
+    "eligibility": "base.hi < target.lo; unknown time is temporally ineligible both as base and target",
+    "source": "upstream publication evidence only; acquisition time and file mtimes are never release time"
+  },
+  "track_rules": {
+    "canonical_tar_gzip_v1": "canonical_tar_v1 compressed by Python gzip, compresslevel from the track, mtime 0, empty filename; provenance options {compresslevel, zlib_runtime} and lock toolchain.zlib_runtime must match, so a different zlib runtime yields a different occurrence_id",
+    "canonical_tar_v1": "ustar of all retained members of one release, sorted by path, mode 0644, uid/gid 0, empty uname/gname, mtime 0, no directories",
+    "chunk_offsets": "fixed offsets 0, unit, 2*unit, ...; a short tail below unit_bytes is excluded as short_tail, never padded",
+    "chunk_parents": "retained_members",
+    "lanes": "historical = bytes published upstream; modeled = deterministic representations built by materialize.py; results are never pooled across lanes",
+    "member_less_categories": "for tar and tar-gz the position key is (family, null, null): earlier releases of the same family are same_path_historical (at most two)"
+  },
+  "tracks": [
+    {
+      "id": "file",
+      "lane": "historical",
+      "per_member": true,
+      "transform": "member_v1",
+      "unit_bytes": null
+    },
+    {
+      "id": "chunk-4k",
+      "lane": "modeled",
+      "per_member": true,
+      "transform": "chunk_v1",
+      "unit_bytes": 4096
+    },
+    {
+      "id": "chunk-8k",
+      "lane": "modeled",
+      "per_member": true,
+      "transform": "chunk_v1",
+      "unit_bytes": 8192
+    },
+    {
+      "id": "chunk-16k",
+      "lane": "modeled",
+      "per_member": true,
+      "transform": "chunk_v1",
+      "unit_bytes": 16384
+    },
+    {
+      "id": "chunk-32k",
+      "lane": "modeled",
+      "per_member": true,
+      "transform": "chunk_v1",
+      "unit_bytes": 32768
+    },
+    {
+      "id": "chunk-64k",
+      "lane": "modeled",
+      "per_member": true,
+      "transform": "chunk_v1",
+      "unit_bytes": 65536
+    },
+    {
+      "id": "tar",
+      "lane": "modeled",
+      "per_member": false,
+      "transform": "canonical_tar_v1",
+      "unit_bytes": null
+    },
+    {
+      "compresslevel": 9,
+      "id": "tar-gz",
+      "lane": "modeled",
+      "per_member": false,
+      "transform": "canonical_tar_gzip_v1",
+      "unit_bytes": null
+    }
+  ]
+}
