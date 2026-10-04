@@ -27,6 +27,10 @@
 - [ ] Cost/retention caps enforceable; no paid larger runners/GPU/self-hosted dependency.
 - [ ] Verdict пересчитывается после удаления локально скачанной raw archive copy из retained metrics; полный replay имеет отдельную recipe.
 
+## Staging внутри R0
+
+Milestone `005-foundation` зависит от corpus/candidate **contracts** DELSK-002 (Slice B), а не от закрытия всей DELSK-002; это снимает круговую зависимость 002↔005 для acquisition pilot. Он даёт admission до compute (600 runner-min за скользящие 7×24 ч UTC, все attempts, reservation полного cap, refusal при неполном учёте), artifact cap без автоудаления, frozen identities dispatch и limits time/RAM/disk с failure evidence — см. [CI plan](../ci-plan.md). Milestone не закрывает issue: шаги и acceptance выше (x64 pilot с данными, ARM, A/A, decode mismatch, пересчёт verdict, durable export) остаются открытыми.
+
 ## CI и ресурсы
 
 Smoke≤8min, pilot≤30min, decision2×45+5=95min; 2 concurrent measurement jobs. Все тесты и измерения — GitHub Actions. Published paper numbers и локальные прогоны не заменяют CI evidence.

@@ -4,24 +4,42 @@
 
 ## Что реализовано сейчас
 
-`.github/workflows/research-docs.yml` запускает `.work/tools/validate.py`: проверка локальных Markdown-ссылок, обязательных документов, уникальности IDs, связности backlog, dependency cycles и непереносимых citation markers. Это **проверка исследовательского пакета**, не benchmark Delsk. Все tiers ниже, кроме docs check, — задания DELSK-005 и последующих issues.
+`.github/workflows/research-docs.yml` запускает `.work/tools/validate.py` (Markdown-ссылки, обязательные документы, IDs, backlog DAG, citation markers) и unit tests `.work/tests` на ubuntu-24.04: corpus contracts DELSK-002 и admission/limits DELSK-005. Это **проверка исследовательского пакета и harness**, не benchmark Delsk.
+
+`.github/workflows/foundation.yml` — DELSK-005 milestone `005-foundation`: admission до compute и один bounded allowlisted workload на frozen commit. Сейчас allowlist содержит только служебный `selftest` (SHA-256 детерминированного потока 64 MiB); materialization добавит Slice D. Oracle, decision lane, A/A и ARM в этом workflow не выполняются; `run.json` фиксирует `evidence_scope=foundation`, `oracle=NOT_RUN`, `quality_verdict=N/A`.
 
 ## Tiers и caps
 
 | Tier | Trigger и runner | Hard cap | Содержимое / право делать вывод |
 |---|---|---|---|
 | Docs (готов) | push/PR/dispatch, ubuntu-24.04 | 1 job ×5 min | целостность пакета |
-| PR smoke (план) | PR, x64 | ≤8 min; ≤64 MiB corpus | fixtures/decoder/metric known answers; synthetic diagnostics, без performance verdict |
+| PR smoke (частично) | PR, x64 | ≤8 min; ≤64 MiB corpus | сейчас — unit tests docs job (contracts, admission, limits); decoder/metric known answers добавит DELSK-003; без performance verdict |
+| Foundation (готов) | workflow_dispatch, ubuntu-24.04 x64 | 1 job ×30 min вместе с подготовкой; workload ≤22 min, work dir ≤1280 MiB, RLIMIT_AS 8 GiB | admission, identities, limits, failure evidence; без oracle и quality |
 | Pilot (план) | workflow_dispatch, x64 | ≤30 min; download≤256MiB; materialized≤1GiB; 4096 pairs/codec | стоимость oracle, noise A/A, baseline calibration; не финальное качество |
 | Decision shard (план) | workflow_dispatch, frozen source SHA, x64+native arm64 | 2×45min + summary≤5min =95 runner-min; ≤2GiB materialized/job; ≤20k pairs/codec/job | natural held-out quality и platform-scoped timing |
 | Confirmation (план) | отдельный dispatch того же lock | ещё ≤95 runner-min | независимое выделение runner, оба runs сохраняются |
 | Portability/fuzz (план) | dispatch; x64, arm64; WASM на x64 | ≤20 min/platform; bounded input size | только выполненные backends получают supported статус |
 
-Time cap включает setup/build/download, а не только core loop. Initial policy ≤600 runner-min/week на экспериментальные dispatch; 2 одновременных измерительных jobs, `strategy.max-parallel: 2`, `fail-fast: false`, `contents: read`. Контроль бюджета реализует DELSK-005 по API run/job durations и reservation перед dispatch; таблица сама лимит не обеспечивает. PR workflows имеют отдельный short cap и concurrency cancellation.
+Time cap включает setup/build/download, а не только core loop. Initial policy ≤600 runner-min на экспериментальные dispatch; будущая internal matrix ≤2 jobs, `strategy.max-parallel: 2`, `fail-fast: false`. PR workflows имеют отдельный short cap и concurrency cancellation и в экспериментальный бюджет не входят.
 
 Не предполагается 100% доступность Actions или фиксированная CPU ISA. Runner labels фиксируются `ubuntu-24.04`/`ubuntu-24.04-arm`; image revision и CPU записываются при запуске. Доступность ARM64 проверяется в pilot. AVX-512 отсутствие → `UNSUPPORTED`, не скрытый scalar timing. Запуск эмуляции проверяет semantics, но не скорость native target.
 
 Официальные спецификации стандартных public runners и правила оплаты/retention проверены в [lab practices](research/lab-practices.md). Free public standard compute не означает безграничный диск/параллелизм/хранение и не распространяется автоматически на larger runners. 600 минут — собственная policy, не тариф GitHub.
+
+## Admission экспериментального compute (реализовано)
+
+Бюджет проверяется **внутри** экспериментального run до compute, отдельного controller с `actions:write` нет. `foundation.yml`: `permissions: contents: read, actions: read`; actions pinned по commit SHA; cache в R0 не используется, две materializations не зависят от cache.
+
+- **Сериализация.** Все экспериментальные workflows используют одну concurrency group `delsk-experimental` (группы repository-wide) с `cancel-in-progress: false` и `queue: max`: ничего не отменяется, до 100 pending runs ждут и проходят собственную admission. Одновременно идёт один экспериментальный run, поэтому решения admission не конкурируют.
+- **Окно.** 600 runner-min за скользящие 7×24 часа UTC, заканчивающиеся в момент admission. Это уточнение прежнего «/week»: календарная неделя позволила бы 2×600 на стыке недель.
+- **Учёт.** `budget.py` перечисляет все runs каждого workflow из `EXPERIMENTAL_WORKFLOWS` и все attempts `1..run_attempt` каждого, включая failed, cancelled и timed-out jobs. Минуты job — `max(1, ceil((completed_at−started_at)/60))`, job без `started_at` (skipped, отменён в очереди, startup failure) — 0; job, закончившийся внутри окна, считается целиком; running job чужого run — полным cap. Текущий attempt резервирует полный cap run (`RUN_RESERVATION_MINUTES = 30` = `timeout-minutes`, совпадение проверяет тест). Compute разрешён только при `used + reserved ≤ 600`. Runs, созданные раньше окна минус 31 день (предел re-run GitHub 30 дней плюс запас), не могут иметь jobs внутри окна и не запрашиваются.
+- **Неполный учёт запрещает compute.** Расхождение `total_count` с полученными элементами, повтор id между страницами, начатый completed job без `completed_at`, `completed_at < started_at`, ошибка API после 3 попыток (повтор только на 5xx/сетевых ошибках) — refusal. Пропуск в `run_number` (удалённый run мог бы скрыть минуты) допустим только если более поздний run создан раньше окна минус 31 день. Accounting полагается на retention ≥ 38 дней; у репозитория на 2026-10-04 retention 90 дней.
+- **Artifacts.** До compute: сохранённые неистёкшие artifacts репозитория + `RUN_ARTIFACT_CAP` (16 MiB) ≤ `ARTIFACT_TOTAL_CAP` (256 MiB). Перед upload — то же по фактическому размеру evidence. При превышении upload пропускается, run падает; ничего не удаляется автоматически. Retention pilot artifacts — 30 дней.
+- **Dispatch.** Inputs `workload` (choice из allowlist) и `source_sha` передаются только через env. Run отклоняется, если event не `workflow_dispatch`, workload не в allowlist, `source_sha` не 40-hex, `GITHUB_SHA ≠ source_sha`, `GITHUB_WORKFLOW_SHA ≠ GITHUB_SHA`, workflow ref чужой или runner не X64. Для frozen run dispatch делается на branch/tag, head которого — `source_sha`. `GITHUB_TOKEN` виден только шагам budget, не workload.
+- **Limits и failure evidence.** `foundation_run.py` проверяет свободный диск (≥2× work-dir cap) и `MemAvailable` до старта; workload идёт в отдельной process group с `RLIMIT_AS`, wall time и размер work dir вместе с захваченными stdout/stderr опрашиваются раз в секунду; нарушение — и любое завершение workload — убивает всю группу, фоновые процессы не переживают run. `run.json` пишется всегда — при отказе dispatch, отказе admission, нарушении лимита и ошибке workload — с identities, image/CPU, limits и их методами, admission ledger, exit code/signal и tail stdout/stderr. Ограничения: work dir опрашивается, поэтому короткий всплеск между опросами может кратко превысить cap; `RLIMIT_AS` действует на процесс, многопроцессный workload может превысить его суммарно; peak RSS — максимум по всем дочерним процессам runner.
+- **Trust model.** Admission, limits и YAML берутся из dispatched commit, поэтому участник с write access может запустить branch с изменённым `budget.py`. Это защита от ошибок и случайного перерасхода, не от злонамеренного maintainer; для decision runs frozen commit фиксируется в issue до dispatch, а изменения workflow и tools проходят review.
+
+Не реализовано в Slice C и остаётся в DELSK-005: native ARM job, A/A timing, durable export в `.work/results/`, decision/confirmation workflows, пересчёт evidence.
 
 ## Выполнение и воспроизводимость
 
