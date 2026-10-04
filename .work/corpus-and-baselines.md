@@ -1,0 +1,55 @@
+# Корпус и baseline matrix
+
+Статус: **план**, ни один download manifest здесь ещё не выдаётся за materialized corpus. DELSK-002 фиксирует реальные версии, URLs, лицензии и SHA-256 в отдельном lock перед runs. Загружать данные и запускать эксперименты — только в Actions. Публичный URL не означает разрешение redistributing.
+
+## Coverage
+
+| Domain | Источник / единица lineage | Стартовый материал и ограничение |
+|---|---|---|
+| Sources/builds | GNU GCC, Linux, Node.js официальные source/releases; отдельный проект — lineage | небольшие подмножества файлов 3–5 версий, pinned archive/commit; обрезка до осмотра scores, не выбирать только хорошо сжимаемые файлы |
+| Binaries/update artifacts | release artifacts открытых проектов, подходы corpus ChunkShift | ELF/PE, relocations/metadata, разные build versions; лицензию исходников нельзя автоматически приравнять к правам на все бинарные assets |
+| Archives/tabular | воспроизводимые tar/zip/zstd representations тех же source families, открытые табличные revisions | logical и physical relatedness разделены; transformed variants остаются в той же split |
+| Containers | официальные OCI manifests/layer digests | compressed blob и extracted layer — разные tracks; checksum по registry digest, size/expansion caps; provenance/redistribution review до включения |
+| Models | публичные base/fine-tuned BF16/FP16 safetensors при совместимой лицензии | маленькие tensor slices, одна ancestor family в одной split; synthetic XOR не даёт model-domain claim; full checkpoint loading не требуется |
+| Assets / VM / Stack Overflow | открытые versioned assets, traces из paper artifacts при доступности | deferred пока нет лицензированной, ограниченной и воспроизводимой выборки; отсутствие данных явно остаётся coverage gap |
+
+Реальные source projects для chunk/file oracle начать с GCC/Linux/Node.js и нескольких малых независимых проектов; три lineage недостаточны для широкого confirmatory вывода. Реалистичный пилот может иметь 4–8 семейств, но G3 требует расширения. Уже проведённые исследования не определяют автоматически пригодность конкретного доступного snapshot.
+
+Synthetic suite: empty, all 256 repeated bytes, periodic/zero regions, seeded random, insert/delete 1/8/64/4096 B, block permutation, containment в обе стороны, repeated motifs, metadata edit, recompression, equal-length XOR perturbation, unrelated high entropy. Генератор и seed фиксируются; это correctness/diagnostic evidence, не замена natural corpus.
+
+## Manifest contract
+
+Для каждого object: `object_id_sha256, bytes, domain, lineage_id, ancestor_family_id, version/time, source_url, immutable_revision, archive_sha256, member_path, transform_id/options, license_id/url, redistribution_allowed, split, unit_kind`. Локальные пути и порядок download не идентичность.
+
+Для каждого query: `target_id, sorted eligible_base_ids, candidate_policy_id, candidate_count, temporal_cutoff, seed, exclusions(reason), candidate_list_sha256`. Вселенная кандидатов перечисляется полностью. Target bytes не хранятся в results git, если лицензия не разрешает.
+
+Для bundle: канонический UTF-8 JSON, стабильный порядок ключей/objects, LF и SHA-256 **точных файлов** manifest. Сохранять acquisition bytes hashes и transformed bytes hashes. Bad hash, missing member, unexpected expansion и недоступный URL прерывают materialization, без silent substitution.
+
+Pilot caps: ≤256 MiB acquired, ≤1 GiB materialized, ≤64 targets ×64 candidates, максимум 4096 ordered pairs на codec. Shards confirmation ≤2 GiB materialized, ≤20,000 pairs/codec и time cap. Допускается меньший детерминированный sample; нельзя принудительно достичь pair limit за счёт утечки evaluation.
+
+## Baselines
+
+| Группа | Роль / обязательность | Правила сравнения |
+|---|---|---|
+| No-delta, exact duplicate lookup | обязательны | тот же framing и checksum; duplicates отдельно |
+| Random(seed), size-nearest, previous-version/recency | дешёвые обязательные controls | metadata доступна всем; previous version только если deployment знает связь |
+| Exact scan descriptors + MinHash/KMV | обязательный generic baseline | shingle sizes, hash seed, estimator и budget записаны; одинаковый corpus |
+| Length + target-normalized containment | обязательный дешёвый directional control | отдельно от Jaccard и length-only; одинаковые feature/cardinality estimates и metadata budgets |
+| N-transform/Finesse | обязательный non-ML reference | опубликованная реализация или явно labeled reimplementation; проверить совпадение алгоритма |
+| Palantir/BePro | приоритет современного reproduction | доступность artifact/license и actual build проверяется DELSK-004; paper numbers не считаются нашим baseline |
+| Odess, Argus, SpeedSketch, Sonic | contemporary claim coverage | unavailable code → `UNAVAILABLE` или отдельно paper-faithful reproduction; inspired heuristic не носит имя оригинала в chart |
+| DeepSketch | главный learned reference | фиксировать модель/training data/cost; pretrained CPU inference если воспроизводимо. Отсутствие GPU не даёт основание заявить превосходство над ML |
+| Exhaustive encoder | small-pool upper bound | все пары и failures; вне timed deployment lane |
+| Tensor-aware/XOR | только optional model track | same-shape/dtype/tensor mapping и reconstruction metadata; не называть собственной XOR+zstd реализацией BitX без faithful reproduction |
+
+Источники и проверенная доступность: [literature review](research/literature-review.md). Каждый baseline lock содержит repository/DOI, commit, license, patch hash, build command, compiler, runtime, flags, tuning budget, supported track и статус `AUTHOR / REIMPLEMENTED / PROXY / UNAVAILABLE`.
+
+## Codecs
+
+Первый oracle — pinned xdelta3, options/secondary compression/window sizes фиксированы. VCDIFF совместимость не означает byte equality разных encoders. Второй независимый generic codec — pinned open-vcdiff или bsdiff-class implementation после license/build review. ChunkShift.Patching добавляется как потребитель при доступном contract; его собственный формат не становится форматом Delsk.
+
+XOR+lossless compressor — отдельная пара base/target одинаковой структуры; unequal length требует явно определённого mapping, иначе unsupported. Zstd dictionary — дополнительный codec-conditioned эксперимент с учётом dictionary bytes и подготовки, а не бесплатная база. Не нужно сразу запускать все codecs во всех tiers: двух generic достаточно для начала codec transfer, model class — отдельный gated track.
+
+## Stop conditions
+
+Запрещено помещать один lineage в train и held-out через разные упаковки; переводить отсутствующий baseline в победу; считать скачанные архивы дополнительными независимыми targets; удалять timeout/hard negatives. Все coverage holes отражаются в summary. Уменьшение corpus после просмотра результата требует нового lock и нового exploratory run.

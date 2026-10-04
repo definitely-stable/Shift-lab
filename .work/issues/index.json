@@ -1,0 +1,168 @@
+{
+  "schema": "delsk.issue-index.v1",
+  "repository": "definitely-stable/Shift-lab",
+  "created": "2026-10-04",
+  "issues": [
+    {
+      "id": "DELSK-000",
+      "priority": "P0",
+      "title": "[DELSK-000] Программа Delsk: от prior art до решения о самостоятельной библиотеке",
+      "depends_on": [],
+      "body_path": ".work/issues/DELSK-000.md",
+      "number": 1,
+      "url": "https://github.com/definitely-stable/Shift-lab/issues/1"
+    },
+    {
+      "id": "DELSK-001",
+      "priority": "P0",
+      "title": "[DELSK-001] Проверить claim matrix и воспроизводимость современного prior art",
+      "depends_on": [],
+      "body_path": ".work/issues/DELSK-001.md",
+      "number": 2,
+      "url": "https://github.com/definitely-stable/Shift-lab/issues/2"
+    },
+    {
+      "id": "DELSK-002",
+      "priority": "P0",
+      "title": "[DELSK-002] Заморозить лицензированный corpus и lineage/candidate manifests",
+      "depends_on": [],
+      "body_path": ".work/issues/DELSK-002.md",
+      "number": 3,
+      "url": "https://github.com/definitely-stable/Shift-lab/issues/3"
+    },
+    {
+      "id": "DELSK-003",
+      "priority": "P0",
+      "title": "[DELSK-003] Реализовать настоящий multi-base encoder oracle и метрики",
+      "depends_on": [
+        "DELSK-002",
+        "DELSK-005"
+      ],
+      "body_path": ".work/issues/DELSK-003.md",
+      "number": 4,
+      "url": "https://github.com/definitely-stable/Shift-lab/issues/4"
+    },
+    {
+      "id": "DELSK-004",
+      "priority": "P0",
+      "title": "[DELSK-004] Воспроизвести дешёвые и современные baselines на общем oracle",
+      "depends_on": [
+        "DELSK-001",
+        "DELSK-003"
+      ],
+      "body_path": ".work/issues/DELSK-004.md",
+      "number": 5,
+      "url": "https://github.com/definitely-stable/Shift-lab/issues/5"
+    },
+    {
+      "id": "DELSK-005",
+      "priority": "P0",
+      "title": "[DELSK-005] Построить ограниченный CI harness и долговечную evidence",
+      "depends_on": [
+        "DELSK-002"
+      ],
+      "body_path": ".work/issues/DELSK-005.md",
+      "number": 6,
+      "url": "https://github.com/definitely-stable/Shift-lab/issues/6"
+    },
+    {
+      "id": "DELSK-006",
+      "priority": "P1",
+      "title": "[DELSK-006] H1/H4/H10: проверить размер sketches, features и CDC dependence",
+      "depends_on": [
+        "DELSK-003",
+        "DELSK-004"
+      ],
+      "body_path": ".work/issues/DELSK-006.md",
+      "number": 7,
+      "url": "https://github.com/definitely-stable/Shift-lab/issues/7"
+    },
+    {
+      "id": "DELSK-007",
+      "priority": "P1",
+      "title": "[DELSK-007] H2/H3: проверить направленность и codec-conditioned scoring",
+      "depends_on": [
+        "DELSK-006"
+      ],
+      "body_path": ".work/issues/DELSK-007.md",
+      "number": 8,
+      "url": "https://github.com/definitely-stable/Shift-lab/issues/8"
+    },
+    {
+      "id": "DELSK-008",
+      "priority": "P1",
+      "title": "[DELSK-008] H5: исследовать retrieval/index и реальную экономику памяти",
+      "depends_on": [
+        "DELSK-006",
+        "DELSK-007"
+      ],
+      "body_path": ".work/issues/DELSK-008.md",
+      "number": 9,
+      "url": "https://github.com/definitely-stable/Shift-lab/issues/9"
+    },
+    {
+      "id": "DELSK-009",
+      "priority": "P1",
+      "title": "[DELSK-009] H6: no-delta abstention и adversarial negative controls",
+      "depends_on": [
+        "DELSK-006"
+      ],
+      "body_path": ".work/issues/DELSK-009.md",
+      "number": 10,
+      "url": "https://github.com/definitely-stable/Shift-lab/issues/10"
+    },
+    {
+      "id": "DELSK-010",
+      "priority": "P1",
+      "title": "[DELSK-010] H7: portable streaming reference, robustness и SIMD parity",
+      "depends_on": [
+        "DELSK-006"
+      ],
+      "body_path": ".work/issues/DELSK-010.md",
+      "number": 11,
+      "url": "https://github.com/definitely-stable/Shift-lab/issues/11"
+    },
+    {
+      "id": "DELSK-011",
+      "priority": "P2",
+      "title": "[DELSK-011] H8: условный tensor-aware model-weight профиль",
+      "depends_on": [
+        "DELSK-002",
+        "DELSK-007"
+      ],
+      "body_path": ".work/issues/DELSK-011.md",
+      "number": 12,
+      "url": "https://github.com/definitely-stable/Shift-lab/issues/12"
+    },
+    {
+      "id": "DELSK-012",
+      "priority": "P2",
+      "title": "[DELSK-012] H9: интеграционный эксперимент с ChunkShift",
+      "depends_on": [
+        "DELSK-008",
+        "DELSK-009",
+        "DELSK-010"
+      ],
+      "body_path": ".work/issues/DELSK-012.md",
+      "number": 13,
+      "url": "https://github.com/definitely-stable/Shift-lab/issues/13"
+    },
+    {
+      "id": "DELSK-013",
+      "priority": "P2",
+      "title": "[DELSK-013] Принять итоговый go/pivot/stop и подготовить воспроизводимый artifact",
+      "depends_on": [
+        "DELSK-001",
+        "DELSK-004",
+        "DELSK-007",
+        "DELSK-008",
+        "DELSK-009",
+        "DELSK-010",
+        "DELSK-012"
+      ],
+      "body_path": ".work/issues/DELSK-013.md",
+      "number": 14,
+      "url": "https://github.com/definitely-stable/Shift-lab/issues/14"
+    }
+  ]
+}
