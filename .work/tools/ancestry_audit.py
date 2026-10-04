@@ -141,9 +141,11 @@ def acquire_locked(plan, policy, source_lock):
             raise ValueError('retained member ledger differs from D: ' + sid)
         retained.extend({'family_id': fid, 'source_id': sid, 'path': v['path'], 'bytes': v['size'],
                          'object_id': v['sha256'], 'data': v['data']} for v in selected['retained'])
-        # SHA-1 base32 is the Wayback CDX payload digest form, used for A07 historical-byte checks.
+        # A07 historical-byte checks: SHA-1 base32 is the Wayback CDX payload digest form,
+        # MD5 the form SourceForge publishes per file.
         downloads.append({'source_id': sid, 'sha256': source['archive_sha256'], 'archive_bytes': len(data),
                           'sha1_base32': base64.b32encode(hashlib.sha1(data).digest()).decode(),
+                          'md5': hashlib.md5(data).hexdigest(),
                           'retained_members': len(actual), 'attempts': attempts})
     if acquired != source_lock['acquired_bytes'] or expanded != source_lock['expanded_bytes']:
         raise ValueError('acquisition accounting differs from D')
