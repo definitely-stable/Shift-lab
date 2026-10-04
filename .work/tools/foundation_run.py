@@ -52,7 +52,9 @@ MATERIALIZE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "material
 WORKLOAD_EVIDENCE = "evidence"
 WORKLOADS = {"selftest": [sys.executable, os.path.abspath(__file__), "--selftest"],
              "materialize-discover": [sys.executable, MATERIALIZE, "discover", WORKLOAD_EVIDENCE],
-             "materialize-verify": [sys.executable, MATERIALIZE, "verify", WORKLOAD_EVIDENCE]}
+             "materialize-verify": [sys.executable, MATERIALIZE, "verify", WORKLOAD_EVIDENCE],
+             "ancestry-audit": [sys.executable, os.path.join(os.path.dirname(MATERIALIZE), "ancestry_audit.py"),
+                                WORKLOAD_EVIDENCE]}
 
 
 def validate_dispatch(env):
