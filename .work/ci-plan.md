@@ -13,7 +13,7 @@
 | Tier | Trigger и runner | Hard cap | Содержимое / право делать вывод |
 |---|---|---|---|
 | Docs (готов) | push/PR/dispatch, ubuntu-24.04 | 1 job ×5 min | целостность пакета |
-| PR smoke (частично) | PR, x64 | ≤8 min; ≤64 MiB corpus | сейчас — unit tests docs job (contracts, admission, limits); decoder/metric known answers добавит DELSK-003; без performance verdict |
+| PR smoke (частично) | PR, x64 | ≤8 min; ≤64 MiB corpus | сейчас — unit tests docs job (contracts, admission, limits, frozen oracle contract и его known-answer vectors на test-only reference); codec build/conformance и production evaluator добавит DELSK-003 Slice B по [oracle contract §12](oracle/contract.md#12-ci-plan); без performance verdict |
 | Foundation (готов) | workflow_dispatch, ubuntu-24.04 x64 | 1 job ×30 min вместе с подготовкой; workload ≤22 min, work dir ≤1280 MiB, RLIMIT_AS 8 GiB | admission, identities, limits, failure evidence; без oracle и quality |
 | Pilot (план) | workflow_dispatch, x64 | ≤30 min; download≤256MiB; materialized≤1GiB; 4096 pairs/codec | стоимость oracle, noise A/A, baseline calibration; не финальное качество |
 | Decision shard (план) | workflow_dispatch, frozen source SHA, x64+native arm64 | 2×45min + summary≤5min =95 runner-min; ≤2GiB materialized/job; ≤20k pairs/codec/job | natural held-out quality и platform-scoped timing |
@@ -60,7 +60,7 @@ Workload `foundation-handoff` — metadata only, без download. Он пише�
 
 ## Evidence bundle v1
 
-Обязательные файлы будущего run: `run.json`, `corpus-lock.json`, `candidate-lock.json`, `tools.json`, `pairs.jsonl`, `targets.jsonl`, `timings.jsonl`, `coverage.json`, `summary.json`, `verdict.json`, `checksums.sha256`. `run.json` включает experiment/protocol ID, source+workflow+evaluator SHA, GitHub run/attempt/URL, timestamps, seeds, runner label/image, CPU/ISA/runtime/compiler, limits и actual duration.
+Обязательные файлы будущего run: `run.json`, `corpus-lock.json`, `candidate-lock.json`, `tools.json`, `pairs.jsonl`, `targets.jsonl`, `timings.jsonl`, `coverage.json`, `summary.json`, `verdict.json`, `checksums.sha256`. Для oracle runs DELSK-003 состав, closed schemas и sealing evaluation split задаёт [oracle contract](oracle/contract.md#9-identities-digests-и-schemas) (добавляются `codec-lock.json`, `standalone.jsonl`, `evaluation.json`). `run.json` включает experiment/protocol ID, source+workflow+evaluator SHA, GitHub run/attempt/URL, timestamps, seeds, runner label/image, CPU/ISA/runtime/compiler, limits и actual duration.
 
 `pairs.jsonl`: target/base IDs, codec/options hash, status, payload/total bytes, decoded SHA, encode/decode wall ns, memory method, error class. `targets.jsonl`: candidate universe hash/N, descriptor/scorer/index versions, R_K IDs, oracle tie IDs, S/O/A costs, useful flag и exclusions. `timings.jsonl`: block/order/phase, A-before/B/A-after raw values, warmup flag, cache mode. Secrets/credentials и исходные private payloads в evidence не записываются.
 

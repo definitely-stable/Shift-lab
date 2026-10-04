@@ -27,6 +27,12 @@
 - [ ] Metric evaluator пересчитывается по retained rows; measured source и evaluator SHA разделены.
 - [ ] Ни sampled universe, ни ChunkShift whole-base match oracle не названы полным catalog oracle.
 
+## Staging внутри R1
+
+- **Slice A — oracle contract (этот этап).** Узкий frozen sub-contract `delsk.oracle-contract.v1` ([contract](../oracle/contract.md), [freeze](../oracle/freeze.json)): primary codec xdelta3 3.2.1 и standalone zstd 1.5.7 с exact source/build/options lock, frame v1 cost accounting, pair universe 1 961 pairs/codec из sealed E1, correctness и failure semantics, oracle и tie semantics, evaluator с точными denominators, closed schemas, known-answer vectors K01–K42/G01–G09, mutants M01–M30, sealing evaluation split и CI plan. Natural oracle не запускался. DELSK-P1 остаётся `PLANNED`.
+- **Slice B — implementation без natural data.** Сборка и conformance codecs, runner, независимый evaluator, KAT/mutant/fault-injection tests, PR smoke lane ([contract §15](../oracle/contract.md#15-следующий-slice-b-implementation-без-natural-data)).
+- **Slice C — pilot oracle и независимый повтор.** Только после отдельного подтверждения maintainer; G1 по [contract §7](../oracle/contract.md#7-run-status-и-g1).
+
 ## CI и ресурсы
 
 Pilot ≤4096 pairs/codec/30min; decision shards≤20k pairs/codec/45min/job. Все тесты и измерения — GitHub Actions. Published paper numbers и локальные прогоны не заменяют CI evidence.

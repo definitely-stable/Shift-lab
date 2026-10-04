@@ -1,0 +1,2355 @@
+{
+  "$defs": {
+    "codec_entry": {
+      "additionalProperties": false,
+      "properties": {
+        "build": {
+          "additionalProperties": false,
+          "properties": {
+            "argv": {
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            "cwd": {
+              "type": "string"
+            },
+            "env": {
+              "additionalProperties": false,
+              "properties": {
+                "LC_ALL": {
+                  "const": "C"
+                },
+                "PATH": {
+                  "const": "/usr/bin:/bin"
+                }
+              },
+              "required": [
+                "LC_ALL",
+                "PATH"
+              ],
+              "type": "object"
+            },
+            "executable": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "argv",
+            "cwd",
+            "env",
+            "executable"
+          ],
+          "type": "object"
+        },
+        "codec_id": {
+          "$ref": "#/$defs/ident"
+        },
+        "decode_argv": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "encode_argv": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "format": {
+          "type": "string"
+        },
+        "license": {
+          "type": "string"
+        },
+        "limits": {
+          "additionalProperties": false,
+          "properties": {
+            "address_space_bytes": {
+              "$ref": "#/$defs/uint"
+            },
+            "decode_wall_seconds": {
+              "$ref": "#/$defs/uint"
+            },
+            "encode_wall_seconds": {
+              "$ref": "#/$defs/uint"
+            }
+          },
+          "required": [
+            "address_space_bytes",
+            "decode_wall_seconds",
+            "encode_wall_seconds"
+          ],
+          "type": "object"
+        },
+        "name": {
+          "type": "string"
+        },
+        "options_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "role": {
+          "enum": [
+            "delta",
+            "standalone"
+          ]
+        },
+        "source": {
+          "additionalProperties": false,
+          "properties": {
+            "archive_bytes": {
+              "$ref": "#/$defs/uint"
+            },
+            "archive_root": {
+              "type": "string"
+            },
+            "archive_sha256": {
+              "$ref": "#/$defs/hex64"
+            },
+            "archive_url": {
+              "pattern": "^https://github\\.com/.+/releases/download/",
+              "type": "string"
+            },
+            "commit": {
+              "$ref": "#/$defs/hex40"
+            },
+            "repository": {
+              "pattern": "^https://github\\.com/",
+              "type": "string"
+            },
+            "subtree": {
+              "type": "string"
+            },
+            "tag": {
+              "type": "string"
+            },
+            "tag_object": {
+              "$ref": "#/$defs/hex40"
+            },
+            "tree": {
+              "$ref": "#/$defs/hex40"
+            }
+          },
+          "required": [
+            "archive_bytes",
+            "archive_root",
+            "archive_sha256",
+            "archive_url",
+            "commit",
+            "repository",
+            "subtree",
+            "tag",
+            "tag_object",
+            "tree"
+          ],
+          "type": "object"
+        },
+        "success_exit": {
+          "const": 0
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "build",
+        "codec_id",
+        "decode_argv",
+        "encode_argv",
+        "format",
+        "license",
+        "limits",
+        "name",
+        "options_sha256",
+        "role",
+        "source",
+        "success_exit",
+        "version"
+      ],
+      "type": "object"
+    },
+    "codec_lock": {
+      "additionalProperties": false,
+      "properties": {
+        "chain_depth": {
+          "const": 1
+        },
+        "codecs": {
+          "additionalProperties": false,
+          "properties": {
+            "delta": {
+              "$ref": "#/$defs/codec_entry"
+            },
+            "standalone": {
+              "$ref": "#/$defs/codec_entry"
+            }
+          },
+          "required": [
+            "delta",
+            "standalone"
+          ],
+          "type": "object"
+        },
+        "contract_id": {
+          "const": "delsk.oracle-contract.v1"
+        },
+        "frame": {
+          "additionalProperties": false,
+          "properties": {
+            "base_reference_bytes": {
+              "const": 32
+            },
+            "base_reference_encoding": {
+              "type": "string"
+            },
+            "codec_metadata_bytes": {
+              "const": 0
+            },
+            "id": {
+              "const": "delsk.oracle.frame.v1"
+            },
+            "integrity": {
+              "type": "string"
+            },
+            "kind_tag_bytes": {
+              "const": 1
+            },
+            "kinds": {
+              "additionalProperties": false,
+              "properties": {
+                "delta": {
+                  "const": 2
+                },
+                "raw": {
+                  "const": 0
+                },
+                "standalone": {
+                  "const": 1
+                }
+              },
+              "required": [
+                "delta",
+                "raw",
+                "standalone"
+              ],
+              "type": "object"
+            },
+            "length_field": {
+              "const": "uleb128(payload_bytes)"
+            }
+          },
+          "required": [
+            "base_reference_bytes",
+            "base_reference_encoding",
+            "codec_metadata_bytes",
+            "id",
+            "integrity",
+            "kind_tag_bytes",
+            "kinds",
+            "length_field"
+          ],
+          "type": "object"
+        },
+        "invocation": {
+          "additionalProperties": false,
+          "properties": {
+            "cwd": {
+              "type": "string"
+            },
+            "env": {
+              "additionalProperties": false,
+              "properties": {
+                "LC_ALL": {
+                  "const": "C"
+                }
+              },
+              "required": [
+                "LC_ALL"
+              ],
+              "type": "object"
+            },
+            "env_inherited": {
+              "const": false
+            },
+            "executable": {
+              "type": "string"
+            },
+            "forbidden_env": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "uniqueItems": true
+            },
+            "input_paths": {
+              "type": "string"
+            },
+            "parallelism": {
+              "type": "string"
+            },
+            "peak_rss_method": {
+              "type": "string"
+            },
+            "stdin": {
+              "type": "string"
+            },
+            "timeout_action": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "cwd",
+            "env",
+            "env_inherited",
+            "executable",
+            "forbidden_env",
+            "input_paths",
+            "parallelism",
+            "peak_rss_method",
+            "stdin",
+            "timeout_action"
+          ],
+          "type": "object"
+        },
+        "platform": {
+          "additionalProperties": false,
+          "properties": {
+            "compiler": {
+              "type": "string"
+            },
+            "runner_arch": {
+              "type": "string"
+            },
+            "runner_label": {
+              "type": "string"
+            },
+            "runner_os": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "compiler",
+            "runner_arch",
+            "runner_label",
+            "runner_os"
+          ],
+          "type": "object"
+        },
+        "schema": {
+          "const": "delsk.oracle.codec-lock.v1"
+        },
+        "second_codec": {
+          "const": "NOT_ADMITTED"
+        }
+      },
+      "required": [
+        "chain_depth",
+        "codecs",
+        "contract_id",
+        "frame",
+        "invocation",
+        "platform",
+        "schema",
+        "second_codec"
+      ],
+      "type": "object"
+    },
+    "codec_ref": {
+      "additionalProperties": false,
+      "properties": {
+        "codec_id": {
+          "$ref": "#/$defs/ident"
+        },
+        "options_sha256": {
+          "$ref": "#/$defs/hex64"
+        }
+      },
+      "required": [
+        "codec_id",
+        "options_sha256"
+      ],
+      "type": "object"
+    },
+    "coverage": {
+      "additionalProperties": false,
+      "properties": {
+        "counts": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "codec_error": {
+                  "$ref": "#/$defs/uint"
+                },
+                "expected_pairs": {
+                  "$ref": "#/$defs/uint"
+                },
+                "identity_targets": {
+                  "$ref": "#/$defs/uint"
+                },
+                "missing": {
+                  "$ref": "#/$defs/uint"
+                },
+                "near_all_failed": {
+                  "$ref": "#/$defs/uint"
+                },
+                "near_empty": {
+                  "$ref": "#/$defs/uint"
+                },
+                "near_finite": {
+                  "$ref": "#/$defs/uint"
+                },
+                "near_targets": {
+                  "$ref": "#/$defs/uint"
+                },
+                "near_useful": {
+                  "$ref": "#/$defs/uint"
+                },
+                "ok": {
+                  "$ref": "#/$defs/uint"
+                },
+                "resource_limit": {
+                  "$ref": "#/$defs/uint"
+                },
+                "sealed_pairs": {
+                  "$ref": "#/$defs/uint"
+                },
+                "sealed_targets": {
+                  "$ref": "#/$defs/uint"
+                },
+                "standalone_failed": {
+                  "$ref": "#/$defs/uint"
+                },
+                "standalone_missing": {
+                  "$ref": "#/$defs/uint"
+                },
+                "targets_missing": {
+                  "$ref": "#/$defs/uint"
+                },
+                "timeout": {
+                  "$ref": "#/$defs/uint"
+                }
+              },
+              "required": [
+                "expected_pairs",
+                "ok",
+                "timeout",
+                "codec_error",
+                "resource_limit",
+                "missing",
+                "sealed_pairs",
+                "near_targets",
+                "identity_targets",
+                "sealed_targets",
+                "standalone_missing",
+                "standalone_failed",
+                "targets_missing"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "invalid_reasons": {
+          "items": {
+            "$ref": "#/$defs/invalid_reason"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "measurement_identity_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "pair_failure_rate": {
+          "$ref": "#/$defs/rational"
+        },
+        "run_status": {
+          "$ref": "#/$defs/run_status"
+        },
+        "schema": {
+          "const": "delsk.oracle.coverage.v1"
+        },
+        "standalone_failure_rate": {
+          "$ref": "#/$defs/rational"
+        }
+      },
+      "required": [
+        "counts",
+        "invalid_reasons",
+        "measurement_identity_sha256",
+        "pair_failure_rate",
+        "run_status",
+        "schema",
+        "standalone_failure_rate"
+      ],
+      "type": "object"
+    },
+    "distribution": {
+      "additionalProperties": false,
+      "properties": {
+        "max": {
+          "$ref": "#/$defs/rational"
+        },
+        "p50": {
+          "$ref": "#/$defs/rational"
+        },
+        "p95": {
+          "$ref": "#/$defs/rational"
+        },
+        "sum": {
+          "$ref": "#/$defs/rational"
+        }
+      },
+      "required": [
+        "max",
+        "p50",
+        "p95",
+        "sum"
+      ],
+      "type": "object"
+    },
+    "error_class": {
+      "enum": [
+        null,
+        "wall_timeout",
+        "nonzero_exit",
+        "signal",
+        "missing_output",
+        "address_space",
+        "work_dir",
+        "length_mismatch",
+        "bytes_mismatch",
+        "sha256_mismatch",
+        "base_integrity",
+        "target_integrity",
+        "runner_abort"
+      ]
+    },
+    "evaluation": {
+      "additionalProperties": false,
+      "properties": {
+        "evaluator_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "evaluator_source_sha": {
+          "$ref": "#/$defs/hex40"
+        },
+        "measurement_identity_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "metrics": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "call_reduction": {
+                  "$ref": "#/$defs/rational"
+                },
+                "eps1": {
+                  "$ref": "#/$defs/rational"
+                },
+                "eps2": {
+                  "$ref": "#/$defs/rational"
+                },
+                "eps5": {
+                  "$ref": "#/$defs/rational"
+                },
+                "nregret_near": {
+                  "$ref": "#/$defs/distribution"
+                },
+                "nregret_useful": {
+                  "$ref": "#/$defs/distribution"
+                },
+                "regret_near": {
+                  "$ref": "#/$defs/distribution"
+                },
+                "regret_useful": {
+                  "$ref": "#/$defs/distribution"
+                },
+                "savings_capture": {
+                  "$ref": "#/$defs/rational"
+                },
+                "strict": {
+                  "$ref": "#/$defs/rational"
+                },
+                "useful": {
+                  "$ref": "#/$defs/rational"
+                }
+              },
+              "required": [
+                "call_reduction",
+                "eps1",
+                "eps2",
+                "eps5",
+                "nregret_near",
+                "nregret_useful",
+                "regret_near",
+                "regret_useful",
+                "savings_capture",
+                "strict",
+                "useful"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "metrics_status": {
+          "enum": [
+            "COMPUTED",
+            "WITHHELD_INVALID",
+            "WITHHELD_INCOMPLETE",
+            "WITHHELD_RETRIEVAL_INVALID"
+          ]
+        },
+        "oracle_kind": {
+          "enum": [
+            "exhaustive",
+            "bounded",
+            null
+          ]
+        },
+        "oracle_status": {
+          "$ref": "#/$defs/run_status"
+        },
+        "pairs_canonical_sha256": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/hex64"
+            }
+          ]
+        },
+        "per_target": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "achieved_total_bytes": {
+                "$ref": "#/$defs/uint"
+              },
+              "byte_regret": {
+                "$ref": "#/$defs/uint"
+              },
+              "normalized_regret": {
+                "$ref": "#/$defs/rational"
+              },
+              "retrieved": {
+                "items": {
+                  "$ref": "#/$defs/hex64"
+                },
+                "type": "array"
+              },
+              "strict_hit": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "target_occurrence_id": {
+                "$ref": "#/$defs/hex64"
+              }
+            },
+            "required": [
+              "achieved_total_bytes",
+              "byte_regret",
+              "normalized_regret",
+              "retrieved",
+              "strict_hit",
+              "target_occurrence_id"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "populations": {
+          "additionalProperties": false,
+          "properties": {
+            "finite": {
+              "$ref": "#/$defs/uint"
+            },
+            "near": {
+              "$ref": "#/$defs/uint"
+            },
+            "sealed_excluded": {
+              "$ref": "#/$defs/uint"
+            },
+            "useful": {
+              "$ref": "#/$defs/uint"
+            }
+          },
+          "required": [
+            "finite",
+            "near",
+            "sealed_excluded",
+            "useful"
+          ],
+          "type": "object"
+        },
+        "retrieval": {
+          "additionalProperties": false,
+          "properties": {
+            "K": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "method_id": {
+              "$ref": "#/$defs/ident"
+            },
+            "retrieval_sha256": {
+              "$ref": "#/$defs/hex64"
+            }
+          },
+          "required": [
+            "K",
+            "method_id",
+            "retrieval_sha256"
+          ],
+          "type": "object"
+        },
+        "retrieval_reasons": {
+          "items": {
+            "$ref": "#/$defs/retrieval_reason"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "retrieval_status": {
+          "enum": [
+            "OK",
+            "INVALID",
+            "NOT_EVALUATED"
+          ]
+        },
+        "schema": {
+          "const": "delsk.oracle.evaluation.v1"
+        },
+        "standalone_canonical_sha256": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/hex64"
+            }
+          ]
+        }
+      },
+      "required": [
+        "evaluator_sha256",
+        "evaluator_source_sha",
+        "measurement_identity_sha256",
+        "metrics",
+        "metrics_status",
+        "oracle_kind",
+        "oracle_status",
+        "pairs_canonical_sha256",
+        "per_target",
+        "populations",
+        "retrieval",
+        "retrieval_reasons",
+        "retrieval_status",
+        "schema",
+        "standalone_canonical_sha256"
+      ],
+      "type": "object"
+    },
+    "hex40": {
+      "pattern": "^[0-9a-f]{40}$",
+      "type": "string"
+    },
+    "hex64": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "ident": {
+      "pattern": "^[a-z0-9][a-z0-9._-]*$",
+      "type": "string"
+    },
+    "int": {
+      "type": "integer"
+    },
+    "invalid_reason": {
+      "enum": [
+        "IDENTITY_MISMATCH",
+        "OPTIONS_MISMATCH",
+        "FOREIGN_PAIR",
+        "DUPLICATE_PAIR",
+        "PAIR_ID_MISMATCH",
+        "LOCK_FIELD_MISMATCH",
+        "SEALING_VIOLATION",
+        "ACCOUNTING_MISMATCH",
+        "DECODE_MISMATCH",
+        "INPUT_INTEGRITY",
+        "INCONSISTENT_ROW",
+        "FOREIGN_STANDALONE",
+        "DUPLICATE_STANDALONE",
+        "FOREIGN_TARGET",
+        "DUPLICATE_TARGET",
+        "SCHEMA",
+        "BINDING_MISMATCH",
+        "NONCANONICAL"
+      ]
+    },
+    "pair": {
+      "additionalProperties": false,
+      "else": {
+        "properties": {
+          "base_reference_bytes": {
+            "type": "null"
+          },
+          "codec_metadata_bytes": {
+            "type": "null"
+          },
+          "decoded_bytes": {
+            "type": "null"
+          },
+          "decoded_sha256": {
+            "type": "null"
+          },
+          "delta_total_bytes": {
+            "type": "null"
+          },
+          "error_class": {
+            "type": "string"
+          },
+          "failure_phase": {
+            "enum": [
+              "materialize",
+              "encode",
+              "decode",
+              "runner"
+            ]
+          },
+          "patch_payload_bytes": {
+            "type": "null"
+          },
+          "patch_sha256": {
+            "type": "null"
+          },
+          "wrapper_bytes": {
+            "type": "null"
+          }
+        }
+      },
+      "if": {
+        "properties": {
+          "status": {
+            "const": "ok"
+          }
+        }
+      },
+      "properties": {
+        "base_bytes": {
+          "$ref": "#/$defs/uint"
+        },
+        "base_object_id": {
+          "$ref": "#/$defs/hex64"
+        },
+        "base_reference_bytes": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/uint"
+            }
+          ]
+        },
+        "base_representative": {
+          "$ref": "#/$defs/hex64"
+        },
+        "candidate_lock_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "codec_id": {
+          "$ref": "#/$defs/ident"
+        },
+        "codec_metadata_bytes": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/uint"
+            }
+          ]
+        },
+        "corpus_lock_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "decode_exit": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/int"
+            }
+          ]
+        },
+        "decode_peak_rss_bytes": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/uint"
+            }
+          ]
+        },
+        "decode_signal": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/uint"
+            }
+          ]
+        },
+        "decode_wall_ns": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/uint"
+            }
+          ]
+        },
+        "decoded_bytes": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/uint"
+            }
+          ]
+        },
+        "decoded_sha256": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/hex64"
+            }
+          ]
+        },
+        "delta_total_bytes": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/uint"
+            }
+          ]
+        },
+        "encode_exit": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/int"
+            }
+          ]
+        },
+        "encode_peak_rss_bytes": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/uint"
+            }
+          ]
+        },
+        "encode_signal": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/uint"
+            }
+          ]
+        },
+        "encode_wall_ns": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/uint"
+            }
+          ]
+        },
+        "error_class": {
+          "$ref": "#/$defs/error_class"
+        },
+        "failure_phase": {
+          "$ref": "#/$defs/phase"
+        },
+        "measured_source_sha": {
+          "$ref": "#/$defs/hex40"
+        },
+        "measurement_identity_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "options_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "pair_id": {
+          "$ref": "#/$defs/hex64"
+        },
+        "patch_payload_bytes": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/uint"
+            }
+          ]
+        },
+        "patch_sha256": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/hex64"
+            }
+          ]
+        },
+        "schema": {
+          "const": "delsk.oracle.pair.v1"
+        },
+        "split": {
+          "$ref": "#/$defs/split"
+        },
+        "status": {
+          "$ref": "#/$defs/pair_status"
+        },
+        "target_bytes": {
+          "$ref": "#/$defs/uint"
+        },
+        "target_object_id": {
+          "$ref": "#/$defs/hex64"
+        },
+        "target_occurrence_id": {
+          "$ref": "#/$defs/hex64"
+        },
+        "wrapper_bytes": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/uint"
+            }
+          ]
+        }
+      },
+      "required": [
+        "base_bytes",
+        "base_object_id",
+        "base_reference_bytes",
+        "base_representative",
+        "candidate_lock_sha256",
+        "codec_id",
+        "codec_metadata_bytes",
+        "corpus_lock_sha256",
+        "decode_exit",
+        "decode_peak_rss_bytes",
+        "decode_signal",
+        "decode_wall_ns",
+        "decoded_bytes",
+        "decoded_sha256",
+        "delta_total_bytes",
+        "encode_exit",
+        "encode_peak_rss_bytes",
+        "encode_signal",
+        "encode_wall_ns",
+        "error_class",
+        "failure_phase",
+        "measured_source_sha",
+        "measurement_identity_sha256",
+        "options_sha256",
+        "pair_id",
+        "patch_payload_bytes",
+        "patch_sha256",
+        "schema",
+        "split",
+        "status",
+        "target_bytes",
+        "target_object_id",
+        "target_occurrence_id",
+        "wrapper_bytes"
+      ],
+      "then": {
+        "properties": {
+          "base_reference_bytes": {
+            "const": 32
+          },
+          "codec_metadata_bytes": {
+            "const": 0
+          },
+          "decoded_bytes": {
+            "$ref": "#/$defs/uint"
+          },
+          "decoded_sha256": {
+            "$ref": "#/$defs/hex64"
+          },
+          "delta_total_bytes": {
+            "$ref": "#/$defs/uint"
+          },
+          "error_class": {
+            "const": null
+          },
+          "failure_phase": {
+            "const": null
+          },
+          "patch_payload_bytes": {
+            "$ref": "#/$defs/uint"
+          },
+          "patch_sha256": {
+            "$ref": "#/$defs/hex64"
+          },
+          "wrapper_bytes": {
+            "$ref": "#/$defs/uint"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "pair_sealed": {
+      "additionalProperties": false,
+      "else": {
+        "properties": {
+          "decoded_sha256": {
+            "type": "null"
+          }
+        }
+      },
+      "if": {
+        "properties": {
+          "status": {
+            "const": "ok"
+          }
+        }
+      },
+      "properties": {
+        "base_object_id": {
+          "$ref": "#/$defs/hex64"
+        },
+        "candidate_lock_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "codec_id": {
+          "$ref": "#/$defs/ident"
+        },
+        "corpus_lock_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "decoded_sha256": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/hex64"
+            }
+          ]
+        },
+        "error_class": {
+          "$ref": "#/$defs/error_class"
+        },
+        "failure_phase": {
+          "$ref": "#/$defs/phase"
+        },
+        "measured_source_sha": {
+          "$ref": "#/$defs/hex40"
+        },
+        "measurement_identity_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "options_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "pair_id": {
+          "$ref": "#/$defs/hex64"
+        },
+        "row_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "schema": {
+          "const": "delsk.oracle.pair-sealed.v1"
+        },
+        "split": {
+          "const": "evaluation"
+        },
+        "status": {
+          "$ref": "#/$defs/pair_status"
+        },
+        "target_occurrence_id": {
+          "$ref": "#/$defs/hex64"
+        }
+      },
+      "required": [
+        "base_object_id",
+        "candidate_lock_sha256",
+        "codec_id",
+        "corpus_lock_sha256",
+        "decoded_sha256",
+        "error_class",
+        "failure_phase",
+        "measured_source_sha",
+        "measurement_identity_sha256",
+        "options_sha256",
+        "pair_id",
+        "row_sha256",
+        "schema",
+        "split",
+        "status",
+        "target_occurrence_id"
+      ],
+      "then": {
+        "properties": {
+          "decoded_sha256": {
+            "$ref": "#/$defs/hex64"
+          },
+          "error_class": {
+            "const": null
+          },
+          "failure_phase": {
+            "const": null
+          }
+        }
+      },
+      "type": "object"
+    },
+    "pair_status": {
+      "enum": [
+        "ok",
+        "timeout",
+        "codec_error",
+        "resource_limit",
+        "decode_mismatch",
+        "input_integrity",
+        "not_run"
+      ]
+    },
+    "phase": {
+      "enum": [
+        null,
+        "materialize",
+        "encode",
+        "decode",
+        "runner"
+      ]
+    },
+    "query_status": {
+      "enum": [
+        "near_duplicate",
+        "identity_only"
+      ]
+    },
+    "rational": {
+      "oneOf": [
+        {
+          "const": "N/A"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "den": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "num": {
+              "$ref": "#/$defs/int"
+            }
+          },
+          "required": [
+            "den",
+            "num"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "retrieval": {
+      "additionalProperties": false,
+      "properties": {
+        "K": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "bases": {
+          "items": {
+            "$ref": "#/$defs/hex64"
+          },
+          "type": "array"
+        },
+        "encode_calls": {
+          "$ref": "#/$defs/uint"
+        },
+        "method_id": {
+          "$ref": "#/$defs/ident"
+        },
+        "schema": {
+          "const": "delsk.oracle.retrieval.v1"
+        },
+        "target_occurrence_id": {
+          "$ref": "#/$defs/hex64"
+        }
+      },
+      "required": [
+        "K",
+        "bases",
+        "encode_calls",
+        "method_id",
+        "schema",
+        "target_occurrence_id"
+      ],
+      "type": "object"
+    },
+    "retrieval_reason": {
+      "enum": [
+        "RETRIEVAL_COVERAGE",
+        "RETRIEVAL_FOREIGN_BASE",
+        "RETRIEVAL_DUPLICATE_BASE",
+        "RETRIEVAL_OVER_K",
+        "RETRIEVAL_CALLS",
+        "SCHEMA"
+      ]
+    },
+    "run": {
+      "additionalProperties": false,
+      "properties": {
+        "cache": {
+          "const": "none"
+        },
+        "codec_builds": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "archive_sha256": {
+                "$ref": "#/$defs/hex64"
+              },
+              "build_argv_sha256": {
+                "$ref": "#/$defs/hex64"
+              },
+              "codec_id": {
+                "$ref": "#/$defs/ident"
+              },
+              "conformance": {
+                "enum": [
+                  "PASS",
+                  "FAIL"
+                ]
+              },
+              "executable_sha256": {
+                "$ref": "#/$defs/hex64"
+              },
+              "self_report_sha256": {
+                "$ref": "#/$defs/hex64"
+              }
+            },
+            "required": [
+              "archive_sha256",
+              "build_argv_sha256",
+              "codec_id",
+              "conformance",
+              "executable_sha256",
+              "self_report_sha256"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "completed_at": {
+          "type": "string"
+        },
+        "environment": {
+          "additionalProperties": false,
+          "properties": {
+            "compiler": {
+              "type": "string"
+            },
+            "cpu_model": {
+              "type": "string"
+            },
+            "image_os": {
+              "type": "string"
+            },
+            "image_version": {
+              "type": "string"
+            },
+            "kernel": {
+              "type": "string"
+            },
+            "logical_cpus": {
+              "$ref": "#/$defs/uint"
+            },
+            "python": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "compiler",
+            "cpu_model",
+            "image_os",
+            "image_version",
+            "kernel",
+            "logical_cpus",
+            "python"
+          ],
+          "type": "object"
+        },
+        "evidence": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "bytes": {
+                "$ref": "#/$defs/uint"
+              },
+              "path": {
+                "type": "string"
+              },
+              "sha256": {
+                "$ref": "#/$defs/hex64"
+              }
+            },
+            "required": [
+              "bytes",
+              "path",
+              "sha256"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "github": {
+          "additionalProperties": false,
+          "properties": {
+            "repository": {
+              "type": "string"
+            },
+            "run_attempt": {
+              "$ref": "#/$defs/uint"
+            },
+            "run_id": {
+              "$ref": "#/$defs/uint"
+            },
+            "sha": {
+              "$ref": "#/$defs/hex40"
+            },
+            "workflow_ref": {
+              "type": "string"
+            },
+            "workflow_sha": {
+              "$ref": "#/$defs/hex40"
+            }
+          },
+          "required": [
+            "repository",
+            "run_attempt",
+            "run_id",
+            "sha",
+            "workflow_ref",
+            "workflow_sha"
+          ],
+          "type": "object"
+        },
+        "limits": {
+          "additionalProperties": false,
+          "properties": {
+            "work_dir_bytes": {
+              "$ref": "#/$defs/uint"
+            },
+            "workload_address_space_bytes": {
+              "$ref": "#/$defs/uint"
+            },
+            "workload_wall_seconds": {
+              "$ref": "#/$defs/uint"
+            }
+          },
+          "required": [
+            "work_dir_bytes",
+            "workload_address_space_bytes",
+            "workload_wall_seconds"
+          ],
+          "type": "object"
+        },
+        "measurement_identity": {
+          "additionalProperties": false,
+          "properties": {
+            "candidate_lock_sha256": {
+              "$ref": "#/$defs/hex64"
+            },
+            "codec_lock_sha256": {
+              "$ref": "#/$defs/hex64"
+            },
+            "contract_freeze_sha256": {
+              "$ref": "#/$defs/hex64"
+            },
+            "contract_id": {
+              "const": "delsk.oracle-contract.v1"
+            },
+            "corpus_lock_sha256": {
+              "$ref": "#/$defs/hex64"
+            },
+            "delta": {
+              "$ref": "#/$defs/codec_ref"
+            },
+            "measured_source_sha": {
+              "$ref": "#/$defs/hex40"
+            },
+            "oracle_code_sha256": {
+              "$ref": "#/$defs/hex64"
+            },
+            "phase": {
+              "enum": [
+                "smoke",
+                "pilot",
+                "reveal"
+              ]
+            },
+            "sealed_splits": {
+              "items": {
+                "$ref": "#/$defs/split"
+              },
+              "type": "array",
+              "uniqueItems": true
+            },
+            "standalone": {
+              "$ref": "#/$defs/codec_ref"
+            }
+          },
+          "required": [
+            "candidate_lock_sha256",
+            "codec_lock_sha256",
+            "contract_freeze_sha256",
+            "contract_id",
+            "corpus_lock_sha256",
+            "delta",
+            "measured_source_sha",
+            "oracle_code_sha256",
+            "phase",
+            "sealed_splits",
+            "standalone"
+          ],
+          "type": "object"
+        },
+        "measurement_identity_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "schema": {
+          "const": "delsk.oracle.run.v1"
+        },
+        "started_at": {
+          "type": "string"
+        },
+        "timing_scope": {
+          "const": "descriptive"
+        },
+        "wall_seconds": {
+          "$ref": "#/$defs/uint"
+        },
+        "workload_status": {
+          "enum": [
+            "ok",
+            "failed",
+            "limit_exceeded",
+            "not_admitted",
+            "refused"
+          ]
+        }
+      },
+      "required": [
+        "cache",
+        "codec_builds",
+        "completed_at",
+        "environment",
+        "evidence",
+        "github",
+        "limits",
+        "measurement_identity",
+        "measurement_identity_sha256",
+        "schema",
+        "started_at",
+        "timing_scope",
+        "wall_seconds",
+        "workload_status"
+      ],
+      "type": "object"
+    },
+    "run_status": {
+      "enum": [
+        "COMPLETE",
+        "COMPLETE_WITH_FAILURES",
+        "INCOMPLETE",
+        "INVALID"
+      ]
+    },
+    "split": {
+      "enum": [
+        "development",
+        "calibration",
+        "evaluation"
+      ]
+    },
+    "standalone": {
+      "additionalProperties": false,
+      "else": {
+        "properties": {
+          "compressed_payload_bytes": {
+            "type": "null"
+          },
+          "compressed_sha256": {
+            "type": "null"
+          },
+          "compressed_total_bytes": {
+            "type": "null"
+          },
+          "compressed_wrapper_bytes": {
+            "type": "null"
+          },
+          "decoded_sha256": {
+            "type": "null"
+          },
+          "error_class": {
+            "type": "string"
+          },
+          "failure_phase": {
+            "enum": [
+              "materialize",
+              "encode",
+              "decode",
+              "runner"
+            ]
+          }
+        }
+      },
+      "if": {
+        "properties": {
+          "status": {
+            "const": "ok"
+          }
+        }
+      },
+      "properties": {
+        "candidate_lock_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "codec_id": {
+          "$ref": "#/$defs/ident"
+        },
+        "compress_exit": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/int"
+            }
+          ]
+        },
+        "compress_signal": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/uint"
+            }
+          ]
+        },
+        "compress_wall_ns": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/uint"
+            }
+          ]
+        },
+        "compressed_payload_bytes": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/uint"
+            }
+          ]
+        },
+        "compressed_sha256": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/hex64"
+            }
+          ]
+        },
+        "compressed_total_bytes": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/uint"
+            }
+          ]
+        },
+        "compressed_wrapper_bytes": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/uint"
+            }
+          ]
+        },
+        "corpus_lock_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "decoded_sha256": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/hex64"
+            }
+          ]
+        },
+        "decompress_exit": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/int"
+            }
+          ]
+        },
+        "decompress_signal": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/uint"
+            }
+          ]
+        },
+        "decompress_wall_ns": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/uint"
+            }
+          ]
+        },
+        "error_class": {
+          "$ref": "#/$defs/error_class"
+        },
+        "failure_phase": {
+          "$ref": "#/$defs/phase"
+        },
+        "measured_source_sha": {
+          "$ref": "#/$defs/hex40"
+        },
+        "measurement_identity_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "options_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "query_status": {
+          "$ref": "#/$defs/query_status"
+        },
+        "raw_total_bytes": {
+          "$ref": "#/$defs/uint"
+        },
+        "schema": {
+          "const": "delsk.oracle.standalone.v1"
+        },
+        "split": {
+          "$ref": "#/$defs/split"
+        },
+        "status": {
+          "$ref": "#/$defs/pair_status"
+        },
+        "target_bytes": {
+          "$ref": "#/$defs/uint"
+        },
+        "target_object_id": {
+          "$ref": "#/$defs/hex64"
+        },
+        "target_occurrence_id": {
+          "$ref": "#/$defs/hex64"
+        }
+      },
+      "required": [
+        "candidate_lock_sha256",
+        "codec_id",
+        "compress_exit",
+        "compress_signal",
+        "compress_wall_ns",
+        "compressed_payload_bytes",
+        "compressed_sha256",
+        "compressed_total_bytes",
+        "compressed_wrapper_bytes",
+        "corpus_lock_sha256",
+        "decoded_sha256",
+        "decompress_exit",
+        "decompress_signal",
+        "decompress_wall_ns",
+        "error_class",
+        "failure_phase",
+        "measured_source_sha",
+        "measurement_identity_sha256",
+        "options_sha256",
+        "query_status",
+        "raw_total_bytes",
+        "schema",
+        "split",
+        "status",
+        "target_bytes",
+        "target_object_id",
+        "target_occurrence_id"
+      ],
+      "then": {
+        "properties": {
+          "compressed_payload_bytes": {
+            "$ref": "#/$defs/uint"
+          },
+          "compressed_sha256": {
+            "$ref": "#/$defs/hex64"
+          },
+          "compressed_total_bytes": {
+            "$ref": "#/$defs/uint"
+          },
+          "compressed_wrapper_bytes": {
+            "$ref": "#/$defs/uint"
+          },
+          "decoded_sha256": {
+            "$ref": "#/$defs/hex64"
+          },
+          "error_class": {
+            "const": null
+          },
+          "failure_phase": {
+            "const": null
+          }
+        }
+      },
+      "type": "object"
+    },
+    "standalone_sealed": {
+      "additionalProperties": false,
+      "else": {
+        "properties": {
+          "decoded_sha256": {
+            "type": "null"
+          }
+        }
+      },
+      "if": {
+        "properties": {
+          "status": {
+            "const": "ok"
+          }
+        }
+      },
+      "properties": {
+        "candidate_lock_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "codec_id": {
+          "$ref": "#/$defs/ident"
+        },
+        "corpus_lock_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "decoded_sha256": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/hex64"
+            }
+          ]
+        },
+        "error_class": {
+          "$ref": "#/$defs/error_class"
+        },
+        "failure_phase": {
+          "$ref": "#/$defs/phase"
+        },
+        "measured_source_sha": {
+          "$ref": "#/$defs/hex40"
+        },
+        "measurement_identity_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "options_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "query_status": {
+          "$ref": "#/$defs/query_status"
+        },
+        "row_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "schema": {
+          "const": "delsk.oracle.standalone-sealed.v1"
+        },
+        "split": {
+          "const": "evaluation"
+        },
+        "status": {
+          "$ref": "#/$defs/pair_status"
+        },
+        "target_occurrence_id": {
+          "$ref": "#/$defs/hex64"
+        }
+      },
+      "required": [
+        "candidate_lock_sha256",
+        "codec_id",
+        "corpus_lock_sha256",
+        "decoded_sha256",
+        "error_class",
+        "failure_phase",
+        "measured_source_sha",
+        "measurement_identity_sha256",
+        "options_sha256",
+        "query_status",
+        "row_sha256",
+        "schema",
+        "split",
+        "status",
+        "target_occurrence_id"
+      ],
+      "then": {
+        "properties": {
+          "decoded_sha256": {
+            "$ref": "#/$defs/hex64"
+          },
+          "error_class": {
+            "const": null
+          },
+          "failure_phase": {
+            "const": null
+          }
+        }
+      },
+      "type": "object"
+    },
+    "summary": {
+      "additionalProperties": false,
+      "properties": {
+        "cost_projection_sha256": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/hex64"
+            }
+          ]
+        },
+        "coverage_sha256": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/hex64"
+            }
+          ]
+        },
+        "evaluator_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "evaluator_source_sha": {
+          "$ref": "#/$defs/hex40"
+        },
+        "invalid_reasons": {
+          "items": {
+            "$ref": "#/$defs/invalid_reason"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "measurement_identity_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "oracle_kind": {
+          "enum": [
+            "exhaustive",
+            "bounded",
+            null
+          ]
+        },
+        "pairs_canonical_sha256": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/hex64"
+            }
+          ]
+        },
+        "per_split": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "near_targets": {
+                "$ref": "#/$defs/uint"
+              },
+              "near_useful": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/$defs/uint"
+                  }
+                ]
+              },
+              "oracle_total_bytes_sum": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/$defs/uint"
+                  }
+                ]
+              },
+              "sealed": {
+                "type": "boolean"
+              },
+              "split": {
+                "$ref": "#/$defs/split"
+              },
+              "standalone_total_bytes_sum": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/$defs/uint"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "near_targets",
+              "near_useful",
+              "oracle_total_bytes_sum",
+              "sealed",
+              "split",
+              "standalone_total_bytes_sum"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "run_status": {
+          "$ref": "#/$defs/run_status"
+        },
+        "schema": {
+          "const": "delsk.oracle.summary.v1"
+        },
+        "sealed_commitments_sha256": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/hex64"
+            }
+          ]
+        },
+        "standalone_canonical_sha256": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/hex64"
+            }
+          ]
+        },
+        "targets_canonical_sha256": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/hex64"
+            }
+          ]
+        }
+      },
+      "required": [
+        "cost_projection_sha256",
+        "coverage_sha256",
+        "evaluator_sha256",
+        "evaluator_source_sha",
+        "invalid_reasons",
+        "measurement_identity_sha256",
+        "oracle_kind",
+        "pairs_canonical_sha256",
+        "per_split",
+        "run_status",
+        "schema",
+        "sealed_commitments_sha256",
+        "standalone_canonical_sha256",
+        "targets_canonical_sha256"
+      ],
+      "type": "object"
+    },
+    "target": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_count": {
+          "$ref": "#/$defs/uint"
+        },
+        "candidate_list_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "family_id": {
+          "$ref": "#/$defs/ident"
+        },
+        "measurement_identity_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "oracle_choice": {
+          "enum": [
+            "delta",
+            "standalone"
+          ]
+        },
+        "oracle_delta_status": {
+          "enum": [
+            "finite",
+            "empty_candidate_set",
+            "all_pairs_failed",
+            "identity_only"
+          ]
+        },
+        "oracle_delta_total_bytes": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/uint"
+            }
+          ]
+        },
+        "oracle_tie_bases": {
+          "items": {
+            "$ref": "#/$defs/hex64"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "oracle_total_bytes": {
+          "$ref": "#/$defs/uint"
+        },
+        "pairs_codec_error": {
+          "$ref": "#/$defs/uint"
+        },
+        "pairs_expected": {
+          "$ref": "#/$defs/uint"
+        },
+        "pairs_ok": {
+          "$ref": "#/$defs/uint"
+        },
+        "pairs_resource_limit": {
+          "$ref": "#/$defs/uint"
+        },
+        "pairs_timeout": {
+          "$ref": "#/$defs/uint"
+        },
+        "query_status": {
+          "$ref": "#/$defs/query_status"
+        },
+        "raw_total_bytes": {
+          "$ref": "#/$defs/uint"
+        },
+        "schema": {
+          "const": "delsk.oracle.target.v1"
+        },
+        "split": {
+          "$ref": "#/$defs/split"
+        },
+        "standalone_choice": {
+          "enum": [
+            "raw",
+            "compressed"
+          ]
+        },
+        "standalone_compressed_total_bytes": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/uint"
+            }
+          ]
+        },
+        "standalone_status": {
+          "$ref": "#/$defs/pair_status"
+        },
+        "standalone_total_bytes": {
+          "$ref": "#/$defs/uint"
+        },
+        "target_bytes": {
+          "$ref": "#/$defs/uint"
+        },
+        "target_object_id": {
+          "$ref": "#/$defs/hex64"
+        },
+        "target_occurrence_id": {
+          "$ref": "#/$defs/hex64"
+        },
+        "track": {
+          "$ref": "#/$defs/ident"
+        },
+        "useful_delta": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "candidate_count",
+        "candidate_list_sha256",
+        "family_id",
+        "measurement_identity_sha256",
+        "oracle_choice",
+        "oracle_delta_status",
+        "oracle_delta_total_bytes",
+        "oracle_tie_bases",
+        "oracle_total_bytes",
+        "pairs_codec_error",
+        "pairs_expected",
+        "pairs_ok",
+        "pairs_resource_limit",
+        "pairs_timeout",
+        "query_status",
+        "raw_total_bytes",
+        "schema",
+        "split",
+        "standalone_choice",
+        "standalone_compressed_total_bytes",
+        "standalone_status",
+        "standalone_total_bytes",
+        "target_bytes",
+        "target_object_id",
+        "target_occurrence_id",
+        "track",
+        "useful_delta"
+      ],
+      "type": "object"
+    },
+    "target_sealed": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_count": {
+          "$ref": "#/$defs/uint"
+        },
+        "measurement_identity_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "pairs_codec_error": {
+          "$ref": "#/$defs/uint"
+        },
+        "pairs_expected": {
+          "$ref": "#/$defs/uint"
+        },
+        "pairs_ok": {
+          "$ref": "#/$defs/uint"
+        },
+        "pairs_resource_limit": {
+          "$ref": "#/$defs/uint"
+        },
+        "pairs_timeout": {
+          "$ref": "#/$defs/uint"
+        },
+        "query_status": {
+          "$ref": "#/$defs/query_status"
+        },
+        "row_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "schema": {
+          "const": "delsk.oracle.target-sealed.v1"
+        },
+        "split": {
+          "const": "evaluation"
+        },
+        "standalone_status": {
+          "$ref": "#/$defs/pair_status"
+        },
+        "target_occurrence_id": {
+          "$ref": "#/$defs/hex64"
+        }
+      },
+      "required": [
+        "candidate_count",
+        "measurement_identity_sha256",
+        "pairs_codec_error",
+        "pairs_expected",
+        "pairs_ok",
+        "pairs_resource_limit",
+        "pairs_timeout",
+        "query_status",
+        "row_sha256",
+        "schema",
+        "split",
+        "standalone_status",
+        "target_occurrence_id"
+      ],
+      "type": "object"
+    },
+    "uint": {
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "$id": "delsk.oracle.schemas.v1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Closed schemas of delsk.oracle-contract.v1 durable artifacts. One artifact type per $defs entry; semantic rules that a schema cannot express are in contract.md sections 5-8."
+}

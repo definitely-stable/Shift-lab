@@ -1,0 +1,220 @@
+{
+  "chain_depth": 1,
+  "codecs": {
+    "delta": {
+      "build": {
+        "argv": [
+          "cc",
+          "-std=gnu99",
+          "-O3",
+          "-DNDEBUG",
+          "-DXD3_MAIN=1",
+          "-DXD3_DEBUG=0",
+          "-DREGRESSION_TEST=1",
+          "-DSECONDARY_DJW=1",
+          "-DSECONDARY_FGK=0",
+          "-DSECONDARY_LZMA=0",
+          "-DEXTERNAL_COMPRESSION=0",
+          "-DXD3_ARMOR=0",
+          "-DXD3_POSIX=1",
+          "-DXD3_USE_LARGESIZET=1",
+          "-DXD3_USE_LARGEFILE64=1",
+          "-DSIZEOF_SIZE_T=8",
+          "-DSIZEOF_UNSIGNED_INT=4",
+          "-DSIZEOF_UNSIGNED_LONG=8",
+          "-DSIZEOF_UNSIGNED_LONG_LONG=8",
+          "-o",
+          "xdelta3",
+          "xdelta3.c",
+          "-lm"
+        ],
+        "cwd": "xdelta3-3.2.1",
+        "env": {
+          "LC_ALL": "C",
+          "PATH": "/usr/bin:/bin"
+        },
+        "executable": "xdelta3"
+      },
+      "codec_id": "xdelta3-3.2.1-l9-snone-v1",
+      "decode_argv": [
+        "{exe}",
+        "-d",
+        "-n",
+        "-a",
+        "-D",
+        "-R",
+        "-B",
+        "67108864",
+        "-f",
+        "-q",
+        "-s",
+        "{base}",
+        "{patch}",
+        "{decoded}"
+      ],
+      "encode_argv": [
+        "{exe}",
+        "-e",
+        "-9",
+        "-S",
+        "none",
+        "-A=",
+        "-n",
+        "-a",
+        "-D",
+        "-R",
+        "-B",
+        "67108864",
+        "-W",
+        "8388608",
+        "-P",
+        "262144",
+        "-I",
+        "32768",
+        "-f",
+        "-q",
+        "-s",
+        "{base}",
+        "{target}",
+        "{patch}"
+      ],
+      "format": "VCDIFF (RFC 3284) stream: no secondary compression, no application header, no window checksums, no armor",
+      "license": "Apache-2.0",
+      "limits": {
+        "address_space_bytes": 2147483648,
+        "decode_wall_seconds": 60,
+        "encode_wall_seconds": 120
+      },
+      "name": "xdelta3",
+      "options_sha256": "90f3a41324301de60f1acda061fbe101fb2c11b14029de341aa21fbd58ee4d5a",
+      "role": "delta",
+      "source": {
+        "archive_bytes": 225056,
+        "archive_root": "xdelta3-3.2.1",
+        "archive_sha256": "936e10fc9f2be9e18c9fd6719895ff2055e67e47a155776badc6aa8c25ba70fa",
+        "archive_url": "https://github.com/jmacd/xdelta/releases/download/v3.2.1/xdelta3-3.2.1.tar.gz",
+        "commit": "2c36417e6d09bf700d3d1cca44ed3e42101016c3",
+        "repository": "https://github.com/jmacd/xdelta",
+        "subtree": "xdelta3",
+        "tag": "v3.2.1",
+        "tag_object": "3f577112b873d363f9b8d544d1ae37740195d9f3",
+        "tree": "4a7e05ea9beb44cfbda4b3ad5a4b20e7b2d2217e"
+      },
+      "success_exit": 0,
+      "version": "3.2.1"
+    },
+    "standalone": {
+      "build": {
+        "argv": [
+          "make",
+          "-C",
+          "programs",
+          "zstd-release",
+          "HAVE_THREAD=0",
+          "HAVE_ZLIB=0",
+          "HAVE_LZMA=0",
+          "HAVE_LZ4=0",
+          "ZSTD_LEGACY_SUPPORT=0"
+        ],
+        "cwd": "zstd-1.5.7",
+        "env": {
+          "LC_ALL": "C",
+          "PATH": "/usr/bin:/bin"
+        },
+        "executable": "programs/zstd"
+      },
+      "codec_id": "zstd-1.5.7-l19-v1",
+      "decode_argv": [
+        "{exe}",
+        "-d",
+        "--no-progress",
+        "-q",
+        "-f",
+        "{payload}",
+        "-o",
+        "{decoded}"
+      ],
+      "encode_argv": [
+        "{exe}",
+        "-19",
+        "--single-thread",
+        "--no-check",
+        "--content-size",
+        "--no-progress",
+        "-q",
+        "-f",
+        "{target}",
+        "-o",
+        "{payload}"
+      ],
+      "format": "Zstandard frame (RFC 8878): content size present, no checksum, no dictionary, single frame",
+      "license": "BSD-3-Clause OR GPL-2.0-only",
+      "limits": {
+        "address_space_bytes": 2147483648,
+        "decode_wall_seconds": 60,
+        "encode_wall_seconds": 120
+      },
+      "name": "zstd",
+      "options_sha256": "e50e7710e1f91ed9b5046cd3e7607c0008f675061fc8e51af5263e9c6a77d9bb",
+      "role": "standalone",
+      "source": {
+        "archive_bytes": 2434947,
+        "archive_root": "zstd-1.5.7",
+        "archive_sha256": "eb33e51f49a15e023950cd7825ca74a4a2b43db8354825ac24fc1b7ee09e6fa3",
+        "archive_url": "https://github.com/facebook/zstd/releases/download/v1.5.7/zstd-1.5.7.tar.gz",
+        "commit": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+        "repository": "https://github.com/facebook/zstd",
+        "subtree": "",
+        "tag": "v1.5.7",
+        "tag_object": "ac66b19e6bd6b83238bf008eecc1298105298532",
+        "tree": "1a3cb277e9b9b37b01811a3c65f6c25d46a8f241"
+      },
+      "success_exit": 0,
+      "version": "1.5.7"
+    }
+  },
+  "contract_id": "delsk.oracle-contract.v1",
+  "frame": {
+    "base_reference_bytes": 32,
+    "base_reference_encoding": "raw 32-byte SHA-256 object ID of the base",
+    "codec_metadata_bytes": 0,
+    "id": "delsk.oracle.frame.v1",
+    "integrity": "no codec-internal checksum in any representation; integrity is the target object SHA-256 held by the catalog for every representation alike and charged to none",
+    "kind_tag_bytes": 1,
+    "kinds": {
+      "delta": 2,
+      "raw": 0,
+      "standalone": 1
+    },
+    "length_field": "uleb128(payload_bytes)"
+  },
+  "invocation": {
+    "cwd": "fresh empty directory per invocation",
+    "env": {
+      "LC_ALL": "C"
+    },
+    "env_inherited": false,
+    "executable": "absolute path of the verified build output",
+    "forbidden_env": [
+      "XDELTA",
+      "ZSTD_CLEVEL",
+      "ZSTD_NBTHREADS",
+      "CFLAGS",
+      "CPPFLAGS",
+      "LDFLAGS"
+    ],
+    "input_paths": "regular files base.bin, target.bin; outputs patch.bin, payload.bin, decoded.bin",
+    "parallelism": "one codec process at a time",
+    "peak_rss_method": "os.wait4 ru_maxrss of the codec process",
+    "stdin": "/dev/null",
+    "timeout_action": "SIGKILL of the process group"
+  },
+  "platform": {
+    "compiler": "cc of the runner image; name and version recorded in run.json per run",
+    "runner_arch": "X64",
+    "runner_label": "ubuntu-24.04",
+    "runner_os": "Linux"
+  },
+  "schema": "delsk.oracle.codec-lock.v1",
+  "second_codec": "NOT_ADMITTED"
+}
