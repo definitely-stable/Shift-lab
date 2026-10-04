@@ -40,11 +40,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Admission (runner-minute and artifact budget)
+      - name: Admission (runner-minute ledger, artifact cap)
         id: admit
         continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          # Unset = warn (telemetry). Set the repository variable to `enforce` for the emergency guardrail.
+          BUDGET_MODE: ${{ vars.DELSK_BUDGET_MODE }}
         run: |
           mkdir -p "$RUNNER_TEMP/evidence"
           python3 .work/tools/budget.py admit "$RUNNER_TEMP/evidence/admission.json"

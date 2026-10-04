@@ -1,12 +1,21 @@
 """DELSK-005 experimental compute admission (R0 foundation).
 
-Stdlib only. Before any experimental compute the job counts every runner
-minute the experimental workflows used in a rolling 7x24h UTC window — all
-runs, all attempts, failed and cancelled jobs included — reserves the full cap
-of the current run and refuses compute if the policy budget would be exceeded
-or if the accounting is incomplete. Artifact storage is checked the same way
-before compute (reserve the per-run cap) and before upload (actual size).
-Nothing is ever deleted to make room.
+Stdlib only. Standard hosted runners are free for this public repository, so
+the 600 runner-minute rolling 7x24h UTC budget is project policy, not a GitHub
+quota. Before compute the job records a ledger of every runner minute the
+experimental workflows used in the window — all runs, all attempts, failed and
+cancelled jobs included — plus the full cap of the current run.
+
+Budget mode comes from env BUDGET_MODE (repository variable DELSK_BUDGET_MODE):
+- `warn` (default): the ledger is telemetry; over-budget or incomplete
+  accounting only adds warnings, compute proceeds.
+- `enforce`: emergency guardrail; compute is refused when over budget or when
+  the API account is incomplete.
+Gaps in run history (deleted runs) and jobs without an end time never block:
+each is counted as a full run cap, a conservative estimate, with a warning.
+
+Artifact storage is a hard cap in every mode: checked before compute (per-run
+reservation) and before upload (actual size). Nothing is deleted to make room.
 
     python3 budget.py admit OUT.json          # exit 0 admitted, 1 refused
     python3 budget.py artifact-check DIR      # exit 0 fits, 1 over cap
@@ -25,6 +34,7 @@ import urllib.error
 import urllib.request
 
 BUDGET_MINUTES = 600
+BUDGET_MODES = ("warn", "enforce")
 WINDOW = dt.timedelta(days=7)
 # GitHub allows re-running a run up to 30 days after it was created, so a run
 # created earlier than window + 30 days cannot have jobs inside the window
@@ -40,7 +50,7 @@ MAX_PAGES = 50
 
 
 class Incomplete(Exception):
-    """The API did not give a complete, consistent account; compute is refused."""
+    """The API did not give a complete, consistent list."""
 
 
 def ts(value):
@@ -70,42 +80,45 @@ def paged(get, path, key):
     return items
 
 
-def job_minutes(job, window_start):
+def job_minutes(job, window_start, warnings):
     """Billing-style minutes of a completed job: ceil, at least 1 once started; 0 if it ended before the window."""
     started, completed = job.get("started_at"), job.get("completed_at")
     if not started:
         return 0  # never got a runner (skipped, cancelled while queued, startup failure)
-    if not completed:
-        raise Incomplete(f"job {job['id']}: completed without an end time")
-    started, completed = ts(started), ts(completed)
-    if completed < started:
-        raise Incomplete(f"job {job['id']}: completed before it started")
-    if completed < window_start:
+    if not completed or ts(completed) < ts(started):
+        warnings.append(f"job {job['id']}: no valid end time, counted as a full run cap")
+        return RUN_RESERVATION_MINUTES
+    if ts(completed) < window_start:
         return 0
-    return max(1, math.ceil((completed - started).total_seconds() / 60))
+    return max(1, math.ceil((ts(completed) - ts(started)).total_seconds() / 60))
 
 
-def check_run_numbers(runs, workflow, current_number, horizon_start):
-    """Deleted runs would silently free budget: every gap in run_number must be provably old."""
+def missing_runs(runs, current_number, horizon_start):
+    """run_numbers absent from the history that may hold in-window minutes (deleted runs)."""
     by_number = {run["run_number"]: run for run in runs}
     top = max([current_number or 0, *by_number])
+    missing = []
     for number in range(1, top + 1):
         if number in by_number or number == current_number:
             continue
         later = [ts(r["created_at"]) for n, r in by_number.items() if n > number]
         if not later or min(later) >= horizon_start:
-            raise Incomplete(f"{workflow}: run #{number} is missing and may hold in-window minutes")
+            missing.append(number)
+    return missing
 
 
 def account(get, repo, now, current_run_id=None, current_attempt=None):
-    """Ledger of experimental minutes in the window ending at `now`, plus the admission decision."""
+    """Ledger of experimental minutes in the window ending at `now`; raises Incomplete on bad lists."""
     window_start = now - WINDOW
     horizon_start = window_start - RERUN_HORIZON
-    ledger, used = [], 0
+    ledger, used, warnings = [], 0, []
     for workflow in EXPERIMENTAL_WORKFLOWS:
         runs = paged(get, f"/repos/{repo}/actions/workflows/{workflow}/runs", "workflow_runs")
         current_number = next((r["run_number"] for r in runs if r["id"] == current_run_id), None)
-        check_run_numbers(runs, workflow, current_number, horizon_start)
+        missing = missing_runs(runs, current_number, horizon_start)
+        if missing:
+            warnings.append(f"{workflow}: runs {missing} missing from history, each counted as a full run cap")
+            used += RUN_RESERVATION_MINUTES * len(missing)
         for run in sorted(runs, key=lambda r: r["run_number"]):
             if ts(run["created_at"]) < horizon_start:
                 continue
@@ -116,7 +129,7 @@ def account(get, repo, now, current_run_id=None, current_attempt=None):
                 jobs = paged(get, f"/repos/{repo}/actions/runs/{run['id']}/attempts/{attempt}/jobs", "jobs")
                 for job in jobs:
                     if job["status"] == "completed":
-                        minutes += job_minutes(job, window_start)
+                        minutes += job_minutes(job, window_start, warnings)
                     elif job.get("started_at"):
                         minutes += RUN_RESERVATION_MINUTES  # running elsewhere: assume full cap
             if minutes:
@@ -128,8 +141,38 @@ def account(get, repo, now, current_run_id=None, current_attempt=None):
         "schema": "delsk.ci.admission.v1",
         "window_start": window_start.isoformat(), "window_end": now.isoformat(),
         "budget_minutes": BUDGET_MINUTES, "used_minutes": used, "reserved_minutes": reserved,
-        "admitted": used + reserved <= BUDGET_MINUTES, "ledger": ledger,
+        "within_budget": used + reserved <= BUDGET_MINUTES, "accounting_complete": True,
+        "warnings": warnings, "ledger": ledger,
     }
+
+
+def admit(get, repo, now, mode, current_run_id=None, current_attempt=None):
+    """Admission record: budget per `mode`, artifact storage always hard."""
+    if mode not in BUDGET_MODES:
+        return {"schema": "delsk.ci.admission.v1", "admitted": False,
+                "reason": f"unknown budget mode {mode!r}; expected one of {BUDGET_MODES}"}
+    try:
+        record = account(get, repo, now, current_run_id, current_attempt)
+    except Exception as error:  # telemetry failure; blocks only in enforce mode
+        record = {"schema": "delsk.ci.admission.v1", "budget_minutes": BUDGET_MINUTES,
+                  "within_budget": None, "accounting_complete": False,
+                  "warnings": [f"incomplete accounting: {type(error).__name__}: {error}"]}
+    record.update(budget_mode=mode, admitted=True)
+    if record["within_budget"] is False:
+        record["warnings"].append(f"over budget: {record['used_minutes']} used + "
+                                  f"{record['reserved_minutes']} reserved > {BUDGET_MINUTES}")
+    if mode == "enforce" and record["within_budget"] is not True:
+        record.update(admitted=False, reason="enforced runner-minute budget: over budget or incomplete accounting")
+    try:
+        stored = artifact_bytes(get, repo)
+    except Exception as error:  # the pre-upload check stays hard; here only telemetry
+        record["warnings"].append(f"artifact storage unknown before compute: {type(error).__name__}: {error}")
+    else:
+        record.update(artifact_bytes=stored, artifact_total_cap=ARTIFACT_TOTAL_CAP,
+                      run_artifact_cap=RUN_ARTIFACT_CAP)
+        if stored + RUN_ARTIFACT_CAP > ARTIFACT_TOTAL_CAP:
+            record.update(admitted=False, reason="artifact storage cap")
+    return record
 
 
 def artifact_bytes(get, repo):
@@ -142,7 +185,7 @@ def dir_bytes(path):
 
 
 def github_get(path, attempts=3):
-    """GET with retries on 5xx/network errors; any remaining failure refuses compute upstream."""
+    """GET with retries on 5xx/network errors."""
     request = urllib.request.Request(
         os.environ.get("GITHUB_API_URL", "https://api.github.com") + path,
         headers={"Authorization": f"Bearer {os.environ['GITHUB_TOKEN']}",
@@ -161,21 +204,12 @@ def main(argv):
     repo = os.environ["GITHUB_REPOSITORY"]
     if argv[:1] == ["admit"] and len(argv) == 2:
         now = dt.datetime.now(dt.timezone.utc).replace(microsecond=0)
-        try:
-            record = account(github_get, repo, now, int(os.environ["GITHUB_RUN_ID"]),
-                             int(os.environ["GITHUB_RUN_ATTEMPT"]))
-            stored = artifact_bytes(github_get, repo)
-            record.update(artifact_bytes=stored, artifact_total_cap=ARTIFACT_TOTAL_CAP,
-                          run_artifact_cap=RUN_ARTIFACT_CAP)
-            if stored + RUN_ARTIFACT_CAP > ARTIFACT_TOTAL_CAP:
-                record.update(admitted=False, reason="artifact storage cap")
-            elif not record["admitted"]:
-                record["reason"] = "runner-minute budget"
-        except Exception as error:  # any accounting failure refuses compute
-            record = {"schema": "delsk.ci.admission.v1", "admitted": False,
-                      "reason": f"incomplete accounting: {type(error).__name__}: {error}"}
+        record = admit(github_get, repo, now, os.environ.get("BUDGET_MODE") or "warn",
+                       int(os.environ["GITHUB_RUN_ID"]), int(os.environ["GITHUB_RUN_ATTEMPT"]))
         Path(argv[1]).write_text(json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-        print(json.dumps({k: v for k, v in record.items() if k != "ledger"}, sort_keys=True))
+        for warning in record.get("warnings", []):
+            print(f"::warning title=Experimental budget::{warning}")
+        print(json.dumps({k: v for k, v in record.items() if k not in ("ledger", "warnings")}, sort_keys=True))
         return 0 if record["admitted"] else 1
     if argv[:1] == ["artifact-check"] and len(argv) == 2:
         size, stored = dir_bytes(argv[1]), artifact_bytes(github_get, repo)

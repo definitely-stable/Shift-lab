@@ -72,17 +72,28 @@ class AdmissionTests(unittest.TestCase):
         record = b.account(api, REPO, NOW)
         self.assertEqual(record["used_minutes"], 5 + 1 + 7 + 4 + 10)  # ceil per job
         self.assertEqual([e["minutes"] for e in record["ledger"]], [17, 10])
-        self.assertTrue(record["admitted"])
+        self.assertTrue(record["within_budget"])
 
-    def test_budget_boundary(self):
+    def test_budget_boundary_and_modes(self):
         api = FakeAPI()
         api.add_run(10, 1, [[job(1, b.BUDGET_MINUTES - b.RUN_RESERVATION_MINUTES)]])
         api.add_run(99, 2, [[job(2, status="in_progress")]])
-        self.assertTrue(b.account(api, REPO, NOW, current_run_id=99, current_attempt=1)["admitted"])
+        for mode in b.BUDGET_MODES:
+            record = b.admit(api, REPO, NOW, mode, current_run_id=99, current_attempt=1)
+            self.assertTrue(record["admitted"] and record["within_budget"], mode)
         api.jobs[(10, 1)].append(job(3, 1))
-        record = b.account(api, REPO, NOW, current_run_id=99, current_attempt=1)
+        warned = b.admit(api, REPO, NOW, "warn", current_run_id=99, current_attempt=1)
+        self.assertTrue(warned["admitted"])  # telemetry by default: free public runners
+        self.assertEqual((warned["used_minutes"], warned["reserved_minutes"]), (571, 30))
+        self.assertTrue(any("over budget" in w for w in warned["warnings"]))
+        enforced = b.admit(api, REPO, NOW, "enforce", current_run_id=99, current_attempt=1)
+        self.assertFalse(enforced["admitted"])
+        self.assertIn("enforced", enforced["reason"])
+
+    def test_unknown_mode_refuses(self):
+        record = b.admit(FakeAPI(), REPO, NOW, "off")
         self.assertFalse(record["admitted"])
-        self.assertEqual((record["used_minutes"], record["reserved_minutes"]), (571, 30))
+        self.assertIn("unknown budget mode", record["reason"])
 
     def test_earlier_attempts_of_current_run_count(self):
         api = FakeAPI()
@@ -104,15 +115,16 @@ class AdmissionTests(unittest.TestCase):
                     created=old - dt.timedelta(days=20))  # re-run inside the window still counts
         self.assertEqual(b.account(api, REPO, NOW)["used_minutes"], 9)
 
-    def test_missing_durations(self):
+    def test_missing_durations_are_estimated(self):
         api = FakeAPI()
         api.add_run(10, 1, [[job(1, conclusion="skipped"), job(2, conclusion="cancelled"), job(3, 0)]])
         self.assertEqual(b.account(api, REPO, NOW)["used_minutes"], 1)  # never started = 0; started >= 1
         broken = job(4, 3)
         broken["completed_at"] = None  # completed and started, but no end time
         api.jobs[(10, 1)].append(broken)
-        with self.assertRaisesRegex(b.Incomplete, "without an end time"):
-            b.account(api, REPO, NOW)
+        record = b.account(api, REPO, NOW)
+        self.assertEqual(record["used_minutes"], 1 + b.RUN_RESERVATION_MINUTES)
+        self.assertTrue(any("no valid end time" in w for w in record["warnings"]))
 
     def test_truncated_or_inconsistent_pages(self):
         api = FakeAPI()
@@ -120,35 +132,48 @@ class AdmissionTests(unittest.TestCase):
         lying = lambda path: {**api(path), "total_count": 5} if "/jobs" in path else api(path)
         with self.assertRaisesRegex(b.Incomplete, "total_count"):
             b.account(lying, REPO, NOW)
+        warned = b.admit(lying, REPO, NOW, "warn")
+        self.assertEqual((warned["admitted"], warned["accounting_complete"]), (True, False))
+        self.assertFalse(b.admit(lying, REPO, NOW, "enforce")["admitted"])
         repeating = lambda path: api(path.replace("page=2", "page=1"))
         api.page_size = 1
         api.add_run(11, 2, [[job(2, 3)]])
         with self.assertRaisesRegex(b.Incomplete, "duplicate id"):
             b.account(repeating, REPO, NOW)
 
-    def test_deleted_runs(self):
+    def test_deleted_runs_are_estimated_not_blocking(self):
         api = FakeAPI()
         api.add_run(10, 1, [[job(1, 3)]])
         api.add_run(12, 3, [[job(2, 3)]])  # run #2 was deleted: could hide minutes
-        with self.assertRaisesRegex(b.Incomplete, "#2 is missing"):
-            b.account(api, REPO, NOW)
+        record = b.account(api, REPO, NOW)
+        self.assertEqual(record["used_minutes"], 3 + 3 + b.RUN_RESERVATION_MINUTES)
+        self.assertTrue(any("[2]" in w for w in record["warnings"]))
+        self.assertTrue(b.admit(api, REPO, NOW, "enforce")["admitted"])  # within budget, not a deadlock
         api.runs[1]["created_at"] = iso(NOW - b.WINDOW - b.RERUN_HORIZON - dt.timedelta(days=1))
-        b.account(api, REPO, NOW)  # provably older than any re-run reaching the window
+        self.assertEqual(b.account(api, REPO, NOW)["warnings"], [])  # provably older than any re-run
         api.add_run(99, 5, [[job(3, status="in_progress")]])  # run #4 missing below the current run
-        with self.assertRaisesRegex(b.Incomplete, "#4 is missing"):
-            b.account(api, REPO, NOW, current_run_id=99, current_attempt=1)
+        record = b.account(api, REPO, NOW, current_run_id=99, current_attempt=1)
+        self.assertTrue(any("[4]" in w for w in record["warnings"]))
 
-    def test_api_failure_refuses(self):
+    def test_api_failure(self):
         def broken(path):
             raise OSError("HTTP 502")
         env = {"GITHUB_REPOSITORY": REPO, "GITHUB_RUN_ID": "1", "GITHUB_RUN_ATTEMPT": "1"}
-        with tempfile.TemporaryDirectory() as tmp, unittest.mock.patch.dict(os.environ, env), \
-                unittest.mock.patch.object(b, "github_get", broken):
+        with tempfile.TemporaryDirectory() as tmp, unittest.mock.patch.object(b, "github_get", broken):
             out = Path(tmp) / "admission.json"
-            self.assertEqual(b.main(["admit", str(out)]), 1)
-            record = json.loads(out.read_text(encoding="utf-8"))
-        self.assertFalse(record["admitted"])
-        self.assertIn("incomplete accounting", record["reason"])
+            for mode, code in (("", 0), ("warn", 0), ("enforce", 1)):
+                with unittest.mock.patch.dict(os.environ, {**env, "BUDGET_MODE": mode}):
+                    self.assertEqual(b.main(["admit", str(out)]), code, mode)
+                record = json.loads(out.read_text(encoding="utf-8"))
+                self.assertFalse(record["accounting_complete"])
+                self.assertTrue(any("incomplete accounting" in w for w in record["warnings"]))
+
+    def test_artifact_cap_is_hard_in_every_mode(self):
+        api = FakeAPI()
+        api.artifacts = [{"id": 1, "size_in_bytes": b.ARTIFACT_TOTAL_CAP - b.RUN_ARTIFACT_CAP + 1, "expired": False}]
+        for mode in b.BUDGET_MODES:
+            record = b.admit(api, REPO, NOW, mode)
+            self.assertEqual((record["admitted"], record["reason"]), (False, "artifact storage cap"), mode)
 
     def test_artifact_storage(self):
         api = FakeAPI()

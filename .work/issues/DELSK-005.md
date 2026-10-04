@@ -29,7 +29,7 @@
 
 ## Staging внутри R0
 
-Milestone `005-foundation` зависит от corpus/candidate **contracts** DELSK-002 (Slice B), а не от закрытия всей DELSK-002; это снимает круговую зависимость 002↔005 для acquisition pilot. Он даёт admission до compute (600 runner-min за скользящие 7×24 ч UTC, все attempts, reservation полного cap, refusal при неполном учёте), artifact cap без автоудаления, frozen identities dispatch и limits time/RAM/disk с failure evidence — см. [CI plan](../ci-plan.md). Milestone не закрывает issue: шаги и acceptance выше (x64 pilot с данными, ARM, A/A, decode mismatch, пересчёт verdict, durable export) остаются открытыми.
+Milestone `005-foundation` зависит от corpus/candidate **contracts** DELSK-002 (Slice B), а не от закрытия всей DELSK-002; это снимает круговую зависимость 002↔005 для acquisition pilot. Он даёт admission до compute: ledger 600 runner-min за скользящие 7×24 ч UTC (все attempts, reservation полного cap) — telemetry по умолчанию и emergency guardrail при `DELSK_BUDGET_MODE=enforce`; жёсткие timeout, сериализацию и artifact cap без автоудаления; frozen identities dispatch и limits time/RAM/disk с failure evidence — см. [CI plan](../ci-plan.md). Milestone не закрывает issue: шаги и acceptance выше (x64 pilot с данными, ARM, A/A, decode mismatch, пересчёт verdict, durable export) остаются открытыми.
 
 ## CI и ресурсы
 
