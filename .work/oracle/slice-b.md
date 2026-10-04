@@ -24,6 +24,7 @@ Phase `smoke` принимает только synthetic locks и отказыв�
 ## Evidence
 
 - Первый smoke [run 37224572612](https://github.com/definitely-stable/Shift-lab/actions/runs/37224572612): обе сборки, C01–C13 PASS на собранных xdelta3 3.2.1 и zstd 1.5.7 (включая пустые inputs C04–C06), C14 `CANDIDATE` (golden ещё не закреплён). Его candidate после проверки закреплён как [conformance.json](conformance.json): inputs воспроизводятся на другой платформе и Python, bundle этого run повторно verified evaluator локально.
+- С закреплённым golden: smoke [run 37224987102](https://github.com/definitely-stable/Shift-lab/actions/runs/37224987102) на `b1e854c` — C01–C14 PASS, verdict PASS, 82 oracle tests OK (0 skipped, включая pinned codecs), job 1 min 34 s.
 - С закреплённым golden C14 сравнивает точные digests; расхождение (например, другой compiler) — `FAIL`, run не получает conformance PASS (contract A20).
 - Synthetic mini-run (11 queries, 14 pairs, все три split, evaluation sealed): `COMPLETE`, `exhaustive`, verify и bundle зелёные.
 - Production evaluator воспроизводит K01–K42 и G01–G09 без reference; compact vectors раскрываются независимо и сверяются с reference построчно.
