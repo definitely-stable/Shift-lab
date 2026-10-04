@@ -1,0 +1,3892 @@
+{
+  "cases": [
+    {
+      "expect": {
+        "coverage": {
+          "codec_error": 0,
+          "expected_pairs": 3,
+          "identity_targets": 0,
+          "missing": 0,
+          "near_all_failed": 0,
+          "near_empty": 0,
+          "near_finite": 1,
+          "near_targets": 1,
+          "near_useful": 1,
+          "ok": 3,
+          "resource_limit": 0,
+          "sealed_pairs": 0,
+          "sealed_targets": 0,
+          "standalone_failed": 0,
+          "standalone_missing": 0,
+          "timeout": 0
+        },
+        "invalid_reasons": [],
+        "metrics": {
+          "call_reduction": "3",
+          "eps1": "1",
+          "eps2": "1",
+          "eps5": "1",
+          "nregret_near": {
+            "max": "0",
+            "p50": "0",
+            "p95": "0",
+            "sum": "0"
+          },
+          "nregret_useful": {
+            "max": "0",
+            "p50": "0",
+            "p95": "0",
+            "sum": "0"
+          },
+          "regret_near": {
+            "max": "0",
+            "p50": "0",
+            "p95": "0",
+            "sum": "0"
+          },
+          "regret_useful": {
+            "max": "0",
+            "p50": "0",
+            "p95": "0",
+            "sum": "0"
+          },
+          "savings_capture": "1",
+          "strict": "1",
+          "useful": "1"
+        },
+        "retrieval_reasons": [],
+        "retrieval_status": "OK",
+        "run_status": "COMPLETE",
+        "targets": {
+          "t1": {
+            "O": 134,
+            "O_delta": 134,
+            "S": 403,
+            "S_choice": "compressed",
+            "delta_status": "finite",
+            "ties": [
+              "b1",
+              "b2"
+            ],
+            "useful": true
+          }
+        }
+      },
+      "id": "K01",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b3",
+          "payload": 150,
+          "status": "ok",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2",
+            "b3"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b2"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        }
+      ],
+      "title": "exact tied best bases: the tie set holds every base at the minimum and any of them is a strict hit"
+    },
+    {
+      "expect": {
+        "coverage": {
+          "codec_error": 0,
+          "expected_pairs": 2,
+          "identity_targets": 0,
+          "missing": 0,
+          "near_all_failed": 0,
+          "near_empty": 0,
+          "near_finite": 1,
+          "near_targets": 1,
+          "near_useful": 1,
+          "ok": 2,
+          "resource_limit": 0,
+          "sealed_pairs": 0,
+          "sealed_targets": 0,
+          "standalone_failed": 0,
+          "standalone_missing": 0,
+          "timeout": 0
+        },
+        "invalid_reasons": [],
+        "metrics": {
+          "call_reduction": "2",
+          "eps1": "1",
+          "eps2": "1",
+          "eps5": "1",
+          "nregret_near": {
+            "max": "10/67",
+            "p50": "10/67",
+            "p95": "10/67",
+            "sum": "10/67"
+          },
+          "nregret_useful": {
+            "max": "10/67",
+            "p50": "10/67",
+            "p95": "10/67",
+            "sum": "10/67"
+          },
+          "regret_near": {
+            "max": "20",
+            "p50": "20",
+            "p95": "20",
+            "sum": "20"
+          },
+          "regret_useful": {
+            "max": "20",
+            "p50": "20",
+            "p95": "20",
+            "sum": "20"
+          },
+          "savings_capture": "249/269",
+          "strict": "0",
+          "useful": "0"
+        },
+        "retrieval_reasons": [],
+        "retrieval_status": "OK",
+        "run_status": "COMPLETE",
+        "targets": {
+          "t1": {
+            "O": 134,
+            "O_delta": 134,
+            "S": 403,
+            "S_choice": "compressed",
+            "delta_status": "finite",
+            "ties": [
+              "b1"
+            ],
+            "useful": true
+          }
+        }
+      },
+      "id": "K02",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "payload": 120,
+          "status": "ok",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b2"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        }
+      ],
+      "title": "unique best base: a near miss is an epsilon hit but not a strict hit"
+    },
+    {
+      "expect": {
+        "coverage": {
+          "codec_error": 0,
+          "expected_pairs": 1,
+          "identity_targets": 0,
+          "missing": 0,
+          "near_all_failed": 0,
+          "near_empty": 0,
+          "near_finite": 1,
+          "near_targets": 1,
+          "near_useful": 0,
+          "ok": 1,
+          "resource_limit": 0,
+          "sealed_pairs": 0,
+          "sealed_targets": 0,
+          "standalone_failed": 0,
+          "standalone_missing": 0,
+          "timeout": 0
+        },
+        "invalid_reasons": [],
+        "metrics": {
+          "call_reduction": "1",
+          "eps1": "1",
+          "eps2": "1",
+          "eps5": "1",
+          "nregret_near": {
+            "max": "0",
+            "p50": "0",
+            "p95": "0",
+            "sum": "0"
+          },
+          "nregret_useful": {
+            "max": "N/A",
+            "p50": "N/A",
+            "p95": "N/A",
+            "sum": "N/A"
+          },
+          "regret_near": {
+            "max": "0",
+            "p50": "0",
+            "p95": "0",
+            "sum": "0"
+          },
+          "regret_useful": {
+            "max": "N/A",
+            "p50": "N/A",
+            "p95": "N/A",
+            "sum": "N/A"
+          },
+          "savings_capture": "N/A",
+          "strict": "1",
+          "useful": "N/A"
+        },
+        "retrieval_reasons": [],
+        "retrieval_status": "OK",
+        "run_status": "COMPLETE",
+        "targets": {
+          "t1": {
+            "O": 303,
+            "O_delta": 435,
+            "S": 303,
+            "S_choice": "compressed",
+            "delta_status": "finite",
+            "ties": [
+              "b1"
+            ],
+            "useful": false
+          }
+        }
+      },
+      "id": "K03",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 400,
+          "status": "ok",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b1"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 300,
+          "raw": 1000,
+          "t": "t1"
+        }
+      ],
+      "title": "delta worse than standalone: finite O_delta, O = S, not useful, SavingsCapture N/A"
+    },
+    {
+      "expect": {
+        "coverage": {
+          "codec_error": 0,
+          "expected_pairs": 0,
+          "identity_targets": 0,
+          "missing": 0,
+          "near_all_failed": 0,
+          "near_empty": 1,
+          "near_finite": 0,
+          "near_targets": 1,
+          "near_useful": 0,
+          "ok": 0,
+          "resource_limit": 0,
+          "sealed_pairs": 0,
+          "sealed_targets": 0,
+          "standalone_failed": 0,
+          "standalone_missing": 0,
+          "timeout": 0
+        },
+        "invalid_reasons": [],
+        "metrics": {
+          "call_reduction": "N/A",
+          "eps1": "N/A",
+          "eps2": "N/A",
+          "eps5": "N/A",
+          "nregret_near": {
+            "max": "0",
+            "p50": "0",
+            "p95": "0",
+            "sum": "0"
+          },
+          "nregret_useful": {
+            "max": "N/A",
+            "p50": "N/A",
+            "p95": "N/A",
+            "sum": "N/A"
+          },
+          "regret_near": {
+            "max": "0",
+            "p50": "0",
+            "p95": "0",
+            "sum": "0"
+          },
+          "regret_useful": {
+            "max": "N/A",
+            "p50": "N/A",
+            "p95": "N/A",
+            "sum": "N/A"
+          },
+          "savings_capture": "N/A",
+          "strict": "N/A",
+          "useful": "N/A"
+        },
+        "retrieval_reasons": [],
+        "retrieval_status": "OK",
+        "run_status": "COMPLETE",
+        "targets": {
+          "t1": {
+            "O": 403,
+            "O_delta": null,
+            "S": 403,
+            "S_choice": "compressed",
+            "delta_status": "empty_candidate_set",
+            "ties": [],
+            "useful": false
+          }
+        }
+      },
+      "id": "K04",
+      "pairs": [],
+      "queries": [
+        {
+          "bases": [],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [],
+            "encode_calls": 0,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        }
+      ],
+      "title": "empty C_t for a near target: O_delta = +inf, empty argmin, O = S, recalls N/A"
+    },
+    {
+      "expect": {
+        "coverage": {
+          "codec_error": 1,
+          "expected_pairs": 2,
+          "identity_targets": 0,
+          "missing": 0,
+          "near_all_failed": 1,
+          "near_empty": 0,
+          "near_finite": 0,
+          "near_targets": 1,
+          "near_useful": 0,
+          "ok": 0,
+          "resource_limit": 0,
+          "sealed_pairs": 0,
+          "sealed_targets": 0,
+          "standalone_failed": 0,
+          "standalone_missing": 0,
+          "timeout": 1
+        },
+        "invalid_reasons": [],
+        "metrics": {
+          "call_reduction": "2",
+          "eps1": "N/A",
+          "eps2": "N/A",
+          "eps5": "N/A",
+          "nregret_near": {
+            "max": "0",
+            "p50": "0",
+            "p95": "0",
+            "sum": "0"
+          },
+          "nregret_useful": {
+            "max": "N/A",
+            "p50": "N/A",
+            "p95": "N/A",
+            "sum": "N/A"
+          },
+          "regret_near": {
+            "max": "0",
+            "p50": "0",
+            "p95": "0",
+            "sum": "0"
+          },
+          "regret_useful": {
+            "max": "N/A",
+            "p50": "N/A",
+            "p95": "N/A",
+            "sum": "N/A"
+          },
+          "savings_capture": "N/A",
+          "strict": "N/A",
+          "useful": "N/A"
+        },
+        "retrieval_reasons": [],
+        "retrieval_status": "OK",
+        "run_status": "COMPLETE_WITH_FAILURES",
+        "targets": {
+          "t1": {
+            "O": 403,
+            "O_delta": null,
+            "S": 403,
+            "S_choice": "compressed",
+            "delta_status": "all_pairs_failed",
+            "ties": [],
+            "useful": false
+          }
+        }
+      },
+      "id": "K05",
+      "pairs": [
+        {
+          "b": "b1",
+          "status": "timeout",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "status": "codec_error",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b1"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        }
+      ],
+      "title": "all codec failures for a target: bounded oracle, O = S, recalls N/A, G1 blocked"
+    },
+    {
+      "expect": {
+        "coverage": {
+          "codec_error": 0,
+          "expected_pairs": 2,
+          "identity_targets": 0,
+          "missing": 0,
+          "near_all_failed": 0,
+          "near_empty": 0,
+          "near_finite": 1,
+          "near_targets": 1,
+          "near_useful": 1,
+          "ok": 1,
+          "resource_limit": 0,
+          "sealed_pairs": 0,
+          "sealed_targets": 0,
+          "standalone_failed": 0,
+          "standalone_missing": 0,
+          "timeout": 1
+        },
+        "invalid_reasons": [],
+        "metrics": {
+          "call_reduction": "2",
+          "eps1": "0",
+          "eps2": "0",
+          "eps5": "0",
+          "nregret_near": {
+            "max": "269/134",
+            "p50": "269/134",
+            "p95": "269/134",
+            "sum": "269/134"
+          },
+          "nregret_useful": {
+            "max": "269/134",
+            "p50": "269/134",
+            "p95": "269/134",
+            "sum": "269/134"
+          },
+          "regret_near": {
+            "max": "269",
+            "p50": "269",
+            "p95": "269",
+            "sum": "269"
+          },
+          "regret_useful": {
+            "max": "269",
+            "p50": "269",
+            "p95": "269",
+            "sum": "269"
+          },
+          "savings_capture": "0",
+          "strict": "0",
+          "useful": "0"
+        },
+        "retrieval_reasons": [],
+        "retrieval_status": "OK",
+        "run_status": "COMPLETE_WITH_FAILURES",
+        "targets": {
+          "t1": {
+            "O": 134,
+            "O_delta": 134,
+            "S": 403,
+            "S_choice": "compressed",
+            "delta_status": "finite",
+            "ties": [
+              "b1"
+            ],
+            "useful": true
+          }
+        }
+      },
+      "id": "K06",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "status": "timeout",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b2"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        }
+      ],
+      "title": "one timeout: the timed-out base costs +inf, choosing it is a miss with full regret"
+    },
+    {
+      "expect": {
+        "coverage": {
+          "codec_error": 0,
+          "expected_pairs": 2,
+          "identity_targets": 0,
+          "missing": 1,
+          "near_targets": 1,
+          "ok": 1,
+          "resource_limit": 0,
+          "sealed_pairs": 0,
+          "sealed_targets": 0,
+          "standalone_failed": 0,
+          "standalone_missing": 0,
+          "timeout": 0
+        },
+        "invalid_reasons": [],
+        "metrics": null,
+        "retrieval_reasons": [],
+        "retrieval_status": "NOT_EVALUATED",
+        "run_status": "INCOMPLETE",
+        "targets": null
+      },
+      "id": "K07",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b1"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        }
+      ],
+      "title": "missing expected pair: INCOMPLETE, no oracle values and no metrics are released"
+    },
+    {
+      "expect": {
+        "coverage": null,
+        "invalid_reasons": [
+          "DUPLICATE_PAIR"
+        ],
+        "metrics": null,
+        "retrieval_reasons": [],
+        "retrieval_status": "NOT_EVALUATED",
+        "run_status": "INVALID",
+        "targets": null
+      },
+      "id": "K08",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b3",
+          "payload": 150,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b1",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2",
+            "b3"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b2"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        }
+      ],
+      "title": "duplicate pair row, even byte-identical: INVALID, never deduplicated"
+    },
+    {
+      "expect": {
+        "coverage": null,
+        "invalid_reasons": [
+          "DECODE_MISMATCH"
+        ],
+        "metrics": null,
+        "retrieval_reasons": [],
+        "retrieval_status": "NOT_EVALUATED",
+        "run_status": "INVALID",
+        "targets": null
+      },
+      "id": "K09",
+      "pairs": [
+        {
+          "b": "b1",
+          "status": "decode_mismatch",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "payload": 120,
+          "status": "ok",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b2"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        }
+      ],
+      "title": "decode mismatch: INVALID run, not a +inf cost"
+    },
+    {
+      "expect": {
+        "coverage": {
+          "codec_error": 0,
+          "expected_pairs": 1,
+          "identity_targets": 0,
+          "missing": 0,
+          "near_all_failed": 0,
+          "near_empty": 0,
+          "near_finite": 1,
+          "near_targets": 1,
+          "near_useful": 0,
+          "ok": 1,
+          "resource_limit": 0,
+          "sealed_pairs": 0,
+          "sealed_targets": 0,
+          "standalone_failed": 0,
+          "standalone_missing": 0,
+          "timeout": 0
+        },
+        "invalid_reasons": [],
+        "metrics": {
+          "call_reduction": "1",
+          "eps1": "1",
+          "eps2": "1",
+          "eps5": "1",
+          "nregret_near": {
+            "max": "0",
+            "p50": "0",
+            "p95": "0",
+            "sum": "0"
+          },
+          "nregret_useful": {
+            "max": "N/A",
+            "p50": "N/A",
+            "p95": "N/A",
+            "sum": "N/A"
+          },
+          "regret_near": {
+            "max": "0",
+            "p50": "0",
+            "p95": "0",
+            "sum": "0"
+          },
+          "regret_useful": {
+            "max": "N/A",
+            "p50": "N/A",
+            "p95": "N/A",
+            "sum": "N/A"
+          },
+          "savings_capture": "N/A",
+          "strict": "1",
+          "useful": "N/A"
+        },
+        "retrieval_reasons": [],
+        "retrieval_status": "OK",
+        "run_status": "COMPLETE",
+        "targets": {
+          "t1": {
+            "O": 2,
+            "O_delta": 54,
+            "S": 2,
+            "S_choice": "raw",
+            "delta_status": "finite",
+            "ties": [
+              "b1"
+            ],
+            "useful": false
+          }
+        }
+      },
+      "id": "K10",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 20,
+          "status": "ok",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b1"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 9,
+          "raw": 0,
+          "t": "t1"
+        }
+      ],
+      "title": "zero-byte target: raw frame (2 B) wins; delta cannot beat it"
+    },
+    {
+      "expect": {
+        "coverage": {
+          "codec_error": 0,
+          "expected_pairs": 1,
+          "identity_targets": 0,
+          "missing": 0,
+          "near_all_failed": 0,
+          "near_empty": 0,
+          "near_finite": 1,
+          "near_targets": 1,
+          "near_useful": 0,
+          "ok": 1,
+          "resource_limit": 0,
+          "sealed_pairs": 0,
+          "sealed_targets": 0,
+          "standalone_failed": 0,
+          "standalone_missing": 0,
+          "timeout": 0
+        },
+        "invalid_reasons": [],
+        "metrics": {
+          "call_reduction": "1",
+          "eps1": "1",
+          "eps2": "1",
+          "eps5": "1",
+          "nregret_near": {
+            "max": "0",
+            "p50": "0",
+            "p95": "0",
+            "sum": "0"
+          },
+          "nregret_useful": {
+            "max": "N/A",
+            "p50": "N/A",
+            "p95": "N/A",
+            "sum": "N/A"
+          },
+          "regret_near": {
+            "max": "0",
+            "p50": "0",
+            "p95": "0",
+            "sum": "0"
+          },
+          "regret_useful": {
+            "max": "N/A",
+            "p50": "N/A",
+            "p95": "N/A",
+            "sum": "N/A"
+          },
+          "savings_capture": "N/A",
+          "strict": "1",
+          "useful": "N/A"
+        },
+        "retrieval_reasons": [],
+        "retrieval_status": "OK",
+        "run_status": "COMPLETE",
+        "targets": {
+          "t1": {
+            "O": 3,
+            "O_delta": 46,
+            "S": 3,
+            "S_choice": "raw",
+            "delta_status": "finite",
+            "ties": [
+              "b1"
+            ],
+            "useful": false
+          }
+        }
+      },
+      "id": "K11",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 12,
+          "status": "ok",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b1"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 10,
+          "raw": 1,
+          "t": "t1"
+        }
+      ],
+      "title": "tiny target: base reference alone exceeds the raw frame"
+    },
+    {
+      "expect": {
+        "coverage": {
+          "codec_error": 0,
+          "expected_pairs": 2,
+          "identity_targets": 0,
+          "missing": 0,
+          "near_all_failed": 0,
+          "near_empty": 0,
+          "near_finite": 1,
+          "near_targets": 1,
+          "near_useful": 1,
+          "ok": 2,
+          "resource_limit": 0,
+          "sealed_pairs": 0,
+          "sealed_targets": 0,
+          "standalone_failed": 0,
+          "standalone_missing": 0,
+          "timeout": 0
+        },
+        "invalid_reasons": [],
+        "metrics": {
+          "call_reduction": "2",
+          "eps1": "1",
+          "eps2": "1",
+          "eps5": "1",
+          "nregret_near": {
+            "max": "5/42",
+            "p50": "5/42",
+            "p95": "5/42",
+            "sum": "5/42"
+          },
+          "nregret_useful": {
+            "max": "5/42",
+            "p50": "5/42",
+            "p95": "5/42",
+            "sum": "5/42"
+          },
+          "regret_near": {
+            "max": "10",
+            "p50": "10",
+            "p95": "10",
+            "sum": "10"
+          },
+          "regret_useful": {
+            "max": "10",
+            "p50": "10",
+            "p95": "10",
+            "sum": "10"
+          },
+          "savings_capture": "4/9",
+          "strict": "0",
+          "useful": "0"
+        },
+        "retrieval_reasons": [],
+        "retrieval_status": "OK",
+        "run_status": "COMPLETE",
+        "targets": {
+          "t1": {
+            "O": 84,
+            "O_delta": 84,
+            "S": 102,
+            "S_choice": "raw",
+            "delta_status": "finite",
+            "ties": [
+              "b1"
+            ],
+            "useful": true
+          }
+        }
+      },
+      "id": "K12",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 50,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "payload": 60,
+          "status": "ok",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b2"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 110,
+          "raw": 100,
+          "t": "t1"
+        }
+      ],
+      "title": "standalone raw wins over compressed; base reference bytes change the regret"
+    },
+    {
+      "expect": {
+        "coverage": {
+          "codec_error": 0,
+          "expected_pairs": 1,
+          "identity_targets": 0,
+          "missing": 0,
+          "near_all_failed": 0,
+          "near_empty": 0,
+          "near_finite": 1,
+          "near_targets": 1,
+          "near_useful": 0,
+          "ok": 1,
+          "resource_limit": 0,
+          "sealed_pairs": 0,
+          "sealed_targets": 0,
+          "standalone_failed": 0,
+          "standalone_missing": 0,
+          "timeout": 0
+        },
+        "invalid_reasons": [],
+        "metrics": {
+          "call_reduction": "1",
+          "eps1": "1",
+          "eps2": "1",
+          "eps5": "1",
+          "nregret_near": {
+            "max": "0",
+            "p50": "0",
+            "p95": "0",
+            "sum": "0"
+          },
+          "nregret_useful": {
+            "max": "N/A",
+            "p50": "N/A",
+            "p95": "N/A",
+            "sum": "N/A"
+          },
+          "regret_near": {
+            "max": "0",
+            "p50": "0",
+            "p95": "0",
+            "sum": "0"
+          },
+          "regret_useful": {
+            "max": "N/A",
+            "p50": "N/A",
+            "p95": "N/A",
+            "sum": "N/A"
+          },
+          "savings_capture": "N/A",
+          "strict": "1",
+          "useful": "N/A"
+        },
+        "retrieval_reasons": [],
+        "retrieval_status": "OK",
+        "run_status": "COMPLETE",
+        "targets": {
+          "t1": {
+            "O": 403,
+            "O_delta": 415,
+            "S": 403,
+            "S_choice": "compressed",
+            "delta_status": "finite",
+            "ties": [
+              "b1"
+            ],
+            "useful": false
+          }
+        }
+      },
+      "id": "K13",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 380,
+          "status": "ok",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b1"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        }
+      ],
+      "title": "standalone compressed wins: patch payload below S but total cost above S"
+    },
+    {
+      "expect": {
+        "coverage": {
+          "codec_error": 0,
+          "expected_pairs": 1,
+          "identity_targets": 0,
+          "missing": 0,
+          "near_all_failed": 0,
+          "near_empty": 1,
+          "near_finite": 1,
+          "near_targets": 2,
+          "near_useful": 0,
+          "ok": 1,
+          "resource_limit": 0,
+          "sealed_pairs": 0,
+          "sealed_targets": 0,
+          "standalone_failed": 0,
+          "standalone_missing": 0,
+          "timeout": 0
+        },
+        "invalid_reasons": [],
+        "metrics": {
+          "call_reduction": "1",
+          "eps1": "1",
+          "eps2": "1",
+          "eps5": "1",
+          "nregret_near": {
+            "max": "0",
+            "p50": "0",
+            "p95": "0",
+            "sum": "0"
+          },
+          "nregret_useful": {
+            "max": "N/A",
+            "p50": "N/A",
+            "p95": "N/A",
+            "sum": "N/A"
+          },
+          "regret_near": {
+            "max": "0",
+            "p50": "0",
+            "p95": "0",
+            "sum": "0"
+          },
+          "regret_useful": {
+            "max": "N/A",
+            "p50": "N/A",
+            "p95": "N/A",
+            "sum": "N/A"
+          },
+          "savings_capture": "N/A",
+          "strict": "1",
+          "useful": "N/A"
+        },
+        "retrieval_reasons": [],
+        "retrieval_status": "OK",
+        "run_status": "COMPLETE",
+        "targets": {
+          "t1": {
+            "O": 303,
+            "O_delta": 435,
+            "S": 303,
+            "S_choice": "compressed",
+            "delta_status": "finite",
+            "ties": [
+              "b1"
+            ],
+            "useful": false
+          },
+          "t2": {
+            "O": 203,
+            "O_delta": null,
+            "S": 203,
+            "S_choice": "compressed",
+            "delta_status": "empty_candidate_set",
+            "ties": [],
+            "useful": false
+          }
+        }
+      },
+      "id": "K14",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 400,
+          "status": "ok",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        },
+        {
+          "bases": [],
+          "status": "near_duplicate",
+          "t": "t2"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b1"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          },
+          {
+            "bases": [],
+            "encode_calls": 0,
+            "t": "t2"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 300,
+          "raw": 1000,
+          "t": "t1"
+        },
+        {
+          "compressed": 200,
+          "raw": 500,
+          "t": "t2"
+        }
+      ],
+      "title": "zero SavingsCapture denominator: no useful target in the population gives N/A, not 1"
+    },
+    {
+      "expect": {
+        "coverage": {
+          "codec_error": 0,
+          "expected_pairs": 2,
+          "identity_targets": 0,
+          "missing": 0,
+          "near_all_failed": 0,
+          "near_empty": 0,
+          "near_finite": 1,
+          "near_targets": 1,
+          "near_useful": 1,
+          "ok": 2,
+          "resource_limit": 0,
+          "sealed_pairs": 0,
+          "sealed_targets": 0,
+          "standalone_failed": 0,
+          "standalone_missing": 0,
+          "timeout": 0
+        },
+        "invalid_reasons": [],
+        "metrics": {
+          "call_reduction": "2",
+          "eps1": "1",
+          "eps2": "1",
+          "eps5": "1",
+          "nregret_near": {
+            "max": "32/67",
+            "p50": "32/67",
+            "p95": "32/67",
+            "sum": "32/67"
+          },
+          "nregret_useful": {
+            "max": "32/67",
+            "p50": "32/67",
+            "p95": "32/67",
+            "sum": "32/67"
+          },
+          "regret_near": {
+            "max": "64",
+            "p50": "64",
+            "p95": "64",
+            "sum": "64"
+          },
+          "regret_useful": {
+            "max": "64",
+            "p50": "64",
+            "p95": "64",
+            "sum": "64"
+          },
+          "savings_capture": "205/269",
+          "strict": "0",
+          "useful": "0"
+        },
+        "retrieval_reasons": [],
+        "retrieval_status": "OK",
+        "run_status": "COMPLETE",
+        "targets": {
+          "t1": {
+            "O": 134,
+            "O_delta": 134,
+            "S": 403,
+            "S_choice": "compressed",
+            "delta_status": "finite",
+            "ties": [
+              "b1"
+            ],
+            "useful": true
+          }
+        }
+      },
+      "id": "K15",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "payload": 163,
+          "status": "ok",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b2"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        }
+      ],
+      "title": "epsilon boundary exactly at the 64 B floor counts as a hit (<=)"
+    },
+    {
+      "expect": {
+        "coverage": {
+          "codec_error": 0,
+          "expected_pairs": 4,
+          "identity_targets": 0,
+          "missing": 0,
+          "near_all_failed": 0,
+          "near_empty": 0,
+          "near_finite": 2,
+          "near_targets": 2,
+          "near_useful": 2,
+          "ok": 4,
+          "resource_limit": 0,
+          "sealed_pairs": 0,
+          "sealed_targets": 0,
+          "standalone_failed": 0,
+          "standalone_missing": 0,
+          "timeout": 0
+        },
+        "invalid_reasons": [],
+        "metrics": {
+          "call_reduction": "2",
+          "eps1": "0",
+          "eps2": "1/2",
+          "eps5": "1/2",
+          "nregret_near": {
+            "max": "65/134",
+            "p50": "44825/179292",
+            "p95": "165511/358584",
+            "sum": "44825/89646"
+          },
+          "nregret_useful": {
+            "max": "65/134",
+            "p50": "44825/179292",
+            "p95": "165511/358584",
+            "sum": "44825/89646"
+          },
+          "regret_near": {
+            "max": "150",
+            "p50": "215/2",
+            "p95": "583/4",
+            "sum": "215"
+          },
+          "regret_useful": {
+            "max": "150",
+            "p50": "215/2",
+            "p95": "583/4",
+            "sum": "215"
+          },
+          "savings_capture": "5022/5237",
+          "strict": "0",
+          "useful": "0"
+        },
+        "retrieval_reasons": [],
+        "retrieval_status": "OK",
+        "run_status": "COMPLETE",
+        "targets": {
+          "t1": {
+            "O": 134,
+            "O_delta": 134,
+            "S": 403,
+            "S_choice": "compressed",
+            "delta_status": "finite",
+            "ties": [
+              "b1"
+            ],
+            "useful": true
+          },
+          "t2": {
+            "O": 10035,
+            "O_delta": 10035,
+            "S": 15003,
+            "S_choice": "compressed",
+            "delta_status": "finite",
+            "ties": [
+              "b3"
+            ],
+            "useful": true
+          }
+        }
+      },
+      "id": "K16",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "payload": 164,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b3",
+          "payload": 10000,
+          "status": "ok",
+          "t": "t2"
+        },
+        {
+          "b": "b4",
+          "payload": 10150,
+          "status": "ok",
+          "t": "t2"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        },
+        {
+          "bases": [
+            "b3",
+            "b4"
+          ],
+          "status": "near_duplicate",
+          "t": "t2"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b2"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          },
+          {
+            "bases": [
+              "b4"
+            ],
+            "encode_calls": 1,
+            "t": "t2"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        },
+        {
+          "compressed": 15000,
+          "raw": 20000,
+          "t": "t2"
+        }
+      ],
+      "title": "epsilon just outside the floor; above the floor the epsilon share decides (1% miss, 2% hit)"
+    },
+    {
+      "expect": {
+        "same_as": "K01"
+      },
+      "id": "K17",
+      "pairs": [
+        {
+          "b": "b3",
+          "payload": 150,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b1",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2",
+            "b3"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b2"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        }
+      ],
+      "title": "reordered pair rows give the identical canonical result (same as K01, digests included)"
+    },
+    {
+      "expect": {
+        "coverage": null,
+        "invalid_reasons": [
+          "FOREIGN_PAIR"
+        ],
+        "metrics": null,
+        "retrieval_reasons": [],
+        "retrieval_status": "NOT_EVALUATED",
+        "run_status": "INVALID",
+        "targets": null
+      },
+      "id": "K18",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b3",
+          "payload": 150,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "bX",
+          "payload": 50,
+          "status": "ok",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2",
+            "b3"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b2"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        }
+      ],
+      "title": "foreign base row outside the candidate lock: INVALID"
+    },
+    {
+      "expect": {
+        "coverage": null,
+        "invalid_reasons": [
+          "OPTIONS_MISMATCH"
+        ],
+        "metrics": null,
+        "retrieval_reasons": [],
+        "retrieval_status": "NOT_EVALUATED",
+        "run_status": "INVALID",
+        "targets": null
+      },
+      "id": "K19",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "payload": 100,
+          "set": {
+            "options_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          },
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b3",
+          "payload": 150,
+          "status": "ok",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2",
+            "b3"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b2"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        }
+      ],
+      "title": "wrong codec options hash on one row: INVALID"
+    },
+    {
+      "expect": {
+        "evaluator_identity_changes": true,
+        "same_as": "K01"
+      },
+      "id": "K20",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b3",
+          "payload": 150,
+          "status": "ok",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2",
+            "b3"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b2"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        }
+      ],
+      "title": "evaluator SHA changes, measurement rows unchanged: same measurement identity and metrics, a new evaluation record; no verdict transfers between evaluator identities"
+    },
+    {
+      "expect": {
+        "coverage": null,
+        "invalid_reasons": [
+          "DECODE_MISMATCH"
+        ],
+        "metrics": null,
+        "retrieval_reasons": [],
+        "retrieval_status": "NOT_EVALUATED",
+        "run_status": "INVALID",
+        "targets": null
+      },
+      "id": "K21",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 100,
+          "set": {
+            "decoded_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b3",
+          "payload": 150,
+          "status": "ok",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2",
+            "b3"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b2"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        }
+      ],
+      "title": "ok row whose decoded SHA-256 differs from the target: INVALID"
+    },
+    {
+      "expect": {
+        "coverage": {
+          "codec_error": 0,
+          "expected_pairs": 3,
+          "identity_targets": 0,
+          "missing": 0,
+          "near_all_failed": 0,
+          "near_empty": 0,
+          "near_finite": 1,
+          "near_targets": 1,
+          "near_useful": 1,
+          "ok": 3,
+          "resource_limit": 0,
+          "sealed_pairs": 0,
+          "sealed_targets": 0,
+          "standalone_failed": 0,
+          "standalone_missing": 0,
+          "timeout": 0
+        },
+        "invalid_reasons": [],
+        "metrics": null,
+        "retrieval_reasons": [
+          "RETRIEVAL_FOREIGN_BASE"
+        ],
+        "retrieval_status": "INVALID",
+        "run_status": "COMPLETE",
+        "targets": {
+          "t1": {
+            "O": 134,
+            "O_delta": 134,
+            "S": 403,
+            "S_choice": "compressed",
+            "delta_status": "finite",
+            "ties": [
+              "b1",
+              "b2"
+            ],
+            "useful": true
+          }
+        }
+      },
+      "id": "K22",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b3",
+          "payload": 150,
+          "status": "ok",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2",
+            "b3"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "bX"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        }
+      ],
+      "title": "retrieval returns a base outside C_t: retrieval INVALID, oracle unaffected, no metrics"
+    },
+    {
+      "expect": {
+        "coverage": {
+          "codec_error": 0,
+          "expected_pairs": 3,
+          "identity_targets": 0,
+          "missing": 0,
+          "near_all_failed": 0,
+          "near_empty": 0,
+          "near_finite": 1,
+          "near_targets": 1,
+          "near_useful": 1,
+          "ok": 3,
+          "resource_limit": 0,
+          "sealed_pairs": 0,
+          "sealed_targets": 0,
+          "standalone_failed": 0,
+          "standalone_missing": 0,
+          "timeout": 0
+        },
+        "invalid_reasons": [],
+        "metrics": null,
+        "retrieval_reasons": [
+          "RETRIEVAL_DUPLICATE_BASE",
+          "RETRIEVAL_OVER_K"
+        ],
+        "retrieval_status": "INVALID",
+        "run_status": "COMPLETE",
+        "targets": {
+          "t1": {
+            "O": 134,
+            "O_delta": 134,
+            "S": 403,
+            "S_choice": "compressed",
+            "delta_status": "finite",
+            "ties": [
+              "b1",
+              "b2"
+            ],
+            "useful": true
+          }
+        }
+      },
+      "id": "K23",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b3",
+          "payload": 150,
+          "status": "ok",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2",
+            "b3"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b1",
+              "b1"
+            ],
+            "encode_calls": 2,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        }
+      ],
+      "title": "retrieval with a repeated base and more than K entries: retrieval INVALID"
+    },
+    {
+      "expect": {
+        "coverage": null,
+        "invalid_reasons": [
+          "ACCOUNTING_MISMATCH"
+        ],
+        "metrics": null,
+        "retrieval_reasons": [],
+        "retrieval_status": "NOT_EVALUATED",
+        "run_status": "INVALID",
+        "targets": null
+      },
+      "id": "K24",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 100,
+          "set": {
+            "delta_total_bytes": 133
+          },
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b3",
+          "payload": 150,
+          "status": "ok",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2",
+            "b3"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b2"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        }
+      ],
+      "title": "delta_total_bytes inconsistent with payload + wrapper + base reference: INVALID"
+    },
+    {
+      "expect": {
+        "coverage": {
+          "codec_error": 0,
+          "expected_pairs": 2,
+          "identity_targets": 1,
+          "missing": 0,
+          "near_all_failed": 0,
+          "near_empty": 0,
+          "near_finite": 1,
+          "near_targets": 1,
+          "near_useful": 1,
+          "ok": 2,
+          "resource_limit": 0,
+          "sealed_pairs": 0,
+          "sealed_targets": 0,
+          "standalone_failed": 0,
+          "standalone_missing": 0,
+          "timeout": 0
+        },
+        "invalid_reasons": [],
+        "metrics": {
+          "call_reduction": "2",
+          "eps1": "1",
+          "eps2": "1",
+          "eps5": "1",
+          "nregret_near": {
+            "max": "10/67",
+            "p50": "10/67",
+            "p95": "10/67",
+            "sum": "10/67"
+          },
+          "nregret_useful": {
+            "max": "10/67",
+            "p50": "10/67",
+            "p95": "10/67",
+            "sum": "10/67"
+          },
+          "regret_near": {
+            "max": "20",
+            "p50": "20",
+            "p95": "20",
+            "sum": "20"
+          },
+          "regret_useful": {
+            "max": "20",
+            "p50": "20",
+            "p95": "20",
+            "sum": "20"
+          },
+          "savings_capture": "249/269",
+          "strict": "0",
+          "useful": "0"
+        },
+        "retrieval_reasons": [],
+        "retrieval_status": "OK",
+        "run_status": "COMPLETE",
+        "targets": {
+          "t1": {
+            "O": 134,
+            "O_delta": 134,
+            "S": 403,
+            "S_choice": "compressed",
+            "delta_status": "finite",
+            "ties": [
+              "b1"
+            ],
+            "useful": true
+          },
+          "t9": {
+            "O": 203,
+            "O_delta": null,
+            "S": 203,
+            "S_choice": "compressed",
+            "delta_status": "identity_only",
+            "ties": [],
+            "useful": false
+          }
+        }
+      },
+      "id": "K25",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "payload": 120,
+          "status": "ok",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        },
+        {
+          "bases": [],
+          "status": "identity_only",
+          "t": "t9"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b2"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        },
+        {
+          "compressed": 200,
+          "raw": 500,
+          "t": "t9"
+        }
+      ],
+      "title": "identity-only target: standalone measured, excluded from every near population"
+    },
+    {
+      "expect": {
+        "coverage": {
+          "codec_error": 0,
+          "expected_pairs": 1,
+          "identity_targets": 0,
+          "missing": 0,
+          "near_all_failed": 0,
+          "near_empty": 1,
+          "near_finite": 1,
+          "near_targets": 2,
+          "near_useful": 0,
+          "ok": 1,
+          "resource_limit": 0,
+          "sealed_pairs": 0,
+          "sealed_targets": 0,
+          "standalone_failed": 0,
+          "standalone_missing": 0,
+          "timeout": 0
+        },
+        "invalid_reasons": [],
+        "metrics": null,
+        "retrieval_reasons": [
+          "RETRIEVAL_COVERAGE"
+        ],
+        "retrieval_status": "INVALID",
+        "run_status": "COMPLETE",
+        "targets": {
+          "t1": {
+            "O": 303,
+            "O_delta": 435,
+            "S": 303,
+            "S_choice": "compressed",
+            "delta_status": "finite",
+            "ties": [
+              "b1"
+            ],
+            "useful": false
+          },
+          "t2": {
+            "O": 203,
+            "O_delta": null,
+            "S": 203,
+            "S_choice": "compressed",
+            "delta_status": "empty_candidate_set",
+            "ties": [],
+            "useful": false
+          }
+        }
+      },
+      "id": "K26",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 400,
+          "status": "ok",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        },
+        {
+          "bases": [],
+          "status": "near_duplicate",
+          "t": "t2"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b1"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 300,
+          "raw": 1000,
+          "t": "t1"
+        },
+        {
+          "compressed": 200,
+          "raw": 500,
+          "t": "t2"
+        }
+      ],
+      "title": "missing retrieval row for a near target: retrieval INVALID, never filled with the oracle base"
+    },
+    {
+      "expect": {
+        "coverage": {
+          "codec_error": 0,
+          "expected_pairs": 3,
+          "identity_targets": 0,
+          "missing": 0,
+          "near_all_failed": 0,
+          "near_empty": 0,
+          "near_finite": 1,
+          "near_targets": 1,
+          "near_useful": 1,
+          "ok": 3,
+          "resource_limit": 0,
+          "sealed_pairs": 0,
+          "sealed_targets": 0,
+          "standalone_failed": 1,
+          "standalone_missing": 0,
+          "timeout": 0
+        },
+        "invalid_reasons": [],
+        "metrics": {
+          "call_reduction": "3",
+          "eps1": "1",
+          "eps2": "1",
+          "eps5": "1",
+          "nregret_near": {
+            "max": "0",
+            "p50": "0",
+            "p95": "0",
+            "sum": "0"
+          },
+          "nregret_useful": {
+            "max": "0",
+            "p50": "0",
+            "p95": "0",
+            "sum": "0"
+          },
+          "regret_near": {
+            "max": "0",
+            "p50": "0",
+            "p95": "0",
+            "sum": "0"
+          },
+          "regret_useful": {
+            "max": "0",
+            "p50": "0",
+            "p95": "0",
+            "sum": "0"
+          },
+          "savings_capture": "1",
+          "strict": "1",
+          "useful": "1"
+        },
+        "retrieval_reasons": [],
+        "retrieval_status": "OK",
+        "run_status": "COMPLETE_WITH_FAILURES",
+        "targets": {
+          "t1": {
+            "O": 134,
+            "O_delta": 134,
+            "S": 1003,
+            "S_choice": "raw",
+            "delta_status": "finite",
+            "ties": [
+              "b1",
+              "b2"
+            ],
+            "useful": true
+          }
+        }
+      },
+      "id": "K27",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b3",
+          "payload": 150,
+          "status": "ok",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2",
+            "b3"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b2"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "raw": 1000,
+          "status": "timeout",
+          "t": "t1"
+        }
+      ],
+      "title": "standalone compressor timeout: S falls back to the raw frame, bounded run"
+    },
+    {
+      "expect": {
+        "coverage": {
+          "codec_error": 0,
+          "expected_pairs": 2,
+          "identity_targets": 0,
+          "missing": 0,
+          "near_all_failed": 0,
+          "near_empty": 0,
+          "near_finite": 1,
+          "near_targets": 1,
+          "near_useful": 1,
+          "ok": 2,
+          "resource_limit": 0,
+          "sealed_pairs": 0,
+          "sealed_targets": 0,
+          "standalone_failed": 0,
+          "standalone_missing": 0,
+          "timeout": 0
+        },
+        "invalid_reasons": [],
+        "metrics": {
+          "call_reduction": "N/A",
+          "eps1": "0",
+          "eps2": "0",
+          "eps5": "0",
+          "nregret_near": {
+            "max": "269/134",
+            "p50": "269/134",
+            "p95": "269/134",
+            "sum": "269/134"
+          },
+          "nregret_useful": {
+            "max": "269/134",
+            "p50": "269/134",
+            "p95": "269/134",
+            "sum": "269/134"
+          },
+          "regret_near": {
+            "max": "269",
+            "p50": "269",
+            "p95": "269",
+            "sum": "269"
+          },
+          "regret_useful": {
+            "max": "269",
+            "p50": "269",
+            "p95": "269",
+            "sum": "269"
+          },
+          "savings_capture": "0",
+          "strict": "0",
+          "useful": "0"
+        },
+        "retrieval_reasons": [],
+        "retrieval_status": "OK",
+        "run_status": "COMPLETE",
+        "targets": {
+          "t1": {
+            "O": 134,
+            "O_delta": 134,
+            "S": 403,
+            "S_choice": "compressed",
+            "delta_status": "finite",
+            "ties": [
+              "b1"
+            ],
+            "useful": true
+          }
+        }
+      },
+      "id": "K28",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "payload": 120,
+          "status": "ok",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [],
+            "encode_calls": 0,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        }
+      ],
+      "title": "empty retrieval list on a useful target: A = S, full regret, call reduction N/A"
+    },
+    {
+      "expect": {
+        "coverage": {
+          "codec_error": 0,
+          "expected_pairs": 3,
+          "identity_targets": 0,
+          "missing": 0,
+          "near_all_failed": 0,
+          "near_empty": 0,
+          "near_finite": 1,
+          "near_targets": 1,
+          "near_useful": 1,
+          "ok": 3,
+          "resource_limit": 0,
+          "sealed_pairs": 0,
+          "sealed_targets": 0,
+          "standalone_failed": 0,
+          "standalone_missing": 0,
+          "timeout": 0
+        },
+        "invalid_reasons": [],
+        "metrics": null,
+        "retrieval_reasons": [
+          "RETRIEVAL_CALLS"
+        ],
+        "retrieval_status": "INVALID",
+        "run_status": "COMPLETE",
+        "targets": {
+          "t1": {
+            "O": 134,
+            "O_delta": 134,
+            "S": 403,
+            "S_choice": "compressed",
+            "delta_status": "finite",
+            "ties": [
+              "b1",
+              "b2"
+            ],
+            "useful": true
+          }
+        }
+      },
+      "id": "K29",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b3",
+          "payload": 150,
+          "status": "ok",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2",
+            "b3"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b2"
+            ],
+            "encode_calls": 0,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        }
+      ],
+      "title": "encode_calls below the number of retrieved bases: retrieval INVALID"
+    },
+    {
+      "expect": {
+        "coverage": {
+          "codec_error": 0,
+          "expected_pairs": 4,
+          "identity_targets": 0,
+          "missing": 0,
+          "near_all_failed": 0,
+          "near_empty": 0,
+          "near_finite": 1,
+          "near_targets": 2,
+          "near_useful": 1,
+          "ok": 4,
+          "resource_limit": 0,
+          "sealed_pairs": 2,
+          "sealed_targets": 1,
+          "standalone_failed": 0,
+          "standalone_missing": 0,
+          "timeout": 0
+        },
+        "invalid_reasons": [],
+        "metrics": {
+          "call_reduction": "2",
+          "eps1": "1",
+          "eps2": "1",
+          "eps5": "1",
+          "nregret_near": {
+            "max": "10/67",
+            "p50": "10/67",
+            "p95": "10/67",
+            "sum": "10/67"
+          },
+          "nregret_useful": {
+            "max": "10/67",
+            "p50": "10/67",
+            "p95": "10/67",
+            "sum": "10/67"
+          },
+          "regret_near": {
+            "max": "20",
+            "p50": "20",
+            "p95": "20",
+            "sum": "20"
+          },
+          "regret_useful": {
+            "max": "20",
+            "p50": "20",
+            "p95": "20",
+            "sum": "20"
+          },
+          "savings_capture": "249/269",
+          "strict": "0",
+          "useful": "0"
+        },
+        "retrieval_reasons": [],
+        "retrieval_status": "OK",
+        "run_status": "COMPLETE",
+        "targets": {
+          "t1": {
+            "O": 134,
+            "O_delta": 134,
+            "S": 403,
+            "S_choice": "compressed",
+            "delta_status": "finite",
+            "ties": [
+              "b1"
+            ],
+            "useful": true
+          },
+          "t2": {
+            "sealed": true
+          }
+        }
+      },
+      "id": "K30",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "payload": 120,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b3",
+          "payload": 100,
+          "status": "ok",
+          "t": "t2"
+        },
+        {
+          "b": "b4",
+          "payload": 120,
+          "status": "ok",
+          "t": "t2"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        },
+        {
+          "bases": [
+            "b3",
+            "b4"
+          ],
+          "split": "evaluation",
+          "status": "near_duplicate",
+          "t": "t2"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b2"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "sealed_splits": [
+        "evaluation"
+      ],
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        },
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t2"
+        }
+      ],
+      "title": "sealed evaluation split: completeness and correctness counted, costs withheld, metrics only over unsealed targets"
+    },
+    {
+      "expect": {
+        "coverage": null,
+        "invalid_reasons": [
+          "SEALING_VIOLATION"
+        ],
+        "metrics": null,
+        "retrieval_reasons": [],
+        "retrieval_status": "NOT_EVALUATED",
+        "run_status": "INVALID",
+        "targets": null
+      },
+      "id": "K31",
+      "leak": true,
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "payload": 120,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b3",
+          "payload": 100,
+          "status": "ok",
+          "t": "t2"
+        },
+        {
+          "b": "b4",
+          "payload": 120,
+          "status": "ok",
+          "t": "t2"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        },
+        {
+          "bases": [
+            "b3",
+            "b4"
+          ],
+          "split": "evaluation",
+          "status": "near_duplicate",
+          "t": "t2"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b2"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "sealed_splits": [
+        "evaluation"
+      ],
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        },
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t2"
+        }
+      ],
+      "title": "cost rows of a sealed split published unsealed: INVALID (leakage)"
+    },
+    {
+      "expect": {
+        "coverage": null,
+        "invalid_reasons": [
+          "DECODE_MISMATCH"
+        ],
+        "metrics": null,
+        "retrieval_reasons": [],
+        "retrieval_status": "NOT_EVALUATED",
+        "run_status": "INVALID",
+        "targets": null
+      },
+      "id": "K32",
+      "pairs": [
+        {
+          "b": "b1",
+          "set": {
+            "decode_exit": 1,
+            "error_class": "nonzero_exit"
+          },
+          "status": "decode_mismatch",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "payload": 120,
+          "status": "ok",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b2"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        }
+      ],
+      "title": "decoder exits non-zero on a patch the encoder produced: decode_mismatch, INVALID, not +inf"
+    },
+    {
+      "expect": {
+        "coverage": null,
+        "invalid_reasons": [
+          "INPUT_INTEGRITY"
+        ],
+        "metrics": null,
+        "retrieval_reasons": [],
+        "retrieval_status": "NOT_EVALUATED",
+        "run_status": "INVALID",
+        "targets": null
+      },
+      "id": "K33",
+      "pairs": [
+        {
+          "b": "b1",
+          "status": "input_integrity",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "payload": 120,
+          "status": "ok",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b2"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        }
+      ],
+      "title": "materialized base bytes do not hash to the locked object ID: INVALID"
+    },
+    {
+      "expect": {
+        "coverage": {
+          "codec_error": 0,
+          "expected_pairs": 2,
+          "identity_targets": 0,
+          "missing": 1,
+          "near_targets": 1,
+          "ok": 1,
+          "resource_limit": 0,
+          "sealed_pairs": 0,
+          "sealed_targets": 0,
+          "standalone_failed": 0,
+          "standalone_missing": 0,
+          "timeout": 0
+        },
+        "invalid_reasons": [],
+        "metrics": null,
+        "retrieval_reasons": [],
+        "retrieval_status": "NOT_EVALUATED",
+        "run_status": "INCOMPLETE",
+        "targets": null
+      },
+      "id": "K34",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "set": {
+            "failure_phase": "runner"
+          },
+          "status": "not_run",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b1"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        }
+      ],
+      "title": "runner abort leaves a not_run row: the pair counts as missing, INCOMPLETE"
+    },
+    {
+      "expect": {
+        "coverage": {
+          "codec_error": 0,
+          "expected_pairs": 1,
+          "identity_targets": 0,
+          "missing": 0,
+          "near_all_failed": 0,
+          "near_empty": 0,
+          "near_finite": 1,
+          "near_targets": 1,
+          "near_useful": 0,
+          "ok": 1,
+          "resource_limit": 0,
+          "sealed_pairs": 0,
+          "sealed_targets": 0,
+          "standalone_failed": 0,
+          "standalone_missing": 0,
+          "timeout": 0
+        },
+        "invalid_reasons": [],
+        "metrics": {
+          "call_reduction": "1",
+          "eps1": "1",
+          "eps2": "1",
+          "eps5": "1",
+          "nregret_near": {
+            "max": "0",
+            "p50": "0",
+            "p95": "0",
+            "sum": "0"
+          },
+          "nregret_useful": {
+            "max": "N/A",
+            "p50": "N/A",
+            "p95": "N/A",
+            "sum": "N/A"
+          },
+          "regret_near": {
+            "max": "0",
+            "p50": "0",
+            "p95": "0",
+            "sum": "0"
+          },
+          "regret_useful": {
+            "max": "N/A",
+            "p50": "N/A",
+            "p95": "N/A",
+            "sum": "N/A"
+          },
+          "savings_capture": "N/A",
+          "strict": "1",
+          "useful": "N/A"
+        },
+        "retrieval_reasons": [],
+        "retrieval_status": "OK",
+        "run_status": "COMPLETE",
+        "targets": {
+          "t1": {
+            "O": 403,
+            "O_delta": 403,
+            "S": 403,
+            "S_choice": "compressed",
+            "delta_status": "finite",
+            "ties": [
+              "b1"
+            ],
+            "useful": false
+          }
+        }
+      },
+      "id": "K35",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 368,
+          "status": "ok",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b1"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        }
+      ],
+      "title": "O_delta equal to S: not useful (strict <), O = S"
+    },
+    {
+      "expect": {
+        "coverage": {
+          "codec_error": 0,
+          "expected_pairs": 2,
+          "identity_targets": 0,
+          "missing": 0,
+          "near_all_failed": 0,
+          "near_empty": 0,
+          "near_finite": 1,
+          "near_targets": 1,
+          "near_useful": 1,
+          "ok": 2,
+          "resource_limit": 0,
+          "sealed_pairs": 0,
+          "sealed_targets": 0,
+          "standalone_failed": 0,
+          "standalone_missing": 0,
+          "timeout": 0
+        },
+        "invalid_reasons": [],
+        "metrics": {
+          "call_reduction": "2",
+          "eps1": "1",
+          "eps2": "1",
+          "eps5": "1",
+          "nregret_near": {
+            "max": "5/64",
+            "p50": "5/64",
+            "p95": "5/64",
+            "sum": "5/64"
+          },
+          "nregret_useful": {
+            "max": "5/64",
+            "p50": "5/64",
+            "p95": "5/64",
+            "sum": "5/64"
+          },
+          "regret_near": {
+            "max": "5",
+            "p50": "5",
+            "p95": "5",
+            "sum": "5"
+          },
+          "regret_useful": {
+            "max": "5",
+            "p50": "5",
+            "p95": "5",
+            "sum": "5"
+          },
+          "savings_capture": "33/38",
+          "strict": "0",
+          "useful": "0"
+        },
+        "retrieval_reasons": [],
+        "retrieval_status": "OK",
+        "run_status": "COMPLETE",
+        "targets": {
+          "t1": {
+            "O": 54,
+            "O_delta": 54,
+            "S": 92,
+            "S_choice": "compressed",
+            "delta_status": "finite",
+            "ties": [
+              "b1"
+            ],
+            "useful": true
+          }
+        }
+      },
+      "id": "K36",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 20,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "payload": 25,
+          "status": "ok",
+          "t": "t1"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b2"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "standalone": [
+        {
+          "compressed": 90,
+          "raw": 100,
+          "t": "t1"
+        }
+      ],
+      "title": "normalized regret uses max(O, 64 B) when O is below 64 B"
+    },
+    {
+      "expect": {
+        "coverage": null,
+        "invalid_reasons": [
+          "DECODE_MISMATCH"
+        ],
+        "metrics": null,
+        "retrieval_reasons": [],
+        "retrieval_status": "NOT_EVALUATED",
+        "run_status": "INVALID",
+        "targets": null
+      },
+      "id": "K37",
+      "pairs": [
+        {
+          "b": "b1",
+          "payload": 100,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b2",
+          "payload": 120,
+          "status": "ok",
+          "t": "t1"
+        },
+        {
+          "b": "b3",
+          "payload": 100,
+          "set": {
+            "decoded_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "status": "ok",
+          "t": "t2"
+        },
+        {
+          "b": "b4",
+          "payload": 120,
+          "status": "ok",
+          "t": "t2"
+        }
+      ],
+      "queries": [
+        {
+          "bases": [
+            "b1",
+            "b2"
+          ],
+          "status": "near_duplicate",
+          "t": "t1"
+        },
+        {
+          "bases": [
+            "b3",
+            "b4"
+          ],
+          "split": "evaluation",
+          "status": "near_duplicate",
+          "t": "t2"
+        }
+      ],
+      "retrieval": {
+        "K": 1,
+        "rows": [
+          {
+            "bases": [
+              "b2"
+            ],
+            "encode_calls": 1,
+            "t": "t1"
+          }
+        ]
+      },
+      "sealed_splits": [
+        "evaluation"
+      ],
+      "standalone": [
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t1"
+        },
+        {
+          "compressed": 400,
+          "raw": 1000,
+          "t": "t2"
+        }
+      ],
+      "title": "sealed ok row whose decoded SHA-256 differs from the target: INVALID even without published costs"
+    }
+  ],
+  "contract_id": "delsk.oracle-contract.v1",
+  "expansion": "contract.md section 10: labels map to IDs Hc([\"delsk.oracle.kat.v1\",\"occurrence\"|\"object\",label]); omitted fields take the frame-v1 values; \"set\" overrides full-row fields after expansion; rationals are reduced \"p/q\" strings; null O_delta is +inf",
+  "g1_cases": [
+    {
+      "expect": [
+        "PASS",
+        []
+      ],
+      "id": "G01",
+      "runs": [
+        {
+          "bundle_verified": true,
+          "conformance": true,
+          "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "github_run_id": 1,
+          "run_status": "COMPLETE",
+          "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        },
+        {
+          "bundle_verified": true,
+          "conformance": true,
+          "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "github_run_id": 2,
+          "run_status": "COMPLETE",
+          "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      ],
+      "title": "two COMPLETE runs, distinct run IDs, equal digests, conformance and bundle verified"
+    },
+    {
+      "expect": [
+        "NOT_PASSED",
+        [
+          "REPEAT_MISSING"
+        ]
+      ],
+      "id": "G02",
+      "runs": [
+        {
+          "bundle_verified": true,
+          "conformance": true,
+          "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "github_run_id": 1,
+          "run_status": "COMPLETE",
+          "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      ],
+      "title": "single run"
+    },
+    {
+      "expect": [
+        "NOT_PASSED",
+        [
+          "REPEAT_MISSING"
+        ]
+      ],
+      "id": "G03",
+      "runs": [
+        {
+          "bundle_verified": true,
+          "conformance": true,
+          "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "github_run_id": 1,
+          "run_status": "COMPLETE",
+          "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        },
+        {
+          "bundle_verified": true,
+          "conformance": true,
+          "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "github_run_id": 1,
+          "run_status": "COMPLETE",
+          "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      ],
+      "title": "two attempts of the same run ID are not independent"
+    },
+    {
+      "expect": [
+        "INVALID",
+        [
+          "REPEAT_MISMATCH"
+        ]
+      ],
+      "id": "G04",
+      "runs": [
+        {
+          "bundle_verified": true,
+          "conformance": true,
+          "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "github_run_id": 1,
+          "run_status": "COMPLETE",
+          "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        },
+        {
+          "bundle_verified": true,
+          "conformance": true,
+          "cost_projection_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "github_run_id": 2,
+          "run_status": "COMPLETE",
+          "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      ],
+      "title": "repeat with different cost projection: nondeterministic measurement"
+    },
+    {
+      "expect": [
+        "INVALID",
+        [
+          "RUN_INVALID"
+        ]
+      ],
+      "id": "G05",
+      "runs": [
+        {
+          "bundle_verified": true,
+          "conformance": true,
+          "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "github_run_id": 1,
+          "run_status": "INVALID",
+          "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        },
+        {
+          "bundle_verified": true,
+          "conformance": true,
+          "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "github_run_id": 2,
+          "run_status": "COMPLETE",
+          "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        },
+        {
+          "bundle_verified": true,
+          "conformance": true,
+          "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "github_run_id": 3,
+          "run_status": "COMPLETE",
+          "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      ],
+      "title": "an INVALID attempt of the identity cannot be outvoted by later good runs"
+    },
+    {
+      "expect": [
+        "NOT_PASSED",
+        [
+          "RUN_COMPLETE_WITH_FAILURES"
+        ]
+      ],
+      "id": "G06",
+      "runs": [
+        {
+          "bundle_verified": true,
+          "conformance": true,
+          "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "github_run_id": 1,
+          "run_status": "COMPLETE",
+          "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        },
+        {
+          "bundle_verified": true,
+          "conformance": true,
+          "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "github_run_id": 2,
+          "run_status": "COMPLETE",
+          "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        },
+        {
+          "bundle_verified": true,
+          "conformance": true,
+          "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "github_run_id": 3,
+          "run_status": "COMPLETE_WITH_FAILURES",
+          "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      ],
+      "title": "a bounded attempt (codec failure) blocks G1"
+    },
+    {
+      "expect": [
+        "NOT_PASSED",
+        [
+          "RUN_INCOMPLETE"
+        ]
+      ],
+      "id": "G07",
+      "runs": [
+        {
+          "bundle_verified": true,
+          "conformance": true,
+          "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "github_run_id": 1,
+          "run_status": "COMPLETE",
+          "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        },
+        {
+          "bundle_verified": true,
+          "conformance": true,
+          "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "github_run_id": 2,
+          "run_status": "COMPLETE",
+          "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        },
+        {
+          "bundle_verified": true,
+          "conformance": true,
+          "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "github_run_id": 3,
+          "run_status": "INCOMPLETE",
+          "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      ],
+      "title": "an INCOMPLETE attempt blocks G1"
+    },
+    {
+      "expect": [
+        "NOT_PASSED",
+        [
+          "CONFORMANCE_OR_BUNDLE",
+          "REPEAT_MISSING"
+        ]
+      ],
+      "id": "G08",
+      "runs": [
+        {
+          "bundle_verified": true,
+          "conformance": true,
+          "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "github_run_id": 1,
+          "run_status": "COMPLETE",
+          "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        },
+        {
+          "bundle_verified": true,
+          "conformance": false,
+          "cost_projection_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "github_run_id": 2,
+          "run_status": "COMPLETE",
+          "targets_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      ],
+      "title": "a run without codec conformance does not count as a repeat"
+    }
+  ],
+  "schema": "delsk.oracle.known-answer.v1",
+  "user_required": {
+    "1": "K01",
+    "10": "K10",
+    "11": "K11",
+    "12": "K12",
+    "13": "K13",
+    "14": "K14",
+    "15": "K15",
+    "16": "K16",
+    "17": "K17",
+    "18": "K18",
+    "19": "K19",
+    "2": "K02",
+    "20": "K20",
+    "3": "K03",
+    "4": "K04",
+    "5": "K05",
+    "6": "K06",
+    "7": "K07",
+    "8": "K08",
+    "9": "K09"
+  }
+}

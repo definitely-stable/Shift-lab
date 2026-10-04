@@ -1,0 +1,37 @@
+{
+  "adopted_on": "2026-10-04",
+  "bindings": {
+    "candidate_lock_sha256": "cb16d53b164ff393187e0115bdf31c52ac717a5172fb1e91889b5988ac019d2e",
+    "codec_lock_sha256": "9823e4c933c27fb4116bfce5add59ef6e926e43d2f0ebae258d7bb869a38f7b1",
+    "corpus_lock_sha256": "e5c288256bed284572a9f111186411517b4c73d097d13aea4cf48e2fb9f6fffa",
+    "protocol_sha256": "a0c518247d111e8ad1294562d65eb34c28da87c7027c009efb64a39e6f4e0038",
+    "seal_sha256": "0c87fd5c96279c377d6031051d0cf990cb0afc6041212fc973b1ef35a8be73ef"
+  },
+  "contract_id": "delsk.oracle-contract.v1",
+  "files": {
+    ".work/oracle/codec-lock.json": "9823e4c933c27fb4116bfce5add59ef6e926e43d2f0ebae258d7bb869a38f7b1",
+    ".work/oracle/contract.md": "3400bd4fca78159d41e06a8c0e3f4e327874b38bfc07389b12989065e13c50cf",
+    ".work/oracle/known-answer.json": "d9a1ac3b59ce7dc337e0d96cf501da915d60347f1ee50aad9d851296482dbe6d",
+    ".work/oracle/schemas.json": "de8383875ef472b666784362b6ae561822ba88a14f8beadc42954612d0e63131",
+    ".work/tests/oracle_reference.py": "23c651ed269452a26826f5b84988e04dc1a3f2e14f042516133317a21915f2e8",
+    ".work/tests/test_oracle_contract.py": "ccb6d635acbe8e264af6528ed5ee0a755d8001c5dbfd4129564e982710d9dd3d"
+  },
+  "governance": "Takes effect when a maintainer merges this record into main. Immutable for the first natural oracle run and its repeats; any change of accounting, codec, options, framing, failure or evaluator semantics needs delsk.oracle-contract.v2 with a new freeze record and a new run. Earlier bytes, records and results are kept.",
+  "limitations": [
+    "Codec builds and conformance (contract section 10.3) were not executed in Slice A; a failing build or conformance before any natural run is BLOCKED BY CODEC/FRAMING EVIDENCE and needs a new contract version.",
+    "Known-answer expectations are checked by a test-only reference written with the contract; independence comes from the separate Slice B evaluator, which must reproduce them without importing the reference.",
+    "xdelta3 3.2.1 was released 2026-09-28; every pair is roundtrip-verified and runs need conformance and an independent repeat.",
+    "The pilot stays exploratory (one held-out lineage per calibration and evaluation split); G1 is measurement validity, not quality."
+  ],
+  "natural_measurements": "NOT_RUN",
+  "pair_universe": {
+    "identity_only": 15,
+    "near_duplicate": 64,
+    "planned_pairs_per_codec": 1961,
+    "queries": 79
+  },
+  "schema": "delsk.oracle-contract.freeze.v1",
+  "scope": "DELSK-003 / G1 primary oracle only: codec and framing lock, cost accounting, pair universe, correctness and failure semantics, oracle semantics, evaluator, durable schemas, known-answer vectors, CI plan. DELSK-P1 stays PLANNED.",
+  "slice_a_verdict": "ORACLE CONTRACT FREEZE-READY",
+  "status": "FROZEN_ON_MERGE"
+}
