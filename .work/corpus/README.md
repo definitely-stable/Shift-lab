@@ -1,13 +1,15 @@
 # Corpus и candidate contracts (DELSK-002, pilot-v1)
 
-Статус: **PROPOSED**. Здесь зафиксированы identities, provenance, время, splits и sampling **до** acquisition и до просмотра любых scores. Ни один файл этой директории не является frozen corpus: source plan не содержит acquisition hashes, а locks появятся только из CI materialization (Slice D) и ancestry/candidate sealing (Slice E). Это private research interfaces, не public API Delsk.
+Статус: **PROPOSED**. Здесь зафиксированы identities, provenance, время, splits и sampling **до** acquisition и до просмотра любых scores. Source plan не содержит acquisition hashes: они появляются только из CI materialization (Slice D, [pilot-v1](pilot-v1/README.md)); ancestry/candidate sealing — Slice E. Это private research interfaces, не public API Delsk.
 
 | Файл | Содержание |
 |---|---|
 | [source-plan.json](source-plan.json) | Pilot roster: families, releases, archive URLs, publication-time evidence, license evidence, path exclusions, ancestry edges, deferred domains |
 | [selection-policy.json](selection-policy.json) | Детерминированные правила: members, strata, tracks, splits, time, duplicates, targets, `C_t`, caps |
 | [manifests.py](../tools/manifests.py) | Canonical JSON, identities, time intervals, ancestry/splits, member selection, validators lock/candidate schemas |
-| [test_manifests.py](../tests/test_manifests.py) | Boundary fixtures; выполняются в Actions вместе с docs validation |
+| [materialize.py](../tools/materialize.py) | Acquisition и materialization в Actions: streaming caps, safe expansion, transforms, locks (Slice D) |
+| [pilot-v1/](pilot-v1/README.md) | Source lock, license evidence, materialization summary и отчёты CI runs |
+| [test_manifests.py](../tests/test_manifests.py), [test_materialize.py](../tests/test_materialize.py) | Boundary и hostile-archive fixtures; выполняются в Actions вместе с docs validation |
 
 ## Границы
 
@@ -71,6 +73,30 @@ Manual reasons (`license_blocked`, `non_regular_member`) требуют непу
 `delsk.candidate.lock.v1`: `corpus_lock_sha256`, `selection_policy_sha256`, `planned_pairs_per_codec = Σ|C_t|` для near-duplicate, `queries[]` отсортированы по target: `target`, `status`, `duplicate_of`, `bases[]` (отсортированы по `object_id`: `object_id`, `representative`, `category`), `candidate_count`, `candidate_list_sha256 = digest(sorted object_ids)`.
 
 `validate_corpus_lock` сначала валидирует сам plan и policy, затем проверяет их хеши, детерминированные splits, сортировку records, occurrence IDs из provenance, member rules (suffix, vendor/shared-origin globs) для каждого member path, transform/track/span/stratum согласованность и границы chunk внутри parent, toolchain и compressor options, inheritance split, cross-split content, матрицу и predicates exclusions и caps. Malformed input даёт строку ошибки, а не exception. `validate_candidate_lock` (предусловие — валидный corpus lock) применяет exclusions всех видов, eligibility и representative каждой базы, categories, identity-only branch и сумму pairs. Он **не** может доказать по lock, что выбраны именно первые N баз по rank среди всех eligible chunks, если невыбранные occurrences не перечислены; это проверяет независимый пересчёт из materialization в Slice E.
+
+## Acquisition и materialization (Slice D)
+
+`materialize.py` запускается только как workloads `materialize-discover` / `materialize-verify` в [foundation.yml](../../.github/workflows/foundation.yml): admission, limits и frozen dispatch identity — из [CI plan](../ci-plan.md). Payload bytes остаются в памяти и никуда не пишутся; outputs — только manifests.
+
+- **Download.** Только https URLs из source plan, `Accept-Encoding: identity`, redirects только на https. Тело читается потоком под остатком cap `acquired_bytes_max`; объявленный `Content-Length` больше cap отклоняется до чтения, несовпадение длины — truncated body. Повтор (≤3) только для сетевых ошибок, 5xx и truncated body; 4xx, превышение cap и redirect не на https останавливают materialization. Финальный хост redirect (зеркала SourceForge) пишется в report, не в lock: авторитетен SHA-256.
+- **Expansion.** gzip/xz/bz2 распаковываются в память с read-limit (остаток `materialized_bytes_max`); бомба, truncated stream и corrupt zip/tar — ошибка. Zip: encrypted members и методы кроме stored/deflate отклоняются. Ровно одна top-level directory снимается; unsafe path, member вне неё и duplicate path — hostile archive, ошибка.
+- **Links и non-regular members.** На диск ничего не пишется, links не разрешаются и не следуются. Link/device/sparse member на пути, который был бы retained source (`.c/.h` вне exclusion globs), останавливает materialization; на прочих путях (например symlinks `tests/cli-tests/bin/*` в zstd) он записывается в source lock как `non_regular_member` с типом и не участвует в payload.
+- **Representations.** Трансформы policy: file track — selected members; chunk tracks — все retained members, полные chunks, short tails в coverage; `tar` — `canonical_tar_v1`; `tar-gz` — `gzip.compress(level, mtime=0)` с `zlib_runtime` в options. `materialized_bytes` = сумма bytes всех occurrences (каждое представление считается отдельно) и проверяется после каждого release.
+- **Toolchain.** `materializer_sha256 = digest([sha256(materialize.py), sha256(manifests.py)])`, `python`, `zlib_runtime`.
+
+Outputs в `pilot-v1/` (все canonical JSON):
+
+| Файл | Schema | Содержание |
+|---|---|---|
+| `source-lock.json` | `delsk.corpus.source-lock.v1` | plan/policy SHA-256, по release: URL, format, `archive_sha256`, `archive_bytes`, `expanded_bytes`, top dir, `inventory_sha256` = digest всех members `[path, type, size, sha256]`, retained members (`path`, `bytes`, `object_id`), исключённые по globs и non-regular пути, счётчики exclusions |
+| `licenses.json` | `delsk.corpus.license-evidence.v1` | license/copying files каждого release (path, bytes, SHA-256), distinct copyright lines retained members (≤100 на family) и SPDX tags; review status здесь не хранится |
+| `materialization.json` | `delsk.corpus.materialization.v1` | SHA-256 source lock, license evidence и **полного** `delsk.corpus.lock.v1`; toolchain; по (source, track): occurrences, bytes, digest `[occurrence_id, object_id]`, short tails; file-track selection |
+
+**Отступление от плана Slice D.** Полный `delsk.corpus.lock.v1` содержит все chunk occurrences (оценка по git-tree инвентарю — порядка 30k записей, ~20 MB canonical JSON) и не помещается в reviewable git. В git хранится его SHA-256 и per-track digests в `materialization.json`; сам lock — `corpus-lock.json.gz` в artifact run, детерминированно пересобираемый из source lock. Slice E коммитит lock, суженный до targets и баз `C_t`, вместе с digest полного universe.
+
+**Discovery → review → verify.** `discover` пишет proposed files; они коммитятся в `pilot-v1/` после review inventory (retained/excluded paths, non-regular members, license evidence). `verify` на commit с этими файлами получает только их: каждый архив скачивается под cap `archive_bytes` и обязан совпасть по SHA-256 («changed download» — ошибка), а все три файла обязаны воспроизвестись байт в байт (`matches` в report). Freeze допустим после двух совпавших materializations в разных runs. Docs CI (`validate_committed`) падает, если source plan или selection policy изменены после discovery: их байты, включая `status`, закреплены hashes, поэтому license review фиксируется в [pilot-v1/README.md](pilot-v1/README.md), а не правкой plan. `report.json` каждого run (identity, downloads, output hashes, status) копируется в `pilot-v1/runs/`.
+
+Ограничения: xz/bz2 readers stdlib игнорируют мусор после последнего stream (содержимое закреплено SHA-256 архива); upstream digests (zstd `.sha256`, curl/bzip2 подписи) materializer не проверяет — сверка выполняется при review; libpng `immutable_revision` — provenance, tarball с git tree байтами не сверяется.
 
 ## Известные ограничения pilot
 

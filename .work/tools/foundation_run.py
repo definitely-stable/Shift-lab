@@ -8,7 +8,8 @@ workload fails or a limit kills it — so failure evidence is kept.
     python3 foundation_run.py OUT_DIR WORK_DIR ADMISSION_JSON
 
 Dispatch values come only through env (WORKLOAD, SOURCE_SHA); they are never
-interpolated into shell code. Contract prose: .work/ci-plan.md.
+interpolated into shell code. Workload evidence written to WORK_DIR/evidence is
+copied to OUT_DIR/workload. Contract prose: .work/ci-plan.md.
 """
 
 import datetime as dt
@@ -45,7 +46,13 @@ def selftest():
     print(json.dumps({"selftest_sha256": stream.hexdigest(), "bytes": SELFTEST_BYTES}))
 
 
-WORKLOADS = {"selftest": [sys.executable, os.path.abspath(__file__), "--selftest"]}
+MATERIALIZE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "materialize.py")
+# Workloads run with cwd = work dir and write evidence only to ./evidence (inside
+# the polled work dir); main copies it next to run.json after the run.
+WORKLOAD_EVIDENCE = "evidence"
+WORKLOADS = {"selftest": [sys.executable, os.path.abspath(__file__), "--selftest"],
+             "materialize-discover": [sys.executable, MATERIALIZE, "discover", WORKLOAD_EVIDENCE],
+             "materialize-verify": [sys.executable, MATERIALIZE, "verify", WORKLOAD_EVIDENCE]}
 
 
 def validate_dispatch(env):
@@ -195,6 +202,9 @@ def main(argv, env):
             record.update(status="not_admitted")
         else:
             record.update(run_bounded(WORKLOADS[env["WORKLOAD"]], work_dir, LIMITS))
+            produced = work_dir / WORKLOAD_EVIDENCE
+            if produced.is_dir():  # also after a failure: partial evidence is kept
+                shutil.copytree(produced, out_dir / "workload", symlinks=True, dirs_exist_ok=True)
     except BaseException as error:  # evidence is written even when the runner itself breaks
         record.update(status="runner_error", error=f"{type(error).__name__}: {error}")
     finally:
