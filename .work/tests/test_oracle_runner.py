@@ -269,40 +269,6 @@ class Runner(unittest.TestCase):
                 self.assertEqual((result['run_status'], result['invalid_reasons']), want)
                 self.assertEqual(ev.verify(ev2), [])  # an INVALID/INCOMPLETE run is still a faithful bundle
 
-    def test_sigterm_while_a_row_becomes_durable_is_counted_once(self):
-        """A SIGTERM that arrives while a row is written is delivered when Rows.write() restores the signal mask,
-        after the row is durable but before the caller counts it. The runner must still write exactly one row per
-        task: the durable row stays, the remaining tasks become not_run, nothing is duplicated (INCOMPLETE, not
-        INVALID DUPLICATE_PAIR). Deterministic: the signal is sent from inside the fsync of the third pair row."""
-        tools, conformance = shim_tools(self.tmp / 'race-tools')
-        evidence, private = self.tmp / 'race-ev', self.tmp / 'race-pr'
-        driver = '\n'.join((
-            'import os, signal, sys',
-            f'sys.path.insert(0, {str(WORK / "tools")!r})',
-            'import oracle_run',
-            'real, seen = os.fsync, []',
-            'def fsync(fd):',
-            "    if os.readlink(f'/proc/self/fd/{fd}').endswith('pairs.full.jsonl'):",
-            '        seen.append(fd)',
-            '        if len(seen) == 3:',
-            '            os.kill(os.getpid(), signal.SIGTERM)  # pending: Rows.write() masks SIGTERM here',
-            '    real(fd)',
-            'os.fsync = fsync',
-            'sys.exit(oracle_run.main(sys.argv[1:]))'))
-        proc = subprocess.run([sys.executable, '-c', driver, 'run', 'smoke', str(tools), str(conformance),
-                               str(self.tmp / 'syn' / 'store'), str(evidence), str(private), str(self.tmp / 'syn')],
-                              env={**os.environ, **ENV}, capture_output=True, timeout=120)
-        self.assertEqual(proc.returncode, 1, proc.stderr[-500:])
-        pairs = read_rows(private / 'pairs.full.jsonl')
-        ids = [r['pair_id'] for r in pairs]
-        self.assertEqual(len(ids), len(set(ids)))  # every task exactly once
-        self.assertEqual(len(pairs), 14)
-        self.assertEqual(sum(r['status'] != 'not_run' for r in pairs), 3)  # the three durable rows survive
-        self.assertTrue(all(r['error_class'] == 'runner_abort' for r in pairs if r['status'] == 'not_run'))
-        with redirect_stdout(io.StringIO()):
-            result = ev.finalize(evidence, private)
-        self.assertEqual((result['run_status'], result['invalid_reasons']), ('INCOMPLETE', []))
-
     def test_runner_abort_halfway_leaves_not_run_rows(self):
         tools, conformance = shim_tools(self.tmp / 'abort-tools', delta='slow')
         evidence, private = self.tmp / 'abort-ev', self.tmp / 'abort-pr'

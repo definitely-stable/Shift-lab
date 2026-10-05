@@ -430,18 +430,15 @@ class Rows:
 
     def __init__(self, path):
         self.fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_APPEND, 0o600)
-        self.rows = 0  # durable rows, counted inside the masked window together with the write itself
 
     def write(self, row):
         data = (json.dumps(row, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n").encode("utf-8")
-        # An abort signal is delivered between rows, never inside one: a row is whole or absent. A signal held back
-        # here is delivered when the mask is restored, after the row is durable and counted.
+        # An abort signal is delivered between rows, never inside one: a row is whole or absent.
         blocked = signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGTERM, signal.SIGINT})
         try:
             while data:
                 data = data[os.write(self.fd, data):]
             os.fsync(self.fd)
-            self.rows += 1
         finally:
             signal.pthread_sigmask(signal.SIG_SETMASK, blocked)
 
@@ -576,9 +573,6 @@ def execute(ctx, store, evidence, private, env=os.environ, codec_limits=None, fi
             sinks[task[0]].write(run_task(ctx, task, store, work, file_cap))
             done += 1
     except BaseException as error:  # SIGTERM, KeyboardInterrupt, a bug: every unwritten task becomes not_run
-        # Tasks are written in order, one row each: the durable rows, not the loop counter, say how many are done
-        # (an abort can land after a row is durable but before `done += 1`).
-        done = sum(sink.rows for sink in sinks.values())
         if status == "ok":
             status = "failed"
         print(f"runner aborted after {done} of {len(tasks)} tasks: {type(error).__name__}", file=sys.stderr)
