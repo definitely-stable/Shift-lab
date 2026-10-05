@@ -10,6 +10,8 @@
 | Registry, genesis, rulesets | **NOT_ACTIVATED** (ветки `delsk/registry*` не созданы, rulesets не настроены) |
 | Natural oracle / G1 | **NOT_RUN** / **NOT_RUN** |
 
+Реальная activation-процедура 2026-10-05: rulesets и genesis выполнены, smoke остановлен дефектом §8.3 п. 4 — [activation-c1b-log.md](activation-c1b-log.md). Таблица выше описывает состояние на момент merge PR #31.
+
 Граница C1-B: всё, что можно реализовать и проверить без записи в реальный репозиторий и без изменения его настроек. Ни один workflow не запускался, ни одна ветка/ruleset не создавались, ни один natural byte не читался. `oracle_pilot` worker и runner по-прежнему отказывают `DISPATCH_HISTORY_UNVERIFIED` ([Slice C0](slice-c.md)).
 
 ## Что реализовано
