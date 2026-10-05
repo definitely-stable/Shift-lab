@@ -121,5 +121,35 @@ class RegistryActivity(unittest.TestCase):
                 self.assertTrue(self.problems(edit))
 
 
+class SmokeProjection(unittest.TestCase):
+    def setUp(self):
+        path = ROOT / act.EVIDENCE_DIR / 'smoke-evaluation.json'
+        if not path.exists():
+            self.skipTest('no activation evidence in this tree')
+        self.doc = ev.parse_doc(path.read_bytes())
+
+    def test_a_moved_main_is_not_drift(self):
+        moved = copy.deepcopy(self.doc)
+        moved['main_head_sha'] = 'a' * 40
+        for record in moved['records']:
+            record['main_head_sha'], record['record_sha256'] = 'a' * 40, 'b' * 64
+        self.assertEqual(x.smoke_projection(moved), x.smoke_projection(self.doc))
+
+    def test_any_classification_change_is_drift(self):
+        cases = {
+            'class': lambda d: d['attempts'][0].update({'class': 'MISSING'}),
+            'unbound attempt': lambda d: d['unbound_attempts'].append({'run_id': 1, 'run_attempt': 1}),
+            'verdict': lambda d: d['records'][0].update(verdict='SCIENTIFIC_PASS'),
+            'blockers': lambda d: d['records'][0]['blockers'].append('X'),
+            'registry head': lambda d: d['registry_head'].update(sequence=6),
+            'provider fact': lambda d: d['provider'][0]['run']['jobs'][0].update(conclusion='cancelled'),
+        }
+        for name, edit in cases.items():
+            with self.subTest(name):
+                changed = copy.deepcopy(self.doc)
+                edit(changed)
+                self.assertNotEqual(x.smoke_projection(changed), x.smoke_projection(self.doc))
+
+
 if __name__ == '__main__':
     unittest.main()

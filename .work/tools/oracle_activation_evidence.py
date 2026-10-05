@@ -521,8 +521,7 @@ def recheck():
     scenarios = ev.parse_doc((EVIDENCE / 'smoke-scenarios.json').read_bytes())
     smoke = rg.smoke_evaluation(ev.ROOT, scenarios=scenarios)
     recorded = ev.parse_doc((EVIDENCE / 'smoke-evaluation.json').read_bytes())
-    # main may move after this record merges; the smoke classification may not (witness: smoke workflow bytes)
-    if _drop(smoke, 'main_head_sha') != _drop(recorded, 'main_head_sha'):
+    if smoke_projection(smoke) != smoke_projection(recorded):
         problems.append('live smoke evaluation differs from the committed evidence')
     problems += provenance(committed, scenarios, (EVIDENCE / 'write-surface.json').read_bytes())
     problems += [f'smoke live: {p}' for p in act.verify_smoke(smoke, scenarios)]
@@ -543,6 +542,14 @@ def recheck():
     if history['refs'] != ev.parse_doc((EVIDENCE / 'registry-activity.json').read_bytes())['refs']:
         problems.append('server-side registry history changed since the evidence was collected')
     return problems
+
+
+def smoke_projection(evaluation):
+    """The smoke evaluation without what depends on the pinned main: main may move after this record merges, the
+    smoke classification may not (its witness is the smoke workflow bytes). Every record carries the main pin, and its
+    record_sha256 seals it, so both are left out; every other field must stay equal."""
+    return {**_drop(evaluation, 'main_head_sha'),
+            'records': [_drop(r, 'main_head_sha', 'record_sha256') for r in evaluation['records']]}
 
 
 def last_change(rulesets_doc):
