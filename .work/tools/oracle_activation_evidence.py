@@ -16,12 +16,15 @@ they can show fail-closed behaviour but never change a frozen rule.
 """
 import copy
 import datetime
+import hashlib
+import io
 import json
 import os
 import sys
 import tempfile
 import urllib.error
 import urllib.request
+import zipfile
 from pathlib import Path
 
 import oracle_activation_v2 as act
@@ -336,6 +339,71 @@ def evaluation_scenarios(evaluation):
 
 # --- CI re-check -----------------------------------------------------------------------------------------------------
 
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, *args, **kwargs):
+        return None
+
+
+def artifact_bytes(artifact_id):
+    """Zip bytes of an Actions artifact: the API answers with a redirect to signed storage, which is fetched without
+    the API credential."""
+    headers = {'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28',
+               'User-Agent': 'delsk-evidence'}
+    if os.environ.get('GITHUB_TOKEN'):
+        headers['Authorization'] = f"Bearer {os.environ['GITHUB_TOKEN']}"
+    opener = urllib.request.build_opener(_NoRedirect)
+    try:
+        with opener.open(urllib.request.Request(f'{API}/actions/artifacts/{artifact_id}/zip', headers=headers),
+                         timeout=30) as response:
+            return response.read()
+    except urllib.error.HTTPError as error:
+        if error.code not in (301, 302, 303, 307, 308) or not error.headers.get('Location'):
+            raise
+        with urllib.request.urlopen(error.headers['Location'], timeout=60) as response:
+            return response.read()
+
+
+def _when(value):
+    parsed = datetime.datetime.fromisoformat(value.replace('Z', '+00:00'))
+    act.check(parsed.utcoffset() is not None, 'timestamp without offset')
+    return parsed
+
+
+def provenance(committed_rulesets, scenarios, write_surface_bytes):
+    """The runs behind items 8-10 are what the evidence says: exact workflow, dispatch on main at the evidenced
+    source, every attempt started after the last ruleset change, and the committed write-surface document is
+    byte for byte the artifact GitHub holds for its run (zip digest as reported by GitHub)."""
+    problems = []
+    last_change = max(_when(r['updated_at']) for r in committed_rulesets['rulesets'])
+    ws = ev.parse_doc(write_surface_bytes)
+    runs = [(r['run_id'], r['run_attempt'], act.SMOKE_WORKFLOW) for r in scenarios['runs']
+            if r['scenario'] != 'deleted-run']
+    runs.append((ws['run_id'], ws['run_attempt'], act.WRITE_SURFACE_WORKFLOW))
+    for run_id, attempt, workflow in runs:
+        doc = get(f'/actions/runs/{run_id}/attempts/{attempt}', missing_ok=True)
+        if not (type(doc) is dict and doc.get('id') == run_id and doc.get('run_attempt') == attempt
+                and doc.get('path') == workflow and doc.get('event') == 'workflow_dispatch'
+                and doc.get('head_branch') == 'main' and doc.get('status') == 'completed'):
+            problems.append(f'run {run_id}/{attempt}: not a completed dispatch of {workflow} on main')
+            continue
+        if _when(doc['run_started_at']) <= last_change:
+            problems.append(f'run {run_id}/{attempt}: started before the last ruleset change')
+    listing = get(f"/actions/runs/{ws['run_id']}/artifacts?per_page=100")
+    if listing.get('total_count') != len(listing.get('artifacts', [])):
+        return problems + ['write-surface artifact listing incomplete']
+    name = f"registry-write-surface-{ws['run_id']}-{ws['run_attempt']}"
+    hits = [a for a in listing.get('artifacts', []) if a.get('name') == name]
+    if len(hits) != 1 or hits[0].get('expired') or not str(hits[0].get('digest', '')).startswith('sha256:'):
+        return problems + ['write-surface artifact unavailable (expired or ambiguous): cannot re-prove item 10']
+    data = artifact_bytes(hits[0]['id'])
+    if 'sha256:' + hashlib.sha256(data).hexdigest() != hits[0]['digest']:
+        problems.append('write-surface artifact bytes differ from the digest GitHub reports')
+    with zipfile.ZipFile(io.BytesIO(data)) as archive:
+        if archive.namelist() != ['write-surface.json'] or archive.read('write-surface.json') != write_surface_bytes:
+            problems.append('committed write-surface.json is not the artifact of its run')
+    return problems
+
+
 def _drop(doc, *keys):
     return {k: v for k, v in doc.items() if k not in keys}
 
@@ -363,8 +431,11 @@ def recheck():
         print('note: bypass_actors not visible to this credential; empty bypass rests on the admin-collected evidence')
     scenarios = ev.parse_doc((EVIDENCE / 'smoke-scenarios.json').read_bytes())
     smoke = rg.smoke_evaluation(ev.ROOT, scenarios=scenarios)
-    if ev.canonical(smoke) != (EVIDENCE / 'smoke-evaluation.json').read_bytes():
+    recorded = ev.parse_doc((EVIDENCE / 'smoke-evaluation.json').read_bytes())
+    # main may move after this record merges; the smoke classification may not (witness: smoke workflow bytes)
+    if _drop(smoke, 'main_head_sha') != _drop(recorded, 'main_head_sha'):
         problems.append('live smoke evaluation differs from the committed evidence')
+    problems += provenance(committed, scenarios, (EVIDENCE / 'write-surface.json').read_bytes())
     problems += [f'smoke live: {p}' for p in act.verify_smoke(smoke, scenarios)]
     problems += [f'genesis live: {p}' for p in genesis()['problems']]
     live_refs = refs()
