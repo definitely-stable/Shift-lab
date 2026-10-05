@@ -822,25 +822,23 @@ class AuthoritativeRegistryBoundary(unittest.TestCase):
     def test_authoritative_register_bind_require_exact_v2_freeze(self):
         good_genesis = reg.make_genesis(reg.G1_FREEZE_SHA256)
         entries = self.registry_entries(good_genesis, (25000000001, 1, A))
-        snapshot = reg.authoritative_registry(self.commits(good_genesis, entries), self.GIT)
+        good_commits = self.commits(good_genesis, entries)
 
-        status, binding = g1.bind_check(snapshot, execution((25000000001, 1), A), self.GIT,
+        status, binding = g1.bind_check(good_commits, execution((25000000001, 1), A), self.GIT,
                                         entries[0]['entry_sha256'])
         self.assertEqual(status, 'BOUND')
         self.assertEqual(binding['entry_sha256'], entries[0]['entry_sha256'])
-        status, appended = g1.register_check(snapshot, execution((25000000002, 1), A), self.GIT, self.PRS)
+        status, appended = g1.register_check(good_commits, execution((25000000002, 1), A), self.GIT, self.PRS)
         self.assertEqual(status, 'APPENDED')
         self.assertEqual((appended['run_id'], appended['run_attempt']), (25000000002, 1))
 
         bad_genesis = reg.make_genesis('f' * 64)
-        with self.assertRaises(reg.RegistryInvalid):
-            reg.authoritative_registry(self.commits(bad_genesis, []), self.GIT)
-        self.assertEqual(g1._register_check_core(bad_genesis, [], execution((9, 1), A), self.GIT, self.PRS,
-                                                 g1_freeze_sha256=reg.G1_FREEZE_SHA256)[0],
+        bad_entries = self.registry_entries(bad_genesis, (25000000001, 1, A))
+        bad_commits = self.commits(bad_genesis, bad_entries)
+        self.assertEqual(g1.register_check(bad_commits, execution((9, 1), A), self.GIT, self.PRS)[0],
                          'REGISTRY_INVALID')
-        self.assertEqual(g1._bind_check_core(bad_genesis, entries, execution((25000000001, 1), A), self.GIT,
-                                             entries[0]['entry_sha256'],
-                                             g1_freeze_sha256=reg.G1_FREEZE_SHA256),
+        self.assertEqual(g1.bind_check(bad_commits, execution((25000000001, 1), A), self.GIT,
+                                       bad_entries[0]['entry_sha256']),
                          ('REGISTRY_UNBOUND', None))
 
     def test_physical_history_is_mandatory_before_runner_or_g1(self):
@@ -852,14 +850,18 @@ class AuthoritativeRegistryBoundary(unittest.TestCase):
         bad_commits = self.commits(genesis, entries, one_per_commit=False)
         with self.assertRaises(reg.RegistryInvalid):
             reg.authoritative_registry(bad_commits, self.GIT)
+        self.assertEqual(g1.register_check(bad_commits, execution((25000000003, 1), A), self.GIT, self.PRS)[0],
+                         'REGISTRY_INVALID')
+        self.assertEqual(g1.bind_check(bad_commits, execution((25000000001, 1), A), self.GIT,
+                                       entries[0]['entry_sha256']), ('REGISTRY_UNBOUND', None))
 
-        good = reg.authoritative_registry(self.commits(genesis, entries), self.GIT)
+        good_commits = self.commits(genesis, entries)
         evaluation = g1.Evaluation.build(
             genesis=genesis, entries=entries, registry_reread=reg.head(genesis, entries), git=self.GIT,
             main_reread=self.GIT.main_head_sha, provider=(), pull_requests=self.PRS, evidence=g1.Evidence.build(),
             evaluator_source_sha=self.GIT.main_head_sha, kat_green=(), g1_freeze_sha256=reg.G1_FREEZE_SHA256)
-        self.assertIsNone(g1.analyze_authoritative(evaluation, good).blocker)
-        self.assertEqual(g1.analyze_authoritative(evaluation, object()).blocker, 'REGISTRY_INVALID')
+        self.assertIsNone(g1.analyze_authoritative(evaluation, good_commits).blocker)
+        self.assertEqual(g1.analyze_authoritative(evaluation, bad_commits).blocker, 'REGISTRY_INVALID')
 
 
 class SmokeAPI:
