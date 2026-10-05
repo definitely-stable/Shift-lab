@@ -1,6 +1,6 @@
 # Proposal: `delsk.oracle-contract.v2` — registered-attempt provenance
 
-Статус: **PROPOSAL, НЕ FROZEN.** Это не контракт и не freeze record. Frozen [contract.md](contract.md) v1, [freeze.json](freeze.json), codec lock, schemas, vectors, `C_t`, locks и thresholds не меняются. Natural oracle и G1 = **NOT_RUN**. Обоснование и литература — [desk research](../research/DELSK-ATTEMPT-V2-DESK-RESEARCH.md). Реализация начинается только после принятия решений §11 и отдельного задания.
+Статус: **PROPOSAL, НЕ FROZEN.** Это не контракт и не freeze record. Нормативная версия после решений D1–D5 — [contract-v2.md](contract-v2.md); где они расходятся, действует контракт (его §17.2). Frozen [contract.md](contract.md) v1, [freeze.json](freeze.json), codec lock, schemas, vectors, `C_t`, locks и thresholds не меняются. Natural oracle и G1 = **NOT_RUN**. Обоснование и литература — [desk research](../research/DELSK-ATTEMPT-V2-DESK-RESEARCH.md). Реализация начинается только после принятия решений §11 и отдельного задания.
 
 ## 1. Scope
 

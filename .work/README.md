@@ -21,7 +21,8 @@
 | [DELSK-003 Slice B](oracle/slice-b.md) | Production builder, runner, independent evaluator, codec conformance C01–C14 и PR smoke lane на synthetic data; natural oracle NOT_RUN, G1 NOT_RUN |
 | [DELSK-003 Slice C0](oracle/slice-c.md) | Materialization, exact-commit pilot, bounded sealed export и append-only evidence tooling; BLOCKED BY PILOT INFRASTRUCTURE из-за неполной исторической dispatch authority; natural oracle/G1 NOT_RUN |
 | [DELSK-003A desk research](research/DELSK-ATTEMPT-V2-DESK-RESEARCH.md) | Registered-attempt model вместо all-GitHub-dispatch invariant: доказательство, контрпримеры, registry options, threat model; verdict V2 REGISTERED-ATTEMPT MODEL RECOMMENDED |
-| [Proposal oracle-contract.v2](oracle/attempt-v2-proposal.md) | PROPOSAL, не frozen: registry, bind-before-measure, G1 v2 population, R-vectors, change matrix, решения maintainer |
+| [Proposal oracle-contract.v2](oracle/attempt-v2-proposal.md) | Пояснительный proposal (не нормативен): обоснование registry, bind-before-measure, change matrix |
+| [DELSK-003A contract v2](oracle/contract-v2.md) | Frozen `delsk.oracle-contract.v2` ([freeze](oracle/freeze-v2.json)): provenance/G1 layer над неизменным v1 — registry, bind-before-measure, PRE/BUNDLE/MISSING, `science_identity`, transitions, G1 v2, R01–R24, XC01–XC05, PM01–PM12, activation; PROTOCOL V2 FROZEN, IMPLEMENTATION NOT_ACTIVE, natural oracle/G1 NOT_RUN |
 | [Prior art update 2026-10](research/DELSK-PRIOR-ART-UPDATE-2026-10.md) | Карта sketch/similarity методов и минимальный baseline набор DELSK-004 после G1 |
 | [План CI](ci-plan.md) | Ограниченные ресурсы, сценарии запуска, provenance |
 | [Гипотезы](hypotheses.md) | Проверяемые утверждения, ablations и stop criteria |
