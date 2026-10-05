@@ -130,11 +130,11 @@ def runner_failures(module, case):
     try:
         if r['register'] != 'NOT_RUN':
             sha = mine[0]['measured_source_sha']
-            got = module.register_check(genesis, entries[:mine[0]['sequence'] - 1], {**ex, 'sha': sha,
+            got = module.register_check_test(genesis, entries[:mine[0]['sequence'] - 1], {**ex, 'sha': sha,
                                         'workflow_sha': sha}, git, VECTORS['environment']['pull_requests'])[0]
             return got != r['register']
         sha = entries[0]['measured_source_sha']
-        return module.bind_check(genesis, entries, {**ex, 'sha': sha, 'workflow_sha': sha}, git, '0' * 64)[0] != r['bind']
+        return module.bind_check_test(genesis, entries, {**ex, 'sha': sha, 'workflow_sha': sha}, git, '0' * 64)[0] != r['bind']
     except Exception:
         return True
 
