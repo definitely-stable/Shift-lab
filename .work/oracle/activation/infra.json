@@ -1,0 +1,43 @@
+{
+  "evidence": {
+    "rulesets": {
+      "path": ".work/oracle/activation/rulesets.json",
+      "sha256": "8bb3cca8e938ca1170de3cfe79118a46e2bc8b49c9bed99ff3902a27b7f31c41"
+    },
+    "scenarios": {
+      "path": ".work/oracle/activation/smoke-scenarios.json",
+      "sha256": "057d44d2dfce64175384d5bb4d4a8b64d65cbde6601204524b9081a27e1dd057"
+    },
+    "smoke": {
+      "path": ".work/oracle/activation/smoke-evaluation.json",
+      "sha256": "52437392058fc38ec0414cc92056fdec747233eeaa070bfc63d53135cec641b2"
+    },
+    "write_surface": {
+      "path": ".work/oracle/activation/write-surface.json",
+      "sha256": "8d5b83ad475726f718fd003cc87ba1f682cce7b2d66f580b11e3e2bdb41f9683"
+    }
+  },
+  "g1_contract": "delsk.oracle-contract.v3",
+  "g1_freeze_sha256": "39dede91e9ed6e12d298f5bd72f9d94fda9e0ac5c92f7a478815d210a0eb1c85",
+  "genesis_review": {
+    "merge_commit_sha": "13c7d74ede7e2fd41bade001ec0e88926882459c",
+    "pull_request": 32
+  },
+  "registry": {
+    "genesis_sha256": "e60e5bbce3a7e0b411bc36c937df04f098f07428d5e9e23fd66d10b61a06ac03",
+    "ref": "refs/heads/delsk/registry-v3",
+    "root_commit": "1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258"
+  },
+  "schema": "delsk.oracle.v3-activation-infra.v1",
+  "steps": {
+    "bind": "Bind registry entry before the measurement boundary (contract v3 bind)",
+    "boundary": "Measurement boundary (contract v3 boundary)",
+    "kat": "Oracle tests (contract, production KAT/G1, mutants, metamorphic, faults, pinned codecs)",
+    "provider": [
+      "Complete job",
+      "Post Read-only source checkout"
+    ],
+    "register": "Register attempt in the append-only registry (contract v3 register)"
+  },
+  "workflow_sha256": "d01036fff8396b274e400fe9f02912473cd9997dab7b4a9f020a3bac346ea81d"
+}

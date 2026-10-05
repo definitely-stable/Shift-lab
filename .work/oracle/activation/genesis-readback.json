@@ -1,0 +1,138 @@
+{
+  "collected_at": "2026-10-05T16:12:06Z",
+  "domain_separated": true,
+  "freeze_v3_sha256_in_tree": "39dede91e9ed6e12d298f5bd72f9d94fda9e0ac5c92f7a478815d210a0eb1c85",
+  "g1_freeze_sha256": "39dede91e9ed6e12d298f5bd72f9d94fda9e0ac5c92f7a478815d210a0eb1c85",
+  "problems": [],
+  "production_g1_freeze_is_freeze_v3": true,
+  "registries": {
+    "production": {
+      "api_root_parents": [],
+      "api_root_tree": [
+        {
+          "mode": "100644",
+          "path": "entries.jsonl",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "type": "blob"
+        },
+        {
+          "mode": "100644",
+          "path": "genesis.json",
+          "sha": "816c7db06822e11636d1db76f69af9a39f95c464",
+          "size": 436,
+          "type": "blob"
+        }
+      ],
+      "api_root_tree_truncated": false,
+      "branch_protected": true,
+      "checks": {
+        "branch protected by deletion and non_fast_forward": true,
+        "g1_freeze_sha256 binding of this profile": true,
+        "genesis.json is canonical and equals make_genesis": true,
+        "genesis_sha256 equals the reviewed constant": true,
+        "registry_root() returns the reviewed root": true,
+        "root entries.jsonl is empty": true,
+        "root has no parent": true,
+        "root tree is exactly genesis.json and entries.jsonl (100644 blobs)": true,
+        "single root commit equal to the reviewed root": true
+      },
+      "effective_rules": [
+        "deletion",
+        "non_fast_forward"
+      ],
+      "effective_ruleset_ids": [
+        24498603
+      ],
+      "expected_genesis_sha256": "e60e5bbce3a7e0b411bc36c937df04f098f07428d5e9e23fd66d10b61a06ac03",
+      "expected_root": "1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258",
+      "genesis_json": {
+        "g1_contract": "delsk.oracle-contract.v3",
+        "g1_freeze_sha256": "39dede91e9ed6e12d298f5bd72f9d94fda9e0ac5c92f7a478815d210a0eb1c85",
+        "measurement_contract": "delsk.oracle-contract.v1",
+        "measurement_freeze_sha256": "c56fc053b103cecd38446b3791db104a12b9fafabacdfc6b71f6f23c0bf7f729",
+        "registry_ref": "refs/heads/delsk/registry-v3",
+        "repository": "definitely-stable/Shift-lab",
+        "schema": "delsk.oracle.registry-genesis.v1"
+      },
+      "genesis_sha256": "e60e5bbce3a7e0b411bc36c937df04f098f07428d5e9e23fd66d10b61a06ac03",
+      "head": "1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258",
+      "ref": "refs/heads/delsk/registry-v3",
+      "registry_root": "1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258",
+      "root_commit_object": "tree e8e8a0cf28da3b4653a443dfd953f8490a194594\nauthor delsk-registry <delsk-registry@users.noreply.github.com> 1791158400 +0000\ncommitter delsk-registry <delsk-registry@users.noreply.github.com> 1791158400 +0000\n\ndelsk registry genesis (production)\n",
+      "root_entries_jsonl_bytes": 0,
+      "root_tree": [
+        "100644 blob e69de29bb2d1d6434b8b29ae775ad8c2e48c5391       0\tentries.jsonl",
+        "100644 blob 816c7db06822e11636d1db76f69af9a39f95c464     436\tgenesis.json"
+      ],
+      "roots": [
+        "1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258"
+      ]
+    },
+    "smoke": {
+      "api_root_parents": [],
+      "api_root_tree": [
+        {
+          "mode": "100644",
+          "path": "entries.jsonl",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "type": "blob"
+        },
+        {
+          "mode": "100644",
+          "path": "genesis.json",
+          "sha": "0da5ec85a49f69d4f791b43389003b5d0d21e33f",
+          "size": 442,
+          "type": "blob"
+        }
+      ],
+      "api_root_tree_truncated": false,
+      "branch_protected": true,
+      "checks": {
+        "branch protected by deletion and non_fast_forward": true,
+        "g1_freeze_sha256 binding of this profile": true,
+        "genesis.json is canonical and equals make_genesis": true,
+        "genesis_sha256 equals the reviewed constant": true,
+        "registry_root() returns the reviewed root": true,
+        "root entries.jsonl is empty": true,
+        "root has no parent": true,
+        "root tree is exactly genesis.json and entries.jsonl (100644 blobs)": true,
+        "single root commit equal to the reviewed root": true
+      },
+      "effective_rules": [
+        "deletion",
+        "non_fast_forward"
+      ],
+      "effective_ruleset_ids": [
+        24498603
+      ],
+      "expected_genesis_sha256": "c746e25a69febbfe3e38d0548c2a01952c94c56b68e156a839967039c3214f9a",
+      "expected_root": "62f79c1ceeb4f61615039104532e8dee251efaa3",
+      "genesis_json": {
+        "g1_contract": "delsk.oracle-contract.v3",
+        "g1_freeze_sha256": "85dbb80deebefcffbaf834334ceba3d2a6d8b4fd103541e756b9abfc5c07a914",
+        "measurement_contract": "delsk.oracle-contract.v1",
+        "measurement_freeze_sha256": "c56fc053b103cecd38446b3791db104a12b9fafabacdfc6b71f6f23c0bf7f729",
+        "registry_ref": "refs/heads/delsk/registry-v3-smoke",
+        "repository": "definitely-stable/Shift-lab",
+        "schema": "delsk.oracle.registry-genesis.v1"
+      },
+      "genesis_sha256": "c746e25a69febbfe3e38d0548c2a01952c94c56b68e156a839967039c3214f9a",
+      "head": "479cc9d90ba88329cd5cc2bf2e7786b05a86ffc6",
+      "ref": "refs/heads/delsk/registry-v3-smoke",
+      "registry_root": "62f79c1ceeb4f61615039104532e8dee251efaa3",
+      "root_commit_object": "tree 826466471c9162683cdc63149f5fcfea0e6914a7\nauthor delsk-registry <delsk-registry@users.noreply.github.com> 1791158400 +0000\ncommitter delsk-registry <delsk-registry@users.noreply.github.com> 1791158400 +0000\n\ndelsk registry genesis (smoke)\n",
+      "root_entries_jsonl_bytes": 0,
+      "root_tree": [
+        "100644 blob e69de29bb2d1d6434b8b29ae775ad8c2e48c5391       0\tentries.jsonl",
+        "100644 blob 0da5ec85a49f69d4f791b43389003b5d0d21e33f     442\tgenesis.json"
+      ],
+      "roots": [
+        "62f79c1ceeb4f61615039104532e8dee251efaa3"
+      ]
+    }
+  },
+  "repository": "definitely-stable/Shift-lab",
+  "schema": "delsk.oracle.registry-genesis-readback.v1"
+}

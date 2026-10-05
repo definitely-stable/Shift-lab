@@ -1,0 +1,38 @@
+name: Oracle activation evidence (DELSK-003A)
+
+# Contract v3 activation items 6-10: re-verifies the committed infra record and its evidence against GitHub as it is
+# now (rulesets and effective rules, both v3 registry roots, registry refs with the retired v2 refs unchanged, a live
+# re-evaluation of the synthetic smoke registry, contract-v3 semantics on the real smoke observations). Read-only:
+# no write permission, no registry or natural byte is written or read beyond public Git objects and the provider API.
+# It activates nothing. Standard GitHub-hosted runner only.
+on:
+  pull_request:
+    paths: ['.work/oracle/activation/**', '.work/tools/oracle_activation_evidence.py',
+            '.github/workflows/oracle-activation-evidence.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oracle-activation-evidence-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  recheck:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Infra record against the checked-out tree (offline)
+        run: python3 .work/tools/oracle_activation_v2.py verify-infra .work/oracle/activation/infra.json
+      - name: Live re-check of the committed evidence (read-only)
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 .work/tools/oracle_activation_evidence.py recheck

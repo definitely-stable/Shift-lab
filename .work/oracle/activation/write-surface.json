@@ -1,0 +1,36 @@
+{
+  "attempts": [
+    {
+      "exit_code": 1,
+      "operation": "push-main",
+      "ref": "refs/heads/main",
+      "ref_after": "13c7d74ede7e2fd41bade001ec0e88926882459c",
+      "ref_before": "13c7d74ede7e2fd41bade001ec0e88926882459c",
+      "server_rejected": true
+    },
+    {
+      "exit_code": 1,
+      "operation": "non-fast-forward-registry",
+      "ref": "refs/heads/delsk/registry-v3",
+      "ref_after": "1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258",
+      "ref_before": "1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258",
+      "server_rejected": true
+    },
+    {
+      "exit_code": 1,
+      "operation": "delete-registry",
+      "ref": "refs/heads/delsk/registry-v3",
+      "ref_after": "1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258",
+      "ref_before": "1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258",
+      "server_rejected": true
+    }
+  ],
+  "collected_at": "2026-10-05T16:05:12Z",
+  "credential": "GITHUB_TOKEN contents: write",
+  "preflight": "PASSED",
+  "repository": "definitely-stable/Shift-lab",
+  "run_attempt": 1,
+  "run_id": 37338024520,
+  "schema": "delsk.oracle.write-surface.v1",
+  "workflow_ref": "definitely-stable/Shift-lab/.github/workflows/oracle-registry-write-surface.yml@refs/heads/main"
+}

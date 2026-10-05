@@ -39,6 +39,8 @@ SHA-256 `freeze-v3.json` = `39dede91e9ed6e12d298f5bd72f9d94fda9e0ac5c92f7a478815
 
 ## Activation v3: шаги maintainer (по порядку, после review/merge этого PR)
 
+Выполнение шагов 1–4 и infra record (п. 6–10) — [activation-v3-log.md](activation-v3-log.md); v3 по-прежнему NOT_ACTIVE.
+
 Процедура та же, что в [slice-c1b.md](slice-c1b.md), на refs v3:
 
 1. **Rulesets (п. 7).** В ruleset `DELSK registry append-only` (id 24498603) **добавить** targets `delsk/registry-v3` и `delsk/registry-v3-smoke`. В UI вводить без `refs/heads/`, только ASCII. Существующие `delsk/registry` и `delsk/registry-smoke` не удалять: retired refs v2 обязаны оставаться под защитой. Ruleset `main` — без изменений. Evidence собирать `GET /rulesets/{id}` и `GET /rules/branches/{branch}` для `main`, `delsk/registry-v3`, `delsk/registry-v3-smoke`, `delsk/registry`, `delsk/registry-smoke`, затем `oracle_activation_v2.py verify-rulesets`.
