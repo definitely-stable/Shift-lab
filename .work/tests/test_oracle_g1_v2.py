@@ -807,6 +807,7 @@ class KatV2(unittest.TestCase):
             return g1.kat_verified_v2(SmokeAPI(self.SHA, list(attempts)), self.SHA, self.PINNED, step, root)
 
     def test_green_commit_on_pinned_main(self):
+        self.assertEqual(reg.MEASUREMENT_FREEZE_SHA256, 'c56fc053b103cecd38446b3791db104a12b9fafabacdfc6b71f6f23c0bf7f729')
         self.assertTrue(self.verified())
         self.assertTrue(self.verified([('completed', 'cancelled', None), self.GREEN]))
 
@@ -884,7 +885,8 @@ class BundleProjection(unittest.TestCase):
         from contextlib import redirect_stderr, redirect_stdout
         import oracle_run as orun
         import test_oracle_runner as tr
-        orun.synthetic(tmp / 'syn')
+        if not (tmp / 'syn').exists():
+            orun.synthetic(tmp / 'syn')
         env = {**tr.ENV, 'GITHUB_SHA': sha, 'GITHUB_WORKFLOW_SHA': sha}
         tools, conformance = tr.shim_tools(tmp / f'tools-{sha[0]}')
         ctx = orun.prepare('smoke', tools, conformance, tmp / 'syn', env)

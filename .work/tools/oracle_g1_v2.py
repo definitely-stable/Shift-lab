@@ -621,7 +621,7 @@ def kat_verified_v2(get, sha, main_head_sha, kat_step, root=ev.ROOT):
             files = freeze[layer]['files'] if layer else freeze['files']
             oa.check(all(ev.sha256(oa._git_show(root, sha, p)) == d for p, d in files.items()), 'frozen file differs')
         oa.check(ev.sha256(oa._git_show(root, main_head_sha, '.work/oracle/freeze.json')) ==
-                 reg.make_genesis('0' * 64)['measurement_freeze_sha256'], 'v1 freeze differs')
+                 reg.MEASUREMENT_FREEZE_SHA256, 'v1 freeze differs from contract-v2 section 1')
         return oa.kat_actions_green(get, reg.REPOSITORY, sha, kat_step)
     except Exception:  # unverifiable evidence is never green
         return False

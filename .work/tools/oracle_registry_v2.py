@@ -34,6 +34,8 @@ GENESIS_FILE, ENTRIES_FILE = 'genesis.json', 'entries.jsonl'
 ENTRY_SCHEMA = 'delsk.oracle.registry-entry.v1'
 SCIENCE_SCHEMA = 'delsk.oracle.science-identity.v1'
 _SCHEMAS = ev.parse_doc((ev.ORACLE / 'schemas-v2.json').read_bytes())
+# SHA-256 of the v1 freeze.json (contract 1), as frozen in the genesis schema.
+MEASUREMENT_FREEZE_SHA256 = _SCHEMAS['$defs']['registry_genesis']['properties']['measurement_freeze_sha256']['const']
 
 
 class RegistryInvalid(ev.EvalError):
@@ -112,7 +114,7 @@ class GitSnapshot:
 def make_genesis(g1_freeze_sha256):
     return {'schema': 'delsk.oracle.registry-genesis.v1', 'g1_contract': G1_CONTRACT,
             'measurement_contract': MEASUREMENT_CONTRACT,
-            'measurement_freeze_sha256': ev.sha256((ev.ORACLE / 'freeze.json').read_bytes()),
+            'measurement_freeze_sha256': MEASUREMENT_FREEZE_SHA256,
             'g1_freeze_sha256': g1_freeze_sha256, 'repository': REPOSITORY, 'registry_ref': REGISTRY_REF}
 
 
