@@ -1,4 +1,4 @@
-"""DELSK-003A C1-A gate 1: frozen v1/v2 bytes are unchanged and nothing is activated.
+"""DELSK-003A C1-A/C1-B gate 1: frozen v1/v2 bytes are unchanged and nothing is activated.
 
 Runs before the v2 implementation tests. Hashes are spelled out here (not read from the freeze records) so that an
 edit of a freeze record together with the file it pins is caught as well. Offline; reads no natural byte.
@@ -11,6 +11,7 @@ from pathlib import Path
 
 WORK = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(WORK / 'tools'))
+import oracle_activation_v2 as activation
 import oracle_eval as ev
 import oracle_g1_v2 as g1
 import oracle_pilot
@@ -81,14 +82,19 @@ class NotActivated(unittest.TestCase):
         self.assertFalse((WORK / 'oracle' / 'series-transition.json').exists())
         self.assertFalse(list(WORK.rglob('genesis.json')))
         self.assertIsNone(g1.ACTIVATION_RECORD)
+        self.assertFalse((WORK.parent / activation.ACTIVATION_FILE).exists())
 
     def test_c0_natural_path_stays_closed(self):
         with self.assertRaises(oracle_pilot.PilotError) as blocked:
             oracle_pilot.require_dispatch_history()
         self.assertEqual(blocked.exception.failure_class, 'DISPATCH_HISTORY_UNVERIFIED')
+        # C1-B: the reviewed register/measure split (contract 12.2) is in place, but the only write-capable job is
+        # `register`, which refuses before activation without any read (test_oracle_registry_git), and the measure
+        # job keeps the C0 guard above. No registry ref or credential is spelled out in the workflow.
         workflow = (WORK.parent / '.github/workflows/oracle-pilot.yml').read_text(encoding='utf-8')
+        self.assertEqual(activation.check_pilot_workflow(workflow), [])
         self.assertNotIn('delsk/registry', workflow)
-        self.assertNotIn('contents: write', workflow)
+        self.assertEqual(workflow.count('contents: write'), 1)
 
 
 if __name__ == '__main__':

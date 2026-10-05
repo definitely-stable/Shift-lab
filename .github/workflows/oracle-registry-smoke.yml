@@ -1,0 +1,94 @@
+name: Oracle registry smoke (DELSK-003A)
+
+# Contract v2 activation items 8-9: the production register/bind code on the synthetic SMOKE registry
+# (refs/heads/delsk/registry-smoke, own genesis domain). The boundary step is a marker; nothing natural is read,
+# built or measured anywhere in this workflow. Manual dispatch on main only, after the smoke genesis exists.
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact commit equal to the dispatched branch head
+        type: string
+        required: true
+      scenario:
+        description: Synthetic scenario (slice-c1b.md)
+        type: choice
+        required: true
+        options:
+          - stop-before-boundary
+          - cross-boundary
+          - cancel-before-register
+          - cancel-after-register
+
+permissions:
+  contents: read
+
+concurrency:
+  group: delsk-registry-smoke
+  cancel-in-progress: false
+
+jobs:
+  register:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    outputs:
+      entry_sha256: ${{ steps.register.outputs.entry_sha256 }}
+    env:
+      SOURCE_SHA: ${{ inputs.source_sha }}
+    steps:
+      - name: Anonymous source checkout without the write token
+        env:
+          GIT_TERMINAL_PROMPT: '0'
+        run: |
+          git init -q .
+          git -c credential.helper= fetch -q --no-tags https://github.com/definitely-stable/Shift-lab.git \
+            '+refs/heads/main:refs/remotes/source/main' "$GITHUB_SHA"
+          git -c advice.detachedHead=false checkout -q --detach "$GITHUB_SHA"
+      - name: Synthetic hold before register
+        if: inputs.scenario == 'cancel-before-register'
+        run: sleep 600
+      - name: Register attempt in the append-only registry (contract v2 register)
+        id: register
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: /usr/bin/python3 .work/tools/oracle_registry_git.py smoke-register
+  measure:
+    needs: register
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    env:
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      REGISTER_ENTRY_SHA256: ${{ needs.register.outputs.entry_sha256 }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Synthetic hold before the boundary
+        if: inputs.scenario == 'cancel-after-register'
+        run: sleep 600
+      - name: Bind registry entry before the measurement boundary (contract v2 bind)
+        id: bind
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: /usr/bin/python3 .work/tools/oracle_registry_git.py smoke-bind "$RUNNER_TEMP/binding/binding.json"
+      - name: Retain binding sidecar before the boundary
+        id: binding_record
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: registry-smoke-binding-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/binding/binding.json
+          retention-days: 30
+          if-no-files-found: error
+          overwrite: false
+      - name: Synthetic stop before the boundary
+        if: inputs.scenario == 'stop-before-boundary'
+        run: exit 1
+      - name: Measurement boundary (contract v2 boundary)
+        id: workload
+        if: steps.bind.outcome == 'success' && steps.binding_record.outcome == 'success'
+        run: echo 'synthetic boundary marker'

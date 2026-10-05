@@ -71,4 +71,4 @@ Vectors подаются ядру только как входы (registry, prov
 
 ## Не сделано (C1-B и далее)
 
-Remote reads production (pin `main` через константный remote, fetch registry ref, provider API, дерево `main_head_sha`), activation record (имена steps `bind`/`boundary`, KAT step), genesis, rulesets, real-GitHub synthetic registry smoke, rerun/cancel/delete сценарии, write-surface negative tests, изменения `oracle-pilot.yml`. Natural pilot — только отдельным решением после activation review.
+C1-B реализован до границы реальных GitHub settings: [slice-c1b.md](slice-c1b.md). Исходный список C1-B: remote reads production (pin `main` через константный remote, fetch registry ref, provider API, дерево `main_head_sha`), activation record (имена steps `bind`/`boundary`, KAT step), genesis, rulesets, real-GitHub synthetic registry smoke, rerun/cancel/delete сценарии, write-surface negative tests, изменения `oracle-pilot.yml`. Natural pilot — только отдельным решением после activation review.
