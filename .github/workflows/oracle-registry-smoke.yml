@@ -1,7 +1,7 @@
 name: Oracle registry smoke (DELSK-003A)
 
-# Contract v2 activation items 8-9: the production register/bind code on the synthetic SMOKE registry
-# (refs/heads/delsk/registry-smoke, own genesis domain). The boundary step is a marker; nothing natural is read,
+# Contract v3 activation items 8-9: the production register/bind code on the synthetic SMOKE registry
+# (refs/heads/delsk/registry-v3-smoke, own genesis domain). The boundary step is a marker; nothing natural is read,
 # built or measured anywhere in this workflow. Manual dispatch on main only, after the smoke genesis exists.
 on:
   workflow_dispatch:
@@ -49,7 +49,7 @@ jobs:
       - name: Synthetic hold before register
         if: inputs.scenario == 'cancel-before-register'
         run: sleep 600
-      - name: Register attempt in the append-only registry (contract v2 register)
+      - name: Register attempt in the append-only registry (contract v3 register)
         id: register
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -64,14 +64,15 @@ jobs:
       SOURCE_SHA: ${{ inputs.source_sha }}
       REGISTER_ENTRY_SHA256: ${{ needs.register.outputs.entry_sha256 }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Read-only source checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           fetch-depth: 0
       - name: Synthetic hold before the boundary
         if: inputs.scenario == 'cancel-after-register'
         run: sleep 600
-      - name: Bind registry entry before the measurement boundary (contract v2 bind)
+      - name: Bind registry entry before the measurement boundary (contract v3 bind)
         id: bind
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -88,7 +89,7 @@ jobs:
       - name: Synthetic stop before the boundary
         if: inputs.scenario == 'stop-before-boundary'
         run: exit 1
-      - name: Measurement boundary (contract v2 boundary)
+      - name: Measurement boundary (contract v3 boundary)
         id: workload
         if: steps.bind.outcome == 'success' && steps.binding_record.outcome == 'success'
         run: echo 'synthetic boundary marker'

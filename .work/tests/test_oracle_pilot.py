@@ -228,7 +228,7 @@ class Workflow(unittest.TestCase):
             self.assertRegex(action, r'@[0-9a-f]{40}$')
         measure = text.index('  measure:')  # C0 bootstrap order inside the measuring job
         self.assertLess(text.index('id: dispatch_record'), text.index('uses: actions/checkout@', measure))
-        self.assertLess(text.index('id: attempt_record'), text.index('name: Measurement boundary (contract v2 boundary)'))
+        self.assertLess(text.index('id: attempt_record'), text.index('name: Measurement boundary (contract v3 boundary)'))
         self.assertIn('steps.attempt_record.outputs.artifact-id', text)
         self.assertNotIn('private', text.split('path:')[-1])
 
