@@ -65,12 +65,13 @@ def rebind(binding, **changes):
     b = {**binding, **changes}
     return {**b, 'binding_sha256': ev.hc(reg.without(b, 'binding_sha256'))}
 
+ALL = frozenset(V.VECTORS['environment']['workflow_witnessed'])  # every vector commit runs the reviewed workflow
 
 class ExactVectors(unittest.TestCase):
     """Main acceptance criterion: the implementation recomputes every frozen record byte for byte."""
 
     def test_r01_r25_records_byte_for_byte(self):
-        self.assertEqual(len(CASES), 60)
+        self.assertEqual(len(CASES), 63)
         count = 0
         for case in CASES:
             for exp, verdict, record in V.results(case):
@@ -85,7 +86,7 @@ class ExactVectors(unittest.TestCase):
                     self.assertEqual(record['record_sha256'], want['record_sha256'])
                     self.assertEqual(ev.hc(reg.without(record, 'record_sha256')), record['record_sha256'])
                     self.assertTrue(reg.valid(record, 'g1_record'))
-        self.assertEqual(count, 69)
+        self.assertEqual(count, 72)
         self.assertEqual(V.mismatches(), [])
 
     def test_runner_expectations(self):
@@ -269,7 +270,7 @@ class Classification(unittest.TestCase):
         case = BY_ID['R01']
         e, obs = case['registry']['entries'][1], case['provider'][1]
         bundle, binding = case['evidence']['bundles'][1], case['evidence']['bindings'][1]
-        self.assertEqual(g1.classify(e, obs, bundle, binding, False), ('BUNDLE', set()))
+        self.assertEqual(g1.classify(e, obs, bundle, binding, False, ALL), ('BUNDLE', set()))
         run = bundle['run']
         checks = {
             'bundle repository': ({**bundle, 'run': {**run, 'repository': 'fork/x'}}, binding, obs, 'BINDING_MISMATCH'),
@@ -308,15 +309,15 @@ class Classification(unittest.TestCase):
         })
         for label, (b, s, o, code) in checks.items():
             with self.subTest(label):
-                cls, violations = g1.classify(e, o, b, s, False)
+                cls, violations = g1.classify(e, o, b, s, False, ALL)
                 self.assertEqual(cls, 'MISSING')
                 self.assertIn(code, violations)
-        self.assertEqual(g1.classify(e, obs, bundle, binding, True), ('MISSING', {'DUPLICATE_EXECUTION'}))
+        self.assertEqual(g1.classify(e, obs, bundle, binding, True, ALL), ('MISSING', {'DUPLICATE_EXECUTION'}))
         unverified = {**bundle, 'bundle_verified': False}
-        self.assertEqual(g1.classify(e, obs, unverified, binding, False), ('MISSING', set()))
-        self.assertEqual(g1.classify(e, {**obs, 'run': None}, bundle, binding, False), ('MISSING', set()))
-        self.assertEqual(g1.classify(e, None, bundle, binding, False), ('MISSING', set()))
-        self.assertEqual(g1.classify(e, obs, None, binding, False), ('MISSING', set()))  # crossed B, nothing kept
+        self.assertEqual(g1.classify(e, obs, unverified, binding, False, ALL), ('MISSING', set()))
+        self.assertEqual(g1.classify(e, {**obs, 'run': None}, bundle, binding, False, ALL), ('MISSING', set()))
+        self.assertEqual(g1.classify(e, None, bundle, binding, False, ALL), ('MISSING', set()))
+        self.assertEqual(g1.classify(e, obs, None, binding, False, ALL), ('MISSING', set()))  # crossed B, nothing kept
 
     def test_foreign_but_verified_bundle_is_a_binding_mismatch(self):
         case = copy.deepcopy(BY_ID['R01'])
@@ -333,17 +334,59 @@ class Classification(unittest.TestCase):
     def test_unbound_attempts_of_registered_runs(self):
         case = copy.deepcopy(BY_ID['R12.b'])
         entries, provider = case['registry']['entries'], {key(o): o for o in case['provider']}
-        self.assertEqual([key(u) for u in g1.unbound_attempts(entries, provider)], [(24000000001, 2)])
+        self.assertEqual([key(u) for u in g1.unbound_attempts(entries, provider, ALL)], [(24000000001, 2)])
         pre = copy.deepcopy(BY_ID['R12.a']['provider'][2])
-        self.assertEqual(g1.unbound_attempts(entries, {**provider, key(pre): pre}), ())
+        self.assertEqual(g1.unbound_attempts(entries, {**provider, key(pre): pre}, ALL), ())
         del provider[(24000000001, 2)]  # deleting the rerun's provider data does not hide it
-        self.assertEqual([key(u) for u in g1.unbound_attempts(entries, provider)], [(24000000001, 2)])
+        self.assertEqual([key(u) for u in g1.unbound_attempts(entries, provider, ALL)], [(24000000001, 2)])
         third = copy.deepcopy(provider[(24000000001, 1)])
         third['run']['latest_run_attempt'] = 3
-        out = g1.unbound_attempts(entries, {**provider, (24000000001, 1): third, key(pre): pre})
+        out = g1.unbound_attempts(entries, {**provider, (24000000001, 1): third, key(pre): pre}, ALL)
         self.assertEqual([key(u) for u in out], [(24000000001, 3)])
         gone = {k: {**o, 'run': None} for k, o in provider.items()}  # whole run deleted: entries MISSING instead
-        self.assertEqual(g1.unbound_attempts(entries, gone), ())
+        self.assertEqual(g1.unbound_attempts(entries, gone, ALL), ())
+
+    def test_unwitnessed_workflow_is_never_pre_or_bundle(self):
+        """Contract-v3 1.5: an entry whose source commit did not run the activated oracle-pilot.yml has no static
+        witness of bind-before-B: MISSING whatever its provider facts or evidence, and its failed-job rerun is
+        unbound."""
+        case = BY_ID['R01']
+        e, obs = case['registry']['entries'][1], case['provider'][1]
+        bundle, binding = case['evidence']['bundles'][1], case['evidence']['bindings'][1]
+        other = ALL - {e['measured_source_sha']}
+        self.assertEqual(g1.classify(e, obs, bundle, binding, False, other), ('MISSING', set()))
+        c = BY_ID['R08.a']
+        pre_e, pre_o = c['registry']['entries'][2], c['provider'][2]
+        self.assertEqual(g1.classify(pre_e, pre_o, None, None, False, ALL), ('PRE', set()))
+        self.assertEqual(g1.classify(pre_e, pre_o, None, None, False, frozenset()), ('MISSING', set()))
+        r = copy.deepcopy(BY_ID['R12.a'])
+        entries, provider = r['registry']['entries'], {key(o): o for o in r['provider']}
+        self.assertEqual(g1.unbound_attempts(entries, provider, ALL), ())
+        self.assertEqual([key(u) for u in g1.unbound_attempts(entries, provider, frozenset())], [(24000000001, 2)])
+
+    def test_runner_allocation_fails_closed(self):
+        """Contract-v3 1: a job is unassigned only when the provider reports runner_id and runner_name and both are
+        null; a cancelled measure job without steps is never-started only then."""
+        def job(name, **runner):
+            return {'id': 1, 'name': name, 'run_id': 7, 'run_attempt': 1, 'head_sha': 'a' * 40, 'status': 'completed',
+                    'conclusion': 'cancelled', 'steps': [], **runner}
+        run = {'id': 7, 'run_attempt': 1}
+        attempt = {'id': 7, 'run_attempt': 1, 'head_sha': 'a' * 40, 'head_branch': 'main', 'event': 'workflow_dispatch',
+                   'status': 'completed', 'path': reg.WORKFLOW_PATH}
+        for runner, assigned in (({'runner_id': None, 'runner_name': None}, False),
+                                 ({'runner_id': None, 'runner_name': None, 'runner_group_id': None}, False),
+                                 ({'runner_id': 5, 'runner_name': None}, True),
+                                 ({'runner_id': 0, 'runner_name': None}, True),
+                                 ({'runner_id': None, 'runner_name': 'GitHub Actions 5'}, True),
+                                 ({'runner_name': None}, True), ({}, True)):
+            o = g1.provider_observation(7, 1, run, attempt, [job('measure', **runner)], {})
+            with self.subTest(runner=runner):
+                self.assertTrue(reg.valid(o, 'provider_observation'))
+                self.assertIs(o['run']['jobs'][0]['runner_assigned'], assigned)
+                entry = {'repository': reg.REPOSITORY, 'measured_source_sha': 'a' * 40,
+                         'workflow_path': reg.WORKFLOW_PATH,
+                         'workflow_ref': f'{reg.REPOSITORY}/{reg.WORKFLOW_PATH}@refs/heads/main'}
+                self.assertEqual(g1.pre_proven(o, entry), not assigned)
 
     def test_invalid_and_missing_cannot_be_outvoted(self):
         for cid, verdict, code in (('R06', 'INVALID', 'RUN_INVALID'), ('R05', 'NOT_PASSED', 'RESULT_MISSING'),
@@ -1016,7 +1059,7 @@ class BundleProjection(unittest.TestCase):
         self.assertFalse(reg.valid(p, 'bundle_projection'))
         case = BY_ID['R01']
         e, obs, binding = case['registry']['entries'][0], case['provider'][0], case['evidence']['bindings'][0]
-        self.assertEqual(g1.classify(e, obs, {**p, 'run_id': e['run_id'], 'run_attempt': 1}, binding, False)[1],
+        self.assertEqual(g1.classify(e, obs, {**p, 'run_id': e['run_id'], 'run_attempt': 1}, binding, False, ALL)[1],
                          {'BINDING_MISMATCH'})
         if p['run_status'] == 'COMPLETE':
             # series projection is source-independent where the v1 cost projection is not (contract 7.4)

@@ -78,15 +78,18 @@ class Evaluation:
     evidence: Evidence
     evaluator_source_sha: str
     kat_green: frozenset
+    # contract-v3 1.5: commits whose oracle-pilot.yml has the activated workflow digest. Empty (the default) witnesses
+    # nothing, so every entry is MISSING: forgetting the input can never create a PRE or BUNDLE.
+    workflow_witnessed: frozenset = frozenset()
     g1_freeze_sha256: str = None   # production: SHA-256 of freeze-v3.json in the pinned tree; test core: None
     profile: reg.Profile = None    # None = frozen production schemas; reg.SMOKE only for the synthetic smoke registry
 
     @classmethod
     def build(cls, *, genesis, entries, registry_reread, git, main_reread, provider, pull_requests, evidence,
-              evaluator_source_sha, kat_green, g1_freeze_sha256=None, profile=None):
+              evaluator_source_sha, kat_green, workflow_witnessed=(), g1_freeze_sha256=None, profile=None):
         return cls(_copy(genesis), tuple(map(_copy, entries)), _copy(registry_reread), git, main_reread,
                    tuple(map(_copy, provider)), tuple(map(_copy, pull_requests)), evidence, evaluator_source_sha,
-                   frozenset(kat_green), g1_freeze_sha256, profile)
+                   frozenset(kat_green), frozenset(workflow_witnessed), g1_freeze_sha256, profile)
 
 
 # --- provider facts (contract 8.3) ------------------------------------------------------------------------------------
@@ -109,7 +112,8 @@ def pre_proven(observation, e):
     """PRE conditions 2-4 of contract-v3 1.3 for one live observation against entry e. Absent, deleted, pending or
     ambiguous data, unknown jobs, a started boundary, a started non-provider step after it, or a started measure job
     without a boundary step are never PRE. Provider steps (role provider: the closed set of contract-v3 1.1) after the
-    boundary are exempt; a measure job cancelled before it got a runner (no steps at all) never started."""
+    boundary are exempt; a measure job cancelled before it got a runner (no steps, no runner) never started. Whether
+    the executed workflow is the activated one (contract-v3 1.5) is checked by the callers."""
     run = observation['run'] if observation else None
     if run is None or not run_binding(run, e) or run['status'] != 'completed':
         return False
@@ -118,7 +122,8 @@ def pre_proven(observation, e):
         return False
     measure = _measure_jobs(run)
     if not measure or not measure[0]['started'] or (measure[0]['conclusion'] == 'cancelled'
-                                                     and not measure[0]['steps']):
+                                                     and not measure[0]['steps']
+                                                     and measure[0]['runner_assigned'] is False):
         return True
     boundary = _steps(measure[0], 'boundary')
     return len(boundary) == 1 and not any(s['started'] for s in measure[0]['steps']
@@ -164,11 +169,17 @@ def provider_observation(run_id, run_attempt, run, attempt, jobs, roles):
     def started(x):
         return x['status'] in ('in_progress', 'completed') and x['conclusion'] != 'skipped'
 
+    def runner_assigned(job):
+        """Contract-v3 1: unassigned only when the provider reports both runner fields and both are null."""
+        return not ('runner_id' in job and 'runner_name' in job and job['runner_id'] is None
+                    and job['runner_name'] is None)
+
     try:
         doc['run'] = {'head_sha': head, 'head_branch': attempt['head_branch'],
                       'workflow_path': attempt['path'], 'event': attempt['event'], 'status': attempt['status'],
                       'latest_run_attempt': run['run_attempt'],
                       'jobs': [{'name': j['name'], 'started': started(j), 'conclusion': j['conclusion'],
+                                'runner_assigned': runner_assigned(j),
                                 'steps': [{'number': s['number'], 'role': roles.get(s['name'], 'other'),
                                            'started': started(s), 'conclusion': s['conclusion']} for s in j['steps']]}
                                for j in jobs]}
@@ -238,8 +249,10 @@ def evidence_root_valid(evidence, keys):
     return all(reg.self_digest_ok(b, 'binding_sha256') for b in evidence.bindings)
 
 
-def classify(e, observation, bundle, binding, duplicate):
-    """Contract 8.4 for one entry: (class, violations). observation None = not obtained (never better than deleted)."""
+def classify(e, observation, bundle, binding, duplicate, witnessed):
+    """Contract 8.4 for one entry: (class, violations). observation None = not obtained (never better than deleted).
+    witnessed: the commits whose executed oracle-pilot.yml is the activated workflow (contract-v3 1.5); an entry of any
+    other source has no static witness of bind-before-B and is MISSING, neither PRE nor BUNDLE."""
     run = observation['run'] if observation else None
     violations = set()
     if duplicate:
@@ -264,7 +277,7 @@ def classify(e, observation, bundle, binding, duplicate):
         violations.add('UNBOUND_MEASUREMENT')
     if bundle is not None and run is not None and not bound_before_boundary(run):
         violations.add('UNBOUND_MEASUREMENT')
-    if violations:
+    if violations or e['measured_source_sha'] not in witnessed:
         return 'MISSING', violations
     if verified and run is not None:
         return 'BUNDLE', violations
@@ -273,9 +286,10 @@ def classify(e, observation, bundle, binding, duplicate):
     return 'MISSING', violations
 
 
-def unbound_attempts(entries, provider):
+def unbound_attempts(entries, provider, witnessed):
     """Contract 8.5: attempts 1..latest_run_attempt of every registered run ID without an entry and without PRE proof
-    (run binding against every entry of that run). Only registered run IDs are inspected (Model 1)."""
+    (run binding against every entry of that run, whose source must be witnessed, contract-v3 1.5). Only registered run
+    IDs are inspected (Model 1)."""
     by_run = collections.defaultdict(list)
     for e in entries:
         by_run[e['run_id']].append(e)
@@ -289,7 +303,8 @@ def unbound_attempts(entries, provider):
         # ponytail: one pass per attempt number; a provider claiming an absurd latest_run_attempt only lengthens the
         # (already INVALID) unbound list.
         for n in range(1, latest[run_id] + 1):
-            if n in keys or all(pre_proven(provider.get((run_id, n)), e) for e in es):
+            if n in keys or all(e['measured_source_sha'] in witnessed and pre_proven(provider.get((run_id, n)), e)
+                                for e in es):
                 continue
             for mi, si in sorted({(e['measurement_identity_sha256'], e['science_identity_sha256']) for e in es}):
                 out.append({'measurement_identity_sha256': mi, 'science_identity_sha256': si, 'run_id': run_id,
@@ -396,7 +411,8 @@ def analyze(evaluation):
     classes = {}
     for e in entries:
         key = reg.run_key(e)
-        cls, violations = classify(e, provider.get(key), bundles.get(key), bindings.get(key), key in duplicate)
+        cls, violations = classify(e, provider.get(key), bundles.get(key), bindings.get(key), key in duplicate,
+                                   x.workflow_witnessed)
         bundle = bundles.get(key) if cls == 'BUNDLE' else None
         classes[key] = {'class': cls, 'violations': sorted(violations), 'bundle': bundle,
                         'outcome': bundle['run_status'] if bundle else None,
@@ -405,7 +421,8 @@ def analyze(evaluation):
     series, transitions, _ = series_machine(entries, git, pull_requests)
     green = frozenset(c for c in x.kat_green if git.on_main(c))
     return Analysis(git.main_head_sha, None, registry_head, genesis_sha256, tuple(entries), classes,
-                    unbound_attempts(entries, provider), series, transitions, green, x.evaluator_source_sha)
+                    unbound_attempts(entries, provider, x.workflow_witnessed), series, transitions, green,
+                    x.evaluator_source_sha)
 
 
 def analyze_authoritative(evaluation, registry_commits):

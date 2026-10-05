@@ -84,7 +84,7 @@ GitHub Actions добавляет в каждый стартовавший job �
 
 ## 4. Что требовалось (решение maintainer: вариант 1, выполнено в [slice-c1c.md](slice-c1c.md))
 
-1. **G1 contract v3**, новый freeze (по §0 v2 bytes не меняются). Минимальная правка §8.3 п. 4: учитывать только steps, объявленные reviewed workflow (по именам из activation record), либо требовать, чтобы ни один step workflow после `boundary` не стартовал, а provider-служебные `Post …`/`Complete job` исключить по закрытому списку. Плюс vectors с реальной формой provider jobs. Новый contract — новый genesis и новые registry refs. Текущие `delsk/registry` (пуст) и `delsk/registry-smoke` (3 entries) остаются раскрытыми.
+1. **G1 contract v3**, новый freeze (по §0 v2 bytes не меняются). Минимальная правка §8.3 п. 4: учитывать только steps, объявленные reviewed workflow (по именам из activation record), либо требовать, чтобы ни один step workflow после `boundary` не стартовал, а provider-служебные `Post …`/`Complete job` исключить по закрытому списку. Плюс vectors с реальной формой provider jobs. Новый contract — новый genesis и новые registry refs. Текущие `delsk/registry` (пуст) и `delsk/registry-smoke` (4 entries) остаются раскрытыми.
 2. C1-B: `cancel-before-register` — принять `measure` с `steps = []` и `conclusion = cancelled` как не исполнявшийся, либо проверять это через отсутствие runner. Fake providers в тестах дополнить служебными steps.
 3. После этого — повтор шагов 3–8 slice-c1b.md на новом contract.
 

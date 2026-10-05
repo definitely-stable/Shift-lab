@@ -48,13 +48,19 @@ BIND_STEP = 'Bind registry entry before the measurement boundary (contract v3 bi
 BOUNDARY_STEP = 'Measurement boundary (contract v3 boundary)'
 CHECKOUT_STEP = 'Read-only source checkout'
 KAT_STEP = oa.KAT_STEP
+# The only actions allowed before the boundary (contract-v3 2 item 2), with the reviewed post-hook map of contract-v3
+# 1.1: whether action.yml at exactly this SHA declares `runs.post` (checkout: `post: dist/index.js`; upload-artifact:
+# `main` only). A new action or SHA needs a review of its metadata and of this map.
+CHECKOUT_ACTION = 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'
+UPLOAD_ACTION = 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a'
+POST_HOOK = {CHECKOUT_ACTION: True, UPLOAD_ACTION: False}
 # Provider steps (contract-v3 1.1): steps GitHub Actions adds to a started job itself. Exactly `Complete job` and
-# `Post <name>` of every `uses:` step of job measure before the boundary; check_*_workflow derives the set from the
-# reviewed workflow and requires equality, and forbids these names (and `Set up job`, `Post ...`) as workflow steps.
+# `Post <name>` of every step of job measure before the boundary whose pinned action has a post hook; check_*_workflow
+# derives the set from the reviewed workflow and requires equality, and forbids these names (and `Set up job`,
+# `Post ...`) as workflow steps.
 PROVIDER_COMPLETE = 'Complete job'
-PILOT_PROVIDER_STEPS = (PROVIDER_COMPLETE, 'Post Retain immutable dispatch proof', f'Post {CHECKOUT_STEP}',
-                        'Post Retain binding sidecar before the boundary', 'Post Retain attempt before codec setup')
-SMOKE_PROVIDER_STEPS = (PROVIDER_COMPLETE, f'Post {CHECKOUT_STEP}', 'Post Retain binding sidecar before the boundary')
+PILOT_PROVIDER_STEPS = (PROVIDER_COMPLETE, f'Post {CHECKOUT_STEP}')
+SMOKE_PROVIDER_STEPS = (PROVIDER_COMPLETE, f'Post {CHECKOUT_STEP}')
 RESERVED_STEP_NAMES = ('Set up job', PROVIDER_COMPLETE)
 ROLES = {BIND_STEP: 'bind', BOUNDARY_STEP: 'boundary', **{n: 'provider' for n in PILOT_PROVIDER_STEPS}}
 SMOKE_ROLES = {BIND_STEP: 'bind', BOUNDARY_STEP: 'boundary', **{n: 'provider' for n in SMOKE_PROVIDER_STEPS}}
@@ -63,8 +69,8 @@ KAT_MODULES = ('test_oracle_contract', 'test_oracle_eval', 'test_oracle_v2_froze
 
 # Deterministic registry root commits (oracle_registry_git.genesis_commit; reproduced by the tests).
 GENESIS_SHA256 = {p.name: ev.hc(reg.make_genesis(p.g1_freeze_sha256, p)) for p in reg.PROFILES}
-ROOT_COMMIT = {'production': 'e9f53335343743bf6c3bae4d85ec80f75fe4ecc7',
-               'smoke': '90e39ee7eb44450fef70c9700f3ed9a3c54ce3c1'}
+ROOT_COMMIT = {'production': '5fe579bd536347c45313feeef90ad4c85661da24',
+               'smoke': 'b9f8d6b5ad6a87326134c29623841b3453553785'}
 
 GITHUB_ACTIONS_APP_ID = 15368   # the GitHub Actions integration: the workflow token's ruleset actor
 # Retired v2 registry refs (contract-v3 3): never evaluated, but they disclose the v2 activation attempt and stay
@@ -94,8 +100,6 @@ SOURCE_TEXT = '\n'.join((
     f'  git -c credential.helper= fetch -q --no-tags {reg.REGISTRY_REMOTE} \\',
     "    '+refs/heads/main:refs/remotes/source/main' \"$GITHUB_SHA\"",
     '  git -c advice.detachedHead=false checkout -q --detach "$GITHUB_SHA"'))
-UPLOAD_ACTION = 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a'
-CHECKOUT_ACTION = 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'
 PILOT_REGISTER_STEPS = (SOURCE_STEP, REGISTER_STEP)
 PILOT_PRE_BOUNDARY = ('Bootstrap dispatch proof before checkout', 'Retain immutable dispatch proof', CHECKOUT_STEP,
                       'Validate dispatch, frozen chain and register scientific identity', BIND_STEP,
@@ -224,10 +228,15 @@ def _token_only_in(job, name, label, problems):
         problems.append(f'{label}: write token must be visible to the {name!r} step only')
 
 
+def _action(step):
+    return step['uses'].split(' ')[0] if step['uses'] else None
+
+
 def provider_steps(steps, boundary):
-    """Contract-v3 1.1 from the reviewed measure steps before the boundary: Complete job and Post <name> of each
-    `uses:` step (a nameless one yields None, which no provider step can match)."""
-    return {PROVIDER_COMPLETE} | {f"Post {s['name']}" if s['name'] else None for s in steps[:boundary] if s['uses']}
+    """Contract-v3 1.1 from the reviewed measure steps before the boundary: Complete job and Post <name> of each step
+    whose pinned action has a post hook by the reviewed map (a nameless one yields None, which matches nothing)."""
+    return {PROVIDER_COMPLETE} | {f"Post {s['name']}" if s['name'] else None for s in steps[:boundary]
+                                  if POST_HOOK.get(_action(s)) is True}
 
 
 def _reserved_names(jobs, problems):
@@ -267,7 +276,7 @@ def _measure_job(job, kind, problems):
     if None in names or len(set(names)) != len(names):
         problems.append('measure: every step needs an explicit unique name (provider steps are matched by name)')
     for step in steps[:x]:
-        if step['uses'] and (not step['name'] or step['uses'].split(' ')[0] not in (CHECKOUT_ACTION, UPLOAD_ACTION)):
+        if step['uses'] and (not step['name'] or _action(step) not in POST_HOOK):
             problems.append(f"measure: {step['name'] or step['uses']} before the boundary must be a named pinned "
                             'checkout or upload-artifact (its post hook is part of the witness)')
     expected_provider = PILOT_PROVIDER_STEPS if kind == 'production' else SMOKE_PROVIDER_STEPS
@@ -430,8 +439,9 @@ def _started(job, role=None):
 
 def _never_ran(job):
     """No step of the job ran: absent, not started, or cancelled before it got a runner (GitHub then reports the job
-    completed/cancelled without a single step; contract-v3 1.3 item 4)."""
-    return job is None or not job['started'] or (job['conclusion'] == 'cancelled' and not job['steps'])
+    completed/cancelled without a single step and with runner_id = runner_name = null; contract-v3 1.3 item 4)."""
+    return job is None or not job['started'] or (job['conclusion'] == 'cancelled' and not job['steps']
+                                                 and job['runner_assigned'] is False)
 
 
 def _scenario_facts(name, run, entry):
@@ -637,7 +647,8 @@ def _pull(entry):
 def validate_infra(doc, view):
     """Problems of the infra record (items 6-10) that need no provider: closed document, constants, evidence bytes and
     their verifiers, and the workflow witnesses of the pinned tree."""
-    keys = {'schema', 'g1_contract', 'g1_freeze_sha256', 'steps', 'registry', 'genesis_review', 'evidence'}
+    keys = {'schema', 'g1_contract', 'g1_freeze_sha256', 'steps', 'workflow_sha256', 'registry', 'genesis_review',
+            'evidence'}
     if not (type(doc) is dict and set(doc) == keys and doc['schema'] == INFRA_SCHEMA
             and doc['g1_contract'] == reg.G1_CONTRACT and doc['g1_freeze_sha256'] == reg.G1_FREEZE_SHA256):
         return ['infra record: closed document of this contract']
@@ -645,6 +656,9 @@ def validate_infra(doc, view):
     if doc['steps'] != {'register': REGISTER_STEP, 'bind': BIND_STEP, 'boundary': BOUNDARY_STEP, 'kat': KAT_STEP,
                         'provider': list(PILOT_PROVIDER_STEPS)}:
         problems.append('infra record: step names')
+    pilot = view.read(PILOT_WORKFLOW)
+    if pilot is None or doc['workflow_sha256'] != ev.sha256(pilot):  # contract-v3 1.5: the witnessed bytes
+        problems.append('infra record: workflow_sha256 is not the reviewed oracle-pilot.yml')
     if doc['registry'] != {'ref': reg.REGISTRY_REF, 'genesis_sha256': GENESIS_SHA256['production'],
                            'root_commit': ROOT_COMMIT['production']}:
         problems.append('infra record: registry genesis')

@@ -585,6 +585,13 @@
             "$ref": "#/$defs/source"
           },
           "type": "array"
+        },
+        "workflow_witnessed": {
+          "items": {
+            "$ref": "#/$defs/hex40"
+          },
+          "type": "array",
+          "uniqueItems": true
         }
       },
       "required": [
@@ -593,7 +600,8 @@
         "kat_green",
         "main_head",
         "pull_requests",
-        "sources"
+        "sources",
+        "workflow_witnessed"
       ],
       "type": "object"
     },
@@ -615,6 +623,13 @@
             "$ref": "#/$defs/pull_request"
           },
           "type": "array"
+        },
+        "workflow_witnessed": {
+          "items": {
+            "$ref": "#/$defs/hex40"
+          },
+          "type": "array",
+          "uniqueItems": true
         }
       },
       "required": [],
@@ -925,12 +940,12 @@
           "type": "string"
         },
         "id": {
-          "pattern": "^PM(0[1-9]|1[0-7])(?![\\s\\S])",
+          "pattern": "^PM(0[1-9]|1[0-9]|20)(?![\\s\\S])",
           "type": "string"
         },
         "killed_by": {
           "items": {
-            "pattern": "^R(0[1-9]|1[0-9]|2[0-5])(\\.[a-i])?(?![\\s\\S])",
+            "pattern": "^R(0[1-9]|1[0-9]|2[0-5])(\\.[a-l])?(?![\\s\\S])",
             "type": "string"
           },
           "minItems": 1,
@@ -983,6 +998,9 @@
           "pattern": "^[A-Za-z0-9][A-Za-z0-9 ._()/-]{0,99}(?![\\s\\S])",
           "type": "string"
         },
+        "runner_assigned": {
+          "type": "boolean"
+        },
         "started": {
           "type": "boolean"
         },
@@ -996,6 +1014,7 @@
       "required": [
         "conclusion",
         "name",
+        "runner_assigned",
         "started",
         "steps"
       ],
@@ -1712,7 +1731,7 @@
           "type": "array"
         },
         "id": {
-          "pattern": "^R(0[1-9]|1[0-9]|2[0-5])(\\.[a-i])?(?![\\s\\S])",
+          "pattern": "^R(0[1-9]|1[0-9]|2[0-5])(\\.[a-l])?(?![\\s\\S])",
           "type": "string"
         },
         "main_remote_head": {

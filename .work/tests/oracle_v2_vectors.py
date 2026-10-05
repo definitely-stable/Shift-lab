@@ -37,7 +37,8 @@ def evaluation(case, module=g1):
         main_reread=case['main_remote_head'], provider=case['provider'], pull_requests=env['pull_requests'],
         evidence=module.Evidence.build(x['bundles'], x['bindings'], x['foreign_paths'],
                                        [(k['run_id'], k['run_attempt']) for k in x['v1_root_keys']]),
-        evaluator_source_sha=env['evaluator_source_sha'], kat_green=env['kat_green'])
+        evaluator_source_sha=env['evaluator_source_sha'], kat_green=env['kat_green'],
+        workflow_witnessed=env['workflow_witnessed'])
 
 
 def results(case, module=g1):

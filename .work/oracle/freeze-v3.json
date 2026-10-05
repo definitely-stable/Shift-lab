@@ -65,13 +65,13 @@
   "natural_measurements": "NOT_RUN",
   "provenance_layer": {
     "files": {
-      ".work/oracle/contract-v3.md": "83ecf822ecb03a80d8898eff291d3ed42e8a6f146a6e11f42bf3f5a02852d2fd",
-      ".work/oracle/registry-vectors-v3.json": "d018bfca0a46a7f1b08144d0186c7b7e49eb2a97d0e00acc13b646f3b2b7252f",
-      ".work/oracle/schemas-v3.json": "8b8676ea112259b9dd72f7091fdf48cd5a281a9f2107961249ea5ab2458f631a",
-      ".work/tests/test_oracle_contract_v3.py": "2f59138200ff1748003fb9f4afcb22408c7bb558b7bb88d403757cd87dabff61"
+      ".work/oracle/contract-v3.md": "0a26607df7c3d7d2bd122d8e76db1c1d0419ec169880751200a9471702bc9084",
+      ".work/oracle/registry-vectors-v3.json": "7e9e5c984478d79030495174ed36f888fbf61e6c5f947759513546d0b692c235",
+      ".work/oracle/schemas-v3.json": "b958f9d26708829c29591c35c353f135ee611059298c4d8badb858360877a751",
+      ".work/tests/test_oracle_contract_v3.py": "24d28a37d612af6f03694712f4e869136a99caff217a2069c39c63bcc64cf7e2"
     }
   },
-  "provenance_layer_sha256": "ecdc2436e5baa987ecd42f6eb74e800c0764095d41a24444ebb397522104349f",
+  "provenance_layer_sha256": "b62bccdbecffd393dcc327d71bb5c2d4684ca79a539032f2e705a81efa0273fa",
   "schema": "delsk.oracle-contract.freeze.v3",
   "scope": "G1/provenance layer: the v2 text with section 8.3 (provider observation, provider steps, PRE) replaced, the implementation witness extended, the registry ref and results root of v3, and the derived schemas and vectors (D, T, R25, PM13-PM17). The measurement layer is delsk.oracle-contract.v1 by hash.",
   "status": "FROZEN_ON_MERGE"

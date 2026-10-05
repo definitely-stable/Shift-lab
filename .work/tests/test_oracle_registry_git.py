@@ -54,7 +54,7 @@ class World:
         self.env = patch.dict(os.environ, {'HOME': str(self.home)})
         self.env.start()
         subprocess.run(['git', 'init', '--quiet', '-b', 'main', str(self.root)], check=True)
-        for name in IDENTITY_FILES:
+        for name in (*IDENTITY_FILES, reg.SMOKE_WORKFLOW_PATH):  # + the workflow the smoke runs execute (1.5)
             dest = self.root / name
             dest.parent.mkdir(parents=True, exist_ok=True)
             dest.write_bytes((ev.ROOT / name).read_bytes())
@@ -175,8 +175,12 @@ class Provider:
         if m[3] is None:
             return {'id': int(m[1]), 'run_attempt': int(m[2]), 'head_sha': a['sha'], 'head_branch': 'main',
                     'path': self.profile.workflow_path, 'event': 'workflow_dispatch', 'status': 'completed'}
+        # as GitHub: a job that ran has a runner; one cancelled before a runner reports runner_id = runner_name = null
         jobs = [{'id': int(m[1]) * 100 + int(m[2]) * 10 + n, 'name': name, 'run_id': int(m[1]),
                  'run_attempt': int(m[2]), 'head_sha': a['sha'], 'status': 'completed', 'conclusion': conclusion,
+                 'runner_id': 1000 + n if steps else None,
+                 'runner_name': f'GitHub Actions {1000 + n}' if steps else None,
+                 'runner_group_id': 0 if steps else None,
                  'steps': [{'name': s, 'number': i, 'status': st, 'conclusion': c}
                            for i, (s, (st, c)) in enumerate(steps, 1)]}
                 for n, (name, conclusion, steps) in enumerate(a['jobs'])]
@@ -254,7 +258,7 @@ class RecordedGitHub(unittest.TestCase):
         a1, a2 = obs[(37306997371, 1)], obs[(37306997371, 2)]
         entries = [{**self.entry(a1), 'run_id': 37306997371, 'run_attempt': n, 'measurement_identity_sha256': 'a' * 64,
                     'science_identity_sha256': 'b' * 64} for n in (1, 2)]
-        self.assertEqual(g1.unbound_attempts(entries, obs), ())
+        self.assertEqual(g1.unbound_attempts(entries, obs, {a1['run']['head_sha']}), ())
         self.assertEqual(a2['run']['latest_run_attempt'], 3)
 
     def test_unknown_step_names_fail_closed(self):
@@ -273,7 +277,7 @@ class RecordedGitHub(unittest.TestCase):
         for scenario, key in RECORDED['scenarios'].items():
             o = obs[tuple(key)]
             e = {**self.entry(o), 'run_id': key[0], 'run_attempt': key[1], 'workflow_sha': o['run']['head_sha']}
-            cls, violations = g1.classify(e, o, None, None, False)
+            cls, violations = g1.classify(e, o, None, None, False, {o['run']['head_sha']})
             entry = {'class': cls, 'violations': sorted(violations)} if scenario in registered else None
             with self.subTest(scenario):
                 self.assertEqual(act._scenario_facts(scenario, o['run'], entry), [])
@@ -556,7 +560,8 @@ class Evaluation(Base):
 
     def test_collect_pins_main_and_rereads(self):
         self.run_scenario(51, 1, 'stop-before-boundary')
-        x, commits = rg.collect(reg.SMOKE, self.w.root, self.provider, act.ROLES, g1.Evidence.build(), None, None)
+        x, commits = rg.collect(reg.SMOKE, self.w.root, self.provider, act.ROLES, g1.Evidence.build(), None, None,
+                                self.smoke_workflow)
         self.assertEqual((x.git.main_head_sha, x.main_reread), (self.w.main, self.w.main))
         self.assertEqual(x.registry_reread, reg.head(x.genesis, list(x.entries)))
         self.assertEqual(len(commits), 2)
@@ -571,10 +576,35 @@ class Evaluation(Base):
             return real(gitdir, head)
 
         with patch.object(rg, 'registry_history', moving):
-            x, _ = rg.collect(reg.SMOKE, self.w.root, self.provider, act.ROLES, g1.Evidence.build(), None, None)
+            x, _ = rg.collect(reg.SMOKE, self.w.root, self.provider, act.ROLES, g1.Evidence.build(), None, None,
+                              self.smoke_workflow)
         a = g1.analyze(x)
         self.assertEqual(a.blocker, 'REGISTRY_STALE')
         self.assertNotEqual(x.main_reread, x.git.main_head_sha)
+
+    def smoke_workflow(self, main):
+        return ev.sha256(rg.show(self.w.root, main, reg.SMOKE_WORKFLOW_PATH))
+
+    def test_only_the_reviewed_workflow_bytes_are_witnessed(self):
+        """Contract-v3 1.5: an attempt whose source commit carries other workflow bytes than the reference is MISSING,
+        whatever its provider facts; the reference is the exact digest, never the workflow name."""
+        self.run_scenario(61, 1, 'stop-before-boundary')
+        source = self.w.main
+        x, _ = rg.collect(reg.SMOKE, self.w.root, self.provider, act.SMOKE_ROLES, g1.Evidence.build(), None, None,
+                          self.smoke_workflow)
+        self.assertEqual(x.workflow_witnessed, {source})
+        self.assertEqual(g1.analyze(x).classes[(61, 1)]['class'], 'PRE')
+        changed = self.w.commit('workflow edited after the attempt', {
+            reg.SMOKE_WORKFLOW_PATH: rg.show(self.w.root, source, reg.SMOKE_WORKFLOW_PATH) + b'# edited\n'})
+        self.w.publish_main(changed)
+        x, _ = rg.collect(reg.SMOKE, self.w.root, self.provider, act.SMOKE_ROLES, g1.Evidence.build(), None, None,
+                          self.smoke_workflow)
+        self.assertEqual(x.workflow_witnessed, set())
+        self.assertEqual(g1.analyze(x).classes[(61, 1)]['class'], 'MISSING')
+        for reference in (None, '0' * 64):
+            x, _ = rg.collect(reg.SMOKE, self.w.root, self.provider, act.SMOKE_ROLES, g1.Evidence.build(), None,
+                              None, reference)
+            self.assertEqual(x.workflow_witnessed, set())
 
     def test_evidence_root_is_read_from_the_pinned_tree(self):
         key = '7-1'
@@ -603,7 +633,7 @@ class Production(Base):
     def test_live_registry_root_gates_activation(self):
         """Review 2 of PR 31: valid genesis bytes under another root commit cannot satisfy item 6."""
         enable, infra = {}, {'steps': {'bind': act.BIND_STEP, 'boundary': act.BOUNDARY_STEP, 'kat': act.KAT_STEP,
-                                       'provider': list(act.PILOT_PROVIDER_STEPS)}}
+                                       'provider': list(act.PILOT_PROVIDER_STEPS)}, 'workflow_sha256': '0' * 64}
         with tempfile.TemporaryDirectory() as t:
             gitdir = rg.init_bare(Path(t) / 'g.git')
             forged = rg.make_commit(gitdir, {'genesis.json': rg.genesis_bytes(reg.PRODUCTION), 'entries.jsonl': b''},

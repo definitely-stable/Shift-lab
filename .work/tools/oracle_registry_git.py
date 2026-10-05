@@ -473,10 +473,11 @@ def registry_reread(gitdir, profile, head_commit, evaluated_head, token=None):
     return reg.head(genesis, entries) if genesis else None
 
 
-def collect(profile, root, get, roles, evidence, kat_step, evaluator):
+def collect(profile, root, get, roles, evidence, kat_step, evaluator, workflow_sha256):
     """Every input of one evaluation, read once from the profile's constant remote and the provider (contract 9.0):
-    main pin, registry history, live provider observations, pull requests, evidence, KAT, then the re-reads.
-    Returns (Evaluation, registry commits)."""
+    main pin, registry history, live provider observations, pull requests, evidence, KAT, the witnessed workflow
+    commits (contract-v3 1.5: the profile's workflow file in each entry source has exactly workflow_sha256, a digest
+    or a function of the pinned main), then the re-reads. Returns (Evaluation, registry commits)."""
     remote = profile.registry_remote
     main = fetch(root, remote, MAIN_REF)
     if main is None:
@@ -492,6 +493,9 @@ def collect(profile, root, get, roles, evidence, kat_step, evaluator):
         provider = provider_observations(get, ok_entries, roles)
         prs = pull_requests(get, transition_numbers(entries))
         evidence = evidence(main) if callable(evidence) else evidence
+        reference = workflow_sha256(main) if callable(workflow_sha256) else workflow_sha256
+        witnessed = {c for c in sources if reference is not None and snap.on_main(c)
+                     and (data := show(root, c, profile.workflow_path)) is not None and ev.sha256(data) == reference}
         kat = {c for c in sources | ({evaluator} if evaluator else set())
                if kat_step is not None and g1.kat_verified_v2(get, c, main, kat_step, root)}
         freeze = show(root, main, FREEZE_V3)
@@ -501,7 +505,7 @@ def collect(profile, root, get, roles, evidence, kat_step, evaluator):
     evaluation = g1.Evaluation.build(
         genesis=genesis, entries=entries, registry_reread=reread, git=snap, main_reread=main_again,
         provider=provider, pull_requests=prs, evidence=evidence, evaluator_source_sha=evaluator, kat_green=kat,
-        g1_freeze_sha256=(profile.g1_freeze_sha256 if profile is reg.SMOKE else
+        workflow_witnessed=witnessed, g1_freeze_sha256=(profile.g1_freeze_sha256 if profile is reg.SMOKE else
                           ev.sha256(freeze) if freeze is not None else None),
         profile=None if profile is reg.PRODUCTION else profile)
     return evaluation, commits
@@ -537,7 +541,7 @@ def production_inputs(activation_sha256):
     steps = activation[1]['steps']
     roles = {steps['bind']: 'bind', steps['boundary']: 'boundary', **{n: 'provider' for n in steps['provider']}}
     return collect(reg.PRODUCTION, root, api_get, roles, lambda pinned: evidence_from_tree(root, pinned),
-                   steps['kat'], evaluator_source_sha(root))
+                   steps['kat'], evaluator_source_sha(root), activation[1]['workflow_sha256'])
 
 
 def smoke_evaluation(root=ev.ROOT, get=api_get, scenarios=None):
@@ -546,7 +550,12 @@ def smoke_evaluation(root=ev.ROOT, get=api_get, scenarios=None):
     runs that never registered), so that each scenario is proven by provider facts. No evidence root, no KAT: records
     are test records and never PASS."""
     import oracle_activation_v2 as act
-    evaluation, commits = collect(reg.SMOKE, root, get, act.SMOKE_ROLES, g1.Evidence.build(), None, None)
+    # the smoke runs execute the smoke workflow of the pinned main: that file is the witnessed reference
+    def smoke_workflow(main):
+        data = show(root, main, reg.SMOKE_WORKFLOW_PATH)
+        return ev.sha256(data) if data is not None else None
+    evaluation, commits = collect(reg.SMOKE, root, get, act.SMOKE_ROLES, g1.Evidence.build(), None, None,
+                                  smoke_workflow)
     named = [{'run_id': r['run_id'], 'run_attempt': r['run_attempt']} for r in (scenarios or {}).get('runs', [])
              if type(r) is dict and oa.positive(r.get('run_id')) and oa.positive(r.get('run_attempt'))]
     seen = {reg.run_key(o) for o in evaluation.provider}

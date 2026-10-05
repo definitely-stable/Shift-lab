@@ -45,7 +45,7 @@ _SCHEMAS = ev.parse_doc((ev.ORACLE / 'schemas-v3.json').read_bytes())
 # a future provenance contract gets a new constant rather than making this caller-selectable. The v2 freeze stays pinned
 # as the base text of v3 (KAT gate) and is never a genesis binding.
 MEASUREMENT_FREEZE_SHA256 = _SCHEMAS['$defs']['registry_genesis']['properties']['measurement_freeze_sha256']['const']
-G1_FREEZE_SHA256 = 'ca0a5e780a0ddf08d16b4762ff4df9e22663d482ad138521de6d0a36c8327c57'
+G1_FREEZE_SHA256 = 'bc1114821c7f1236190918ae45b34f8ab45daa3b4da58ad948b4b70ebedebf70'
 
 
 @dataclass(frozen=True)

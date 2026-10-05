@@ -96,9 +96,16 @@ def derive_schemas(schemas_v2):
     s['description'] = SCHEMAS_DESCRIPTION
     s['$defs']['provider_step']['properties']['role']['enum'] = list(ROLES_V3)
     d = s['$defs']
-    d['mutant']['properties']['id']['pattern'] = '^PM(0[1-9]|1[0-7])' + END
+    d['mutant']['properties']['id']['pattern'] = '^PM(0[1-9]|1[0-9]|20)' + END
     d['vector']['properties']['id']['pattern'] = '^R(0[1-9]|1[0-9]|2[0-5])' + END
-    case_id = '^R(0[1-9]|1[0-9]|2[0-5])(\\.[a-i])?' + END
+    case_id = '^R(0[1-9]|1[0-9]|2[0-5])(\\.[a-l])?' + END
+    # contract-v3 1: runner allocation of a job; 1.5: commits whose oracle-pilot.yml is the activated workflow
+    d['provider_job']['properties']['runner_assigned'] = {'type': 'boolean'}
+    d['provider_job']['required'] = sorted(d['provider_job']['required'] + ['runner_assigned'])
+    witnessed = {'items': {'$ref': '#/$defs/hex40'}, 'type': 'array', 'uniqueItems': True}
+    d['environment']['properties']['workflow_witnessed'] = witnessed
+    d['environment']['required'] = sorted(d['environment']['required'] + ['workflow_witnessed'])
+    d['environment_override']['properties']['workflow_witnessed'] = dict(witnessed)
     d['vector_case']['properties']['id']['pattern'] = case_id
     d['mutant']['properties']['killed_by']['items']['pattern'] = case_id
     return s
@@ -145,8 +152,16 @@ class Transform:
 
 
 def transform_vectors(doc_v2):
+    """T: substitutions and digest remapping, then the two v3 inputs v2 has no notion of: every job's runner_assigned
+    (= started: a job that started on the provider had a runner) and environment.workflow_witnessed (= every commit:
+    each v2 vector ran the reviewed workflow). Neither changes a v2 outcome (test_t_preserves_outcomes)."""
     t = Transform(doc_v2)
     doc = {**t.value(without(doc_v2, 'description')), 'description': VECTORS_DESCRIPTION}
+    doc['environment']['workflow_witnessed'] = sorted(c['sha'] for c in doc['environment']['commits'])
+    for case in cases(doc):
+        for o in case['provider']:
+            for job in (o['run'] or {}).get('jobs', []):
+                job['runner_assigned'] = job['started']
     return doc, t
 
 
@@ -158,7 +173,7 @@ def step(number, role, conclusion):
 
 
 # Real register job: Set up job, anonymous source fetch, optional hold (skipped), register, Complete job.
-REGISTER_JOB = {'name': 'register', 'started': True, 'conclusion': 'success',
+REGISTER_JOB = {'name': 'register', 'started': True, 'conclusion': 'success', 'runner_assigned': True,
                 'steps': [step(1, 'other', 'success'), step(2, 'other', 'success'), step(3, 'other', 'skipped'),
                           step(4, 'other', 'success'), step(5, 'provider', 'success')]}
 
@@ -171,7 +186,7 @@ def measure_job(conclusion, *workflow, provider='success'):
     steps = [step(1, 'other', 'success'), step(2, 'other', 'success')]
     steps += [step(n, role, c) for n, role, c in zip(range(3, 9), roles, workflow)]
     steps += [step(14, 'provider', provider), step(15, 'provider', provider)]
-    return {'name': 'measure', 'started': True, 'conclusion': conclusion, 'steps': steps}
+    return {'name': 'measure', 'started': True, 'conclusion': conclusion, 'runner_assigned': True, 'steps': steps}
 
 
 A2, C1 = (24000000001, 2), (24000000003, 1)
@@ -190,15 +205,32 @@ R25 = (
      '-> PRE-proven, not an unbound attempt'),
     ('R25.e', 'R12.b', A2, measure_job('failure', 'skipped', 'failure', 'skipped', 'skipped', 'success', 'success'),
      'failed-job rerun (RA,2) without entry crossed B (implementation defect); provider steps ran -> unbound attempt'),
-    ('R25.f', 'R08.b', C1, {'name': 'measure', 'started': True, 'conclusion': 'cancelled', 'steps': []},
-     'C cancelled while the measure job waited for a runner: GitHub reports it completed/cancelled with no steps '
-     '-> PRE'),
+    ('R25.f', 'R08.b', C1, {'name': 'measure', 'started': True, 'conclusion': 'cancelled', 'runner_assigned': False,
+                            'steps': []},
+     'C cancelled while the measure job waited for a runner: GitHub reports it completed/cancelled with no steps and '
+     'no runner (runner_id = runner_name = null) -> PRE'),
     ('R25.g', 'R08.a', C1, measure_job('cancelled', 'cancelled', 'skipped', 'skipped', 'skipped', 'skipped', 'skipped'),
      'C cancelled after register, during the hold before bind: bind..boundary skipped, provider steps ran -> PRE'),
     ('R25.h', 'R10.a', C1, measure_job('cancelled', 'skipped', 'success', 'success', 'skipped', 'cancelled', 'skipped'),
      'C cancelled after the boundary started (boundary completed/cancelled) -> not PRE, MISSING'),
-    ('R25.i', 'R10.a', C1, {'name': 'measure', 'started': True, 'conclusion': 'failure', 'steps': []},
+    ('R25.i', 'R10.a', C1, {'name': 'measure', 'started': True, 'conclusion': 'failure', 'runner_assigned': True,
+                            'steps': []},
      'C measure job failed with no steps reported (incomplete provider data) -> not PRE, MISSING'),
+    ('R25.j', 'R10.a', C1, {'name': 'measure', 'started': True, 'conclusion': 'cancelled', 'runner_assigned': True,
+                            'steps': []},
+     'C measure job cancelled with no steps reported but with a runner assigned: no proof that nothing ran -> not PRE, '
+     'MISSING'),
+)
+
+# R25.k-l (contract-v3 1.5): the base case with the source commit 085bbd6 of entry 1 not witnessed (its
+# oracle-pilot.yml is not the activated workflow). Entry 1 is then MISSING, neither PRE nor BUNDLE, which is exactly
+# R15.b (the same registry and evidence with that run deleted): the expectation is R15.b's.
+S1_SOURCE = '085bbd6c728fa0e1ce82af37eb73027436bc34c4'
+R25_WITNESS = (
+    ('R25.k', 'R15.d', 'series S1 source 085bbd6 provider-proven PRE, but its oracle-pilot.yml is not the activated '
+                       'workflow (not witnessed) -> MISSING, as R15.b'),
+    ('R25.l', 'R15.a', 'series S1 source 085bbd6 retained a verified bundle, but its oracle-pilot.yml is not the '
+                       'activated workflow (not witnessed) -> MISSING, as R15.b'),
 )
 
 MUTANTS_V3 = (
@@ -213,6 +245,12 @@ MUTANTS_V3 = (
      'killed_by': ['R25.h'], 'survives_as': 'cancelling after the boundary started yields PRE'},
     {'id': 'PM17', 'defect': 'every measure job without steps is treated as never started, whatever its conclusion',
      'killed_by': ['R25.i'], 'survives_as': 'incomplete provider data (no steps) yields PRE'},
+    {'id': 'PM18', 'defect': 'a cancelled measure job without steps is never started even with a runner assigned',
+     'killed_by': ['R25.j'], 'survives_as': 'a job that got a runner but reports no steps yields PRE'},
+    {'id': 'PM19', 'defect': 'PRE ignores whether the executed oracle-pilot.yml is the activated workflow',
+     'killed_by': ['R25.k'], 'survives_as': 'an attempt of an unreviewed workflow version is excluded as PRE'},
+    {'id': 'PM20', 'defect': 'BUNDLE ignores whether the executed oracle-pilot.yml is the activated workflow',
+     'killed_by': ['R25.l'], 'survives_as': 'a bundle measured by an unreviewed workflow version enters G1'},
 )
 
 
@@ -228,10 +266,20 @@ def r25_case(base, cid, key, measure, description):
     return case
 
 
+def r25_witness_case(base, cid, description, env, expect):
+    case = copy.deepcopy(base)
+    witnessed = sorted(c['sha'] for c in env['commits'] if c['sha'] != S1_SOURCE)
+    case.update(id=cid, description=description, expect=copy.deepcopy(expect),
+                environment_override={**(base['environment_override'] or {}), 'workflow_witnessed': witnessed})
+    return case
+
+
 def build_vectors(doc_v2):
     doc, _ = transform_vectors(doc_v2)
     by = {c['id']: c for v in doc['vectors'] for c in v['cases']}
     cases = [r25_case(by[base], cid, key, measure, text) for cid, base, key, measure, text in R25]
+    cases += [r25_witness_case(by[base], cid, text, doc['environment'], by['R15.b']['expect'])
+              for cid, base, text in R25_WITNESS]
     doc['vectors'].append({'id': 'R25', 'title': 'Real GitHub Actions job shapes (provider steps, cancellation)',
                            'cases': cases})
     doc['mutants'] = doc['mutants'] + [dict(m) for m in MUTANTS_V3]
@@ -261,7 +309,8 @@ def pre_v2(observation):
 
 def pre_v3(observation):
     ok, m = _measure(observation)
-    if not ok or m is None or not m['started'] or (m['conclusion'] == 'cancelled' and m['steps'] == []):
+    if not ok or m is None or not m['started'] or (m['conclusion'] == 'cancelled' and m['steps'] == []
+                                                     and m['runner_assigned'] is False):
         return ok
     b = [s for s in m['steps'] if s['role'] == 'boundary']
     return len(b) == 1 and not any(s['started'] for s in m['steps']
@@ -331,13 +380,14 @@ class Freeze(unittest.TestCase):
                        'base_text              = delsk.oracle-contract.v2', 'DELSK-003A PROTOCOL V3 FROZEN',
                        'V3 IMPLEMENTATION NOT_ACTIVE', FREEZE['measurement_layer_sha256'],
                        FREEZE['base_layer']['freeze_sha256'], REGISTRY_REF_V3, RESULTS_V3, OBSERVATION_V2,
-                       'Complete job', 'MISSING ⇒ NOT_PASSED'):
+                       'Complete job', 'runner_assigned', 'workflow_witnessed', 'workflow_sha256', 'runs.post',
+                       'MISSING ⇒ NOT_PASSED'):
             self.assertIn(needle, text)
-        for needle in ('R01–R24', 'R01–R25', 'PM01–PM12', 'PM01–PM17', 'XC01–XC05'):
+        for needle in ('R01–R24', 'R01–R25', 'PM01–PM12', 'PM01–PM20', 'XC01–XC05'):
             self.assertIn(needle, text)
         for m in MUTANTS_V3:
             self.assertIn(m['id'], text)
-        for cid, *_ in R25:
+        for cid in [c[0] for c in R25] + [c[0] for c in R25_WITNESS]:
             self.assertIn(cid, text)
 
     def test_no_v3_evidence_or_registry_exists(self):
@@ -382,12 +432,16 @@ class Derivations(unittest.TestCase):
         self.assertEqual([(x['id'], x['expected']) for x in doc['external_checkpoint_vectors']],
                          [(x['id'], x['expected']) for x in VECTORS_V2['external_checkpoint_vectors']])
         self.assertEqual(doc['science_identity_vectors'], VECTORS_V2['science_identity_vectors'])
-        self.assertEqual(doc['environment'], VECTORS_V2['environment'])
+        self.assertEqual(without(doc['environment'], 'workflow_witnessed'), VECTORS_V2['environment'])
+        self.assertEqual(doc['environment']['workflow_witnessed'],
+                         sorted(c['sha'] for c in VECTORS_V2['environment']['commits']))
+        jobs = [j for c in cases(doc) for o in c['provider'] if o['run'] for j in o['run']['jobs']]
+        self.assertTrue(jobs and all(j['runner_assigned'] is j['started'] for j in jobs))
 
     def test_t_preserves_outcomes(self):
         # v3 changes only section 8.3 item 4. Every v2 observation has no provider role and no cancelled measure job
         # without steps, so both predicates agree on all of them and every R01-R24 record keeps its classes.
-        for case in cases(VECTORS_V2):
+        for case in cases(transform_vectors(VECTORS_V2)[0]):
             for o in case['provider']:
                 with self.subTest(case['id'], key=(o['run_id'], o['run_attempt'])):
                     self.assertEqual(pre_v3(o), pre_v2(o))
@@ -404,6 +458,17 @@ class Derivations(unittest.TestCase):
                 changed = [o for o, r in zip(case['provider'], ref['provider']) if o != r]
                 self.assertEqual([(o['run_id'], o['run_attempt']) for o in changed], [key])
                 self.assertEqual(changed[0]['run']['jobs'], [REGISTER_JOB, measure])
+        env = VECTORS['environment']
+        for cid, base, _ in R25_WITNESS:
+            with self.subTest(cid):
+                case, ref = by[cid], by_v3[base]
+                keep = ('id', 'description', 'environment_override', 'expect')
+                self.assertEqual({k: v for k, v in case.items() if k not in keep},
+                                 {k: v for k, v in ref.items() if k not in keep})
+                self.assertEqual(case['expect'], by_v3['R15.b']['expect'])
+                witnessed = case['environment_override']['workflow_witnessed']
+                self.assertEqual(set(witnessed), set(env['workflow_witnessed']) - {S1_SOURCE})
+                self.assertIn(S1_SOURCE, {e['measured_source_sha'] for e in case['registry']['entries']})
 
     def test_r25_intent_by_reference_predicates(self):
         by = {c['id']: c for c in cases(VECTORS)}
@@ -414,7 +479,7 @@ class Derivations(unittest.TestCase):
                 self.assertEqual(pre_v3(o), cid in new_pre)
                 self.assertFalse(pre_v2(o))  # every R25 shape is a v2 non-PRE: v3 differs exactly on new_pre
         expect = {'R25.a': 'PRE', 'R25.b': 'MISSING', 'R25.c': 'MISSING', 'R25.f': 'PRE', 'R25.g': 'PRE',
-                  'R25.h': 'MISSING', 'R25.i': 'MISSING'}
+                  'R25.h': 'MISSING', 'R25.i': 'MISSING', 'R25.j': 'MISSING'}
         for cid, cls in expect.items():
             attempts = by[cid]['expect'][0]['record']['attempts']
             self.assertEqual(next(a['class'] for a in attempts if (a['run_id'], a['run_attempt']) == C1), cls, cid)
@@ -441,8 +506,12 @@ class Derivations(unittest.TestCase):
 
             def started(x):
                 return x['status'] in ('in_progress', 'completed') and x['conclusion'] != 'skipped'
+
+            def runner(j):  # contract-v3 1: unassigned only when the provider reports both fields and both are null
+                return not ('runner_id' in j and 'runner_name' in j and j['runner_id'] is None
+                            and j['runner_name'] is None)
             o = {'run': {'status': run['status'], 'jobs': [
-                {'name': j['name'], 'started': started(j), 'conclusion': j['conclusion'],
+                {'name': j['name'], 'started': started(j), 'conclusion': j['conclusion'], 'runner_assigned': runner(j),
                  'steps': [{'number': s['number'], 'role': names.get(s['name'], 'other'), 'started': started(s),
                             'conclusion': s['conclusion']} for s in j['steps']]} for j in jobs]}}
             with self.subTest(scenario):
@@ -530,7 +599,7 @@ class Vectors(unittest.TestCase):
         self.assertEqual([v['id'] for v in VECTORS['vectors']], [f'R{n:02d}' for n in range(1, 26)])
         ids = [c['id'] for c in cases(VECTORS)]
         self.assertEqual(len(ids), len(set(ids)))
-        self.assertEqual([m['id'] for m in VECTORS['mutants']], [f'PM{n:02d}' for n in range(1, 18)])
+        self.assertEqual([m['id'] for m in VECTORS['mutants']], [f'PM{n:02d}' for n in range(1, 21)])
         for m in VECTORS['mutants']:
             self.assertLessEqual(set(m['killed_by']), set(ids), m['id'])
 
