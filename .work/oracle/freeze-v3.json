@@ -1,0 +1,78 @@
+{
+  "adopted_on": "2026-10-05",
+  "base_layer": {
+    "contract_id": "delsk.oracle-contract.v2",
+    "files": {
+      ".work/oracle/contract-v2.md": "92452fd59150a3957a131fce84f0dd0d311dfb40fdafeb8b22f416016538b677",
+      ".work/oracle/registry-vectors.json": "5aef8456216da54ef4de4363369b92b6dc65ed29c4c46c864c15f198f8473484",
+      ".work/oracle/schemas-v2.json": "3ee790cf8d9b0a68c553aec673194c3f781f61ed704ee5c43479b0f5a41120b0",
+      ".work/tests/test_oracle_contract_v2.py": "5b1d7b104705becb7bc2f8f200ce011c260c0bb07c4a8221391c578a39893f50"
+    },
+    "freeze_path": ".work/oracle/freeze-v2.json",
+    "freeze_sha256": "d8e3c33a8eeaed7c112189b98bd8bd7f7d2a422aa8efca6733528738f2a34b57"
+  },
+  "contract_id": "delsk.oracle-contract.v3",
+  "decisions": {
+    "accepted": [
+      "D1",
+      "D2",
+      "D3",
+      "D4",
+      "D5"
+    ],
+    "basis": "https://github.com/definitely-stable/Shift-lab/pull/32",
+    "issue": "https://github.com/definitely-stable/Shift-lab/issues/27",
+    "non_normative": [
+      ".work/oracle/activation-c1b-log.md",
+      ".work/tests/fixtures/github-actions-smoke-2026-10-05.json"
+    ]
+  },
+  "g1": "NOT_RUN",
+  "governance": "Takes effect when a maintainer merges this record into main. Immutable; any change of registry, classification, population, series, codes or record semantics needs a new G1 contract with a new freeze record. v3 is the v2 text pinned by freeze-v2.json with the substitutions and replacements of contract-v3.md; v2 is superseded before activation and never activated. Adoption does not activate v3: implementation, genesis, rulesets and natural runs follow contract-v3 section 5 and a separate maintainer decision.",
+  "implementation": "NOT_ACTIVE",
+  "layering": {
+    "base_text": "delsk.oracle-contract.v2",
+    "g1_provenance_contract": "delsk.oracle-contract.v3",
+    "measurement_contract": "delsk.oracle-contract.v1"
+  },
+  "limitations": [
+    "Expected records of R25 were derived by the v3 author from the frozen records of their base cases, not from an implementation; independence comes from activation criteria 3 and 11.",
+    "The closed set of provider step names relies on current GitHub Actions names (Complete job, Post <name>); a rename fails closed.",
+    "Registry corruption is unrecoverable inside v3; recovery needs a new G1 contract and genesis.",
+    "Level-1 witness leaves an undetected tail-truncation window before the next retained binding; against non-admins it is closed by the registry ruleset, against a malicious admin only by an external checkpoint.",
+    "G1 v3 is defined for phase pilot only; reveal entries are registered and disclosed but not evaluated."
+  ],
+  "measurement_layer": {
+    "bindings": {
+      "candidate_lock_sha256": "cb16d53b164ff393187e0115bdf31c52ac717a5172fb1e91889b5988ac019d2e",
+      "codec_lock_sha256": "9823e4c933c27fb4116bfce5add59ef6e926e43d2f0ebae258d7bb869a38f7b1",
+      "corpus_lock_sha256": "e5c288256bed284572a9f111186411517b4c73d097d13aea4cf48e2fb9f6fffa",
+      "protocol_sha256": "a0c518247d111e8ad1294562d65eb34c28da87c7027c009efb64a39e6f4e0038",
+      "seal_sha256": "0c87fd5c96279c377d6031051d0cf990cb0afc6041212fc973b1ef35a8be73ef"
+    },
+    "contract_id": "delsk.oracle-contract.v1",
+    "files": {
+      ".work/oracle/codec-lock.json": "9823e4c933c27fb4116bfce5add59ef6e926e43d2f0ebae258d7bb869a38f7b1",
+      ".work/oracle/contract.md": "d3bde26f6abf642dacc1ea8b767c0d3262928a9d27547d0e311c682b542c8387",
+      ".work/oracle/known-answer.json": "911eab6897a72fd9bf3cd27bed8ce9733b4da45a2bebc8f974a9a2e3c8fab3d6",
+      ".work/oracle/schemas.json": "bdd46170b426161e7b455cc4b93545de7e46354df1a5fe072c9af46168698124",
+      ".work/tests/oracle_reference.py": "be84b37e66916b1172a575b842b327a018fbac2c24154b06e6ffef8caaed338f",
+      ".work/tests/test_oracle_contract.py": "2b5e60c69829588f502575cf45175e3d13ecc58192ac176cb2e80fb11937d8f1"
+    },
+    "freeze_path": ".work/oracle/freeze.json"
+  },
+  "measurement_layer_sha256": "c56fc053b103cecd38446b3791db104a12b9fafabacdfc6b71f6f23c0bf7f729",
+  "natural_measurements": "NOT_RUN",
+  "provenance_layer": {
+    "files": {
+      ".work/oracle/contract-v3.md": "83ecf822ecb03a80d8898eff291d3ed42e8a6f146a6e11f42bf3f5a02852d2fd",
+      ".work/oracle/registry-vectors-v3.json": "d018bfca0a46a7f1b08144d0186c7b7e49eb2a97d0e00acc13b646f3b2b7252f",
+      ".work/oracle/schemas-v3.json": "8b8676ea112259b9dd72f7091fdf48cd5a281a9f2107961249ea5ab2458f631a",
+      ".work/tests/test_oracle_contract_v3.py": "2f59138200ff1748003fb9f4afcb22408c7bb558b7bb88d403757cd87dabff61"
+    }
+  },
+  "provenance_layer_sha256": "ecdc2436e5baa987ecd42f6eb74e800c0764095d41a24444ebb397522104349f",
+  "schema": "delsk.oracle-contract.freeze.v3",
+  "scope": "G1/provenance layer: the v2 text with section 8.3 (provider observation, provider steps, PRE) replaced, the implementation witness extended, the registry ref and results root of v3, and the derived schemas and vectors (D, T, R25, PM13-PM17). The measurement layer is delsk.oracle-contract.v1 by hash.",
+  "status": "FROZEN_ON_MERGE"
+}
