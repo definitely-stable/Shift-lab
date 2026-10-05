@@ -83,6 +83,7 @@
         "sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0"
       }
     ],
+    "evaluator_source_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
     "kat_green": [
       "085bbd6c728fa0e1ce82af37eb73027436bc34c4",
       "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
@@ -334,6 +335,119 @@
       }
     ]
   },
+  "external_checkpoint_vectors": [
+    {
+      "checkpoint": {
+        "checkpoint_sha256": "6763cb29cf50872e9ba23b7e7b464f58244efb86e2e2f639f6987e2ee16dd6cb",
+        "head": {
+          "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
+          "sequence": 2
+        },
+        "locator": "https://checkpoint.invalid/delsk/registry"
+      },
+      "checkpoint_history": [
+        "b24a3f5295e5d54741b4d62d25225e418f8592bbb990a8ba49eb61c99fdc1850",
+        "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32"
+      ],
+      "description": "checkpoint commits exactly the record head",
+      "expected": "ADMISSIBLE",
+      "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+      "id": "XC01",
+      "record_head": {
+        "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
+        "sequence": 2
+      }
+    },
+    {
+      "checkpoint": {
+        "checkpoint_sha256": "3f7f0a6a4092f220c9c539f5aba369989e235d8e63836d09d975c90c70c710ef",
+        "head": {
+          "entry_sha256": "77e379e8d045d58ca9c92773d019c5cb1d853e49574bb211e540fe61335d381a",
+          "sequence": 3
+        },
+        "locator": "https://checkpoint.invalid/delsk/registry"
+      },
+      "checkpoint_history": [
+        "b24a3f5295e5d54741b4d62d25225e418f8592bbb990a8ba49eb61c99fdc1850",
+        "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
+        "77e379e8d045d58ca9c92773d019c5cb1d853e49574bb211e540fe61335d381a"
+      ],
+      "description": "later checkpoint: record head is a prefix of its history",
+      "expected": "ADMISSIBLE",
+      "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+      "id": "XC02",
+      "record_head": {
+        "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
+        "sequence": 2
+      }
+    },
+    {
+      "checkpoint": {
+        "checkpoint_sha256": "6763cb29cf50872e9ba23b7e7b464f58244efb86e2e2f639f6987e2ee16dd6cb",
+        "head": {
+          "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
+          "sequence": 2
+        },
+        "locator": "https://checkpoint.invalid/delsk/registry"
+      },
+      "checkpoint_history": [
+        "b24a3f5295e5d54741b4d62d25225e418f8592bbb990a8ba49eb61c99fdc1850",
+        "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32"
+      ],
+      "description": "earlier checkpoint: sequence below the record head",
+      "expected": "INADMISSIBLE",
+      "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+      "id": "XC03",
+      "record_head": {
+        "entry_sha256": "77e379e8d045d58ca9c92773d019c5cb1d853e49574bb211e540fe61335d381a",
+        "sequence": 3
+      }
+    },
+    {
+      "checkpoint": {
+        "checkpoint_sha256": "66a05fe03c00d1781d84cb435108a705774bebf1f5e1ad5f1470fc684025456c",
+        "head": {
+          "entry_sha256": "97ff84aab4f8cf606bb2fe11cdae18dbbb164f2b23ff695714e20201216d7ab5",
+          "sequence": 3
+        },
+        "locator": "https://checkpoint.invalid/delsk/registry"
+      },
+      "checkpoint_history": [
+        "b24a3f5295e5d54741b4d62d25225e418f8592bbb990a8ba49eb61c99fdc1850",
+        "4741292ca4d1fb813599c2559e1786448093ca52e955b244ae7a3d1e8c8725da",
+        "97ff84aab4f8cf606bb2fe11cdae18dbbb164f2b23ff695714e20201216d7ab5"
+      ],
+      "description": "later checkpoint of a forked history: record head not on it",
+      "expected": "INADMISSIBLE",
+      "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+      "id": "XC04",
+      "record_head": {
+        "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
+        "sequence": 2
+      }
+    },
+    {
+      "checkpoint": {
+        "checkpoint_sha256": "a36502b795a8291208097af44385aab899a7b475e94d93814c8b455a9cac9669",
+        "head": {
+          "entry_sha256": "b24a3f5295e5d54741b4d62d25225e418f8592bbb990a8ba49eb61c99fdc1850",
+          "sequence": 1
+        },
+        "locator": "https://checkpoint.invalid/delsk/registry"
+      },
+      "checkpoint_history": [
+        "b24a3f5295e5d54741b4d62d25225e418f8592bbb990a8ba49eb61c99fdc1850"
+      ],
+      "description": "record head is genesis; checkpoint after the first entry",
+      "expected": "ADMISSIBLE",
+      "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+      "id": "XC05",
+      "record_head": {
+        "entry_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+        "sequence": 0
+      }
+    }
+  ],
   "g1_contract": "delsk.oracle-contract.v2",
   "mutants": [
     {
@@ -432,6 +546,24 @@
         "R21.b"
       ],
       "survives_as": "a series is silently reset"
+    },
+    {
+      "defect": "KAT checked on one commit only, or on an evaluator commit outside the pinned main",
+      "id": "PM11",
+      "killed_by": [
+        "R23.a",
+        "R23.b",
+        "R23.c"
+      ],
+      "survives_as": "a buggy or unreviewed evaluator, or an untested measurement, yields PASS"
+    },
+    {
+      "defect": "main snapshot not pinned or not re-read after evaluation",
+      "id": "PM12",
+      "killed_by": [
+        "R24"
+      ],
+      "survives_as": "evidence root, ancestry and freeze checks read different main states; record not reproducible"
     }
   ],
   "schema": "delsk.oracle.registry-vectors.v1",
@@ -808,9 +940,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "80513d49b2dd29fef900349ce766d945ff5d8191f33a993ef4d3de0343237faa",
+                "record_sha256": "66d5d7d35e664128f61cc6a951bba4c281f95487525593e35d7a839f3eb09fe6",
                 "registry_head": {
                   "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
                   "sequence": 2
@@ -869,9 +1002,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "bcf2cf4576f1f3ea62b38f5090c299acff3d998257ea7d5cc3fb0371f44b8865",
-                "record_sha256": "eec93f15b59f7d55efe2ec227bca1bab2384643605e9dfbd42bd27170db4d896",
+                "record_sha256": "bfe38100424519cd3c160b7d231aa826c12448b7cbf6dbddc113f9cd3ae7c381",
                 "registry_head": {
                   "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
                   "sequence": 2
@@ -894,6 +1028,7 @@
             }
           ],
           "id": "R01",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -1100,9 +1235,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": null,
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "0d6ca79582d1818b4644f64e7e712f9e9afda5075ac38ced4ab85490346c1778",
+                "record_sha256": "a23f7f1fc09d7c84235d31a4ee9a32a58f5ae6bfe66eb663c34d9e0d3bdfd142",
                 "registry_head": null,
                 "schema": "delsk.oracle.g1-record.v1",
                 "science_identity_sha256": null,
@@ -1114,6 +1250,7 @@
             }
           ],
           "id": "R02.a",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [],
           "registry": {
             "entries": [
@@ -1213,9 +1350,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": null,
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "0d6ca79582d1818b4644f64e7e712f9e9afda5075ac38ced4ab85490346c1778",
+                "record_sha256": "a23f7f1fc09d7c84235d31a4ee9a32a58f5ae6bfe66eb663c34d9e0d3bdfd142",
                 "registry_head": null,
                 "schema": "delsk.oracle.g1-record.v1",
                 "science_identity_sha256": null,
@@ -1227,6 +1365,7 @@
             }
           ],
           "id": "R02.b",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [],
           "registry": {
             "entries": [
@@ -1326,9 +1465,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": null,
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "0d6ca79582d1818b4644f64e7e712f9e9afda5075ac38ced4ab85490346c1778",
+                "record_sha256": "a23f7f1fc09d7c84235d31a4ee9a32a58f5ae6bfe66eb663c34d9e0d3bdfd142",
                 "registry_head": null,
                 "schema": "delsk.oracle.g1-record.v1",
                 "science_identity_sha256": null,
@@ -1340,6 +1480,7 @@
             }
           ],
           "id": "R02.c",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [],
           "registry": {
             "entries": [
@@ -1439,9 +1580,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": null,
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "0d6ca79582d1818b4644f64e7e712f9e9afda5075ac38ced4ab85490346c1778",
+                "record_sha256": "a23f7f1fc09d7c84235d31a4ee9a32a58f5ae6bfe66eb663c34d9e0d3bdfd142",
                 "registry_head": null,
                 "schema": "delsk.oracle.g1-record.v1",
                 "science_identity_sha256": null,
@@ -1453,6 +1595,7 @@
             }
           ],
           "id": "R02.d",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [],
           "registry": {
             "entries": [
@@ -1632,9 +1775,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "3e28f631a6141452c679845ac0ad16d813d2f3ba0be39a9c6ed6f16d6f28493b",
+                "record_sha256": "cbfe0bff64d960b5cad2527d2f590ed32618e4ab0561c66a8dcfa3108b9d797d",
                 "registry_head": {
                   "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
                   "sequence": 2
@@ -1649,6 +1793,7 @@
             }
           ],
           "id": "R03.a",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -1923,9 +2068,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "3e28f631a6141452c679845ac0ad16d813d2f3ba0be39a9c6ed6f16d6f28493b",
+                "record_sha256": "cbfe0bff64d960b5cad2527d2f590ed32618e4ab0561c66a8dcfa3108b9d797d",
                 "registry_head": {
                   "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
                   "sequence": 2
@@ -1940,6 +2086,7 @@
             }
           ],
           "id": "R03.b",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -2146,9 +2293,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "cec0d95005ebc243e085d6b08a091988f4d6d488d0f4a58d14c06dbec579298d",
+                "record_sha256": "0a1ecc2e1614304c0a9d8540c7e89b5bb4feef79ef93e6e35833a693b442739a",
                 "registry_head": {
                   "entry_sha256": "8369fb6cda7889101cf40b372f9947c853d13f060e318b992a30d1e1b945ec1a",
                   "sequence": 2
@@ -2163,6 +2311,7 @@
             }
           ],
           "id": "R04",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -2424,9 +2573,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "b8f360a153f76985871c61023d6dd546afde231e04494b8ad4d3a499bf0cecb5",
+                "record_sha256": "f65d0e78da3fb30d18e7384712505a627cfcd7a49ac123a69860877142c55375",
                 "registry_head": {
                   "entry_sha256": "77e379e8d045d58ca9c92773d019c5cb1d853e49574bb211e540fe61335d381a",
                   "sequence": 3
@@ -2449,6 +2599,7 @@
             }
           ],
           "id": "R05",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -2829,9 +2980,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "ed174cb3a0044917d56e3210b75ad0df499dde0792a55b80f4744cd1d888c8a5",
+                "record_sha256": "d1819e831c73f94f6d0f904f75f79654c9549726c1b5d8432a9968db4acc6ae4",
                 "registry_head": {
                   "entry_sha256": "77e379e8d045d58ca9c92773d019c5cb1d853e49574bb211e540fe61335d381a",
                   "sequence": 3
@@ -2854,6 +3006,7 @@
             }
           ],
           "id": "R06",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -3247,9 +3400,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "2eebc7b6eea1679eea63915fa60b6b51ada437f8dadadcc0ac1275c466dfd43a",
+                "record_sha256": "83648b74d95db9a615c72661426130cdc587c97c636d4e0a075698cd2e5e8cd9",
                 "registry_head": {
                   "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
                   "sequence": 2
@@ -3264,6 +3418,7 @@
             }
           ],
           "id": "R07.a",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -3613,9 +3768,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "2eebc7b6eea1679eea63915fa60b6b51ada437f8dadadcc0ac1275c466dfd43a",
+                "record_sha256": "83648b74d95db9a615c72661426130cdc587c97c636d4e0a075698cd2e5e8cd9",
                 "registry_head": {
                   "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
                   "sequence": 2
@@ -3630,6 +3786,7 @@
             }
           ],
           "id": "R07.b",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -3909,9 +4066,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "2eebc7b6eea1679eea63915fa60b6b51ada437f8dadadcc0ac1275c466dfd43a",
+                "record_sha256": "83648b74d95db9a615c72661426130cdc587c97c636d4e0a075698cd2e5e8cd9",
                 "registry_head": {
                   "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
                   "sequence": 2
@@ -3926,6 +4084,7 @@
             }
           ],
           "id": "R07.c",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -4244,9 +4403,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "45f87e5eec4bcdfacf1a1d3ffb850b697ea1aaf81f1158cf6e6b41b334090839",
+                "record_sha256": "c4b081a2564e90b8b43c8bcdf35314ac871ca41565805f0db36d400ec806948c",
                 "registry_head": {
                   "entry_sha256": "77e379e8d045d58ca9c92773d019c5cb1d853e49574bb211e540fe61335d381a",
                   "sequence": 3
@@ -4269,6 +4429,7 @@
             }
           ],
           "id": "R08.a",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -4658,9 +4819,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "45f87e5eec4bcdfacf1a1d3ffb850b697ea1aaf81f1158cf6e6b41b334090839",
+                "record_sha256": "c4b081a2564e90b8b43c8bcdf35314ac871ca41565805f0db36d400ec806948c",
                 "registry_head": {
                   "entry_sha256": "77e379e8d045d58ca9c92773d019c5cb1d853e49574bb211e540fe61335d381a",
                   "sequence": 3
@@ -4683,6 +4845,7 @@
             }
           ],
           "id": "R08.b",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -5071,9 +5234,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "b8f360a153f76985871c61023d6dd546afde231e04494b8ad4d3a499bf0cecb5",
+                "record_sha256": "f65d0e78da3fb30d18e7384712505a627cfcd7a49ac123a69860877142c55375",
                 "registry_head": {
                   "entry_sha256": "77e379e8d045d58ca9c92773d019c5cb1d853e49574bb211e540fe61335d381a",
                   "sequence": 3
@@ -5096,6 +5260,7 @@
             }
           ],
           "id": "R09.a",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -5434,9 +5599,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "b8f360a153f76985871c61023d6dd546afde231e04494b8ad4d3a499bf0cecb5",
+                "record_sha256": "f65d0e78da3fb30d18e7384712505a627cfcd7a49ac123a69860877142c55375",
                 "registry_head": {
                   "entry_sha256": "77e379e8d045d58ca9c92773d019c5cb1d853e49574bb211e540fe61335d381a",
                   "sequence": 3
@@ -5459,6 +5625,7 @@
             }
           ],
           "id": "R09.b",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -5850,9 +6017,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "b8f360a153f76985871c61023d6dd546afde231e04494b8ad4d3a499bf0cecb5",
+                "record_sha256": "f65d0e78da3fb30d18e7384712505a627cfcd7a49ac123a69860877142c55375",
                 "registry_head": {
                   "entry_sha256": "77e379e8d045d58ca9c92773d019c5cb1d853e49574bb211e540fe61335d381a",
                   "sequence": 3
@@ -5875,6 +6043,7 @@
             }
           ],
           "id": "R09.c",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -6260,9 +6429,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "b8f360a153f76985871c61023d6dd546afde231e04494b8ad4d3a499bf0cecb5",
+                "record_sha256": "f65d0e78da3fb30d18e7384712505a627cfcd7a49ac123a69860877142c55375",
                 "registry_head": {
                   "entry_sha256": "77e379e8d045d58ca9c92773d019c5cb1d853e49574bb211e540fe61335d381a",
                   "sequence": 3
@@ -6285,6 +6455,7 @@
             }
           ],
           "id": "R10.a",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -6676,9 +6847,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "b8f360a153f76985871c61023d6dd546afde231e04494b8ad4d3a499bf0cecb5",
+                "record_sha256": "f65d0e78da3fb30d18e7384712505a627cfcd7a49ac123a69860877142c55375",
                 "registry_head": {
                   "entry_sha256": "77e379e8d045d58ca9c92773d019c5cb1d853e49574bb211e540fe61335d381a",
                   "sequence": 3
@@ -6701,6 +6873,7 @@
             }
           ],
           "id": "R10.b",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -7073,9 +7246,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "7ce87c7b4573ba46710f535a40b11e656c6b8e2a3babcbb4d1a716403d80a5fd",
+                "record_sha256": "0692238f2017a833ac9454de67db7b9c323597285642f1eebd84e67dc149a2ae",
                 "registry_head": {
                   "entry_sha256": "a08e23fcf4332c972b5741cd4ada54a1694be0bd88da11e4f520341ac7da917d",
                   "sequence": 2
@@ -7098,6 +7272,7 @@
             }
           ],
           "id": "R11",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -7403,9 +7578,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "80513d49b2dd29fef900349ce766d945ff5d8191f33a993ef4d3de0343237faa",
+                "record_sha256": "66d5d7d35e664128f61cc6a951bba4c281f95487525593e35d7a839f3eb09fe6",
                 "registry_head": {
                   "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
                   "sequence": 2
@@ -7428,6 +7604,7 @@
             }
           ],
           "id": "R12.a",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -7795,9 +7972,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "9841cf2e65bd69ba863b57277f3d621172507673a36917b3be8f9bc84e122dc8",
+                "record_sha256": "770c0097c4f8f1fc24e328a0678a1140ed5d47ef9fd212979acfd999a07a68fd",
                 "registry_head": {
                   "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
                   "sequence": 2
@@ -7826,6 +8004,7 @@
             }
           ],
           "id": "R12.b",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -8195,9 +8374,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "068d221076c8da1bccfd53756112e7f7a9e2431f946b62bea88ff0b1464e25f2",
+                "record_sha256": "3c71c8edbb6f9b14bec5fa29a092a72a1fa73cb5b8cefc7a36ba8b61e160b527",
                 "registry_head": {
                   "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
                   "sequence": 2
@@ -8220,6 +8400,7 @@
             }
           ],
           "id": "R13.a",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -8524,9 +8705,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "068d221076c8da1bccfd53756112e7f7a9e2431f946b62bea88ff0b1464e25f2",
+                "record_sha256": "3c71c8edbb6f9b14bec5fa29a092a72a1fa73cb5b8cefc7a36ba8b61e160b527",
                 "registry_head": {
                   "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
                   "sequence": 2
@@ -8549,6 +8731,7 @@
             }
           ],
           "id": "R13.b",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -8853,9 +9036,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "068d221076c8da1bccfd53756112e7f7a9e2431f946b62bea88ff0b1464e25f2",
+                "record_sha256": "3c71c8edbb6f9b14bec5fa29a092a72a1fa73cb5b8cefc7a36ba8b61e160b527",
                 "registry_head": {
                   "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
                   "sequence": 2
@@ -8878,6 +9062,7 @@
             }
           ],
           "id": "R13.c",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -9188,9 +9373,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "068d221076c8da1bccfd53756112e7f7a9e2431f946b62bea88ff0b1464e25f2",
+                "record_sha256": "3c71c8edbb6f9b14bec5fa29a092a72a1fa73cb5b8cefc7a36ba8b61e160b527",
                 "registry_head": {
                   "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
                   "sequence": 2
@@ -9213,6 +9399,7 @@
             }
           ],
           "id": "R14",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -9569,9 +9756,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "75ed46f41440ad14a59354ac122c8d0252b1c0784f685948e5835b71fd1374fe",
+                "record_sha256": "abef25401895939a70e88d6f45c73e4dc47cd3315786d251b71e126b5d131792",
                 "registry_head": {
                   "entry_sha256": "096fab7648226ce76e4f9efdfd92b949bd67a4603b1d9c008fbbcd994415299e",
                   "sequence": 3
@@ -9594,6 +9782,7 @@
             }
           ],
           "id": "R15.a",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -9985,9 +10174,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "0c6461abbd0b3bfae07194b76721f03da2439428b0fb6471fffa4f0e77f57935",
+                "record_sha256": "f8b0fa4840da32c374cb763b14a09155ab0c6d802d4a20f1670e97bd040d7682",
                 "registry_head": {
                   "entry_sha256": "096fab7648226ce76e4f9efdfd92b949bd67a4603b1d9c008fbbcd994415299e",
                   "sequence": 3
@@ -10010,6 +10200,7 @@
             }
           ],
           "id": "R15.b",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -10384,9 +10575,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "f19439302ac65a2346014bd980f5266d80b0ae9063f0c4baf19fb6a322842a0c",
+                "record_sha256": "39e5eec5869f87a46f0788c333a04a2ff7ff9c1e1797166425057b217ad378f9",
                 "registry_head": {
                   "entry_sha256": "096fab7648226ce76e4f9efdfd92b949bd67a4603b1d9c008fbbcd994415299e",
                   "sequence": 3
@@ -10409,6 +10601,7 @@
             }
           ],
           "id": "R15.c",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -10798,9 +10991,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "403d33d135a93dbf7dc11c3a4c40b9aa8763c48e166e52c2e0d82faa5ee0f031",
+                "record_sha256": "e4b4c6e9e59e734af88aee1974b76b839ded878ca072caecd60feb012808e536",
                 "registry_head": {
                   "entry_sha256": "096fab7648226ce76e4f9efdfd92b949bd67a4603b1d9c008fbbcd994415299e",
                   "sequence": 3
@@ -10823,6 +11017,7 @@
             }
           ],
           "id": "R15.d",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -11346,9 +11541,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "bcf2cf4576f1f3ea62b38f5090c299acff3d998257ea7d5cc3fb0371f44b8865",
-                "record_sha256": "5cc4323a3de267c711818b46e9227396d0c65033def01f93d829ec8714af7d27",
+                "record_sha256": "750db673c2f100a0a26ee7d32e195b26fa8d34b71c20cd6166e10637122ff2ad",
                 "registry_head": {
                   "entry_sha256": "ec67d58f97ebe766d4d7a17b9935036094456de1c627c27e6c8db40b8e575714",
                   "sequence": 5
@@ -11473,9 +11669,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "99f3fc145515811c74593dc3f628bab35f6e1dbab5146e44067b7d8b50cd493b",
+                "record_sha256": "f20e971ba8eeefcc2d45f5387437bb0db73328139847125b7c4be6e91016912f",
                 "registry_head": {
                   "entry_sha256": "ec67d58f97ebe766d4d7a17b9935036094456de1c627c27e6c8db40b8e575714",
                   "sequence": 5
@@ -11523,6 +11720,7 @@
             }
           ],
           "id": "R15.e",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -12076,9 +12274,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "16ba0d7449c7833fcd285768377427852a195e3583d62ebd0ceb8cf2c0605c9c",
+                "record_sha256": "f18ffd62bbcfda15c998043eaa2080fc651f4bd99345ddcb061fe359b342c861",
                 "registry_head": {
                   "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
                   "sequence": 2
@@ -12101,6 +12300,7 @@
             }
           ],
           "id": "R16.a",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -12389,9 +12589,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "16ba0d7449c7833fcd285768377427852a195e3583d62ebd0ceb8cf2c0605c9c",
+                "record_sha256": "f18ffd62bbcfda15c998043eaa2080fc651f4bd99345ddcb061fe359b342c861",
                 "registry_head": {
                   "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
                   "sequence": 2
@@ -12414,6 +12615,7 @@
             }
           ],
           "id": "R16.b",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -12718,9 +12920,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "16ba0d7449c7833fcd285768377427852a195e3583d62ebd0ceb8cf2c0605c9c",
+                "record_sha256": "f18ffd62bbcfda15c998043eaa2080fc651f4bd99345ddcb061fe359b342c861",
                 "registry_head": {
                   "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
                   "sequence": 2
@@ -12743,6 +12946,7 @@
             }
           ],
           "id": "R16.c",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -13072,9 +13276,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "80513d49b2dd29fef900349ce766d945ff5d8191f33a993ef4d3de0343237faa",
+                "record_sha256": "66d5d7d35e664128f61cc6a951bba4c281f95487525593e35d7a839f3eb09fe6",
                 "registry_head": {
                   "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
                   "sequence": 2
@@ -13097,6 +13302,7 @@
             }
           ],
           "id": "R17",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -13377,9 +13583,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "0e610223c5b25a6e9fba767d3beabf38061305cd0a22f9062b4b10a18543fef2",
+                "record_sha256": "e7c62e4e35babc36a4774df33cb3480c8f2b76097d2c5c5ed752d2b2f8015865",
                 "registry_head": {
                   "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
                   "sequence": 2
@@ -13394,6 +13601,7 @@
             }
           ],
           "id": "R18",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -13714,9 +13922,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "d64026a3af25b02633f0f5492424169bc32e7fdead80a1a6a94e97b8f45f6c9a",
+                "record_sha256": "5af32e2ea15110baee66f0b5fc1bde0dc7b1452d639ee07002a554211a24b649",
                 "registry_head": {
                   "entry_sha256": "1b500cfa253ca8093c0e67cff0e742240d91430caabd470536d4b5cf6ca4d78d",
                   "sequence": 3
@@ -13739,6 +13948,7 @@
             }
           ],
           "id": "R19.a",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -14075,9 +14285,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "fbcdb65db456221472011320efc49d7bf18fdaecebfbc7c6725163c700b4fb68",
+                "record_sha256": "f90f70512aff8b1a3a3b8f4acec48964e978b69a2a4f2096c0ec28bbad826633",
                 "registry_head": {
                   "entry_sha256": "e5ffc9ab4a1ff81c023049809771c13c340c3ee1d298a0f693c241421da4ecae",
                   "sequence": 3
@@ -14162,9 +14373,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "bcf2cf4576f1f3ea62b38f5090c299acff3d998257ea7d5cc3fb0371f44b8865",
-                "record_sha256": "5a5b0c7dc67dc986257c3df5c2fb0afe07a7be1c331f800b8791628b4275cff7",
+                "record_sha256": "82bffa01b3436dc2885fc49be58644b1608f7cd0dc638544f8a07fad444687b4",
                 "registry_head": {
                   "entry_sha256": "e5ffc9ab4a1ff81c023049809771c13c340c3ee1d298a0f693c241421da4ecae",
                   "sequence": 3
@@ -14196,6 +14408,7 @@
             }
           ],
           "id": "R19.b",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -14534,9 +14747,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "0da5c963d0f66d00f36694cef0400203b871522ea153ce53fcb8bd4d8256ee95",
+                "record_sha256": "ca22813b86e3a826e660a7f306d9e68fa7a9f78e92df7ac7033b61967c7e4ed5",
                 "registry_head": {
                   "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
                   "sequence": 2
@@ -14559,6 +14773,7 @@
             }
           ],
           "id": "R20",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -14964,9 +15179,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "bcf2cf4576f1f3ea62b38f5090c299acff3d998257ea7d5cc3fb0371f44b8865",
-                "record_sha256": "e88d78dd72e746a5bfc477f630474d0005a4cb1d432ef97da46b1710b074e239",
+                "record_sha256": "4d5bf24384e6e25cbf86c6c21b3b4da6b52a9e821338d31f1fc248c61842ed92",
                 "registry_head": {
                   "entry_sha256": "650cd82967e8364abfee1d3e586ad7675da521cd5f39095c2c10a66986956282",
                   "sequence": 4
@@ -15060,9 +15276,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "dcb68ac1b295001f79bb4cd797874a7a3df75b921a24f1d3e29686fe24bf1484",
+                "record_sha256": "7c9453a1b2657b13c2c161b69308b9d94b27152959254ad822e3689e2e805676",
                 "registry_head": {
                   "entry_sha256": "650cd82967e8364abfee1d3e586ad7675da521cd5f39095c2c10a66986956282",
                   "sequence": 4
@@ -15094,6 +15311,7 @@
             }
           ],
           "id": "R21.a",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -15568,9 +15786,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "bcf2cf4576f1f3ea62b38f5090c299acff3d998257ea7d5cc3fb0371f44b8865",
-                "record_sha256": "10394720c02f8dbcf52f8280805adee06e080c1da4420b79f89d4715c5417079",
+                "record_sha256": "a19e106415517410617340d525216bfa446f62be2ffd822a48a2bfc035b145ee",
                 "registry_head": {
                   "entry_sha256": "69cda3268bc35b5de9ff12c2f25c36a7c532c5e464771381c37fd72c61e74d41",
                   "sequence": 3
@@ -15602,6 +15821,7 @@
             }
           ],
           "id": "R21.b",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -16065,9 +16285,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "bcf2cf4576f1f3ea62b38f5090c299acff3d998257ea7d5cc3fb0371f44b8865",
-                "record_sha256": "b82e6f25c1d111ab8e080f3c3c65d2b7396ea905e08e1a7aa1c0ae13ccf2bada",
+                "record_sha256": "af49ed0421e03566b9441749e5167d9e2cb7bdbd1776d1452067080cd2424a93",
                 "registry_head": {
                   "entry_sha256": "e990e15fca30b0a5a06547dd3a9a13b076fe5db1f99eeb9027d88f6783dbeaf3",
                   "sequence": 4
@@ -16179,9 +16400,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "8573b14bb44a83c122455cdc15f747cb3e17ba36f94a71b319e68bd7ef066512",
+                "record_sha256": "cace154e9cc04e0ef8ee4ba199fc42aa3765a8956f7b6a58bf318ce6ef321bd6",
                 "registry_head": {
                   "entry_sha256": "e990e15fca30b0a5a06547dd3a9a13b076fe5db1f99eeb9027d88f6783dbeaf3",
                   "sequence": 4
@@ -16231,6 +16453,7 @@
             }
           ],
           "id": "R22.a",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -16796,9 +17019,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "bcf2cf4576f1f3ea62b38f5090c299acff3d998257ea7d5cc3fb0371f44b8865",
-                "record_sha256": "9a3bfcc66ee7093cd6e73b8bc6bf49a30250757e727c5ee92af8610256bf55f2",
+                "record_sha256": "a39e4fd8a19a8b87c37f6e4b94655aa3097aeb9fd71bb5ec36eea5d659aaca78",
                 "registry_head": {
                   "entry_sha256": "406b457a227cd06a7956da4fe0ced8e9bde8baab5259db1e380011cda028a644",
                   "sequence": 4
@@ -16848,6 +17072,7 @@
             }
           ],
           "id": "R22.b",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -17511,9 +17736,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "4eeeaf005c77c4a031a09d3dcdc6eaf3dde9c2c5f1357b066841f4e4161e5d12",
-                "record_sha256": "62f0226c86bce1cf9019ee0f2524116cf7bf6b347dfca4d5ec2580eedaf42add",
+                "record_sha256": "9682821ee30694f70ed9a7b3e50e2504de12175f6a0f77028fd0d2a232c29b53",
                 "registry_head": {
                   "entry_sha256": "140e11dbae1b35a4d647f24879b0e04befa2d96d2b7c46871aca7cae5eb153ba",
                   "sequence": 6
@@ -17677,9 +17903,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "7ddc0863d0bc0fe4b784ee9b5bedeab1666b884e02b9ba5e723928eff02f6405",
+                "record_sha256": "063bb1ebad53eb3be6a84c88edfde819c1aff9d41fd4478f338928cf16e03884",
                 "registry_head": {
                   "entry_sha256": "140e11dbae1b35a4d647f24879b0e04befa2d96d2b7c46871aca7cae5eb153ba",
                   "sequence": 6
@@ -17841,9 +18068,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "bcf2cf4576f1f3ea62b38f5090c299acff3d998257ea7d5cc3fb0371f44b8865",
-                "record_sha256": "bce7cae3820948e0766f6d2fc7c9f49827876b9ff384d5283259eff8a056ad6f",
+                "record_sha256": "8562dd14205c617b1cc9b081c1941222e937bd57a238f9457562e8e55495b91e",
                 "registry_head": {
                   "entry_sha256": "140e11dbae1b35a4d647f24879b0e04befa2d96d2b7c46871aca7cae5eb153ba",
                   "sequence": 6
@@ -17917,6 +18145,7 @@
             }
           ],
           "id": "R22.c",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -18661,9 +18890,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "c87a559d4ab49d3707eb269627a5402da6c53daf45209eaa3006babecb2f4a18",
-                "record_sha256": "3d78c02770bad455d59e971b939bc25e2a1ae1347dd6a744bd662cf52a95f8ac",
+                "record_sha256": "648f5222c0e5c3c7148133f42be38d2f52217820962ba710cf12330b03fe31d2",
                 "registry_head": {
                   "entry_sha256": "83f643fa5fee30aeb0f11fd3bb1a4c0e6683c569ea7a1d50e21f94eaa6296743",
                   "sequence": 5
@@ -18790,9 +19020,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
-                "record_sha256": "5bedbd3cae9a7e032a351dd275021643f24bf1cc86b688e6bfee3e0d44c19b25",
+                "record_sha256": "6c13cf9d989e2582971f9190b1948cbaf8bb856bfe3ccc6f7ea9ed2015685805",
                 "registry_head": {
                   "entry_sha256": "83f643fa5fee30aeb0f11fd3bb1a4c0e6683c569ea7a1d50e21f94eaa6296743",
                   "sequence": 5
@@ -18917,9 +19148,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "bcf2cf4576f1f3ea62b38f5090c299acff3d998257ea7d5cc3fb0371f44b8865",
-                "record_sha256": "b82a7e58089189b146e924e12e3acd99c112f2b85917dd3a9c3dde63741538b0",
+                "record_sha256": "a1aad75508b85ddc6c650db15b80d51ccb254572c21cc618d0c1c9d58a7a4395",
                 "registry_head": {
                   "entry_sha256": "83f643fa5fee30aeb0f11fd3bb1a4c0e6683c569ea7a1d50e21f94eaa6296743",
                   "sequence": 5
@@ -18969,6 +19201,7 @@
             }
           ],
           "id": "R22.d",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -19607,9 +19840,10 @@
                 "external_checkpoint": null,
                 "g1_contract": "delsk.oracle-contract.v2",
                 "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
                 "measurement_contract": "delsk.oracle-contract.v1",
                 "measurement_identity_sha256": "bcf2cf4576f1f3ea62b38f5090c299acff3d998257ea7d5cc3fb0371f44b8865",
-                "record_sha256": "8372dd45acf91f57037437aed398380d612dc5038cc65bc02290b50557792c72",
+                "record_sha256": "e28d54a915b9860f0d19237406c21ba605568e2def42334b0907cb33d45272db",
                 "registry_head": {
                   "entry_sha256": "bdb0256d338e2f40d4d2dc51a4b9f7f327ba81119d7647461eb543c046a53350",
                   "sequence": 4
@@ -19659,6 +19893,7 @@
             }
           ],
           "id": "R22.e",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
           "provider": [
             {
               "run": {
@@ -20004,6 +20239,1331 @@
       ],
       "id": "R22",
       "title": "Invalid or forked transitions"
+    },
+    {
+      "cases": [
+        {
+          "api": null,
+          "description": "measured commit A has green KAT, evaluator commit (main head) has no green KAT",
+          "environment_override": {
+            "kat_green": [
+              "085bbd6c728fa0e1ce82af37eb73027436bc34c4",
+              "442683cae1762a7d549a87479baa377287b2cdc2",
+              "70d49ea9643cefbe5116afb653bd44c01db91ff5",
+              "72ea0c2caf82d7b0f312a5fc9cd6d05850188aa5",
+              "921f3b8c44251a24c9bd63cae943b444c0856cf2",
+              "a77f420c89c111651682e0b015fde143d5119b1f",
+              "c64080c36580d5b937d3f86f4e3b5f53000368a1",
+              "f8f6a7c54fd1673dc3a53125c4e6379b85a9930f"
+            ]
+          },
+          "evidence": {
+            "bindings": [
+              {
+                "binding_sha256": "78adc44b7e1f3f397edc7dcd7bbc3ef795f576e7a980c2c9d3e7f5afe204e9f7",
+                "entry_sequence": 1,
+                "entry_sha256": "b24a3f5295e5d54741b4d62d25225e418f8592bbb990a8ba49eb61c99fdc1850",
+                "g1_contract": "delsk.oracle-contract.v2",
+                "measured_source_sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                "observed_head": {
+                  "entry_sha256": "b24a3f5295e5d54741b4d62d25225e418f8592bbb990a8ba49eb61c99fdc1850",
+                  "sequence": 1
+                },
+                "repository": "definitely-stable/Shift-lab",
+                "run_attempt": 1,
+                "run_id": 24000000001,
+                "schema": "delsk.oracle.attempt-binding.v1"
+              },
+              {
+                "binding_sha256": "d975335200a921c38b5a6cf38df198d8cc79bdf2479db529fe7d070a60f36293",
+                "entry_sequence": 2,
+                "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
+                "g1_contract": "delsk.oracle-contract.v2",
+                "measured_source_sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                "observed_head": {
+                  "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
+                  "sequence": 2
+                },
+                "repository": "definitely-stable/Shift-lab",
+                "run_attempt": 1,
+                "run_id": 24000000002,
+                "schema": "delsk.oracle.attempt-binding.v1"
+              }
+            ],
+            "bundles": [
+              {
+                "bundle_verified": true,
+                "conformance": true,
+                "cost_projection_sha256": "20f75ac3c8208d142480b4126be417a155a14d08c296b9715a4fa6f61d5233c8",
+                "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                "run": {
+                  "repository": "definitely-stable/Shift-lab",
+                  "run_attempt": 1,
+                  "run_id": 24000000001,
+                  "sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                  "workflow_ref": "definitely-stable/Shift-lab/.github/workflows/oracle-pilot.yml@refs/heads/main",
+                  "workflow_sha": "a77f420c89c111651682e0b015fde143d5119b1f"
+                },
+                "run_attempt": 1,
+                "run_id": 24000000001,
+                "run_status": "COMPLETE",
+                "sealed_commitments_sha256": "c52c5ee5298a1919f00350bba20002543cd85488b57efd6a92a7d4c987f59380",
+                "series_projection_sha256": "d9b7d826b27ead741d7501da839a4224cae86fd4473e73ebba267ef9805a3c3a",
+                "targets_sha256": "b0cfd4eeddee6958161d5e1e258cc6925a6c2bf4f579f51ba5265f462c8aef6d"
+              },
+              {
+                "bundle_verified": true,
+                "conformance": true,
+                "cost_projection_sha256": "20f75ac3c8208d142480b4126be417a155a14d08c296b9715a4fa6f61d5233c8",
+                "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                "run": {
+                  "repository": "definitely-stable/Shift-lab",
+                  "run_attempt": 1,
+                  "run_id": 24000000002,
+                  "sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                  "workflow_ref": "definitely-stable/Shift-lab/.github/workflows/oracle-pilot.yml@refs/heads/main",
+                  "workflow_sha": "a77f420c89c111651682e0b015fde143d5119b1f"
+                },
+                "run_attempt": 1,
+                "run_id": 24000000002,
+                "run_status": "COMPLETE",
+                "sealed_commitments_sha256": "c52c5ee5298a1919f00350bba20002543cd85488b57efd6a92a7d4c987f59380",
+                "series_projection_sha256": "d9b7d826b27ead741d7501da839a4224cae86fd4473e73ebba267ef9805a3c3a",
+                "targets_sha256": "b0cfd4eeddee6958161d5e1e258cc6925a6c2bf4f579f51ba5265f462c8aef6d"
+              }
+            ],
+            "foreign_paths": [],
+            "v1_root_keys": []
+          },
+          "expect": [
+            {
+              "core_verdict": "NOT_PASSED",
+              "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+              "record": {
+                "attempts": [
+                  {
+                    "class": "BUNDLE",
+                    "conformance": true,
+                    "entry_sha256": "b24a3f5295e5d54741b4d62d25225e418f8592bbb990a8ba49eb61c99fdc1850",
+                    "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                    "outcome": "COMPLETE",
+                    "phase": "pilot",
+                    "run_attempt": 1,
+                    "run_id": 24000000001,
+                    "science_identity_sha256": "328357c3a4c8cc1b65ad64fe3b3e2393427c3dba81ec0974f52d5b2bf879fa03",
+                    "sequence": 1,
+                    "violations": []
+                  },
+                  {
+                    "class": "BUNDLE",
+                    "conformance": true,
+                    "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
+                    "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                    "outcome": "COMPLETE",
+                    "phase": "pilot",
+                    "run_attempt": 1,
+                    "run_id": 24000000002,
+                    "science_identity_sha256": "328357c3a4c8cc1b65ad64fe3b3e2393427c3dba81ec0974f52d5b2bf879fa03",
+                    "sequence": 2,
+                    "violations": []
+                  }
+                ],
+                "authority": null,
+                "blockers": [
+                  "KAT_NOT_VERIFIED"
+                ],
+                "evaluator": null,
+                "external_checkpoint": null,
+                "g1_contract": "delsk.oracle-contract.v2",
+                "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
+                "measurement_contract": "delsk.oracle-contract.v1",
+                "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                "record_sha256": "fc56191641c552f5205f23731a130a47b89cedbc0bd9b71a780a71c8e44f8458",
+                "registry_head": {
+                  "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
+                  "sequence": 2
+                },
+                "schema": "delsk.oracle.g1-record.v1",
+                "science_identity_sha256": "328357c3a4c8cc1b65ad64fe3b3e2393427c3dba81ec0974f52d5b2bf879fa03",
+                "series": [
+                  {
+                    "codes": [],
+                    "first_sequence": 1,
+                    "phase": "pilot",
+                    "science_identity_sha256": "328357c3a4c8cc1b65ad64fe3b3e2393427c3dba81ec0974f52d5b2bf879fa03",
+                    "state": "CURRENT"
+                  }
+                ],
+                "transitions": [],
+                "unbound_attempts": [],
+                "verdict": "NOT_PASSED"
+              }
+            }
+          ],
+          "id": "R23.a",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
+          "provider": [
+            {
+              "run": {
+                "event": "workflow_dispatch",
+                "head_branch": "main",
+                "head_sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                "jobs": [
+                  {
+                    "conclusion": "success",
+                    "name": "register",
+                    "started": true,
+                    "steps": [
+                      {
+                        "conclusion": "success",
+                        "number": 1,
+                        "role": "other",
+                        "started": true
+                      }
+                    ]
+                  },
+                  {
+                    "conclusion": "success",
+                    "name": "measure",
+                    "started": true,
+                    "steps": [
+                      {
+                        "conclusion": "success",
+                        "number": 1,
+                        "role": "other",
+                        "started": true
+                      },
+                      {
+                        "conclusion": "success",
+                        "number": 2,
+                        "role": "bind",
+                        "started": true
+                      },
+                      {
+                        "conclusion": "success",
+                        "number": 3,
+                        "role": "boundary",
+                        "started": true
+                      },
+                      {
+                        "conclusion": "success",
+                        "number": 4,
+                        "role": "other",
+                        "started": true
+                      }
+                    ]
+                  }
+                ],
+                "latest_run_attempt": 1,
+                "status": "completed",
+                "workflow_path": ".github/workflows/oracle-pilot.yml"
+              },
+              "run_attempt": 1,
+              "run_id": 24000000001,
+              "schema": "delsk.oracle.provider-observation.v1"
+            },
+            {
+              "run": {
+                "event": "workflow_dispatch",
+                "head_branch": "main",
+                "head_sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                "jobs": [
+                  {
+                    "conclusion": "success",
+                    "name": "register",
+                    "started": true,
+                    "steps": [
+                      {
+                        "conclusion": "success",
+                        "number": 1,
+                        "role": "other",
+                        "started": true
+                      }
+                    ]
+                  },
+                  {
+                    "conclusion": "success",
+                    "name": "measure",
+                    "started": true,
+                    "steps": [
+                      {
+                        "conclusion": "success",
+                        "number": 1,
+                        "role": "other",
+                        "started": true
+                      },
+                      {
+                        "conclusion": "success",
+                        "number": 2,
+                        "role": "bind",
+                        "started": true
+                      },
+                      {
+                        "conclusion": "success",
+                        "number": 3,
+                        "role": "boundary",
+                        "started": true
+                      },
+                      {
+                        "conclusion": "success",
+                        "number": 4,
+                        "role": "other",
+                        "started": true
+                      }
+                    ]
+                  }
+                ],
+                "latest_run_attempt": 1,
+                "status": "completed",
+                "workflow_path": ".github/workflows/oracle-pilot.yml"
+              },
+              "run_attempt": 1,
+              "run_id": 24000000002,
+              "schema": "delsk.oracle.provider-observation.v1"
+            }
+          ],
+          "registry": {
+            "entries": [
+              {
+                "entry_sha256": "b24a3f5295e5d54741b4d62d25225e418f8592bbb990a8ba49eb61c99fdc1850",
+                "g1_contract": "delsk.oracle-contract.v2",
+                "measured_source_sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                "phase": "pilot",
+                "previous_entry_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "repository": "definitely-stable/Shift-lab",
+                "run_attempt": 1,
+                "run_id": 24000000001,
+                "schema": "delsk.oracle.registry-entry.v1",
+                "science_identity_sha256": "328357c3a4c8cc1b65ad64fe3b3e2393427c3dba81ec0974f52d5b2bf879fa03",
+                "sequence": 1,
+                "transition": null,
+                "workflow_path": ".github/workflows/oracle-pilot.yml",
+                "workflow_ref": "definitely-stable/Shift-lab/.github/workflows/oracle-pilot.yml@refs/heads/main",
+                "workflow_sha": "a77f420c89c111651682e0b015fde143d5119b1f"
+              },
+              {
+                "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
+                "g1_contract": "delsk.oracle-contract.v2",
+                "measured_source_sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                "phase": "pilot",
+                "previous_entry_sha256": "b24a3f5295e5d54741b4d62d25225e418f8592bbb990a8ba49eb61c99fdc1850",
+                "repository": "definitely-stable/Shift-lab",
+                "run_attempt": 1,
+                "run_id": 24000000002,
+                "schema": "delsk.oracle.registry-entry.v1",
+                "science_identity_sha256": "328357c3a4c8cc1b65ad64fe3b3e2393427c3dba81ec0974f52d5b2bf879fa03",
+                "sequence": 2,
+                "transition": null,
+                "workflow_path": ".github/workflows/oracle-pilot.yml",
+                "workflow_ref": "definitely-stable/Shift-lab/.github/workflows/oracle-pilot.yml@refs/heads/main",
+                "workflow_sha": "a77f420c89c111651682e0b015fde143d5119b1f"
+              }
+            ],
+            "genesis": {
+              "g1_contract": "delsk.oracle-contract.v2",
+              "g1_freeze_sha256": "345cf37780c30e93fa22561c2a6a2c37e0a5cbc4f13297719bdf5390e5c58192",
+              "measurement_contract": "delsk.oracle-contract.v1",
+              "measurement_freeze_sha256": "c56fc053b103cecd38446b3791db104a12b9fafabacdfc6b71f6f23c0bf7f729",
+              "registry_ref": "refs/heads/delsk/registry",
+              "repository": "definitely-stable/Shift-lab",
+              "schema": "delsk.oracle.registry-genesis.v1"
+            }
+          },
+          "registry_fault": null,
+          "registry_remote_head": {
+            "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
+            "sequence": 2
+          },
+          "runner": null
+        },
+        {
+          "api": null,
+          "description": "evaluator commit green, measured commit A has no green KAT",
+          "environment_override": {
+            "kat_green": [
+              "085bbd6c728fa0e1ce82af37eb73027436bc34c4",
+              "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
+              "442683cae1762a7d549a87479baa377287b2cdc2",
+              "70d49ea9643cefbe5116afb653bd44c01db91ff5",
+              "72ea0c2caf82d7b0f312a5fc9cd6d05850188aa5",
+              "921f3b8c44251a24c9bd63cae943b444c0856cf2",
+              "c64080c36580d5b937d3f86f4e3b5f53000368a1",
+              "f8f6a7c54fd1673dc3a53125c4e6379b85a9930f"
+            ]
+          },
+          "evidence": {
+            "bindings": [
+              {
+                "binding_sha256": "78adc44b7e1f3f397edc7dcd7bbc3ef795f576e7a980c2c9d3e7f5afe204e9f7",
+                "entry_sequence": 1,
+                "entry_sha256": "b24a3f5295e5d54741b4d62d25225e418f8592bbb990a8ba49eb61c99fdc1850",
+                "g1_contract": "delsk.oracle-contract.v2",
+                "measured_source_sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                "observed_head": {
+                  "entry_sha256": "b24a3f5295e5d54741b4d62d25225e418f8592bbb990a8ba49eb61c99fdc1850",
+                  "sequence": 1
+                },
+                "repository": "definitely-stable/Shift-lab",
+                "run_attempt": 1,
+                "run_id": 24000000001,
+                "schema": "delsk.oracle.attempt-binding.v1"
+              },
+              {
+                "binding_sha256": "d975335200a921c38b5a6cf38df198d8cc79bdf2479db529fe7d070a60f36293",
+                "entry_sequence": 2,
+                "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
+                "g1_contract": "delsk.oracle-contract.v2",
+                "measured_source_sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                "observed_head": {
+                  "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
+                  "sequence": 2
+                },
+                "repository": "definitely-stable/Shift-lab",
+                "run_attempt": 1,
+                "run_id": 24000000002,
+                "schema": "delsk.oracle.attempt-binding.v1"
+              }
+            ],
+            "bundles": [
+              {
+                "bundle_verified": true,
+                "conformance": true,
+                "cost_projection_sha256": "20f75ac3c8208d142480b4126be417a155a14d08c296b9715a4fa6f61d5233c8",
+                "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                "run": {
+                  "repository": "definitely-stable/Shift-lab",
+                  "run_attempt": 1,
+                  "run_id": 24000000001,
+                  "sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                  "workflow_ref": "definitely-stable/Shift-lab/.github/workflows/oracle-pilot.yml@refs/heads/main",
+                  "workflow_sha": "a77f420c89c111651682e0b015fde143d5119b1f"
+                },
+                "run_attempt": 1,
+                "run_id": 24000000001,
+                "run_status": "COMPLETE",
+                "sealed_commitments_sha256": "c52c5ee5298a1919f00350bba20002543cd85488b57efd6a92a7d4c987f59380",
+                "series_projection_sha256": "d9b7d826b27ead741d7501da839a4224cae86fd4473e73ebba267ef9805a3c3a",
+                "targets_sha256": "b0cfd4eeddee6958161d5e1e258cc6925a6c2bf4f579f51ba5265f462c8aef6d"
+              },
+              {
+                "bundle_verified": true,
+                "conformance": true,
+                "cost_projection_sha256": "20f75ac3c8208d142480b4126be417a155a14d08c296b9715a4fa6f61d5233c8",
+                "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                "run": {
+                  "repository": "definitely-stable/Shift-lab",
+                  "run_attempt": 1,
+                  "run_id": 24000000002,
+                  "sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                  "workflow_ref": "definitely-stable/Shift-lab/.github/workflows/oracle-pilot.yml@refs/heads/main",
+                  "workflow_sha": "a77f420c89c111651682e0b015fde143d5119b1f"
+                },
+                "run_attempt": 1,
+                "run_id": 24000000002,
+                "run_status": "COMPLETE",
+                "sealed_commitments_sha256": "c52c5ee5298a1919f00350bba20002543cd85488b57efd6a92a7d4c987f59380",
+                "series_projection_sha256": "d9b7d826b27ead741d7501da839a4224cae86fd4473e73ebba267ef9805a3c3a",
+                "targets_sha256": "b0cfd4eeddee6958161d5e1e258cc6925a6c2bf4f579f51ba5265f462c8aef6d"
+              }
+            ],
+            "foreign_paths": [],
+            "v1_root_keys": []
+          },
+          "expect": [
+            {
+              "core_verdict": "NOT_PASSED",
+              "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+              "record": {
+                "attempts": [
+                  {
+                    "class": "BUNDLE",
+                    "conformance": true,
+                    "entry_sha256": "b24a3f5295e5d54741b4d62d25225e418f8592bbb990a8ba49eb61c99fdc1850",
+                    "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                    "outcome": "COMPLETE",
+                    "phase": "pilot",
+                    "run_attempt": 1,
+                    "run_id": 24000000001,
+                    "science_identity_sha256": "328357c3a4c8cc1b65ad64fe3b3e2393427c3dba81ec0974f52d5b2bf879fa03",
+                    "sequence": 1,
+                    "violations": []
+                  },
+                  {
+                    "class": "BUNDLE",
+                    "conformance": true,
+                    "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
+                    "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                    "outcome": "COMPLETE",
+                    "phase": "pilot",
+                    "run_attempt": 1,
+                    "run_id": 24000000002,
+                    "science_identity_sha256": "328357c3a4c8cc1b65ad64fe3b3e2393427c3dba81ec0974f52d5b2bf879fa03",
+                    "sequence": 2,
+                    "violations": []
+                  }
+                ],
+                "authority": null,
+                "blockers": [
+                  "KAT_NOT_VERIFIED"
+                ],
+                "evaluator": null,
+                "external_checkpoint": null,
+                "g1_contract": "delsk.oracle-contract.v2",
+                "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
+                "measurement_contract": "delsk.oracle-contract.v1",
+                "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                "record_sha256": "fc56191641c552f5205f23731a130a47b89cedbc0bd9b71a780a71c8e44f8458",
+                "registry_head": {
+                  "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
+                  "sequence": 2
+                },
+                "schema": "delsk.oracle.g1-record.v1",
+                "science_identity_sha256": "328357c3a4c8cc1b65ad64fe3b3e2393427c3dba81ec0974f52d5b2bf879fa03",
+                "series": [
+                  {
+                    "codes": [],
+                    "first_sequence": 1,
+                    "phase": "pilot",
+                    "science_identity_sha256": "328357c3a4c8cc1b65ad64fe3b3e2393427c3dba81ec0974f52d5b2bf879fa03",
+                    "state": "CURRENT"
+                  }
+                ],
+                "transitions": [],
+                "unbound_attempts": [],
+                "verdict": "NOT_PASSED"
+              }
+            }
+          ],
+          "id": "R23.b",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
+          "provider": [
+            {
+              "run": {
+                "event": "workflow_dispatch",
+                "head_branch": "main",
+                "head_sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                "jobs": [
+                  {
+                    "conclusion": "success",
+                    "name": "register",
+                    "started": true,
+                    "steps": [
+                      {
+                        "conclusion": "success",
+                        "number": 1,
+                        "role": "other",
+                        "started": true
+                      }
+                    ]
+                  },
+                  {
+                    "conclusion": "success",
+                    "name": "measure",
+                    "started": true,
+                    "steps": [
+                      {
+                        "conclusion": "success",
+                        "number": 1,
+                        "role": "other",
+                        "started": true
+                      },
+                      {
+                        "conclusion": "success",
+                        "number": 2,
+                        "role": "bind",
+                        "started": true
+                      },
+                      {
+                        "conclusion": "success",
+                        "number": 3,
+                        "role": "boundary",
+                        "started": true
+                      },
+                      {
+                        "conclusion": "success",
+                        "number": 4,
+                        "role": "other",
+                        "started": true
+                      }
+                    ]
+                  }
+                ],
+                "latest_run_attempt": 1,
+                "status": "completed",
+                "workflow_path": ".github/workflows/oracle-pilot.yml"
+              },
+              "run_attempt": 1,
+              "run_id": 24000000001,
+              "schema": "delsk.oracle.provider-observation.v1"
+            },
+            {
+              "run": {
+                "event": "workflow_dispatch",
+                "head_branch": "main",
+                "head_sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                "jobs": [
+                  {
+                    "conclusion": "success",
+                    "name": "register",
+                    "started": true,
+                    "steps": [
+                      {
+                        "conclusion": "success",
+                        "number": 1,
+                        "role": "other",
+                        "started": true
+                      }
+                    ]
+                  },
+                  {
+                    "conclusion": "success",
+                    "name": "measure",
+                    "started": true,
+                    "steps": [
+                      {
+                        "conclusion": "success",
+                        "number": 1,
+                        "role": "other",
+                        "started": true
+                      },
+                      {
+                        "conclusion": "success",
+                        "number": 2,
+                        "role": "bind",
+                        "started": true
+                      },
+                      {
+                        "conclusion": "success",
+                        "number": 3,
+                        "role": "boundary",
+                        "started": true
+                      },
+                      {
+                        "conclusion": "success",
+                        "number": 4,
+                        "role": "other",
+                        "started": true
+                      }
+                    ]
+                  }
+                ],
+                "latest_run_attempt": 1,
+                "status": "completed",
+                "workflow_path": ".github/workflows/oracle-pilot.yml"
+              },
+              "run_attempt": 1,
+              "run_id": 24000000002,
+              "schema": "delsk.oracle.provider-observation.v1"
+            }
+          ],
+          "registry": {
+            "entries": [
+              {
+                "entry_sha256": "b24a3f5295e5d54741b4d62d25225e418f8592bbb990a8ba49eb61c99fdc1850",
+                "g1_contract": "delsk.oracle-contract.v2",
+                "measured_source_sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                "phase": "pilot",
+                "previous_entry_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "repository": "definitely-stable/Shift-lab",
+                "run_attempt": 1,
+                "run_id": 24000000001,
+                "schema": "delsk.oracle.registry-entry.v1",
+                "science_identity_sha256": "328357c3a4c8cc1b65ad64fe3b3e2393427c3dba81ec0974f52d5b2bf879fa03",
+                "sequence": 1,
+                "transition": null,
+                "workflow_path": ".github/workflows/oracle-pilot.yml",
+                "workflow_ref": "definitely-stable/Shift-lab/.github/workflows/oracle-pilot.yml@refs/heads/main",
+                "workflow_sha": "a77f420c89c111651682e0b015fde143d5119b1f"
+              },
+              {
+                "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
+                "g1_contract": "delsk.oracle-contract.v2",
+                "measured_source_sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                "phase": "pilot",
+                "previous_entry_sha256": "b24a3f5295e5d54741b4d62d25225e418f8592bbb990a8ba49eb61c99fdc1850",
+                "repository": "definitely-stable/Shift-lab",
+                "run_attempt": 1,
+                "run_id": 24000000002,
+                "schema": "delsk.oracle.registry-entry.v1",
+                "science_identity_sha256": "328357c3a4c8cc1b65ad64fe3b3e2393427c3dba81ec0974f52d5b2bf879fa03",
+                "sequence": 2,
+                "transition": null,
+                "workflow_path": ".github/workflows/oracle-pilot.yml",
+                "workflow_ref": "definitely-stable/Shift-lab/.github/workflows/oracle-pilot.yml@refs/heads/main",
+                "workflow_sha": "a77f420c89c111651682e0b015fde143d5119b1f"
+              }
+            ],
+            "genesis": {
+              "g1_contract": "delsk.oracle-contract.v2",
+              "g1_freeze_sha256": "345cf37780c30e93fa22561c2a6a2c37e0a5cbc4f13297719bdf5390e5c58192",
+              "measurement_contract": "delsk.oracle-contract.v1",
+              "measurement_freeze_sha256": "c56fc053b103cecd38446b3791db104a12b9fafabacdfc6b71f6f23c0bf7f729",
+              "registry_ref": "refs/heads/delsk/registry",
+              "repository": "definitely-stable/Shift-lab",
+              "schema": "delsk.oracle.registry-genesis.v1"
+            }
+          },
+          "registry_fault": null,
+          "registry_remote_head": {
+            "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
+            "sequence": 2
+          },
+          "runner": null
+        },
+        {
+          "api": null,
+          "description": "evaluator commit has green KAT but is not on the pinned main snapshot",
+          "environment_override": {
+            "evaluator_source_sha": "ed787d5c809f13f6d8f0a348fa4dec56472500a1",
+            "kat_green": [
+              "085bbd6c728fa0e1ce82af37eb73027436bc34c4",
+              "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
+              "442683cae1762a7d549a87479baa377287b2cdc2",
+              "70d49ea9643cefbe5116afb653bd44c01db91ff5",
+              "72ea0c2caf82d7b0f312a5fc9cd6d05850188aa5",
+              "921f3b8c44251a24c9bd63cae943b444c0856cf2",
+              "a77f420c89c111651682e0b015fde143d5119b1f",
+              "c64080c36580d5b937d3f86f4e3b5f53000368a1",
+              "ed787d5c809f13f6d8f0a348fa4dec56472500a1",
+              "f8f6a7c54fd1673dc3a53125c4e6379b85a9930f"
+            ]
+          },
+          "evidence": {
+            "bindings": [
+              {
+                "binding_sha256": "78adc44b7e1f3f397edc7dcd7bbc3ef795f576e7a980c2c9d3e7f5afe204e9f7",
+                "entry_sequence": 1,
+                "entry_sha256": "b24a3f5295e5d54741b4d62d25225e418f8592bbb990a8ba49eb61c99fdc1850",
+                "g1_contract": "delsk.oracle-contract.v2",
+                "measured_source_sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                "observed_head": {
+                  "entry_sha256": "b24a3f5295e5d54741b4d62d25225e418f8592bbb990a8ba49eb61c99fdc1850",
+                  "sequence": 1
+                },
+                "repository": "definitely-stable/Shift-lab",
+                "run_attempt": 1,
+                "run_id": 24000000001,
+                "schema": "delsk.oracle.attempt-binding.v1"
+              },
+              {
+                "binding_sha256": "d975335200a921c38b5a6cf38df198d8cc79bdf2479db529fe7d070a60f36293",
+                "entry_sequence": 2,
+                "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
+                "g1_contract": "delsk.oracle-contract.v2",
+                "measured_source_sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                "observed_head": {
+                  "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
+                  "sequence": 2
+                },
+                "repository": "definitely-stable/Shift-lab",
+                "run_attempt": 1,
+                "run_id": 24000000002,
+                "schema": "delsk.oracle.attempt-binding.v1"
+              }
+            ],
+            "bundles": [
+              {
+                "bundle_verified": true,
+                "conformance": true,
+                "cost_projection_sha256": "20f75ac3c8208d142480b4126be417a155a14d08c296b9715a4fa6f61d5233c8",
+                "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                "run": {
+                  "repository": "definitely-stable/Shift-lab",
+                  "run_attempt": 1,
+                  "run_id": 24000000001,
+                  "sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                  "workflow_ref": "definitely-stable/Shift-lab/.github/workflows/oracle-pilot.yml@refs/heads/main",
+                  "workflow_sha": "a77f420c89c111651682e0b015fde143d5119b1f"
+                },
+                "run_attempt": 1,
+                "run_id": 24000000001,
+                "run_status": "COMPLETE",
+                "sealed_commitments_sha256": "c52c5ee5298a1919f00350bba20002543cd85488b57efd6a92a7d4c987f59380",
+                "series_projection_sha256": "d9b7d826b27ead741d7501da839a4224cae86fd4473e73ebba267ef9805a3c3a",
+                "targets_sha256": "b0cfd4eeddee6958161d5e1e258cc6925a6c2bf4f579f51ba5265f462c8aef6d"
+              },
+              {
+                "bundle_verified": true,
+                "conformance": true,
+                "cost_projection_sha256": "20f75ac3c8208d142480b4126be417a155a14d08c296b9715a4fa6f61d5233c8",
+                "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                "run": {
+                  "repository": "definitely-stable/Shift-lab",
+                  "run_attempt": 1,
+                  "run_id": 24000000002,
+                  "sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                  "workflow_ref": "definitely-stable/Shift-lab/.github/workflows/oracle-pilot.yml@refs/heads/main",
+                  "workflow_sha": "a77f420c89c111651682e0b015fde143d5119b1f"
+                },
+                "run_attempt": 1,
+                "run_id": 24000000002,
+                "run_status": "COMPLETE",
+                "sealed_commitments_sha256": "c52c5ee5298a1919f00350bba20002543cd85488b57efd6a92a7d4c987f59380",
+                "series_projection_sha256": "d9b7d826b27ead741d7501da839a4224cae86fd4473e73ebba267ef9805a3c3a",
+                "targets_sha256": "b0cfd4eeddee6958161d5e1e258cc6925a6c2bf4f579f51ba5265f462c8aef6d"
+              }
+            ],
+            "foreign_paths": [],
+            "v1_root_keys": []
+          },
+          "expect": [
+            {
+              "core_verdict": "NOT_PASSED",
+              "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+              "record": {
+                "attempts": [
+                  {
+                    "class": "BUNDLE",
+                    "conformance": true,
+                    "entry_sha256": "b24a3f5295e5d54741b4d62d25225e418f8592bbb990a8ba49eb61c99fdc1850",
+                    "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                    "outcome": "COMPLETE",
+                    "phase": "pilot",
+                    "run_attempt": 1,
+                    "run_id": 24000000001,
+                    "science_identity_sha256": "328357c3a4c8cc1b65ad64fe3b3e2393427c3dba81ec0974f52d5b2bf879fa03",
+                    "sequence": 1,
+                    "violations": []
+                  },
+                  {
+                    "class": "BUNDLE",
+                    "conformance": true,
+                    "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
+                    "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                    "outcome": "COMPLETE",
+                    "phase": "pilot",
+                    "run_attempt": 1,
+                    "run_id": 24000000002,
+                    "science_identity_sha256": "328357c3a4c8cc1b65ad64fe3b3e2393427c3dba81ec0974f52d5b2bf879fa03",
+                    "sequence": 2,
+                    "violations": []
+                  }
+                ],
+                "authority": null,
+                "blockers": [
+                  "KAT_NOT_VERIFIED"
+                ],
+                "evaluator": null,
+                "external_checkpoint": null,
+                "g1_contract": "delsk.oracle-contract.v2",
+                "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
+                "measurement_contract": "delsk.oracle-contract.v1",
+                "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                "record_sha256": "fc56191641c552f5205f23731a130a47b89cedbc0bd9b71a780a71c8e44f8458",
+                "registry_head": {
+                  "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
+                  "sequence": 2
+                },
+                "schema": "delsk.oracle.g1-record.v1",
+                "science_identity_sha256": "328357c3a4c8cc1b65ad64fe3b3e2393427c3dba81ec0974f52d5b2bf879fa03",
+                "series": [
+                  {
+                    "codes": [],
+                    "first_sequence": 1,
+                    "phase": "pilot",
+                    "science_identity_sha256": "328357c3a4c8cc1b65ad64fe3b3e2393427c3dba81ec0974f52d5b2bf879fa03",
+                    "state": "CURRENT"
+                  }
+                ],
+                "transitions": [],
+                "unbound_attempts": [],
+                "verdict": "NOT_PASSED"
+              }
+            }
+          ],
+          "id": "R23.c",
+          "main_remote_head": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
+          "provider": [
+            {
+              "run": {
+                "event": "workflow_dispatch",
+                "head_branch": "main",
+                "head_sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                "jobs": [
+                  {
+                    "conclusion": "success",
+                    "name": "register",
+                    "started": true,
+                    "steps": [
+                      {
+                        "conclusion": "success",
+                        "number": 1,
+                        "role": "other",
+                        "started": true
+                      }
+                    ]
+                  },
+                  {
+                    "conclusion": "success",
+                    "name": "measure",
+                    "started": true,
+                    "steps": [
+                      {
+                        "conclusion": "success",
+                        "number": 1,
+                        "role": "other",
+                        "started": true
+                      },
+                      {
+                        "conclusion": "success",
+                        "number": 2,
+                        "role": "bind",
+                        "started": true
+                      },
+                      {
+                        "conclusion": "success",
+                        "number": 3,
+                        "role": "boundary",
+                        "started": true
+                      },
+                      {
+                        "conclusion": "success",
+                        "number": 4,
+                        "role": "other",
+                        "started": true
+                      }
+                    ]
+                  }
+                ],
+                "latest_run_attempt": 1,
+                "status": "completed",
+                "workflow_path": ".github/workflows/oracle-pilot.yml"
+              },
+              "run_attempt": 1,
+              "run_id": 24000000001,
+              "schema": "delsk.oracle.provider-observation.v1"
+            },
+            {
+              "run": {
+                "event": "workflow_dispatch",
+                "head_branch": "main",
+                "head_sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                "jobs": [
+                  {
+                    "conclusion": "success",
+                    "name": "register",
+                    "started": true,
+                    "steps": [
+                      {
+                        "conclusion": "success",
+                        "number": 1,
+                        "role": "other",
+                        "started": true
+                      }
+                    ]
+                  },
+                  {
+                    "conclusion": "success",
+                    "name": "measure",
+                    "started": true,
+                    "steps": [
+                      {
+                        "conclusion": "success",
+                        "number": 1,
+                        "role": "other",
+                        "started": true
+                      },
+                      {
+                        "conclusion": "success",
+                        "number": 2,
+                        "role": "bind",
+                        "started": true
+                      },
+                      {
+                        "conclusion": "success",
+                        "number": 3,
+                        "role": "boundary",
+                        "started": true
+                      },
+                      {
+                        "conclusion": "success",
+                        "number": 4,
+                        "role": "other",
+                        "started": true
+                      }
+                    ]
+                  }
+                ],
+                "latest_run_attempt": 1,
+                "status": "completed",
+                "workflow_path": ".github/workflows/oracle-pilot.yml"
+              },
+              "run_attempt": 1,
+              "run_id": 24000000002,
+              "schema": "delsk.oracle.provider-observation.v1"
+            }
+          ],
+          "registry": {
+            "entries": [
+              {
+                "entry_sha256": "b24a3f5295e5d54741b4d62d25225e418f8592bbb990a8ba49eb61c99fdc1850",
+                "g1_contract": "delsk.oracle-contract.v2",
+                "measured_source_sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                "phase": "pilot",
+                "previous_entry_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "repository": "definitely-stable/Shift-lab",
+                "run_attempt": 1,
+                "run_id": 24000000001,
+                "schema": "delsk.oracle.registry-entry.v1",
+                "science_identity_sha256": "328357c3a4c8cc1b65ad64fe3b3e2393427c3dba81ec0974f52d5b2bf879fa03",
+                "sequence": 1,
+                "transition": null,
+                "workflow_path": ".github/workflows/oracle-pilot.yml",
+                "workflow_ref": "definitely-stable/Shift-lab/.github/workflows/oracle-pilot.yml@refs/heads/main",
+                "workflow_sha": "a77f420c89c111651682e0b015fde143d5119b1f"
+              },
+              {
+                "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
+                "g1_contract": "delsk.oracle-contract.v2",
+                "measured_source_sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                "phase": "pilot",
+                "previous_entry_sha256": "b24a3f5295e5d54741b4d62d25225e418f8592bbb990a8ba49eb61c99fdc1850",
+                "repository": "definitely-stable/Shift-lab",
+                "run_attempt": 1,
+                "run_id": 24000000002,
+                "schema": "delsk.oracle.registry-entry.v1",
+                "science_identity_sha256": "328357c3a4c8cc1b65ad64fe3b3e2393427c3dba81ec0974f52d5b2bf879fa03",
+                "sequence": 2,
+                "transition": null,
+                "workflow_path": ".github/workflows/oracle-pilot.yml",
+                "workflow_ref": "definitely-stable/Shift-lab/.github/workflows/oracle-pilot.yml@refs/heads/main",
+                "workflow_sha": "a77f420c89c111651682e0b015fde143d5119b1f"
+              }
+            ],
+            "genesis": {
+              "g1_contract": "delsk.oracle-contract.v2",
+              "g1_freeze_sha256": "345cf37780c30e93fa22561c2a6a2c37e0a5cbc4f13297719bdf5390e5c58192",
+              "measurement_contract": "delsk.oracle-contract.v1",
+              "measurement_freeze_sha256": "c56fc053b103cecd38446b3791db104a12b9fafabacdfc6b71f6f23c0bf7f729",
+              "registry_ref": "refs/heads/delsk/registry",
+              "repository": "definitely-stable/Shift-lab",
+              "schema": "delsk.oracle.registry-genesis.v1"
+            }
+          },
+          "registry_fault": null,
+          "registry_remote_head": {
+            "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
+            "sequence": 2
+          },
+          "runner": null
+        }
+      ],
+      "id": "R23",
+      "title": "KAT on the evaluator commit and on the measured commit"
+    },
+    {
+      "cases": [
+        {
+          "api": null,
+          "description": "refs/heads/main re-read after evaluation differs from main_head_sha pinned at its start",
+          "environment_override": null,
+          "evidence": {
+            "bindings": [
+              {
+                "binding_sha256": "78adc44b7e1f3f397edc7dcd7bbc3ef795f576e7a980c2c9d3e7f5afe204e9f7",
+                "entry_sequence": 1,
+                "entry_sha256": "b24a3f5295e5d54741b4d62d25225e418f8592bbb990a8ba49eb61c99fdc1850",
+                "g1_contract": "delsk.oracle-contract.v2",
+                "measured_source_sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                "observed_head": {
+                  "entry_sha256": "b24a3f5295e5d54741b4d62d25225e418f8592bbb990a8ba49eb61c99fdc1850",
+                  "sequence": 1
+                },
+                "repository": "definitely-stable/Shift-lab",
+                "run_attempt": 1,
+                "run_id": 24000000001,
+                "schema": "delsk.oracle.attempt-binding.v1"
+              },
+              {
+                "binding_sha256": "d975335200a921c38b5a6cf38df198d8cc79bdf2479db529fe7d070a60f36293",
+                "entry_sequence": 2,
+                "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
+                "g1_contract": "delsk.oracle-contract.v2",
+                "measured_source_sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                "observed_head": {
+                  "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
+                  "sequence": 2
+                },
+                "repository": "definitely-stable/Shift-lab",
+                "run_attempt": 1,
+                "run_id": 24000000002,
+                "schema": "delsk.oracle.attempt-binding.v1"
+              }
+            ],
+            "bundles": [
+              {
+                "bundle_verified": true,
+                "conformance": true,
+                "cost_projection_sha256": "20f75ac3c8208d142480b4126be417a155a14d08c296b9715a4fa6f61d5233c8",
+                "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                "run": {
+                  "repository": "definitely-stable/Shift-lab",
+                  "run_attempt": 1,
+                  "run_id": 24000000001,
+                  "sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                  "workflow_ref": "definitely-stable/Shift-lab/.github/workflows/oracle-pilot.yml@refs/heads/main",
+                  "workflow_sha": "a77f420c89c111651682e0b015fde143d5119b1f"
+                },
+                "run_attempt": 1,
+                "run_id": 24000000001,
+                "run_status": "COMPLETE",
+                "sealed_commitments_sha256": "c52c5ee5298a1919f00350bba20002543cd85488b57efd6a92a7d4c987f59380",
+                "series_projection_sha256": "d9b7d826b27ead741d7501da839a4224cae86fd4473e73ebba267ef9805a3c3a",
+                "targets_sha256": "b0cfd4eeddee6958161d5e1e258cc6925a6c2bf4f579f51ba5265f462c8aef6d"
+              },
+              {
+                "bundle_verified": true,
+                "conformance": true,
+                "cost_projection_sha256": "20f75ac3c8208d142480b4126be417a155a14d08c296b9715a4fa6f61d5233c8",
+                "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                "run": {
+                  "repository": "definitely-stable/Shift-lab",
+                  "run_attempt": 1,
+                  "run_id": 24000000002,
+                  "sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                  "workflow_ref": "definitely-stable/Shift-lab/.github/workflows/oracle-pilot.yml@refs/heads/main",
+                  "workflow_sha": "a77f420c89c111651682e0b015fde143d5119b1f"
+                },
+                "run_attempt": 1,
+                "run_id": 24000000002,
+                "run_status": "COMPLETE",
+                "sealed_commitments_sha256": "c52c5ee5298a1919f00350bba20002543cd85488b57efd6a92a7d4c987f59380",
+                "series_projection_sha256": "d9b7d826b27ead741d7501da839a4224cae86fd4473e73ebba267ef9805a3c3a",
+                "targets_sha256": "b0cfd4eeddee6958161d5e1e258cc6925a6c2bf4f579f51ba5265f462c8aef6d"
+              }
+            ],
+            "foreign_paths": [],
+            "v1_root_keys": []
+          },
+          "expect": [
+            {
+              "core_verdict": "NO_VERDICT",
+              "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+              "record": {
+                "attempts": [],
+                "authority": null,
+                "blockers": [
+                  "MAIN_STALE"
+                ],
+                "evaluator": null,
+                "external_checkpoint": null,
+                "g1_contract": "delsk.oracle-contract.v2",
+                "genesis_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "main_head_sha": "1b97a6bc0a72fc5ef251bd74fa12c622665ec7a0",
+                "measurement_contract": "delsk.oracle-contract.v1",
+                "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                "record_sha256": "f0c568552dc09cef5b047b28cec29e60fc66ecf376cf0a948f6850bc4d8dbcdb",
+                "registry_head": {
+                  "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
+                  "sequence": 2
+                },
+                "schema": "delsk.oracle.g1-record.v1",
+                "science_identity_sha256": null,
+                "series": [],
+                "transitions": [],
+                "unbound_attempts": [],
+                "verdict": "NO_VERDICT"
+              }
+            }
+          ],
+          "id": "R24",
+          "main_remote_head": "eea4b5164ff9407dc75fccfbf215a81205e83dec",
+          "provider": [
+            {
+              "run": {
+                "event": "workflow_dispatch",
+                "head_branch": "main",
+                "head_sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                "jobs": [
+                  {
+                    "conclusion": "success",
+                    "name": "register",
+                    "started": true,
+                    "steps": [
+                      {
+                        "conclusion": "success",
+                        "number": 1,
+                        "role": "other",
+                        "started": true
+                      }
+                    ]
+                  },
+                  {
+                    "conclusion": "success",
+                    "name": "measure",
+                    "started": true,
+                    "steps": [
+                      {
+                        "conclusion": "success",
+                        "number": 1,
+                        "role": "other",
+                        "started": true
+                      },
+                      {
+                        "conclusion": "success",
+                        "number": 2,
+                        "role": "bind",
+                        "started": true
+                      },
+                      {
+                        "conclusion": "success",
+                        "number": 3,
+                        "role": "boundary",
+                        "started": true
+                      },
+                      {
+                        "conclusion": "success",
+                        "number": 4,
+                        "role": "other",
+                        "started": true
+                      }
+                    ]
+                  }
+                ],
+                "latest_run_attempt": 1,
+                "status": "completed",
+                "workflow_path": ".github/workflows/oracle-pilot.yml"
+              },
+              "run_attempt": 1,
+              "run_id": 24000000001,
+              "schema": "delsk.oracle.provider-observation.v1"
+            },
+            {
+              "run": {
+                "event": "workflow_dispatch",
+                "head_branch": "main",
+                "head_sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                "jobs": [
+                  {
+                    "conclusion": "success",
+                    "name": "register",
+                    "started": true,
+                    "steps": [
+                      {
+                        "conclusion": "success",
+                        "number": 1,
+                        "role": "other",
+                        "started": true
+                      }
+                    ]
+                  },
+                  {
+                    "conclusion": "success",
+                    "name": "measure",
+                    "started": true,
+                    "steps": [
+                      {
+                        "conclusion": "success",
+                        "number": 1,
+                        "role": "other",
+                        "started": true
+                      },
+                      {
+                        "conclusion": "success",
+                        "number": 2,
+                        "role": "bind",
+                        "started": true
+                      },
+                      {
+                        "conclusion": "success",
+                        "number": 3,
+                        "role": "boundary",
+                        "started": true
+                      },
+                      {
+                        "conclusion": "success",
+                        "number": 4,
+                        "role": "other",
+                        "started": true
+                      }
+                    ]
+                  }
+                ],
+                "latest_run_attempt": 1,
+                "status": "completed",
+                "workflow_path": ".github/workflows/oracle-pilot.yml"
+              },
+              "run_attempt": 1,
+              "run_id": 24000000002,
+              "schema": "delsk.oracle.provider-observation.v1"
+            }
+          ],
+          "registry": {
+            "entries": [
+              {
+                "entry_sha256": "b24a3f5295e5d54741b4d62d25225e418f8592bbb990a8ba49eb61c99fdc1850",
+                "g1_contract": "delsk.oracle-contract.v2",
+                "measured_source_sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                "phase": "pilot",
+                "previous_entry_sha256": "076320ded31b7b3b1fc3b9d33f61dfc1b17887b62be2faeffb2bce9bd515c09a",
+                "repository": "definitely-stable/Shift-lab",
+                "run_attempt": 1,
+                "run_id": 24000000001,
+                "schema": "delsk.oracle.registry-entry.v1",
+                "science_identity_sha256": "328357c3a4c8cc1b65ad64fe3b3e2393427c3dba81ec0974f52d5b2bf879fa03",
+                "sequence": 1,
+                "transition": null,
+                "workflow_path": ".github/workflows/oracle-pilot.yml",
+                "workflow_ref": "definitely-stable/Shift-lab/.github/workflows/oracle-pilot.yml@refs/heads/main",
+                "workflow_sha": "a77f420c89c111651682e0b015fde143d5119b1f"
+              },
+              {
+                "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
+                "g1_contract": "delsk.oracle-contract.v2",
+                "measured_source_sha": "a77f420c89c111651682e0b015fde143d5119b1f",
+                "measurement_identity_sha256": "9dcff04ae96c291a19c6e14d898d76f5c957ab36e3598e7d63d5347404551561",
+                "phase": "pilot",
+                "previous_entry_sha256": "b24a3f5295e5d54741b4d62d25225e418f8592bbb990a8ba49eb61c99fdc1850",
+                "repository": "definitely-stable/Shift-lab",
+                "run_attempt": 1,
+                "run_id": 24000000002,
+                "schema": "delsk.oracle.registry-entry.v1",
+                "science_identity_sha256": "328357c3a4c8cc1b65ad64fe3b3e2393427c3dba81ec0974f52d5b2bf879fa03",
+                "sequence": 2,
+                "transition": null,
+                "workflow_path": ".github/workflows/oracle-pilot.yml",
+                "workflow_ref": "definitely-stable/Shift-lab/.github/workflows/oracle-pilot.yml@refs/heads/main",
+                "workflow_sha": "a77f420c89c111651682e0b015fde143d5119b1f"
+              }
+            ],
+            "genesis": {
+              "g1_contract": "delsk.oracle-contract.v2",
+              "g1_freeze_sha256": "345cf37780c30e93fa22561c2a6a2c37e0a5cbc4f13297719bdf5390e5c58192",
+              "measurement_contract": "delsk.oracle-contract.v1",
+              "measurement_freeze_sha256": "c56fc053b103cecd38446b3791db104a12b9fafabacdfc6b71f6f23c0bf7f729",
+              "registry_ref": "refs/heads/delsk/registry",
+              "repository": "definitely-stable/Shift-lab",
+              "schema": "delsk.oracle.registry-genesis.v1"
+            }
+          },
+          "registry_fault": null,
+          "registry_remote_head": {
+            "entry_sha256": "ebcfd772d2a5e2af85aaca666a080d0358399ad31ed3464f68759c4fd3222f32",
+            "sequence": 2
+          },
+          "runner": null
+        }
+      ],
+      "id": "R24",
+      "title": "Pinned main snapshot"
     }
   ]
 }

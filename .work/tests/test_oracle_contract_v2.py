@@ -3,7 +3,7 @@
 Offline, synthetic and payload-free: no registry, no provider call, no corpus bytes. Checks that freeze-v2 pins the
 v2 files and the unchanged v1 measurement layer, that the v2 schemas are closed and fail closed, that the
 science_identity reference vectors follow the frozen construction (SI01 through git_source on a real commit), and that
-the R01-R22 vector document is internally consistent: hash chains, digests, identities, records and code classes.
+the R01-R24 / XC01-XC05 vector document is internally consistent: hash chains, digests, identities, records and code classes.
 It does not implement or run G1 v2; activation needs an independent implementation that reproduces the records.
 """
 import copy
@@ -32,7 +32,7 @@ END = '(?![\\s\\S])'
 SUPPORTED = {'$ref', 'type', 'const', 'enum', 'pattern', 'minimum', 'required', 'properties', 'additionalProperties',
              'items', 'minItems', 'uniqueItems', 'oneOf', 'if', 'then', 'else', 'description'}
 CODES = {
-    'NO_VERDICT': {'REGISTRY_INVALID', 'REGISTRY_DUPLICATE', 'REGISTRY_STALE', 'REGISTRY_ROLLBACK',
+    'NO_VERDICT': {'REGISTRY_INVALID', 'REGISTRY_DUPLICATE', 'REGISTRY_STALE', 'MAIN_STALE', 'REGISTRY_ROLLBACK',
                    'EVIDENCE_ROOT_INVALID'},
     'INVALID': {'RUN_INVALID', 'REPEAT_MISMATCH', 'BINDING_MISMATCH', 'UNBOUND_MEASUREMENT', 'DUPLICATE_EXECUTION',
                 'SERIES_INVALID', 'SERIES_REPEAT_MISMATCH', 'SERIES_TRANSITION_MISMATCH', 'SERIES_FORK',
@@ -104,9 +104,10 @@ class Freeze(unittest.TestCase):
                        'g1_provenance_contract = delsk.oracle-contract.v2', 'DELSK-003A PROTOCOL V2 FROZEN',
                        'V2 IMPLEMENTATION NOT_ACTIVE', FREEZE['measurement_layer_sha256'], 'MISSING ⇒ NOT_PASSED'):
             self.assertIn(needle, text)
-        for n in range(1, 23):
+        for n in range(1, 25):
             self.assertIn(f'R{n:02d}', text)
-        for n in range(1, 11):
+        self.assertIn('XC01–XC05', text)
+        for n in range(1, 13):
             self.assertIn(f'PM{n:02d}', text)
 
     def test_no_v2_evidence_or_registry_exists(self):
@@ -167,7 +168,8 @@ class Schemas(unittest.TestCase):
                                           'provider_api': 'https://api.github.com',
                                           'results_root': '.work/results/DELSK-003-ORACLE-V2/'},
                   'evaluator': {'g1_code_sha256': '0' * 64, 'evaluator_source_sha': '0' * 40}}),
-                ('unknown code', 'g1_record', {**record, 'blockers': ['DISPATCH_HISTORY_UNVERIFIED']})):
+                ('unknown code', 'g1_record', {**record, 'blockers': ['DISPATCH_HISTORY_UNVERIFIED']}),
+                ('record without main snapshot', 'g1_record', without(record, 'main_head_sha'))):
             with self.subTest(label):
                 self.assertTrue(errors(value, name))
         self.assertEqual(errors(record, 'g1_record'), [])
@@ -209,7 +211,7 @@ class ScienceIdentity(unittest.TestCase):
 class Vectors(unittest.TestCase):
     def test_document(self):
         self.assertEqual(errors(VECTORS, 'registry_vectors'), [])
-        self.assertEqual([v['id'] for v in VECTORS['vectors']], [f'R{n:02d}' for n in range(1, 23)])
+        self.assertEqual([v['id'] for v in VECTORS['vectors']], [f'R{n:02d}' for n in range(1, 25)])
         ids = [c['id'] for c in CASES]
         self.assertEqual(len(ids), len(set(ids)))
         for v in VECTORS['vectors']:
@@ -222,7 +224,7 @@ class Vectors(unittest.TestCase):
             self.assertEqual(s['measurement_identity']['measured_source_sha'], s['sha'])
 
     def test_mutants(self):
-        self.assertEqual([m['id'] for m in VECTORS['mutants']], [f'PM{n:02d}' for n in range(1, 11)])
+        self.assertEqual([m['id'] for m in VECTORS['mutants']], [f'PM{n:02d}' for n in range(1, 13)])
         ids = {c['id'] for c in CASES}
         for m in VECTORS['mutants']:
             self.assertLessEqual(set(m['killed_by']), ids, m['id'])
@@ -279,6 +281,7 @@ class Vectors(unittest.TestCase):
                     self.assertIsNone(r['authority'])
                     self.assertIsNone(r['evaluator'])
                     self.assertIsNone(r['external_checkpoint'])
+                    self.assertEqual(r['main_head_sha'], environment(case)['main_head'])
                     self.assertEqual(r['blockers'], sorted(set(r['blockers'])))
                     verdict = x['core_verdict']
                     if verdict in CODES:
@@ -327,12 +330,38 @@ class Vectors(unittest.TestCase):
         self.assertLessEqual({'BINDING_MISMATCH', 'UNBOUND_MEASUREMENT', 'DUPLICATE_EXECUTION', 'SERIES_INVALID',
                               'SERIES_REPEAT_MISMATCH', 'SERIES_TRANSITION_MISMATCH', 'SERIES_FORK',
                               'SERIES_REENTRY', 'RESULT_MISSING', 'SERIES_FAILURE', 'SERIES_TRANSITION_MISSING',
-                              'SERIES_SUPERSEDED', 'REPEAT_MISSING', 'RUN_INVALID'}, blockers)
+                              'SERIES_SUPERSEDED', 'REPEAT_MISSING', 'RUN_INVALID', 'KAT_NOT_VERIFIED'}, blockers)
         classes = {a['class'] for c in CASES for x in c['expect'] for a in x['record']['attempts']}
         self.assertEqual(classes, {'PRE', 'BUNDLE', 'MISSING'})
         statuses = {t['status'] for c in CASES for x in c['expect'] for t in x['record']['transitions']}
         self.assertLessEqual({'VALID', 'MISMATCH', 'FORK'}, statuses)
         self.assertEqual({x['record']['verdict'] for c in CASES for x in c['expect']} & {'PASS'}, set())
+
+    def test_external_checkpoint_vectors(self):  # contract 13.2: record head must be a prefix of the checkpoint
+        xcs = VECTORS['external_checkpoint_vectors']
+        self.assertEqual([x['id'] for x in xcs], [f'XC{n:02d}' for n in range(1, 6)])
+        for x in xcs:
+            with self.subTest(x['id']):
+                hist, head, rec = x['checkpoint_history'], x['checkpoint']['head'], x['record_head']
+                self.assertEqual(head, {'sequence': len(hist),
+                                        'entry_sha256': hist[-1] if hist else x['genesis_sha256']})
+                n = rec['sequence']
+                prefix = n <= len(hist) and (hist[n - 1] if n else x['genesis_sha256']) == rec['entry_sha256']
+                self.assertEqual(x['expected'], 'ADMISSIBLE' if prefix else 'INADMISSIBLE')
+        self.assertEqual({x['expected'] for x in xcs}, {'ADMISSIBLE', 'INADMISSIBLE'})
+
+    def test_kat_and_snapshot_vectors(self):
+        by = {c['id']: c for c in CASES}
+        env = VECTORS['environment']
+        self.assertEqual(env['evaluator_source_sha'], env['main_head'])
+        for cid in ('R23.a', 'R23.b', 'R23.c'):
+            self.assertEqual(by[cid]['expect'][0]['record']['blockers'], ['KAT_NOT_VERIFIED'])
+        self.assertIn(env['main_head'], env['kat_green'])
+        self.assertNotIn(env['main_head'], by['R23.a']['environment_override']['kat_green'])
+        self.assertNotEqual(by['R24']['main_remote_head'], env['main_head'])
+        self.assertEqual(by['R24']['expect'][0]['record']['blockers'], ['MAIN_STALE'])
+        others = [c for c in CASES if c['id'] != 'R24']
+        self.assertTrue(all(c['main_remote_head'] == environment(c)['main_head'] for c in others))
 
     def test_runner_and_api_expectations(self):
         by = {c['id']: c for c in CASES}

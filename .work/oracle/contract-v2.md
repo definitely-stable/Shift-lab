@@ -58,7 +58,7 @@ Bindings v1 (candidate lock `cb16d53b…`, corpus lock `e5c28825…`, protocol `
 | rows/schemas/bundles measurement evidence, `verify` (v1 §8–§9) | series, `science_identity`, transitions (§6–§7) |
 | oracle/ties, recall/regret/SavingsCapture (v1 §8) | production/test provenance API (§11) |
 | run status и G1 priority table v1 §7 (применяется дословно к population §9) | registry/witness/ruleset/write-token requirements (§12–§13) |
-| K01–K42, G01–G09, M01–M30, C01–C14, metamorphic | R01–R22, PM01–PM10 (§14–§15), activation (§16) |
+| K01–K42, G01–G09, M01–M30, C01–C14, metamorphic | R01–R24, XC01–XC05, PM01–PM12 (§14–§15), activation (§16) |
 
 `measurement_identity` и `measurement_identity_sha256` строятся **без изменений** по v1 §9, включая `contract_id = "delsk.oracle-contract.v1"` и `contract_freeze_sha256` = hash v1 `freeze.json`. v2 не вводит новых полей в rows, bundles или `run.json`.
 
@@ -136,7 +136,7 @@ Orphan branch `delsk/registry`. Root commit (без parents) содержит д
 | `g1_contract` | const `delsk.oracle-contract.v2` |
 | `measurement_contract` | const `delsk.oracle-contract.v1` |
 | `measurement_freeze_sha256` | const `c56fc053…f7f729` (v1 freeze, §1) |
-| `g1_freeze_sha256` | hex64; production обязан требовать равенство SHA-256 bytes `freeze-v2.json` в `main` |
+| `g1_freeze_sha256` | hex64; production обязан требовать равенство SHA-256 bytes `freeze-v2.json` в дереве `main_head_sha` (§9.0) |
 | `repository` | const |
 | `registry_ref` | const `refs/heads/delsk/registry` |
 
@@ -154,7 +154,7 @@ Orphan branch `delsk/registry`. Root commit (без parents) содержит д
 | `workflow_path` | const `.github/workflows/oracle-pilot.yml` |
 | `workflow_ref` | `definitely-stable/Shift-lab/.github/workflows/oracle-pilot.yml@refs/heads/<branch>`, branch `[A-Za-z0-9][A-Za-z0-9._/-]{0,199}` (= `GITHUB_WORKFLOW_REF`) |
 | `workflow_sha` | hex40; обязан равняться `measured_source_sha` |
-| `measured_source_sha` | hex40; ancestor-or-equal head `refs/heads/main` |
+| `measured_source_sha` | hex40; ancestor-or-equal `main_head_sha` снимка оценки (§9.0); `register` проверяет head `refs/heads/main` на момент регистрации |
 | `measurement_identity_sha256` | hex64; = `git_source(measured_source_sha)` (§5.5) |
 | `science_identity_sha256` | hex64; = `Hc(science_identity)` той же identity (§6) |
 | `phase` | `pilot` \| `reveal`; = `measurement_identity.phase`. Под этим freeze `git_source` выдаёт только `pilot`, поэтому entry `reveal` нарушает §5.5 (`REGISTRY_INVALID`) и `register` её не пишет; reveal требует нового G1 contract |
@@ -166,17 +166,18 @@ Uniqueness: `(run_id, run_attempt)` уникальна во **всём** registr
 
 ### 5.5 Источник identity
 
-`git_source(sha)` — функция Slice C0 (`oracle_attempts.git_source`): measurement identity v1 из Git object bytes commit `sha` без build/fetch/measurement; требует, чтобы `freeze.json` и `codec-lock.json` в commit были byte-identical v1 (§1), а locks — bindings v1. Commit, который не разрешается или не ancestor-or-equal `main`, — нарушение entry.
+`git_source(sha)` — функция Slice C0 (`oracle_attempts.git_source`): measurement identity v1 из Git object bytes commit `sha` без build/fetch/measurement; требует, чтобы `freeze.json` и `codec-lock.json` в commit были byte-identical v1 (§1), а locks — bindings v1. Commit, который не разрешается или не ancestor-or-equal `main_head_sha` (§9.0), — нарушение entry.
 
 ### 5.6 Validation и коды без verdict
 
 Порядок проверок фиксирован; первая неудача — единственный blocker, verdict `NO_VERDICT` (§9.5):
 
-1. **`REGISTRY_INVALID`** — нарушена форма §5.2; genesis не canonical/не по schema/`g1_freeze_sha256` ≠ freeze-v2 (production); любая строка не canonical JSON или не по schema; `sequence` ≠ номер строки (gap, повтор, начало не с 1); `previous_entry_sha256` не сходится к предыдущей строке/genesis; `entry_sha256` ≠ `Hc`; `workflow_sha` ≠ `measured_source_sha`; `measured_source_sha` не ancestor-or-equal `main` или не разрешается; `measurement_identity_sha256` ≠ `git_source`; `science_identity_sha256` ≠ §6; `phase` ≠ identity phase; `transition` не по schema или `transition_sha256` ≠ `Hc`.
+1. **`REGISTRY_INVALID`** — нарушена форма §5.2; genesis не canonical/не по schema/`g1_freeze_sha256` ≠ freeze-v2 (production); любая строка не canonical JSON или не по schema; `sequence` ≠ номер строки (gap, повтор, начало не с 1); `previous_entry_sha256` не сходится к предыдущей строке/genesis; `entry_sha256` ≠ `Hc`; `workflow_sha` ≠ `measured_source_sha`; `measured_source_sha` не ancestor-or-equal `main_head_sha` или не разрешается; `measurement_identity_sha256` ≠ `git_source`; `science_identity_sha256` ≠ §6; `phase` ≠ identity phase; `transition` не по schema или `transition_sha256` ≠ `Hc`.
 2. **`REGISTRY_DUPLICATE`** — две entries с одинаковым `(run_id, run_attempt)`.
 3. **`REGISTRY_STALE`** — head оцениваемого registry ≠ head, повторно прочитанный с registry remote после завершения оценки.
-4. **`REGISTRY_ROLLBACK`** — witnessed head любого retained binding sidecar (§8.2) не является prefix оцениваемой истории: entry с его `sequence` отсутствует или её `entry_sha256` другой (`sequence = 0` → `genesis_sha256`).
-5. **`EVIDENCE_ROOT_INVALID`** — §8.1.
+4. **`MAIN_STALE`** — `refs/heads/main`, повторно прочитанный с константного remote после завершения оценки, ≠ `main_head_sha` (§9.0).
+5. **`REGISTRY_ROLLBACK`** — witnessed head любого retained binding sidecar (§8.2) не является prefix оцениваемой истории: entry с его `sequence` отсутствует или её `entry_sha256` другой (`sequence = 0` → `genesis_sha256`).
+6. **`EVIDENCE_ROOT_INVALID`** — §8.1.
 
 Head registry: `registry_head = {sequence, entry_sha256}` последней entry; пустой registry — `{0, genesis_sha256}`.
 
@@ -188,7 +189,7 @@ Head registry: `registry_head = {sequence, entry_sha256}` последней ent
 
 1. `workflow_dispatch`, repository, `GITHUB_SHA = GITHUB_WORKFLOW_SHA`, branch ref (как C0 `validate_dispatch`); `measured_source_sha` ancestor-or-equal `main`; иначе отказ `DISPATCH_REJECTED` / `SOURCE_NOT_ON_MAIN`.
 2. `identity = git_source(GITHUB_SHA)`; `science_identity` по §6.
-3. Fetch registry с константного remote/ref; полная validation §5.6 п. 1–2; иначе отказ `REGISTRY_INVALID` / `REGISTRY_DUPLICATE`.
+3. Fetch registry с константного remote/ref; полная validation §5.6 п. 1–2 (ancestry — относительно head `main` на момент регистрации); иначе отказ `REGISTRY_INVALID` / `REGISTRY_DUPLICATE`.
 4. Transition (§7.2): если обязателен — прочитать transition file из дерева `measured_source_sha`, проверить schema, digest, `phase`, `new = своя science`, `previous = current series`, ancestry `merge_commit_sha`; включить запись в entry. Обязателен, но отсутствует/невалиден — отказ `TRANSITION_REQUIRED` / `TRANSITION_INVALID`. Не обязателен — `transition = null` (наличие файла игнорируется).
 5. Append entry, commit по §5.2, push только явным refspec `HEAD:refs/heads/delsk/registry` на константный remote, без force. Отказ push (не fast-forward) — fetch, повтор с п. 3 (≤ 3 раз). Если entry со своим run key уже есть и все её поля, кроме `sequence`/`previous_entry_sha256`/`entry_sha256`, равны своим, — она принимается как своя (идемпотентность после потерянного ответа).
 6. Readback: повторный fetch; head содержит свою entry ровно один раз. Output `entry_sha256`.
@@ -286,7 +287,7 @@ T ≠ null (status T):
 
 - **V1** `T.phase = e.phase`, `T.new = S`, `T.previous = C`.
 - **V2** provider: pull request `change_review.pull_request` репозитория merged, его `merge_commit_sha` = `T.change_review.merge_commit_sha`, base ref `refs/heads/main`.
-- **V3** `merge_commit_sha` ancestor-or-equal `e.measured_source_sha` и ancestor-or-equal `main`.
+- **V3** `merge_commit_sha` ancestor-or-equal `e.measured_source_sha` и ancestor-or-equal `main_head_sha`.
 - **V4** science identity `git_source(merge_commit_sha)` = `S` (reviewed merge порождает новую серию).
 - **V5** reason: `SEMANTIC_CHANGE` ⇔ `contract_freeze_sha256` у `C` и `S` различаются (§7.1).
 - **V6** `S` ещё не имеет entries (переход только в новую серию; переход в существующую — `MISMATCH` или `REENTRY` выше).
@@ -310,7 +311,7 @@ Legit transition прекращает carry-over: исходы retired сери�
 
 ### 8.1 Retained results root
 
-`.work/results/DELSK-003-ORACLE-V2/` в `main`, только через reviewed PR. Production читает root из дерева текущего head `refs/heads/main`, полученного с константного remote, а не из рабочего дерева вызывающего. Допустимое содержимое — ровно:
+`.work/results/DELSK-003-ORACLE-V2/` в `main`, только через reviewed PR. Production читает root только из дерева `main_head_sha` (§9.0), а не из рабочего дерева вызывающего. Допустимое содержимое — ровно:
 
 ```text
 bundles/<run_id>-<run_attempt>/     v1 evidence bundle байт в байт (v1 §12, проверяется oracle_eval.verify)
@@ -364,10 +365,15 @@ bundle нет, PRE(e)                                      → PRE
 
 ## 9. G1 v2
 
+### 9.0 Снимок оценки
+
+В начале оценки production **один раз** читает `main_head_sha` = значение `refs/heads/main` константного remote. Все git reads этой оценки используют только этот commit (или commit-addressed объекты): bytes `freeze-v2.json` (§5.3), evidence root (§8.1), каждое условие «ancestor-or-equal main» (§5.4, §5.6, V3, п. 10 ниже). `git_source(sha)` читает объекты самого `sha`. После оценки `refs/heads/main` и registry ref читаются повторно; изменение → `NO_VERDICT` (`MAIN_STALE` / `REGISTRY_STALE`, §5.6), оценку можно повторить целиком на новом снимке. `main_head_sha` записывается в record (§9.6), поэтому `record_sha256` связан с конкретным состоянием evidence root.
+
 ### 9.1 Алгоритм для measurement identity `I`
 
-1. Прочитать registry с константного remote/ref; validation §5.6 п. 1–4.
-2. Validation evidence root §8.1. Любая неудача 1–2 → `NO_VERDICT`, единственный blocker.
+0. Зафиксировать `main_head_sha` (§9.0).
+1. Прочитать registry с константного remote/ref; validation §5.6 п. 1–5.
+2. Validation evidence root §8.1 (§5.6 п. 6). Любая неудача 1–2 → `NO_VERDICT`, единственный blocker.
 3. `E(I)` = entries с `measurement_identity_sha256 = I`; `U(I)` = unbound attempts identity `I` (§8.5).
 4. Классифицировать **каждую** entry registry (все identities и фазы): PRE / BUNDLE / MISSING + violations (§8.4); построить series state machine (§7.3). Если `E(I) = U(I) = ∅` → `NOT_RUN` (blockers пусты, disclosure полный); шаги 5–10 не применяются.
 5. PRE исключить из scientific population; оставить в disclosure.
@@ -375,7 +381,9 @@ bundle нет, PRE(e)                                      → PRE
 7. `MISSING` без violations в `E(I)` → ledger keys без record.
 8. v1: `(v1_verdict, v1_blockers) = g1(records)` — v1 §7 дословно (функция `oracle_eval.g1`: `INVALID` precedence с `RUN_INVALID`/`REPEAT_MISMATCH`, `RUN_<status>`, `CONFORMANCE_OR_BUNDLE`, `REPEAT_MISSING` по различным `github_run_id`); если `v1_verdict ≠ INVALID` и есть missing keys → `NOT_PASSED`, добавить `RESULT_MISSING` (семантика `g1_inventory` `ATTEMPT_NOT_RETAINED`).
 9. v2 codes: violations entries `E(I)`; `UNBOUND_MEASUREMENT`, если `U(I) ≠ ∅`; series codes §7.4.
-10. Gates: `KAT_NOT_VERIFIED`, если KAT suite не зелёный на `measured_source_sha` `I` по существующему `oracle_attempts.kat_verified` (Actions API, exact commit, every attempt counts); `V2_NOT_ACTIVE` в production до activation (§16).
+10. Gates:
+    - `KAT_NOT_VERIFIED`, если зелёный KAT suite не доказан на **каждом** из двух exact commits: `evaluator_source_sha` — commit, чей G1 код выполняет эту оценку (v1 §7: KAT на evaluator commit; v1 §8 отделяет его от measured), и `measured_source_sha` `I` — in-job evaluator v1 (`oracle_code_sha256`). Зелёный один commit не заменяет другой. Для каждого commit `c`: `c` ancestor-or-equal `main_head_sha` (только reviewed код); в дереве `c` byte-identical reviewed `oracle-smoke.yml` (как в `main_head_sha`), файлы v1 `freeze.json` (§1) и файлы `provenance_layer` `freeze-v2.json`; Actions API: хотя бы один push/dispatch run этого workflow для `c` в этом репозитории с успешным KAT step и ни одного красного или pending attempt (cancelled/skipped не считаются) — семантика `oracle_attempts.kat_verified`, расширенная v2 файлами. KAT step обязан исполнять v1 K/G/M suite и воспроизведение v2 R01–R24, XC01–XC05, PM01–PM12; его имя фиксирует activation record (§16).
+    - `V2_NOT_ACTIVE` в production до activation (§16).
 11. Verdict (§9.3) и record (§9.6).
 
 Caller не выбирает entries, bundles или subset: population выводится из registry, evidence — из фиксированного root (§11).
@@ -384,7 +392,7 @@ Caller не выбирает entries, bundles или subset: population выво
 
 | Класс | Codes |
 |---|---|
-| `NO_VERDICT` | `REGISTRY_INVALID`, `REGISTRY_DUPLICATE`, `REGISTRY_STALE`, `REGISTRY_ROLLBACK`, `EVIDENCE_ROOT_INVALID` |
+| `NO_VERDICT` | `REGISTRY_INVALID`, `REGISTRY_DUPLICATE`, `REGISTRY_STALE`, `MAIN_STALE`, `REGISTRY_ROLLBACK`, `EVIDENCE_ROOT_INVALID` |
 | `INVALID` | v1: `RUN_INVALID`, `REPEAT_MISMATCH`; v2: `BINDING_MISMATCH`, `UNBOUND_MEASUREMENT`, `DUPLICATE_EXECUTION`, `SERIES_INVALID`, `SERIES_REPEAT_MISMATCH`, `SERIES_TRANSITION_MISMATCH`, `SERIES_FORK`, `SERIES_REENTRY` |
 | `NOT_PASSED` | v1: `RUN_INCOMPLETE`, `RUN_COMPLETE_WITH_FAILURES`, `CONFORMANCE_OR_BUNDLE`, `REPEAT_MISSING`; v2: `RESULT_MISSING`, `SERIES_FAILURE`, `SERIES_TRANSITION_MISSING`, `SERIES_SUPERSEDED`, `KAT_NOT_VERIFIED`, `V2_NOT_ACTIVE` |
 
@@ -403,15 +411,15 @@ Blockers — sorted unique. Core verdicts: `SCIENTIFIC_PASS`, `NOT_PASSED`, `INV
 
 ### 9.4 Монотонность
 
-PASS требует: все non-PRE entries `I` — BUNDLE verified `COMPLETE` с одним repeat tuple, ≥ 2 различных run ID, conformance PASS; нет unbound attempts; все siblings серии чисты и совпадают по `series_repeat`; серия current и без taint; KAT зелёный. Удаление provider данных или evidence может только перевести entry в `MISSING` (или снять доказательство PRE) — оба исхода блокируют PASS. Добавление entry не может превратить non-PASS в PASS (v1 lemma 3 + carry-over).
+PASS требует: все non-PRE entries `I` — BUNDLE verified `COMPLETE` с одним repeat tuple, ≥ 2 различных run ID, conformance PASS; нет unbound attempts; все siblings серии чисты и совпадают по `series_repeat`; серия current и без taint; KAT зелёный на evaluator и measured commits; снимок `main` не изменился. Удаление provider данных или evidence может только перевести entry в `MISSING` (или снять доказательство PRE) — оба исхода блокируют PASS. Добавление entry не может превратить non-PASS в PASS (v1 lemma 3 + carry-over).
 
 ### 9.5 `NO_VERDICT`
 
-Record с `verdict = NO_VERDICT`, одним blocker, пустыми `attempts`/`unbound_attempts`/`series`/`transitions`, `science_identity_sha256 = null`. `registry_head` и `genesis_sha256` = `null` только при `REGISTRY_INVALID`, иначе — значения оцениваемого registry.
+Record с `verdict = NO_VERDICT`, одним blocker, пустыми `attempts`/`unbound_attempts`/`series`/`transitions`, `science_identity_sha256 = null`. `registry_head` и `genesis_sha256` = `null` только при `REGISTRY_INVALID`, иначе — значения оцениваемого registry. `main_head_sha` задан всегда.
 
 ### 9.6 G1 record `delsk.oracle.g1-record.v1`
 
-Поля: `schema`, `g1_contract` (const v2), `measurement_contract` (const v1), `measurement_identity_sha256`, `science_identity_sha256` (hex64 или null при `NOT_RUN`/`NO_VERDICT`), `verdict`, `blockers`, `registry_head`, `genesis_sha256`, `attempts` (все entries registry по `sequence`: `sequence`, `entry_sha256`, `run_id`, `run_attempt`, `phase`, `measurement_identity_sha256`, `science_identity_sha256`, `class`, `outcome` (`run_status` для BUNDLE, иначе null), `conformance` (bool для BUNDLE, иначе null), `violations`), `unbound_attempts` (по `(run_id, run_attempt)`), `series` (по `(phase, first_sequence)`: `phase`, `science_identity_sha256`, `first_sequence`, `state ∈ {CURRENT, RETIRED, ORPHAN}`, `codes` = taint), `transitions` (по `sequence`: `sequence`, `status ∈ {VALID, MISMATCH, FORK, REENTRY}`, `transition`), `authority`, `evaluator`, `external_checkpoint`, `record_sha256 = Hc(без record_sha256)`.
+Поля: `schema`, `g1_contract` (const v2), `measurement_contract` (const v1), `measurement_identity_sha256`, `science_identity_sha256` (hex64 или null при `NOT_RUN`/`NO_VERDICT`), `main_head_sha` (hex40, §9.0), `verdict`, `blockers`, `registry_head`, `genesis_sha256`, `attempts` (все entries registry по `sequence`: `sequence`, `entry_sha256`, `run_id`, `run_attempt`, `phase`, `measurement_identity_sha256`, `science_identity_sha256`, `class`, `outcome` (`run_status` для BUNDLE, иначе null), `conformance` (bool для BUNDLE, иначе null), `violations`), `unbound_attempts` (по `(run_id, run_attempt)`), `series` (по `(phase, first_sequence)`: `phase`, `science_identity_sha256`, `first_sequence`, `state ∈ {CURRENT, RETIRED, ORPHAN}`, `codes` = taint), `transitions` (по `sequence`: `sequence`, `status ∈ {VALID, MISMATCH, FORK, REENTRY}`, `transition`), `authority`, `evaluator`, `external_checkpoint`, `record_sha256 = Hc(без record_sha256)`.
 
 Production record: `authority` = константы §5.1, `evaluator = {g1_code_sha256, evaluator_source_sha}`, verdict ∈ {`PASS`, `NOT_PASSED`, `INVALID`, `NOT_RUN`, `NO_VERDICT`}. Test record: `authority = evaluator = null`, verdict ∈ {`TEST_ONLY_PASS`, `NOT_PASSED`, `INVALID`, `NOT_RUN`, `NO_VERDICT`}. Schema запрещает `PASS` при `authority = null` и `TEST_ONLY_PASS` при `authority ≠ null`. `external_checkpoint` — §13.2.
 
@@ -437,7 +445,7 @@ Unregistered provider execution (нет entry для её run key):
 
 ## 11. Production / test separation
 
-- **Production entry point** — `g1_production(measurement_identity_sha256)`: ровно этот параметр. Не принимает HTTP getter, provider implementation, registry path, remote URL, repository, results root, список bundles/entries/snapshot или иной subset. Authority hard-bound к константам §5.1 в reviewed коде; registry и evidence root (§8.1) получает сам с константного remote; env/CLI их не меняют (credential для rate limit из `GITHUB_TOKEN` допустим и authority не меняет).
+- **Production entry point** — `g1_production(measurement_identity_sha256)`: ровно этот параметр. Не принимает HTTP getter, provider implementation, registry path, remote URL, repository, results root, список bundles/entries/snapshot или иной subset. Authority hard-bound к константам §5.1 в reviewed коде; registry, `main_head_sha` и evidence root (§8.1, §9.0) получает сам с константного remote; env/CLI их не меняют (credential для rate limit из `GITHUB_TOKEN` допустим и authority не меняет).
 - **Internal/test core** — `_g1_core(...)` с injected registry/provider/evidence/git/KAT; возвращает core verdict §9.3 и никогда `PASS`. Fake providers живут только в `.work/tests`.
 - **Test wrapper** — `SCIENTIFIC_PASS → TEST_ONLY_PASS`, record с `authority = null`. Test result никогда не превращается в production `PASS`: production не принимает records/verdicts как input и вычисляет всё сам.
 - `PASS` выдаёт только `g1_production`: `SCIENTIFIC_PASS` core над данными, которые он сам получил от констант, и пройденный activation gate. Production модуль не импортирует test модули; v1 `oracle_attempts.g1_root(get=…)` не является v2 path.
@@ -468,11 +476,11 @@ Unregistered provider execution (нет entry для её run key):
 
 ### 13.2 Independent immutable checkpoint (интерфейс; провайдер не фиксируется)
 
-Перед внешней публикацией G1 record обязан иметь `external_checkpoint = {head, locator, checkpoint_sha256}`, где checkpoint: (1) в trust domain, не управляемом admin Shift-lab; (2) immutable/append-only с собственной tamper evidence; (3) доступен третьей стороне по `locator` (`https://…`); (4) коммитит exact `registry_head`; (5) его head — prefix оцениваемой истории, `sequence ≥` head record. Record с `external_checkpoint = null` (все P1 records) не является evidence для внешней публикации. Технология выбирается отдельным решением (D5).
+Перед внешней публикацией G1 record обязан иметь `external_checkpoint = {head, locator, checkpoint_sha256}`, где checkpoint: (1) в trust domain, не управляемом admin Shift-lab; (2) immutable/append-only с собственной tamper evidence; (3) доступен третьей стороне по `locator` (`https://…`); (4) коммитит `head = {sequence, entry_sha256}` истории registry; (5) может быть сделан **позже** оценки, поэтому допустим, только если `head.sequence ≥ record.registry_head.sequence` **и** `record.registry_head` — prefix истории checkpoint: в hash chain, оканчивающейся на `checkpoint.head`, entry с `sequence = record.registry_head.sequence` имеет `entry_sha256 = record.registry_head.entry_sha256` (`sequence = 0` → `genesis_sha256`). Равенство heads — частный случай. Проверка — по hash chain registry от `checkpoint.head` назад; иначе checkpoint недопустим. Vectors XC01–XC05 (`external_checkpoint_vectors`). Record с `external_checkpoint = null` (все P1 records) не является evidence для внешней публикации. Технология выбирается отдельным решением (D5).
 
-## 14. Reference vectors R01–R22
+## 14. Reference vectors R01–R24, XC01–XC05
 
-Нормативно — [registry-vectors.json](registry-vectors.json) (`delsk.oracle.registry-vectors.v1`): для каждого case — exact synthetic registry (genesis + entries), `registry_remote_head`, provider observations, evidence (bundle projections, binding sidecars, foreign paths, v1 root keys), environment (git_source identities, ancestry, `main` head, pull requests, KAT), expected core verdict и **полный expected test record** с `record_sha256` для каждой оцениваемой identity, плюс runner-level ожидания (R12, R21). Expected outputs заморожены до implementation; implementation обязана воспроизвести их байт в байт (`record_sha256`). Records в vectors — test records (`authority = evaluator = null`, `TEST_ONLY_PASS`). Genesis vectors несёт synthetic `g1_freeze_sha256`: test core его не проверяет, production проверяет (§5.3). Bundle в vectors задан проекцией `bundle_projection` — выходом v1 `verify` + `attempt_record`, который v1 KATs уже покрывают; `cost_projection_sha256`/`targets_sha256` в проекциях различаются между identities, как в v1.
+Нормативно — [registry-vectors.json](registry-vectors.json) (`delsk.oracle.registry-vectors.v1`): для каждого case — exact synthetic registry (genesis + entries), `registry_remote_head`, `main_remote_head`, provider observations, evidence (bundle projections, binding sidecars, foreign paths, v1 root keys), environment (git_source identities, ancestry, pinned `main` head, `evaluator_source_sha`, pull requests, KAT), expected core verdict и **полный expected test record** с `record_sha256` для каждой оцениваемой identity, плюс runner-level ожидания (R12, R21). Expected outputs заморожены до implementation; implementation обязана воспроизвести их байт в байт (`record_sha256`). Records в vectors — test records (`authority = evaluator = null`, `TEST_ONLY_PASS`). Genesis vectors несёт synthetic `g1_freeze_sha256`: test core его не проверяет, production проверяет (§5.3). Bundle в vectors задан проекцией `bundle_projection` — выходом v1 `verify` + `attempt_record`, который v1 KATs уже покрывают; `cost_projection_sha256`/`targets_sha256` в проекциях различаются между identities, как в v1.
 
 | # | Сценарий | Ожидание |
 |---|---|---|
@@ -498,8 +506,11 @@ Unregistered provider execution (нет entry для её run key):
 | R20 | два sidecar с одним `entry_sha256` | `INVALID BINDING_MISMATCH DUPLICATE_EXECUTION RUN_INVALID` |
 | R21 a–b | новая серия без transition после natural / после только PRE | `NOT_PASSED SERIES_TRANSITION_MISSING`; runner `TRANSITION_REQUIRED` |
 | R22 a–e | `previous` ≠ current; merge commit не ancestor; fork; reentry; PR не merged | `SERIES_TRANSITION_MISMATCH`; `…MISMATCH`; `SERIES_FORK` + старая `SERIES_SUPERSEDED`; `SERIES_REENTRY`; `…MISMATCH` |
+| R23 a–c | measured commit зелёный, evaluator нет; evaluator зелёный, measured нет; evaluator зелёный, но не на `main_head_sha` | `NOT_PASSED KAT_NOT_VERIFIED` |
+| R24 | `refs/heads/main` изменился во время оценки | `NO_VERDICT MAIN_STALE` |
+| XC01–XC05 | checkpoint = head; позже с prefix; раньше head; позже на форке; record head = genesis | admissible; admissible; нет; нет; admissible |
 
-## 15. Mutation obligations PM01–PM10
+## 15. Mutation obligations PM01–PM12
 
 Implementation (не этот PR) обязана применить каждый mutant к production/core коду и показать, что указанные vectors его убивают. Если mutant выживает, implementation не активируется.
 
@@ -515,6 +526,8 @@ Implementation (не этот PR) обязана применить каждый
 | PM08 | нет carry-over внутри серии | R15a, R15b, R15c | identity hopping обнуляет неудачу |
 | PM09 | binding после `B` принят | R16a–c, R12b | регистрация задним числом / unbound rerun |
 | PM10 | смена `science_identity` без transition принята | R21a, R21b | молчаливый reset серии |
+| PM11 | KAT только на одном commit или evaluator вне `main_head_sha` | R23a, R23b, R23c | buggy/unreviewed evaluator или непроверенное измерение даёт PASS |
+| PM12 | `main` не зафиксирован или не перечитан после оценки | R24 | evidence root, ancestry и freeze читаются из разных состояний; record невоспроизводим |
 
 Машиночитаемо — `mutants` в [registry-vectors.json](registry-vectors.json).
 
@@ -524,8 +537,8 @@ v2 implementation становится active только после выпол
 
 1. этот v2 freeze смержен;
 2. registry tooling реализован (register, bind, validation, классификация, G1 core/production) вне файлов v1 code manifest;
-3. R01–R22 воспроизведены байт в байт (`record_sha256`) независимой реализацией без импорта генератора vectors;
-4. PM01–PM10 убиты;
+3. R01–R24 воспроизведены байт в байт (`record_sha256`), XC01–XC05 — по `expected`, независимой реализацией без импорта генератора vectors;
+4. PM01–PM12 убиты;
 5. production/test API separation проверена (§11, R17);
 6. registry genesis создан reviewed PR (`g1_freeze_sha256` = этот freeze);
 7. rulesets §12.1 реально настроены и проверены read-only API (правила, пустой bypass registry, отсутствие workflow token в bypass `main`);
@@ -535,7 +548,7 @@ v2 implementation становится active только после выпол
 11. independent review;
 12. отдельное maintainer decision разрешает natural measurement.
 
-Activation record фиксирует имена steps `bind`/`boundary` (§4.1) и evidence п. 6–10. До выполнения всех пунктов: pilot worker и runner отказывают с `DISPATCH_HISTORY_UNVERIFIED` (C0), v1 G1 — `NOT_PASSED DISPATCH_HISTORY_UNVERIFIED`, v2 production — не PASS (`V2_NOT_ACTIVE`).
+Activation record фиксирует имена steps `bind`/`boundary` (§4.1), имя KAT step (§9.1 п. 10) и evidence п. 6–10. До выполнения всех пунктов: pilot worker и runner отказывают с `DISPATCH_HISTORY_UNVERIFIED` (C0), v1 G1 — `NOT_PASSED DISPATCH_HISTORY_UNVERIFIED`, v2 production — не PASS (`V2_NOT_ACTIVE`).
 
 ## 17. Adversarial self-review
 
@@ -555,7 +568,10 @@ Activation record фиксирует имена steps `bind`/`boundary` (§4.1) 
 | stale registry принят | повторное чтение remote head ⇒ `REGISTRY_STALE`; R18 |
 | unregistered bundle принят | `EVIDENCE_ROOT_INVALID`; R07 |
 | fake provider ⇒ production PASS | production без injectable параметров; core без `PASS`; R17 |
-| caller выбирает subset | нет параметров subset; registry и root читаются с константного remote (root — из head `main`), не из рабочего дерева |
+| caller выбирает subset | нет параметров subset; registry и root читаются с константного remote (root — из `main_head_sha`), не из рабочего дерева |
+| buggy evaluator на другом commit выдаёт PASS | KAT на `evaluator_source_sha` и на `measured_source_sha`, evaluator на `main_head_sha`; R23 |
+| merge в `main` во время оценки (TOCTOU) | один `main_head_sha` на все git reads, запись в record, повторное чтение ⇒ `MAIN_STALE`; R24 |
+| checkpoint противоречит record | checkpoint допустим только если record head — prefix его истории; XC01–XC05 |
 | register credential считается branch-scoped | §12.1: repository-level; negative test при activation |
 | test result ⇒ production PASS | `TEST_ONLY_PASS`, `authority = null`, schema-запрет; production не принимает records |
 | docs-commit вне `main` как новая identity | `measured_source_sha` обязан быть на `main` (§5.4) |
@@ -577,6 +593,14 @@ Activation record фиксирует имена steps `bind`/`boundary` (§4.1) 
 | — | `measured_source_sha` на `main`, `SERIES_SUPERSEDED`, `SERIES_REENTRY`, V4–V5 | identity commits неудаляемы; retired серия не PASS; нет циклов; reason проверяем |
 
 Проблем в D1–D5, требующих STOP, не найдено: все исправления усиливают proposal внутри принятых решений.
+
+### 17.3 Freeze review PR #29 (head `f8e7a96`)
+
+| Замечание | Исправление |
+|---|---|
+| KAT gate проверял только `measured_source_sha`, а v1 §7 требует KAT на evaluator commit: buggy `g1_production` на другом commit прошёл бы | §9.1 п. 10: KAT на `evaluator_source_sha` **и** `measured_source_sha`, evaluator обязан быть на `main_head_sha`, проверяемая suite включает v2 frozen files и R/XC/PM; R23a–c, PM11 |
+| evidence root и ancestry читались из плавающего `main`; record не фиксировал snapshot (TOCTOU, невоспроизводимость) | §9.0: один `main_head_sha` на все git reads, поле record `main_head_sha`, повторное чтение ⇒ `NO_VERDICT MAIN_STALE` (§5.6 п. 4); R24, PM12 |
+| external checkpoint одновременно «exact head», «prefix оцениваемой истории» и `sequence ≥` | выбрана семантика «checkpoint позже»: record head — prefix истории checkpoint, `sequence ≥`; равенство — частный случай; XC01–XC05 |
 
 ## 18. Не заморожено и ограничения
 

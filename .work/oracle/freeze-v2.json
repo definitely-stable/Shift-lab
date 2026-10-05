@@ -52,13 +52,13 @@
   "natural_measurements": "NOT_RUN",
   "provenance_layer": {
     "files": {
-      ".work/oracle/contract-v2.md": "c9905258f7fc2dacb3ff6884dc421babd66efe1b4509c3d6476b06f373768454",
-      ".work/oracle/registry-vectors.json": "98468815a6a4a65025aeae82c9824f6ba68de533a2afdefb099636524a5d0d34",
-      ".work/oracle/schemas-v2.json": "7c17682e922e194d4c753df78dcaf1fb396babbccf50aca3771f2e7e2e14a924",
-      ".work/tests/test_oracle_contract_v2.py": "f06f3f01ee1846843ed23a764b9d352237e95321adb2e014a09bd732e46cb8cc"
+      ".work/oracle/contract-v2.md": "92452fd59150a3957a131fce84f0dd0d311dfb40fdafeb8b22f416016538b677",
+      ".work/oracle/registry-vectors.json": "5aef8456216da54ef4de4363369b92b6dc65ed29c4c46c864c15f198f8473484",
+      ".work/oracle/schemas-v2.json": "3ee790cf8d9b0a68c553aec673194c3f781f61ed704ee5c43479b0f5a41120b0",
+      ".work/tests/test_oracle_contract_v2.py": "5b1d7b104705becb7bc2f8f200ce011c260c0bb07c4a8221391c578a39893f50"
     }
   },
-  "provenance_layer_sha256": "94bb34eadc3a7b7c635a31df4845891376c0b6d11c53a4f36aeff38f9a8024dc",
+  "provenance_layer_sha256": "dafb01178d560bd9cd80187290b6754249cb358bfcc9ab7c2196ad00b3fb0107",
   "schema": "delsk.oracle-contract.freeze.v2",
   "scope": "G1/provenance layer only: definition of scientific attempt, registry authority, bind-before-measure, PRE/BUNDLE/MISSING, G1 population, series and transitions, production/test API, ruleset/write-token/witness requirements, activation criteria. The measurement layer is delsk.oracle-contract.v1 by hash.",
   "status": "FROZEN_ON_MERGE"
