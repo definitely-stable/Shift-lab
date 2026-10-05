@@ -269,22 +269,23 @@ class Runner(unittest.TestCase):
                 self.assertEqual((result['run_status'], result['invalid_reasons']), want)
                 self.assertEqual(ev.verify(ev2), [])  # an INVALID/INCOMPLETE run is still a faithful bundle
 
-    def test_sigterm_while_a_row_becomes_durable_is_counted_once(self):
-        """A SIGTERM that arrives while a row is written is delivered when Rows.write() restores the signal mask,
-        after the row is durable but before the caller counts it. The runner must still write exactly one row per
-        task: the durable row stays, the remaining tasks become not_run, nothing is duplicated (INCOMPLETE, not
-        INVALID DUPLICATE_PAIR). Deterministic: the signal is sent from inside the fsync of the third pair row."""
-        tools, conformance = shim_tools(self.tmp / 'race-tools')
-        evidence, private = self.tmp / 'race-ev', self.tmp / 'race-pr'
+    def sigterm_inside_fsync(self, sink, nth):
+        """Run the real runner in a child process whose os.fsync sends SIGTERM to itself from inside the fsync of the
+        nth row of `sink` (pairs.full.jsonl or standalone.full.jsonl). Rows.write() masks SIGTERM there, so the
+        signal is delivered when the mask is restored: after the row is durable, before the caller counts it, which
+        is exactly the window fsync -> unmask -> caller progress. Returns (pair rows, standalone rows, expected
+        standalone row count, finalize result)."""
+        tools, conformance = shim_tools(self.tmp / f'race-{sink}-tools')
+        evidence, private = self.tmp / f'race-{sink}-ev', self.tmp / f'race-{sink}-pr'
         driver = '\n'.join((
             'import os, signal, sys',
             f'sys.path.insert(0, {str(WORK / "tools")!r})',
             'import oracle_run',
             'real, seen = os.fsync, []',
             'def fsync(fd):',
-            "    if os.readlink(f'/proc/self/fd/{fd}').endswith('pairs.full.jsonl'):",
+            f"    if os.readlink(f'/proc/self/fd/{{fd}}').endswith({sink!r}):",
             '        seen.append(fd)',
-            '        if len(seen) == 3:',
+            f'        if len(seen) == {nth}:',
             '            os.kill(os.getpid(), signal.SIGTERM)  # pending: Rows.write() masks SIGTERM here',
             '    real(fd)',
             'os.fsync = fsync',
@@ -293,15 +294,35 @@ class Runner(unittest.TestCase):
                                str(self.tmp / 'syn' / 'store'), str(evidence), str(private), str(self.tmp / 'syn')],
                               env={**os.environ, **ENV}, capture_output=True, timeout=120)
         self.assertEqual(proc.returncode, 1, proc.stderr[-500:])
+        solo_tasks = len(orun.prepare('smoke', tools, conformance, self.tmp / 'syn', ENV)['queries'])
         pairs = read_rows(private / 'pairs.full.jsonl')
-        ids = [r['pair_id'] for r in pairs]
-        self.assertEqual(len(ids), len(set(ids)))  # every task exactly once
-        self.assertEqual(len(pairs), 14)
-        self.assertEqual(sum(r['status'] != 'not_run' for r in pairs), 3)  # the three durable rows survive
-        self.assertTrue(all(r['error_class'] == 'runner_abort' for r in pairs if r['status'] == 'not_run'))
+        solo = read_rows(private / 'standalone.full.jsonl') if (private / 'standalone.full.jsonl').exists() else []
         with redirect_stdout(io.StringIO()):
             result = ev.finalize(evidence, private)
+        return pairs, solo, solo_tasks, result
+
+    def assert_each_task_once(self, pairs, solo, solo_tasks, result):
+        """Exactly one row per task in each sink (nothing duplicated, nothing lost), aborted tasks are runner_abort
+        not_run rows, and the run is INCOMPLETE without an invalid reason (not INVALID DUPLICATE_PAIR)."""
+        pair_ids = [r['pair_id'] for r in pairs]
+        solo_ids = [r['target_occurrence_id'] for r in solo]
+        self.assertEqual((len(pair_ids), len(set(pair_ids))), (14, 14))
+        self.assertEqual((len(solo_ids), len(set(solo_ids))), (solo_tasks, solo_tasks))
+        self.assertTrue(all(r['error_class'] == 'runner_abort' for r in pairs + solo if r['status'] == 'not_run'))
         self.assertEqual((result['run_status'], result['invalid_reasons']), ('INCOMPLETE', []))
+
+    def test_sigterm_while_a_pair_row_becomes_durable_is_counted_once(self):
+        pairs, solo, solo_tasks, result = self.sigterm_inside_fsync('pairs.full.jsonl', 3)
+        self.assert_each_task_once(pairs, solo, solo_tasks, result)
+        self.assertEqual(sum(r['status'] != 'not_run' for r in pairs), 3)  # the three durable rows survive
+        self.assertTrue(all(r['status'] == 'not_run' for r in solo))
+
+    def test_sigterm_while_a_standalone_row_becomes_durable_is_counted_once(self):
+        # every pair is already durable; the count crosses the sink boundary (sum over both sinks)
+        pairs, solo, solo_tasks, result = self.sigterm_inside_fsync('standalone.full.jsonl', 2)
+        self.assert_each_task_once(pairs, solo, solo_tasks, result)
+        self.assertTrue(all(r['status'] != 'not_run' for r in pairs))
+        self.assertEqual(sum(r['status'] != 'not_run' for r in solo), 2)
 
     def test_runner_abort_halfway_leaves_not_run_rows(self):
         tools, conformance = shim_tools(self.tmp / 'abort-tools', delta='slow')
