@@ -1,6 +1,9 @@
 name: Oracle pilot (DELSK-003)
 
-# Infrastructure only in Slice C0. Dispatches are a separate post-review task.
+# Slice C0 infrastructure with the DELSK-003A C1-B register/measure split of contract v2 (sections 4.1, 5.7, 5.8, 12.2).
+# Dispatches are a separate post-activation task: before activation the register job refuses (V2_NOT_ACTIVE) and the
+# measure job keeps the C0 guard DISPATCH_HISTORY_UNVERIFIED. Nothing before the boundary step reads natural bytes;
+# steps after it start only if the boundary step itself started, so a stop before B stays provable as PRE (8.3).
 on:
   workflow_dispatch:
     inputs:
@@ -19,11 +22,35 @@ concurrency:
   queue: max
 
 jobs:
-  pilot:
+  register:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    outputs:
+      entry_sha256: ${{ steps.register.outputs.entry_sha256 }}
     env:
       SOURCE_SHA: ${{ inputs.source_sha }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Register attempt in the append-only registry (contract v2 register)
+        id: register
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: /usr/bin/python3 .work/tools/oracle_registry_git.py register
+  measure:
+    needs: register
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      actions: read
+    env:
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      REGISTER_ENTRY_SHA256: ${{ needs.register.outputs.entry_sha256 }}
     steps:
       - name: Bootstrap dispatch proof before checkout
         run: |
@@ -53,9 +80,24 @@ jobs:
         id: checkout
         with:
           persist-credentials: false
+          fetch-depth: 0
       - name: Validate dispatch, frozen chain and register scientific identity
         id: initialize
         run: /usr/bin/python3 .work/tools/oracle_pilot.py initialize "$RUNNER_TEMP/pilot-evidence"
+      - name: Bind registry entry before the measurement boundary (contract v2 bind)
+        id: bind
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: /usr/bin/python3 .work/tools/oracle_registry_git.py bind "$RUNNER_TEMP/binding/binding.json"
+      - name: Retain binding sidecar before the boundary
+        id: binding_record
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: oracle-binding-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/binding/binding.json
+          retention-days: 30
+          if-no-files-found: error
+          overwrite: false
       - name: Retain attempt before codec setup
         id: attempt_record
         if: always() && steps.checkout.outcome == 'success'
@@ -68,20 +110,20 @@ jobs:
           overwrite: false
       - name: Budget and artifact admission
         id: admission
-        if: steps.initialize.outcome == 'success' && steps.attempt_record.outcome == 'success'
-        continue-on-error: true
+        if: steps.bind.outcome == 'success' && steps.initialize.outcome == 'success' && steps.attempt_record.outcome == 'success'
         env:
           GITHUB_TOKEN: ${{ github.token }}
           BUDGET_MODE: enforce
         run: /usr/bin/python3 .work/tools/budget.py admit "$RUNNER_TEMP/pilot-admission.json" > /dev/null 2>&1
       - name: Hard capped transient work filesystem
-        if: steps.initialize.outcome == 'success' && steps.attempt_record.outcome == 'success'
+        if: steps.admission.outcome == 'success'
         run: |
           mkdir "$RUNNER_TEMP/pilot-work"
           sudo mount -t tmpfs -o size=1280m,nodev,nosuid tmpfs "$RUNNER_TEMP/pilot-work"
-      - name: Bounded pilot
+      # Contract 4.1 boundary witness: the first step after whose start B may be crossed (codec build, natural fetch).
+      - name: Measurement boundary (contract v2 boundary)
         id: workload
-        if: steps.initialize.outcome == 'success' && steps.attempt_record.outcome == 'success'
+        if: steps.bind.outcome == 'success' && steps.binding_record.outcome == 'success' && steps.admission.outcome == 'success'
         continue-on-error: true
         env:
           ATTEMPT_ARTIFACT_ID: ${{ steps.attempt_record.outputs.artifact-id }}
@@ -90,7 +132,7 @@ jobs:
             "$RUNNER_TEMP/pilot-work" "$RUNNER_TEMP/pilot-admission.json"
       - name: Bounded sealed artifact check
         id: export_cap
-        if: always() && steps.initialize.outcome == 'success'
+        if: always() && contains(fromJSON('["success","failure","cancelled"]'), steps.workload.outcome) && steps.initialize.outcome == 'success'
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
@@ -103,7 +145,7 @@ jobs:
           /usr/bin/python3 .work/tools/budget.py artifact-check "$RUNNER_TEMP/pilot-evidence" > /dev/null 2>&1
       - name: Immutable sealed pilot envelope
         id: evidence_upload
-        if: always() && steps.export_cap.outcome == 'success'
+        if: always() && contains(fromJSON('["success","failure","cancelled"]'), steps.workload.outcome) && steps.export_cap.outcome == 'success'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: oracle-pilot-${{ github.run_id }}-${{ github.run_attempt }}
@@ -112,10 +154,10 @@ jobs:
           if-no-files-found: error
           overwrite: false
       - name: Record export failure without debug data
-        if: always() && steps.initialize.outcome == 'success' && steps.evidence_upload.outcome != 'success'
+        if: always() && contains(fromJSON('["success","failure","cancelled"]'), steps.workload.outcome) && steps.initialize.outcome == 'success' && steps.evidence_upload.outcome != 'success'
         run: /usr/bin/python3 .work/tools/oracle_pilot.py finish "$RUNNER_TEMP/pilot-evidence" failure
       - name: Emergency attempt status only
-        if: always() && steps.checkout.outcome == 'success' && steps.evidence_upload.outcome != 'success'
+        if: always() && contains(fromJSON('["success","failure","cancelled"]'), steps.workload.outcome) && steps.checkout.outcome == 'success' && steps.evidence_upload.outcome != 'success'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: oracle-attempt-final-${{ github.run_id }}-${{ github.run_attempt }}
@@ -124,7 +166,7 @@ jobs:
           if-no-files-found: error
           overwrite: false
       - name: Require workload and export success
-        if: always()
+        if: always() && contains(fromJSON('["success","failure","cancelled"]'), steps.workload.outcome)
         env:
           WORKLOAD_OUTCOME: ${{ steps.workload.outcome }}
           EXPORT_OUTCOME: ${{ steps.evidence_upload.outcome }}

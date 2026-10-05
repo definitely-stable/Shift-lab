@@ -5,10 +5,15 @@ entries, closed schemas (.work/oracle/schemas-v2.json), hash chain, sequence, ru
 level-1 witness prefix (rollback), stale-head primitive, physical branch form, science_identity and transition records,
 and the external-checkpoint prefix rule (section 13.2). Stdlib only, no network, no Git writes, no natural bytes.
 
+C1-B adds authority profiles: PRODUCTION is exactly the constants of section 5.1 and the frozen schemas; SMOKE is the
+synthetic real-GitHub registry of activation item 8 (own ref, own workflow, domain-separated genesis digest), so a smoke
+registry can never validate as the production registry and vice versa. Git transport lives in oracle_registry_git.py.
+
 Not part of the v1 code manifest (oracle_eval.CODE_FILES), so it never changes a science identity (contract section 6).
 Series state machine, classification and G1 live in oracle_g1_v2.py.
 """
 from dataclasses import dataclass
+import copy
 import json
 from types import MappingProxyType
 
@@ -40,6 +45,42 @@ MEASUREMENT_FREEZE_SHA256 = _SCHEMAS['$defs']['registry_genesis']['properties'][
 G1_FREEZE_SHA256 = 'd8e3c33a8eeaed7c112189b98bd8bd7f7d2a422aa8efca6733528738f2a34b57'
 
 
+@dataclass(frozen=True)
+class Profile:
+    """Registry authority profile. Only the two module constants below exist; neither is caller-configurable.
+
+    schemas: schemas-v2 with this profile's genesis registry_ref, entry workflow_path and entry workflow_ref pattern.
+    g1_freeze_sha256: the genesis binding that authoritative validation requires (contract 5.3)."""
+    name: str
+    registry_remote: str
+    registry_ref: str
+    workflow_path: str
+    g1_freeze_sha256: str
+    schemas: MappingProxyType
+
+
+def _profile_schemas(registry_ref, workflow_path):
+    """schemas-v2 with exactly three values replaced. Applied to the production values it reproduces the frozen
+    schemas byte for byte (tested), so the derivation cannot weaken any other rule."""
+    s = copy.deepcopy(_SCHEMAS)
+    defs = s['$defs']
+    defs['registry_genesis']['properties']['registry_ref']['const'] = registry_ref
+    defs['registry_entry']['properties']['workflow_path']['const'] = workflow_path
+    escaped = f'{REPOSITORY}/{workflow_path}'.replace('.', '\\.')
+    defs['registry_entry']['properties']['workflow_ref']['pattern'] = (
+        f'^{escaped}@refs/heads/[A-Za-z0-9][A-Za-z0-9._/-]{{0,199}}(?![\\s\\S])')
+    return s
+
+
+PRODUCTION = Profile('production', REGISTRY_REMOTE, REGISTRY_REF, WORKFLOW_PATH, G1_FREEZE_SHA256, _SCHEMAS)
+SMOKE_REGISTRY_REF = 'refs/heads/delsk/registry-smoke'
+SMOKE_WORKFLOW_PATH = '.github/workflows/oracle-registry-smoke.yml'
+SMOKE = Profile('smoke', REGISTRY_REMOTE, SMOKE_REGISTRY_REF, SMOKE_WORKFLOW_PATH,
+                ev.hc({'schema': 'delsk.oracle.registry-smoke-domain.v1', 'g1_freeze_sha256': G1_FREEZE_SHA256}),
+                _profile_schemas(SMOKE_REGISTRY_REF, SMOKE_WORKFLOW_PATH))
+PROFILES = (PRODUCTION, SMOKE)
+
+
 class RegistryInvalid(ev.EvalError):
     """Contract 5.6 item 1: the registry is permanently REGISTRY_INVALID. No repair inside v2."""
 
@@ -58,6 +99,7 @@ class PhysicalRegistry:
     genesis_bytes: bytes
     entries_bytes: bytes
     _proof: object
+    profile: Profile = PRODUCTION
 
     def __post_init__(self):
         require(self._proof is _PHYSICAL_PROOF, 'physical registry proof')
@@ -68,8 +110,9 @@ def require(ok, reason):
         raise RegistryInvalid(reason)
 
 
-def schema_errors(value, name):
-    return ev.schema_errors(value, _SCHEMAS['$defs'][name], _SCHEMAS)
+def schema_errors(value, name, schemas=None):
+    schemas = _SCHEMAS if schemas is None else schemas
+    return ev.schema_errors(value, schemas['$defs'][name], schemas)
 
 
 def canonical_value(value):
@@ -81,8 +124,8 @@ def canonical_value(value):
         return False
 
 
-def valid(value, name):
-    return canonical_value(value) and not schema_errors(value, name)
+def valid(value, name, schemas=None):
+    return canonical_value(value) and not schema_errors(value, name, schemas)
 
 
 def without(doc, key):
@@ -132,11 +175,11 @@ class GitSnapshot:
 
 # --- genesis, entries, transitions ------------------------------------------------------------------------------------
 
-def make_genesis(g1_freeze_sha256):
+def make_genesis(g1_freeze_sha256, profile=PRODUCTION):
     return {'schema': 'delsk.oracle.registry-genesis.v1', 'g1_contract': G1_CONTRACT,
             'measurement_contract': MEASUREMENT_CONTRACT,
             'measurement_freeze_sha256': MEASUREMENT_FREEZE_SHA256,
-            'g1_freeze_sha256': g1_freeze_sha256, 'repository': REPOSITORY, 'registry_ref': REGISTRY_REF}
+            'g1_freeze_sha256': g1_freeze_sha256, 'repository': REPOSITORY, 'registry_ref': profile.registry_ref}
 
 
 def make_transition(phase, previous, new, reason, pull_request, merge_commit_sha):
@@ -147,11 +190,11 @@ def make_transition(phase, previous, new, reason, pull_request, merge_commit_sha
 
 
 def make_entry(genesis, entries, *, run_id, run_attempt, measured_source_sha, workflow_ref, measurement_identity,
-               transition=None):
+               transition=None, profile=PRODUCTION):
     """Next entry of a registry (contract 5.4). workflow_sha = measured_source_sha by construction."""
     e = {'schema': ENTRY_SCHEMA, 'sequence': len(entries) + 1,
          'previous_entry_sha256': entries[-1]['entry_sha256'] if entries else ev.hc(genesis),
-         'g1_contract': G1_CONTRACT, 'repository': REPOSITORY, 'workflow_path': WORKFLOW_PATH,
+         'g1_contract': G1_CONTRACT, 'repository': REPOSITORY, 'workflow_path': profile.workflow_path,
          'workflow_ref': workflow_ref, 'workflow_sha': measured_source_sha, 'measured_source_sha': measured_source_sha,
          'measurement_identity_sha256': ev.hc(measurement_identity),
          'science_identity_sha256': ev.hc(science_identity(measurement_identity)),
@@ -189,17 +232,19 @@ def validate_physical(commits):
     return genesis_bytes, entries_bytes
 
 
-def authoritative_registry(commits, git):
+def authoritative_registry(commits, git, profile=PRODUCTION):
     """Composition boundary for production/runner code.
 
     The returned object cannot be obtained from a logically-valid final tree alone: the full registry branch history
-    must first satisfy section 5.2, and genesis must bind to the exact frozen v2 contract. Duplicate run keys remain
-    section 5.6 item 2 and are intentionally checked by the caller so it can preserve REGISTRY_DUPLICATE semantics.
+    must first satisfy section 5.2, and genesis must bind to the exact frozen v2 contract (SMOKE: to its own
+    domain-separated digest). Duplicate run keys remain section 5.6 item 2 and are intentionally checked by the caller
+    so it can preserve REGISTRY_DUPLICATE semantics.
     """
+    require(profile in PROFILES, 'unknown registry profile')
     genesis_bytes, entries_bytes = validate_physical(commits)
     genesis, entries = parse_registry(genesis_bytes, entries_bytes)
-    validate(genesis, entries, git, G1_FREEZE_SHA256)
-    return PhysicalRegistry(genesis_bytes, entries_bytes, _PHYSICAL_PROOF)
+    validate(genesis, entries, git, profile.g1_freeze_sha256, profile)
+    return PhysicalRegistry(genesis_bytes, entries_bytes, _PHYSICAL_PROOF, profile)
 
 
 def physical_objects(snapshot):
@@ -208,17 +253,19 @@ def physical_objects(snapshot):
     return parse_registry(snapshot.genesis_bytes, snapshot.entries_bytes)
 
 
-def validate(genesis, entries, git, g1_freeze_sha256=None):
+def validate(genesis, entries, git, g1_freeze_sha256=None, profile=None):
     """Contract 5.6 item 1 on parsed objects. Raises RegistryInvalid; returns the registry head. Production passes the
-    SHA-256 of freeze-v2.json in the pinned main tree as g1_freeze_sha256; the test core passes None (contract 14)."""
+    SHA-256 of freeze-v2.json in the pinned main tree as g1_freeze_sha256; the test core passes None (contract 14).
+    profile None = the frozen production schemas."""
+    schemas = None if profile is None else profile.schemas
     require(type(entries) is list, 'entries must be a list')
-    require(valid(genesis, 'registry_genesis'), 'genesis not canonical or not by schema')
+    require(valid(genesis, 'registry_genesis', schemas), 'genesis not canonical or not by schema')
     require(g1_freeze_sha256 is None or genesis['g1_freeze_sha256'] == g1_freeze_sha256,
             'genesis g1_freeze_sha256 differs from freeze-v2')
     previous = ev.hc(genesis)
     for number, e in enumerate(entries, 1):
         where = f'line {number}'
-        require(valid(e, 'registry_entry'), f'{where}: not canonical or not by schema')
+        require(valid(e, 'registry_entry', schemas), f'{where}: not canonical or not by schema')
         require(e['sequence'] == number, f'{where}: sequence gap or repeat')
         require(e['previous_entry_sha256'] == previous, f'{where}: previous_entry_sha256 breaks the chain')
         require(self_digest_ok(e, 'entry_sha256'), f'{where}: entry_sha256 != Hc(entry)')

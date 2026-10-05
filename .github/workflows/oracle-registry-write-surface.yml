@@ -1,0 +1,40 @@
+name: Oracle registry write surface (DELSK-003A)
+
+# Contract v2 section 12.1 / activation item 10: with a contents: write workflow token (the credential class of the
+# register job) a direct push to main, a non-fast-forward push to the registry and a registry deletion must all be
+# rejected by the server. A read-only preflight of the effective branch rules runs first; without the rulesets no
+# write is attempted. Manual dispatch only, after the rulesets and the registry genesis exist.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: delsk-registry-write-surface
+  cancel-in-progress: false
+
+jobs:
+  write_surface:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Negative write-surface tests (contract v2 section 12.1)
+        id: probe
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: /usr/bin/python3 .work/tools/oracle_activation_v2.py write-surface "$RUNNER_TEMP/write-surface.json"
+      - name: Retain write-surface evidence
+        if: always() && steps.probe.outcome != 'skipped'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: registry-write-surface-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/write-surface.json
+          retention-days: 30
+          if-no-files-found: error
+          overwrite: false

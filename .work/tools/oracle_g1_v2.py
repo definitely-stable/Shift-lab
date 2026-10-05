@@ -10,7 +10,8 @@ The population is always every entry of the registry: no caller selects entries,
 (_g1_core) is a pure function of an immutable Evaluation and only ever returns SCIENTIFIC_PASS / NOT_PASSED / INVALID /
 NOT_RUN / NO_VERDICT. g1_test maps SCIENTIFIC_PASS to TEST_ONLY_PASS with authority = evaluator = null.
 g1_production takes only the identity; before activation (contract 16) it is NOT_PASSED V2_NOT_ACTIVE and performs
-no read at all. Never imports test modules; not in the v1 code manifest.
+no read at all. After activation it reads every input itself from the authority constants (oracle_registry_git.py,
+C1-B). Never imports test modules; not in the v1 code manifest.
 """
 import collections
 from dataclasses import dataclass
@@ -35,8 +36,9 @@ BINDING_FIELDS = ('run_id', 'run_attempt', 'repository', 'measured_source_sha', 
                   'entry_sha256')
 RUN_KEY = re.compile(r'[1-9][0-9]*-[1-9][0-9]*\Z')
 V1_RESULTS = Path(ev.RESULTS)
-# Activation record (contract 16): bind/boundary step names, KAT step name, evidence of items 6-10. C1-B sets it in a
-# reviewed PR; until then production can never return PASS.
+# Activation record (contract 16): SHA-256 of the bytes of the reviewed activation record file (bind/boundary step
+# names, KAT step name, evidence of items 6-10; oracle_activation_v2.py). Set only by the reviewed activation PR after
+# every item of contract 16 holds; until then production performs no read and can never return PASS.
 ACTIVATION_RECORD = None
 
 
@@ -76,13 +78,14 @@ class Evaluation:
     evaluator_source_sha: str
     kat_green: frozenset
     g1_freeze_sha256: str = None   # production: SHA-256 of freeze-v2.json in the pinned tree; test core: None
+    profile: reg.Profile = None    # None = frozen production schemas; reg.SMOKE only for the synthetic smoke registry
 
     @classmethod
     def build(cls, *, genesis, entries, registry_reread, git, main_reread, provider, pull_requests, evidence,
-              evaluator_source_sha, kat_green, g1_freeze_sha256=None):
+              evaluator_source_sha, kat_green, g1_freeze_sha256=None, profile=None):
         return cls(_copy(genesis), tuple(map(_copy, entries)), _copy(registry_reread), git, main_reread,
                    tuple(map(_copy, provider)), tuple(map(_copy, pull_requests)), evidence, evaluator_source_sha,
-                   frozenset(kat_green), g1_freeze_sha256)
+                   frozenset(kat_green), g1_freeze_sha256, profile)
 
 
 # --- provider facts (contract 8.3) ------------------------------------------------------------------------------------
@@ -359,7 +362,7 @@ def analyze(evaluation):
     x, git = evaluation, evaluation.git
     entries = list(x.entries)
     try:
-        registry_head = reg.validate(x.genesis, entries, git, x.g1_freeze_sha256)
+        registry_head = reg.validate(x.genesis, entries, git, x.g1_freeze_sha256, x.profile)
     except reg.RegistryInvalid:
         return _no_verdict(git, 'REGISTRY_INVALID')
     genesis_sha256 = ev.hc(x.genesis)
@@ -550,11 +553,30 @@ def _production_record(verdict, body, evaluator_source_sha):
 def g1_production(measurement_identity_sha256):
     """Contract 11 production entry point: exactly one parameter. Authority is hard-bound to the constants of
     contract 5.1; nothing (registry, remote, repository, results root, provider, snapshot, subset, records) can be
-    injected. Not active (contract 16): no registry, provider, Git or evidence read is made and the result is
-    NOT_PASSED V2_NOT_ACTIVE. C1-B wires the authority reads behind the activation record."""
+    injected. Not active (contract 16, ACTIVATION_RECORD is None): no registry, provider, Git or evidence read is made
+    and the result is NOT_PASSED V2_NOT_ACTIVE. Active: _production_evaluate reads everything itself."""
     ev.check(type(measurement_identity_sha256) is str and ev.HEX64.match(measurement_identity_sha256) is not None,
              'G1 identity syntax')
-    return 'NOT_PASSED', ['V2_NOT_ACTIVE']
+    record = None if ACTIVATION_RECORD is None else _production_evaluate(measurement_identity_sha256)
+    if record is None:  # not activated, or the activation record does not verify in the pinned main tree
+        return 'NOT_PASSED', ['V2_NOT_ACTIVE']
+    return record['verdict'], record['blockers']
+
+
+def _production_evaluate(measurement_identity_sha256):
+    """Full production record (contract 9.6) or None when v2 is not active. Same single parameter as g1_production:
+    every input (main pin, registry history, provider, pull requests, evidence root, KAT, activation record, re-reads)
+    is obtained by oracle_registry_git.production_inputs from the authority constants of contract 5.1."""
+    if ACTIVATION_RECORD is None:
+        return None
+    import oracle_registry_git as transport  # imports this module; late import keeps the dependency one-way at load
+    inputs = transport.production_inputs(ACTIVATION_RECORD)
+    if inputs is None:
+        return None
+    evaluation, registry_commits = inputs
+    analysis = analyze_authoritative(evaluation, registry_commits)
+    verdict, body = _g1_core(measurement_identity_sha256, evaluation, analysis)
+    return _production_record(verdict, body, evaluation.evaluator_source_sha)
 
 
 # --- evidence root and bundle projection (contract 8.1, 8.4) ----------------------------------------------------------
@@ -680,12 +702,14 @@ def kat_verified_v2(get, sha, main_head_sha, kat_step, root=ev.ROOT):
 # --- runner-level decisions (contract 5.7, 5.8): pure, no Git write ---------------------------------------------------
 
 def _register_check_core(genesis, entries, execution, git, pull_requests, transition_bytes=None,
-                         g1_freeze_sha256=None):
-    """Pure register decision. Synthetic callers may omit the freeze digest; authoritative callers never do."""
-    x = execution
+                         g1_freeze_sha256=None, profile=None):
+    """Pure register decision. Synthetic callers may omit the freeze digest; authoritative callers never do.
+    profile None = the frozen production schemas (vectors)."""
+    x, schemas = execution, (profile or reg.PRODUCTION).schemas
     if not (x['event'] == 'workflow_dispatch' and x['repository'] == reg.REPOSITORY and x['sha'] == x['workflow_sha']
-            and oa.digest(x['sha'], 40) and oa.positive(x['run_id']) and oa.positive(x['run_attempt']) and re.search(
-                reg._SCHEMAS['$defs']['registry_entry']['properties']['workflow_ref']['pattern'], x['workflow_ref'])):
+            and oa.digest(x['sha'], 40) and oa.positive(x['run_id']) and oa.positive(x['run_attempt'])
+            and type(x['workflow_ref']) is str and re.search(
+                schemas['$defs']['registry_entry']['properties']['workflow_ref']['pattern'], x['workflow_ref'])):
         return 'DISPATCH_REJECTED', None
     if not git.on_main(x['sha']):
         return 'SOURCE_NOT_ON_MAIN', None
@@ -693,7 +717,7 @@ def _register_check_core(genesis, entries, execution, git, pull_requests, transi
     if mi is None:
         return 'DISPATCH_REJECTED', None
     try:
-        reg.validate(genesis, entries, git, g1_freeze_sha256)
+        reg.validate(genesis, entries, git, g1_freeze_sha256, profile)
     except reg.RegistryInvalid:
         return 'REGISTRY_INVALID', None
     if reg.duplicate_keys(entries):
@@ -702,7 +726,7 @@ def _register_check_core(genesis, entries, execution, git, pull_requests, transi
     existing = [e for e in entries if reg.run_key(e) == key]
     if existing:  # idempotent retry after a lost push response
         code, mine = _register_check_core(genesis, entries[:existing[0]['sequence'] - 1], execution, git,
-                                          pull_requests, transition_bytes, g1_freeze_sha256)
+                                          pull_requests, transition_bytes, g1_freeze_sha256, profile)
         same = code == 'APPENDED' and all(mine[k] == existing[0][k] for k in mine
                                           if k not in ('sequence', 'previous_entry_sha256', 'entry_sha256'))
         return ('APPENDED', existing[0]) if same else ('REGISTRY_DUPLICATE', None)
@@ -724,18 +748,19 @@ def _register_check_core(genesis, entries, execution, git, pull_requests, transi
             return 'TRANSITION_INVALID', None
     return 'APPENDED', reg.make_entry(genesis, entries, run_id=x['run_id'], run_attempt=x['run_attempt'],
                                       measured_source_sha=x['sha'], workflow_ref=x['workflow_ref'],
-                                      measurement_identity=mi, transition=transition)
+                                      measurement_identity=mi, transition=transition,
+                                      profile=profile or reg.PRODUCTION)
 
 
-def register_check(registry_commits, execution, git, pull_requests, transition_bytes=None):
+def register_check(registry_commits, execution, git, pull_requests, transition_bytes=None, profile=reg.PRODUCTION):
     """Authoritative register decision; raw registry history is physically and logically validated inside."""
     try:
-        snapshot = reg.authoritative_registry(registry_commits, git)
+        snapshot = reg.authoritative_registry(registry_commits, git, profile)
         genesis, entries = reg.physical_objects(snapshot)
     except (reg.RegistryInvalid, TypeError):
         return 'REGISTRY_INVALID', None
     return _register_check_core(genesis, entries, execution, git, pull_requests, transition_bytes,
-                                reg.G1_FREEZE_SHA256)
+                                profile.g1_freeze_sha256, profile)
 
 
 def register_check_test(genesis, entries, execution, git, pull_requests, transition_bytes=None):
@@ -743,11 +768,11 @@ def register_check_test(genesis, entries, execution, git, pull_requests, transit
     return _register_check_core(genesis, entries, execution, git, pull_requests, transition_bytes, None)
 
 
-def _bind_check_core(genesis, entries, execution, git, register_entry_sha256, g1_freeze_sha256=None):
+def _bind_check_core(genesis, entries, execution, git, register_entry_sha256, g1_freeze_sha256=None, profile=None):
     """Pure bind decision used by the authoritative wrapper and frozen synthetic vectors."""
     x = execution
     try:
-        registry_head = reg.validate(genesis, entries, git, g1_freeze_sha256)
+        registry_head = reg.validate(genesis, entries, git, g1_freeze_sha256, profile)
     except reg.RegistryInvalid:
         return 'REGISTRY_UNBOUND', None
     mine = [e for e in entries if reg.run_key(e) == (x['run_id'], x['run_attempt'])]
@@ -768,14 +793,15 @@ def _bind_check_core(genesis, entries, execution, git, register_entry_sha256, g1
     return 'BOUND', {**binding, 'binding_sha256': ev.hc(binding)}
 
 
-def bind_check(registry_commits, execution, git, register_entry_sha256):
+def bind_check(registry_commits, execution, git, register_entry_sha256, profile=reg.PRODUCTION):
     """Authoritative bind decision; raw registry history is validated again before binding."""
     try:
-        snapshot = reg.authoritative_registry(registry_commits, git)
+        snapshot = reg.authoritative_registry(registry_commits, git, profile)
         genesis, entries = reg.physical_objects(snapshot)
     except (reg.RegistryInvalid, TypeError):
         return 'REGISTRY_UNBOUND', None
-    return _bind_check_core(genesis, entries, execution, git, register_entry_sha256, reg.G1_FREEZE_SHA256)
+    return _bind_check_core(genesis, entries, execution, git, register_entry_sha256, profile.g1_freeze_sha256,
+                            profile)
 
 
 def bind_check_test(genesis, entries, execution, git, register_entry_sha256):

@@ -624,8 +624,9 @@ def _git_show(root, sha, path):
     return out.stdout
 
 
-def git_source(head_sha, ref, root=ev.ROOT):
-    """Pilot identity exactly as run.prepare, from Git object bytes; no build/fetch/measurement.
+def git_identity(head_sha, root=ev.ROOT):
+    """Full v1 measurement identity object of commit `head_sha` exactly as run.prepare, from Git object bytes; no
+    build/fetch/measurement.
 
     Only the accepted frozen contract/codec is allowed. Missing commits, a changed
     freeze or unavailable manifests make history unresolved, never invisible.
@@ -643,12 +644,17 @@ def git_source(head_sha, ref, root=ev.ROOT):
     check(ev.sha256(candidate) == freeze['bindings']['candidate_lock_sha256'] and
           ev.sha256(corpus) == freeze['bindings']['corpus_lock_sha256'], 'source lock binding mismatch')
     manifest = {n: ev.sha256(read(f'.work/tools/{n}')) for n in ev.CODE_FILES}
-    identity = dict(contract_id=ev.CONTRACT_ID, contract_freeze_sha256=ev.sha256(freeze_data),
-                    codec_lock_sha256=ev.sha256(codec_data), **{role: {k: codec['codecs'][role][k] for k in
-                    ('codec_id', 'options_sha256')} for role in ('delta', 'standalone')},
-                    corpus_lock_sha256=ev.sha256(corpus), candidate_lock_sha256=ev.sha256(candidate),
-                    measured_source_sha=head_sha, oracle_code_sha256=ev.hc(manifest), phase='pilot',
-                    sealed_splits=['evaluation'])
+    return dict(contract_id=ev.CONTRACT_ID, contract_freeze_sha256=ev.sha256(freeze_data),
+                codec_lock_sha256=ev.sha256(codec_data), **{role: {k: codec['codecs'][role][k] for k in
+                ('codec_id', 'options_sha256')} for role in ('delta', 'standalone')},
+                corpus_lock_sha256=ev.sha256(corpus), candidate_lock_sha256=ev.sha256(candidate),
+                measured_source_sha=head_sha, oracle_code_sha256=ev.hc(manifest), phase='pilot',
+                sealed_splits=['evaluation'])
+
+
+def git_source(head_sha, ref, root=ev.ROOT):
+    """Pilot identity binding of commit `head_sha` (git_identity) for the exact workflow ref."""
+    identity = git_identity(head_sha, root)
     return dict(measurement_identity_sha256=ev.hc(identity), measured_source_sha=head_sha,
                 workflow_sha=head_sha, workflow_ref=ref)
 

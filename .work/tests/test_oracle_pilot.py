@@ -217,15 +217,18 @@ class Workflow(unittest.TestCase):
         self.assertIn('cancel-in-progress: false', text)
         self.assertIn('contents: read', text)
         self.assertIn('actions: read', text)
-        self.assertNotIn(': write', text)
+        # contract v2 12.2: the only write is the register job's contents: write (oracle_activation_v2 checks it)
+        self.assertEqual(text.count(': write'), 1)
+        self.assertLess(text.index('contents: write'), text.index('  measure:'))
         self.assertNotIn('secrets.', text)
         self.assertNotIn('github.event.inputs', text)
         self.assertNotIn('${{ inputs.source_sha }}', '\n'.join(
             l for l in text.splitlines() if not l.strip().startswith('SOURCE_SHA:')))
         for action in re.findall(r'uses: ([^\s]+)', text):
             self.assertRegex(action, r'@[0-9a-f]{40}$')
-        self.assertLess(text.index('id: dispatch_record'), text.index('uses: actions/checkout@'))
-        self.assertLess(text.index('id: attempt_record'), text.index('name: Bounded pilot'))
+        measure = text.index('  measure:')  # C0 bootstrap order inside the measuring job
+        self.assertLess(text.index('id: dispatch_record'), text.index('uses: actions/checkout@', measure))
+        self.assertLess(text.index('id: attempt_record'), text.index('name: Measurement boundary (contract v2 boundary)'))
         self.assertIn('steps.attempt_record.outputs.artifact-id', text)
         self.assertNotIn('private', text.split('path:')[-1])
 
