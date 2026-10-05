@@ -1,0 +1,9 @@
+{
+  "g1_contract": "delsk.oracle-contract.v2",
+  "g1_freeze_sha256": "d8e3c33a8eeaed7c112189b98bd8bd7f7d2a422aa8efca6733528738f2a34b57",
+  "measurement_contract": "delsk.oracle-contract.v1",
+  "measurement_freeze_sha256": "c56fc053b103cecd38446b3791db104a12b9fafabacdfc6b71f6f23c0bf7f729",
+  "registry_ref": "refs/heads/delsk/registry",
+  "repository": "definitely-stable/Shift-lab",
+  "schema": "delsk.oracle.registry-genesis.v1"
+}
