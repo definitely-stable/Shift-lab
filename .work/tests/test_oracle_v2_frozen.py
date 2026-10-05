@@ -60,6 +60,7 @@ class FrozenBytes(unittest.TestCase):
                 self.assertEqual(FROZEN[name.removeprefix('.work/')], digest, name)
         self.assertEqual(v2['measurement_layer_sha256'], FROZEN['oracle/freeze.json'])
         self.assertEqual(v2['provenance_layer_sha256'], ev.hc(v2['provenance_layer']['files']))
+        self.assertEqual(reg.G1_FREEZE_SHA256, FROZEN['oracle/freeze-v2.json'])
         self.assertEqual(v1['bindings']['corpus_lock_sha256'], ev.sha256(gzip.decompress(
             (WORK / 'corpus/pilot-v1/corpus-lock.json.gz').read_bytes())))
         for key, name in (('candidate_lock_sha256', 'corpus/e1/candidate-lock.json'),
