@@ -900,6 +900,8 @@ class BundleProjection(unittest.TestCase):
         tmp = Path(tempfile.mkdtemp(prefix='v2-bundle-'))
         self.addCleanup(shutil.rmtree, tmp, True)
         first_bundle, second = self.bundle(tmp, 'f' * 40), self.bundle(tmp, 'e' * 40)
+        self.assertEqual(ev.verify(first_bundle), [])
+        self.assertEqual(ev.verify(second), [])
         p, q = g1.bundle_projection(first_bundle), g1.bundle_projection(second)
         record = ev.attempt_record(first_bundle)
         self.assertTrue(p['bundle_verified'] and reg.valid(p, 'bundle_projection'))
