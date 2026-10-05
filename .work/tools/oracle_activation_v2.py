@@ -629,13 +629,42 @@ def _merged(get, view, entry, label):
     return (pr, []) if ok else (None, [f'{label}: pull request not merged into main by the recorded commit'])
 
 
+def _pr_files(get, number):
+    """Complete GitHub PR-files inventory, fail-closed.
+
+    GitHub caps this endpoint at 3000 files. A PR that reaches that cap cannot be used as activation evidence because
+    completeness of the reviewed-artifact binding would be unprovable.
+    """
+    out = []
+    for page in range(1, 31):
+        batch = get(f"/repos/{reg.REPOSITORY}/pulls/{number}/files?per_page=100&page={page}")
+        if type(batch) is not list or any(type(item) is not dict for item in batch):
+            raise rg.TransportError('pull request files unavailable')
+        out.extend(batch)
+        if len(batch) < 100:
+            return out
+    raise rg.TransportError('pull request files exceed verifiable provider limit')
+
+
+def _pr_changed_path(get, number, path, patch_needle=None):
+    """True only when this PR itself changed the reviewed artifact; mere presence in its merge tree is insufficient."""
+    hits = [item for item in _pr_files(get, number)
+            if item.get('filename') == path and item.get('status') in ('added', 'modified')]
+    if len(hits) != 1:
+        return False
+    return patch_needle is None or (type(hits[0].get('patch')) is str and patch_needle in hits[0]['patch'])
+
+
 def verify_genesis_review(doc, get, view):
-    """Item 6: the reviewed PR that pinned the genesis root commit is merged on main and its merge tree pins it."""
+    """Item 6: the reviewed PR itself pinned the deterministic genesis root and merged that exact binding into main."""
     pr, problems = _merged(get, view, doc['genesis_review'], 'genesis review (item 6)')
     if pr is None:
         return problems
+    root = ROOT_COMMIT['production']
+    if not _pr_changed_path(get, doc['genesis_review']['pull_request'], TOOL_FILE, root):
+        problems.append('genesis review (item 6): recorded PR did not change the reviewed genesis binding')
     tool = view.read_at(doc['genesis_review']['merge_commit_sha'], TOOL_FILE) or b''
-    if f"'production': '{ROOT_COMMIT['production']}'".encode() not in tool:
+    if f"'production': '{root}'".encode() not in tool:
         problems.append('genesis review (item 6): merge tree does not pin the genesis root commit')
     return problems
 
@@ -676,6 +705,8 @@ def _verify_review(doc, get, view):
     merged = view.read_at(review['merge_commit_sha'], INFRA_FILE)
     if merged is None or ev.sha256(merged) != doc['infra']['sha256']:
         problems.append('independent review (item 11): infra PR did not merge these infra bytes')
+    if not _pr_changed_path(get, review['pull_request'], INFRA_FILE):
+        problems.append('independent review (item 11): reviewed PR did not change the exact infra artifact')
     reviews = get(f"/repos/{reg.REPOSITORY}/pulls/{review['pull_request']}/reviews?per_page=100")
     hits = [r for r in reviews or [] if type(r) is dict and r.get('id') == review['review_id']]
     if not (len(hits) == 1 and hits[0].get('state') == 'APPROVED'
