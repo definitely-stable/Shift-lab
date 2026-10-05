@@ -567,15 +567,16 @@ def main(argv, env=os.environ):
             print(f'root_commit={commit}')
             print(f'ref={p.registry_ref}')
         elif command in ('register', 'smoke-register') and not args:
-            entry = register(profile, env, token=env.get('GITHUB_TOKEN'))
+            entry = register(profile, env, root=ev.ROOT, token=env.get('GITHUB_TOKEN'))
             _output('entry_sha256', entry['entry_sha256'], env)
             print(f"registered sequence={entry['sequence']} entry_sha256={entry['entry_sha256']}")
         elif command in ('bind', 'smoke-bind') and len(args) == 1:
-            binding = bind(profile, env, env.get('REGISTER_ENTRY_SHA256'), token=env.get('GITHUB_TOKEN'))
+            binding = bind(profile, env, env.get('REGISTER_ENTRY_SHA256'), root=ev.ROOT,
+                           token=env.get('GITHUB_TOKEN'))
             write_new(args[0], ev.canonical(binding))
             print(f"bound sequence={binding['entry_sequence']} observed_head={binding['observed_head']['sequence']}")
         elif command == 'smoke-evaluate' and len(args) == 1:
-            write_new(args[0], ev.canonical(smoke_evaluation()))
+            write_new(args[0], ev.canonical(smoke_evaluation(ev.ROOT)))
             print('smoke registry evaluated')
         elif command == 'g1' and len(args) == 2:
             record = g1._production_evaluate(args[0]) if ev.HEX64.match(args[0]) else None

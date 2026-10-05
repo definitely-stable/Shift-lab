@@ -351,9 +351,10 @@ class Bind(Base):
                          (1, self.entry['entry_sha256'], 2))
         out = self.w.tmp / 'b' / 'binding.json'
         env = {**self.w.env_of(21), 'REGISTER_ENTRY_SHA256': self.entry['entry_sha256']}
-        self.assertEqual(rg.main(['smoke-bind', str(out)], env), 0)
-        self.assertEqual(ev.parse_doc(out.read_bytes())['entry_sha256'], self.entry['entry_sha256'])
-        self.assertEqual(rg.main(['smoke-bind', str(out)], env), 1)  # never overwritten
+        with patch.object(ev, 'ROOT', self.w.root):  # the CLI reads the checkout at call time, never a default
+            self.assertEqual(rg.main(['smoke-bind', str(out)], env), 0)
+            self.assertEqual(ev.parse_doc(out.read_bytes())['entry_sha256'], self.entry['entry_sha256'])
+            self.assertEqual(rg.main(['smoke-bind', str(out)], env), 1)  # never overwritten
 
     def test_unbound_executions_stop_before_the_boundary(self):
         cases = {'rerun failed jobs: attempt without entry': dict(attempt=2),
@@ -365,7 +366,8 @@ class Bind(Base):
             with self.subTest(name):
                 self.refused('REGISTRY_UNBOUND', self.bind, **kw)
         env = {**self.w.env_of(21, 2), 'REGISTER_ENTRY_SHA256': self.entry['entry_sha256']}
-        self.assertEqual(rg.main(['smoke-bind', str(self.w.tmp / 'x.json')], env), 3)
+        with patch.object(ev, 'ROOT', self.w.root):
+            self.assertEqual(rg.main(['smoke-bind', str(self.w.tmp / 'x.json')], env), 3)
         self.assertFalse((self.w.tmp / 'x.json').exists())
 
     def test_production_bind_cannot_use_the_smoke_registry(self):
