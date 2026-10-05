@@ -551,7 +551,7 @@ class Record(unittest.TestCase):
 
 
 INFRA_EVIDENCE = {'infra.json', 'rulesets.json', 'rulesets-pre-genesis.json', 'genesis-readback.json',
-                  'registry-refs.json', 'smoke-scenarios.json', 'smoke-evaluation.json',
+                  'registry-refs.json', 'registry-activity.json', 'smoke-scenarios.json', 'smoke-evaluation.json',
                   'smoke-evaluation-before-deletion.json', 'smoke-provider-raw.json',
                   'smoke-provider-raw-before-deletion.json', 'smoke-semantics.json', 'write-surface.json',
                   'write-surface-supplementary.json'}

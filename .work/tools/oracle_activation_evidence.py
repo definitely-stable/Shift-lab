@@ -3,6 +3,7 @@
     oracle_activation_evidence.py rulesets OUT.json                    item 7: rulesets + effective rules, two equal reads
     oracle_activation_evidence.py genesis OUT.json                     item 6: remote readback of both v3 registry roots
     oracle_activation_evidence.py refs OUT.json                        registry refs: v2 preserved, v3 histories
+    oracle_activation_evidence.py activity OUT.json                    GitHub's server-side history of every registry ref
     oracle_activation_evidence.py provider-raw OUT.json RUN_ID...       raw provider responses (disclosure only)
     oracle_activation_evidence.py semantics EVAL.json RAW.json OUT.json contract-v3 1.1-1.5 on the real smoke data
     oracle_activation_evidence.py recheck                              live re-check of the committed evidence (CI)
@@ -65,6 +66,85 @@ def get(path, missing_ok=False):
 
 def short(ref):
     return ref.removeprefix('refs/heads/')
+
+
+REGISTRY_REFS = (reg.REGISTRY_REF, reg.SMOKE_REGISTRY_REF, *act.RETIRED_REGISTRY_REFS)
+ZERO = '0' * 40
+
+
+# --- item 6: provenance of the reviewed genesis binding, live -----------------------------------------------------------
+
+def pinned_view(root, main):
+    """TreeView pinned at `main`, built exactly as production builds it (oracle_registry_git.production_inputs)."""
+    def first_parent(commit):
+        out = rg.git(root, 'rev-parse', '--verify', f'{commit}^1', check=False)
+        return out.stdout.decode().strip() if out.returncode == 0 else None
+
+    def on_main(commit):
+        return type(commit) is str and ev.HEX40.match(commit) is not None and rg.git(
+            root, 'merge-base', '--is-ancestor', commit, main, check=False).returncode == 0
+    return act.TreeView(lambda path: rg.show(root, main, path), lambda commit, path: rg.show(root, commit, path),
+                        on_main, first_parent)
+
+
+def genesis_review(infra, get=rg.api_get, root=ev.ROOT, main=None):
+    """Item 6 live, as the enable path verifies it (verify_genesis_review): the recorded PR is merged into main by the
+    recorded commit and itself introduced the reviewed production-root binding. Unavailable data is a problem."""
+    try:
+        main = main or rg.fetch(root, reg.REGISTRY_REMOTE, reg.SOURCE_REF)
+        act.check(main is not None, 'main not found')
+        return act.verify_genesis_review(infra, get, pinned_view(root, main))
+    except (TypeError, KeyError, AttributeError, ev.EvalError):
+        return ['genesis review (item 6): provider or Git evidence unavailable']
+
+
+# --- server-side ref history ---------------------------------------------------------------------------------------
+
+def activity():
+    """GitHub's own record of every update of every registry ref (repository activity API, server timestamps): when
+    each ref was created and each later push."""
+    out = {'schema': 'delsk.oracle.registry-activity.v1', 'repository': reg.REPOSITORY, 'refs': {}}
+    for ref in REGISTRY_REFS:
+        items = get(f'/activity?per_page=100&direction=asc&ref={ref}')
+        act.check(type(items) is list and len(items) < 100, 'activity listing pagination')
+        out['refs'][ref] = [{'id': a['id'], 'ref': a['ref'], 'activity_type': a['activity_type'],
+                             'before': a['before'], 'after': a['after'], 'timestamp': a['timestamp'],
+                             'actor': {k: (a.get('actor') or {}).get(k) for k in ('login', 'type')}} for a in items]
+    out['collected_at'] = now()
+    return out
+
+
+def activity_problems(doc, last_ruleset_change, heads):
+    """Every registry ref was created once (from nothing to its root) and afterwards only fast-forwarded to its current
+    head: no force push, no deletion, no gap in the before/after chain. Each v3 ref was created after the last ruleset
+    change by GitHub's clock, so it was protected from its first byte; the v3 production registry holds only genesis;
+    the retired v2 refs still end at their disclosed heads."""
+    problems = []
+    roots = {reg.REGISTRY_REF: act.ROOT_COMMIT['production'], reg.SMOKE_REGISTRY_REF: act.ROOT_COMMIT['smoke'],
+             **V2_ROOTS}
+    for ref in REGISTRY_REFS:
+        items = doc['refs'].get(ref) or []
+        if not items:
+            problems.append(f'{ref}: no server-side history')
+            continue
+        first = items[0]
+        if not (first['activity_type'] == 'branch_creation' and first['before'] == ZERO
+                and first['after'] == roots[ref] and first['ref'] == ref):
+            problems.append(f'{ref}: not created from nothing at its reviewed root')
+        for previous, item in zip(items, items[1:]):
+            if not (item['activity_type'] == 'push' and item['before'] == previous['after'] and item['ref'] == ref
+                    and _when(item['timestamp']) >= _when(previous['timestamp'])):
+                problems.append(f"{ref}: update {item['id']} is not a fast-forward of the previous head")
+        if items[-1]['after'] != heads.get(ref):
+            problems.append(f'{ref}: server-side history does not end at the current head')
+        if ref in (reg.REGISTRY_REF, reg.SMOKE_REGISTRY_REF) and _when(first['timestamp']) <= last_ruleset_change:
+            problems.append(f'{ref}: created before the last ruleset change')
+    if len(doc['refs'].get(reg.REGISTRY_REF) or []) != 1:
+        problems.append(f'{reg.REGISTRY_REF}: production registry updated after genesis')
+    for ref, head in V2_HEADS.items():
+        if heads.get(ref) != head:
+            problems.append(f'{ref}: retired v2 registry moved')
+    return problems
 
 
 # --- item 7 ----------------------------------------------------------------------------------------------------------
@@ -456,7 +536,21 @@ def recheck():
     sem = semantics(ev.parse_doc((EVIDENCE / 'smoke-evaluation.json').read_bytes()),
                     ev.parse_doc((EVIDENCE / 'smoke-provider-raw.json').read_bytes()))
     problems += [f'semantics: {name}' for name, ok in sem['checks'].items() if not ok]
+    problems += [f'live: {p}' for p in genesis_review(infra)]
+    heads = {ref: value['head'] for ref, value in live_refs['refs'].items()}
+    history = activity()
+    problems += [f'activity live: {p}' for p in activity_problems(history, last_change(committed), heads)]
+    if history['refs'] != ev.parse_doc((EVIDENCE / 'registry-activity.json').read_bytes())['refs']:
+        problems.append('server-side registry history changed since the evidence was collected')
     return problems
+
+
+def last_change(rulesets_doc):
+    return max(_when(r['updated_at']) for r in rulesets_doc['rulesets'])
+
+
+def live_heads():
+    return {ref: rg.ls_remote(ev.ROOT, reg.REGISTRY_REMOTE, ref) for ref in REGISTRY_REFS}
 
 
 def main(argv):
@@ -469,6 +563,10 @@ def main(argv):
         return 0 if not problems else 1
     if command in ('rulesets', 'genesis', 'refs') and len(args) == 1:
         doc = {'rulesets': rulesets, 'genesis': genesis, 'refs': refs}[command]()
+    elif command == 'activity' and len(args) == 1:
+        doc = activity()
+        doc['problems'] = activity_problems(doc, last_change(ev.parse_doc((EVIDENCE / 'rulesets.json').read_bytes())),
+                                            live_heads())
     elif command == 'provider-raw' and len(args) >= 2 and all(a.isdigit() for a in args[1:]):
         doc = provider_raw([int(a) for a in args[1:]])
     elif command == 'semantics' and len(args) == 3:
