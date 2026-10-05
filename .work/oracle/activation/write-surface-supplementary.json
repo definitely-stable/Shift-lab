@@ -1,0 +1,80 @@
+{
+  "collected_at": "2026-10-05T16:07:30Z",
+  "credential": "session credential with repository admin permission; ruleset current_user_can_bypass = never",
+  "normative": false,
+  "preflight_effective_rules": [
+    "deletion",
+    "non_fast_forward"
+  ],
+  "ref": "refs/heads/delsk/registry-v3",
+  "repository": "definitely-stable/Shift-lab",
+  "results": [
+    {
+      "operation": "force-push orphan commit 5752041beb0793f827b452f35e2a69d1b22ef6a9",
+      "outcome": "SERVER_REJECTED",
+      "ref_after": "1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258",
+      "ref_before": "1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258",
+      "server_message": "GH013 Repository rule violations: Cannot force-push to this branch"
+    },
+    {
+      "operation": "force-with-lease push of the same orphan",
+      "outcome": "SERVER_REJECTED",
+      "ref_after": "1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258",
+      "ref_before": "1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258",
+      "server_message": "GH013 Repository rule violations: Cannot force-push to this branch"
+    },
+    {
+      "note": "HTTP 403 before GitHub answered (session egress proxy); not counted as server evidence",
+      "operation": "git push --delete",
+      "outcome": "INCONCLUSIVE",
+      "ref_after": "1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258",
+      "ref_before": "1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258",
+      "server_message": null
+    },
+    {
+      "note": "refused by the session egress proxy (write access to this API path not permitted); not counted",
+      "operation": "REST DELETE /git/refs/heads/delsk/registry-v3 and PATCH force=true",
+      "outcome": "INCONCLUSIVE",
+      "ref_after": "1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258",
+      "ref_before": "1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258",
+      "server_message": null
+    }
+  ],
+  "schema": "delsk.oracle.write-surface-supplementary.v1",
+  "transcript": [
+    "### force-orphan rc=1 before=1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258 after=1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258",
+    "remote: error: GH013: Repository rule violations found for refs/heads/delsk/registry-v3.        ",
+    "remote: Review all repository rules at https://github.com/definitely-stable/Shift-lab/rules?ref=refs%2Fheads%2Fdelsk%2Fregistry-v3        ",
+    "remote: ",
+    "remote: - Cannot force-push to this branch        ",
+    "remote: ",
+    "error: failed to push some refs to 'https://github.com/definitely-stable/Shift-lab'",
+    "To https://github.com/definitely-stable/Shift-lab",
+    "!\t5752041beb0793f827b452f35e2a69d1b22ef6a9:refs/heads/delsk/registry-v3\t[remote rejected] (push declined due to repository rule violations)",
+    "Done",
+    "### force-with-lease-orphan rc=1 before=1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258 after=1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258",
+    "remote: error: GH013: Repository rule violations found for refs/heads/delsk/registry-v3.        ",
+    "remote: Review all repository rules at https://github.com/definitely-stable/Shift-lab/rules?ref=refs%2Fheads%2Fdelsk%2Fregistry-v3        ",
+    "remote: ",
+    "remote: - Cannot force-push to this branch        ",
+    "remote: ",
+    "error: failed to push some refs to 'https://github.com/definitely-stable/Shift-lab'",
+    "To https://github.com/definitely-stable/Shift-lab",
+    "!\t5752041beb0793f827b452f35e2a69d1b22ef6a9:refs/heads/delsk/registry-v3\t[remote rejected] (push declined due to repository rule violations)",
+    "Done",
+    "### delete rc=1 before=1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258 after=1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258",
+    "fatal: --negotiate-only needs one or more --negotiation-tip=*",
+    "error: RPC failed; HTTP 403 curl 22 The requested URL returned error: 403",
+    "send-pack: unexpected disconnect while reading sideband packet",
+    "fatal: the remote end hung up unexpectedly",
+    "Done",
+    "### api-delete-ref before=1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258",
+    "{\"message\":\"Write access to this GitHub API path is not permitted through this proxy.\",\"documentation_url\":\"https://docs.anthropic.com/en/docs/claude-code/github-actions\"}",
+    "HTTP 403",
+    "after=1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258",
+    "### api-force-update-ref (PATCH force=true to probe orphan, object not on remote)",
+    "{\"message\":\"Write access to this GitHub API path is not permitted through this proxy.\",\"documentation_url\":\"https://docs.anthropic.com/en/docs/claude-code/github-actions\"}",
+    "HTTP 403",
+    "after=1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258"
+  ]
+}

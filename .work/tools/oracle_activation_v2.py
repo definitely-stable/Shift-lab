@@ -9,7 +9,7 @@
 
 Activation takes two records (see "activation records" below): the infra record fixes the bind/boundary/KAT step
 names and the closed provider-step set (contract-v3 1.1) and binds the evidence of items 6-10; the enable record
-(ACTIVATION_FILE) binds the infra record, its independent review and the maintainer decision. It takes effect only
+(ACTIVATION_FILE) binds the infra record, the merged infra PR and the maintainer decision. It takes effect only
 when the enable PR also sets oracle_g1_v2.ACTIVATION_RECORD to the SHA-256 of its exact bytes; production re-verifies both in the pinned main tree,
 and items 6, 11 and 12 live, on every evaluation (activation_in_tree). Before that, production G1 is NOT_PASSED
 V3_NOT_ACTIVE without reads and the production `register` refuses. Nothing here creates the registry branch,
@@ -31,7 +31,7 @@ import oracle_registry_v2 as reg
 
 ACTIVATION_FILE = '.work/oracle/activation-v3.json'
 EVIDENCE_DIR = '.work/oracle/activation/'
-SCHEMA = 'delsk.oracle.v3-activation.v1'
+SCHEMA = 'delsk.oracle.v3-activation.v2'
 RULESETS_SCHEMA = 'delsk.oracle.rulesets-evidence.v1'
 SMOKE_EVALUATION_SCHEMA = 'delsk.oracle.registry-smoke-evaluation.v1'
 SCENARIOS_SCHEMA = 'delsk.oracle.registry-smoke-scenarios.v1'
@@ -607,11 +607,14 @@ def verify_write_surface(doc):
 # Two records, in this order, so that every item is evidence that exists before the step that relies on it:
 #   1. infra record (INFRA_FILE, items 6-10): step names, registry genesis, the reviewed genesis PR and the retained
 #      evidence of items 7-10, merged into main by an "infra PR";
-#   2. after an independent approving review of that infra PR (item 11) and a maintainer decision comment on issue
-#      DELSK-003A naming the infra record digest (item 12), an "enable PR" adds ACTIVATION_FILE, which binds the infra
-#      record, the infra PR review and the decision comment, and sets oracle_g1_v2.ACTIVATION_RECORD to its SHA-256.
+#   2. after that infra PR is merged (item 11) and a maintainer decision comment on issue DELSK-003A names the infra
+#      record digest (item 12), an "enable PR" adds ACTIVATION_FILE, which binds the infra record, the merged infra PR
+#      and the decision comment, and sets oracle_g1_v2.ACTIVATION_RECORD to its SHA-256.
+# Item 11, maintainer decision of 2026-10-05: the project has one developer, so no approving GitHub review by another
+# person is required (record schema v2 drops review_id). The provenance of the infra PR stays mandatory: it is merged
+# into main by exactly the recorded commit and itself introduced exactly these infra bytes.
 # Items 6, 11 and 12 are verified live against the constant provider API on every production evaluation; anything that
-# cannot be confirmed (edited comment, dismissed review, unmerged PR, other merge commit) keeps v3 not active.
+# cannot be confirmed (edited comment, unmerged PR, other merge commit, other infra bytes) keeps v3 not active.
 
 INFRA_FILE = EVIDENCE_DIR + 'infra.json'
 INFRA_SCHEMA = 'delsk.oracle.v3-activation-infra.v1'
@@ -747,7 +750,7 @@ def verify_genesis_review(doc, get, view):
 
 def validate_activation(doc, view, get):
     """All problems of the enable record (ACTIVATION_FILE): the infra record it binds, then items 6, 11 and 12 live."""
-    keys = {'schema', 'g1_contract', 'g1_freeze_sha256', 'infra', 'infra_review', 'decision'}
+    keys = {'schema', 'g1_contract', 'g1_freeze_sha256', 'infra', 'infra_pr', 'decision'}
     if not (type(doc) is dict and set(doc) == keys and doc['schema'] == SCHEMA
             and doc['g1_contract'] == reg.G1_CONTRACT and doc['g1_freeze_sha256'] == reg.G1_FREEZE_SHA256
             and type(doc['infra']) is dict and doc['infra'].get('path') == INFRA_FILE):
@@ -769,27 +772,19 @@ def validate_activation(doc, view, get):
 
 
 def _verify_review(doc, get, view):
-    """Item 11: the infra PR carried exactly these infra bytes and was approved on its head by someone else."""
-    review = doc['infra_review']
-    if not (type(review) is dict and set(review) == {'pull_request', 'merge_commit_sha', 'review_id'}
-            and _pull({k: review[k] for k in ('pull_request', 'merge_commit_sha')})
-            and oa.positive(review['review_id'])):
-        return ['independent review (item 11): record']
-    pr, problems = _merged(get, view, review, 'independent review (item 11)')
+    """Item 11 (one developer, see above): the infra PR is merged into main by the recorded commit and itself
+    introduced exactly these infra bytes. No approving GitHub review by a second person is required."""
+    merge = doc['infra_pr']
+    if not _pull(merge):
+        return ['infra PR (item 11): record']
+    pr, problems = _merged(get, view, merge, 'infra PR (item 11)')
     if pr is None:
         return problems
-    merged = view.read_at(review['merge_commit_sha'], INFRA_FILE)
+    merged = view.read_at(merge['merge_commit_sha'], INFRA_FILE)
     if merged is None or ev.sha256(merged) != doc['infra']['sha256']:
-        problems.append('independent review (item 11): infra PR did not merge these infra bytes')
+        problems.append('infra PR (item 11): infra PR did not merge these infra bytes')
     if not _introduced(get, view, pr, INFRA_FILE, expected_sha256=doc['infra']['sha256']):
-        problems.append('independent review (item 11): reviewed PR did not introduce the exact infra artifact')
-    reviews = get(f"/repos/{reg.REPOSITORY}/pulls/{review['pull_request']}/reviews?per_page=100")
-    hits = [r for r in reviews or [] if type(r) is dict and r.get('id') == review['review_id']]
-    if not (len(hits) == 1 and hits[0].get('state') == 'APPROVED'
-            and hits[0].get('commit_id') == pr['head']['sha'] and (hits[0].get('user') or {}).get('type') == 'User'
-            and (hits[0].get('user') or {}).get('login') not in (None, pr['user']['login'])):
-        problems.append('independent review (item 11): no approving review by someone other than the author on the '
-                        'merged head')
+        problems.append('infra PR (item 11): merged PR did not introduce the exact infra artifact')
     return problems
 
 
@@ -802,7 +797,7 @@ def _verify_decision(doc, get, view):
             and type(decision['body_sha256']) is str and ev.HEX64.match(decision['body_sha256'])):
         return ['maintainer decision (item 12): record']
     comment = get(f"/repos/{reg.REPOSITORY}/issues/comments/{decision['comment_id']}")
-    pr = get(f"/repos/{reg.REPOSITORY}/pulls/{doc['infra_review']['pull_request']}")
+    pr = get(f"/repos/{reg.REPOSITORY}/pulls/{doc['infra_pr']['pull_request']}")
     try:
         body = comment['body']
         ok = (comment['issue_url'] == f'{reg.PROVIDER_API}/repos/{reg.REPOSITORY}/issues/{DECISION_ISSUE}'

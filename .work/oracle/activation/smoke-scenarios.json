@@ -1,0 +1,49 @@
+{
+  "registry_ref": "refs/heads/delsk/registry-v3-smoke",
+  "runs": [
+    {
+      "html_url": "https://github.com/definitely-stable/Shift-lab/actions/runs/37335976976",
+      "run_attempt": 1,
+      "run_id": 37335976976,
+      "scenario": "stop-before-boundary"
+    },
+    {
+      "html_url": "https://github.com/definitely-stable/Shift-lab/actions/runs/37335976976",
+      "run_attempt": 2,
+      "run_id": 37335976976,
+      "scenario": "rerun-all"
+    },
+    {
+      "html_url": "https://github.com/definitely-stable/Shift-lab/actions/runs/37335976976",
+      "run_attempt": 3,
+      "run_id": 37335976976,
+      "scenario": "rerun-failed"
+    },
+    {
+      "html_url": "https://github.com/definitely-stable/Shift-lab/actions/runs/37336944596",
+      "run_attempt": 1,
+      "run_id": 37336944596,
+      "scenario": "cross-boundary"
+    },
+    {
+      "html_url": "https://github.com/definitely-stable/Shift-lab/actions/runs/37337045813",
+      "run_attempt": 1,
+      "run_id": 37337045813,
+      "scenario": "cancel-before-register"
+    },
+    {
+      "html_url": "https://github.com/definitely-stable/Shift-lab/actions/runs/37337378535",
+      "run_attempt": 1,
+      "run_id": 37337378535,
+      "scenario": "cancel-after-register"
+    },
+    {
+      "html_url": "https://github.com/definitely-stable/Shift-lab/actions/runs/37337654750",
+      "run_attempt": 1,
+      "run_id": 37337654750,
+      "scenario": "deleted-run"
+    }
+  ],
+  "schema": "delsk.oracle.registry-smoke-scenarios.v1",
+  "workflow": ".github/workflows/oracle-registry-smoke.yml"
+}

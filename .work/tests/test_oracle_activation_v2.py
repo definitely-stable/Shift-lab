@@ -7,6 +7,7 @@
    that the repository itself carries no activation record, no genesis and no activation evidence.
 """
 import copy
+import datetime
 from pathlib import Path
 import sys
 import tempfile
@@ -368,7 +369,7 @@ class FakeGitHub:
         return copy.deepcopy(self.docs.get(path))
 
 
-AUTHOR, REVIEWER = 'author-login', 'reviewer-login'
+AUTHOR = 'author-login'
 GENESIS_PR, INFRA_PR = 31, 40
 GENESIS_MERGE, INFRA_MERGE, INFRA_HEAD = 'a' * 40, 'b' * 40, 'c' * 40
 GENESIS_PARENT, INFRA_PARENT = '1' * 40, '2' * 40
@@ -408,7 +409,7 @@ class Record(unittest.TestCase):
         body = f'Independent review done.\n{act.DECISION_PHRASE.format(infra_sha)}\n'
         self.record = {'schema': act.SCHEMA, 'g1_contract': reg.G1_CONTRACT, 'g1_freeze_sha256': reg.G1_FREEZE_SHA256,
                        'infra': {'path': act.INFRA_FILE, 'sha256': infra_sha},
-                       'infra_review': {'pull_request': INFRA_PR, 'merge_commit_sha': INFRA_MERGE, 'review_id': 501},
+                       'infra_pr': {'pull_request': INFRA_PR, 'merge_commit_sha': INFRA_MERGE},
                        'decision': {'issue': act.DECISION_ISSUE, 'comment_id': 9001,
                                     'body_sha256': ev.sha256(body.encode())}}
         tool_bytes = (ROOT / act.TOOL_FILE).read_bytes()
@@ -430,9 +431,6 @@ class Record(unittest.TestCase):
         self.gh.docs[f'{api}/pulls/{INFRA_PR}/files?per_page=100&page=1'] = [
             {'filename': act.INFRA_FILE, 'status': 'added', 'sha': act._git_blob_sha(self.files[act.INFRA_FILE]),
              'patch': '+infra record'}]
-        self.gh.docs[f'{api}/pulls/{INFRA_PR}/reviews?per_page=100'] = [
-            {'id': 500, 'state': 'COMMENTED', 'commit_id': INFRA_HEAD, 'user': {'login': AUTHOR, 'type': 'User'}},
-            {'id': 501, 'state': 'APPROVED', 'commit_id': INFRA_HEAD, 'user': {'login': REVIEWER, 'type': 'User'}}]
         self.gh.docs[f'{api}/issues/comments/9001'] = {
             'id': 9001, 'issue_url': f'{reg.PROVIDER_API}{api}/issues/{act.DECISION_ISSUE}', 'body': body,
             'author_association': 'OWNER', 'user': {'login': AUTHOR, 'type': 'User'},
@@ -451,6 +449,13 @@ class Record(unittest.TestCase):
         self.assertIsNone(act.activation_in_tree(self.view(), self.gh, '0' * 64))
         self.assertIsNone(act.activation_in_tree(self.view(), self.gh, None))
 
+    def test_one_developer_merge_is_item_11(self):
+        # the PR author also merges and decides; no approving review exists or is read
+        self.assertEqual(self.gh.docs[f'/repos/{REPO}/pulls/{INFRA_PR}']['user']['login'], AUTHOR)
+        self.assertEqual(self.gh.docs[f'/repos/{REPO}/issues/comments/9001']['user']['login'], AUTHOR)
+        self.assertNotIn(f'/repos/{REPO}/pulls/{INFRA_PR}/reviews?per_page=100', self.gh.docs)
+        self.assertEqual(act.validate_activation(self.record, self.view(), self.gh), [])
+
     def test_infra_diff_on_a_later_files_page(self):
         api = f'/repos/{REPO}/pulls/{INFRA_PR}/files?per_page=100&page='
         real = self.gh.docs[f'{api}1']
@@ -461,7 +466,7 @@ class Record(unittest.TestCase):
 
     def test_any_gap_keeps_v3_inactive(self):
         api = f'/repos/{REPO}'
-        comment, reviews = f'{api}/issues/comments/9001', f'{api}/pulls/{INFRA_PR}/reviews?per_page=100'
+        comment = f'{api}/issues/comments/9001'
         def doc(path):
             return self.gh.docs[path]
         cases = {  # (record edit, tree edit, provider edit)
@@ -492,10 +497,9 @@ class Record(unittest.TestCase):
                     [{'filename': act.TOOL_FILE, 'status': 'modified', 'sha': '9' * 40,
                       'patch': f"+reviewed genesis root {act.ROOT_COMMIT['production']}"}]}),
             # item 11
-            'self approval only': lambda r, f, g: doc(reviews)[1]['user'].update(login=AUTHOR),
-            'dismissed approval': lambda r, f, g: doc(reviews)[1].update(state='DISMISSED'),
-            'approval of an older head': lambda r, f, g: doc(reviews)[1].update(commit_id='f' * 40),
-            'review id of the comment-only review': lambda r, f, g: r['infra_review'].update(review_id=500),
+            'infra PR not merged': lambda r, f, g: doc(f'{api}/pulls/{INFRA_PR}').update(merged=False),
+            'infra PR other merge commit': lambda r, f, g: r['infra_pr'].update(merge_commit_sha='e' * 40),
+            'infra PR record with an extra field': lambda r, f, g: r['infra_pr'].update(review_id=501),
             'infra PR merged other bytes': lambda r, f, g: self.at.update({(INFRA_MERGE, act.INFRA_FILE): b'{}'}),
             'late unrelated approved PR cannot claim infra review': lambda r, f, g: (
                 self.at.update({(INFRA_PARENT, act.INFRA_FILE): self.files[act.INFRA_FILE]}),
@@ -513,7 +517,6 @@ class Record(unittest.TestCase):
             'infra diff hidden behind a full first page': lambda r, f, g: g.docs.update(
                 {f'{api}/pulls/{INFRA_PR}/files?per_page=100&page=1':
                     [{'filename': f'docs/{n}.md', 'status': 'added', 'sha': '9' * 40} for n in range(100)]}),
-            'bot approval': lambda r, f, g: doc(reviews)[1]['user'].update(type='Bot'),
             # item 12
             'decision edited': lambda r, f, g: doc(comment).update(body=doc(comment)['body'] + 'edit'),
             'decision for another infra record': lambda r, f, g: self.redecide(r, act.DECISION_PHRASE.format('0' * 64)),
@@ -547,13 +550,47 @@ class Record(unittest.TestCase):
         record['decision']['body_sha256'] = ev.sha256(body.encode())
 
 
+INFRA_EVIDENCE = {'infra.json', 'rulesets.json', 'rulesets-pre-genesis.json', 'genesis-readback.json',
+                  'registry-refs.json', 'registry-activity.json', 'smoke-scenarios.json', 'smoke-evaluation.json',
+                  'smoke-evaluation-before-deletion.json', 'smoke-provider-raw.json',
+                  'smoke-provider-raw-before-deletion.json', 'smoke-semantics.json', 'write-surface.json',
+                  'write-surface-supplementary.json'}
+
+
 class NotActivatedHere(unittest.TestCase):
+    """The infra record (items 6-10) may be present; the enable record and ACTIVATION_RECORD may not (items 11-12 are
+    a separate review and maintainer decision)."""
+
     def test_repository_carries_no_activation(self):
         self.assertIsNone(g1.ACTIVATION_RECORD)
         self.assertFalse((ROOT / act.ACTIVATION_FILE).exists())
-        self.assertFalse((ROOT / act.EVIDENCE_DIR).exists())
         self.assertFalse(list((ROOT / '.work').rglob('genesis.json')))
         self.assertFalse(list((ROOT / '.work').rglob('entries.jsonl')))
+
+    def test_infra_record_verifies_against_the_tree(self):
+        evidence = ROOT / act.EVIDENCE_DIR
+        if not evidence.exists():
+            self.skipTest('no infra record in this tree')
+        self.assertEqual({p.name for p in evidence.iterdir()}, INFRA_EVIDENCE)
+        self.assertTrue(all(p.is_file() and not p.is_symlink() for p in evidence.iterdir()))
+        infra = ev.parse_doc((ROOT / act.INFRA_FILE).read_bytes())
+        self.assertEqual(act.validate_infra(infra, act.local_view()), [])
+        self.assertEqual(infra['registry']['root_commit'], act.ROOT_COMMIT['production'])
+        self.assertEqual(infra['g1_freeze_sha256'], ev.sha256((ROOT / '.work/oracle/freeze-v3.json').read_bytes()))
+        docs = {name: ev.parse_doc((evidence / name).read_bytes()) for name in INFRA_EVIDENCE}
+        self.assertEqual(docs['genesis-readback.json']['problems'], [])
+        self.assertEqual(docs['registry-refs.json']['problems'], [])
+        self.assertEqual(docs['registry-refs.json']['production_registry_entries'], 0)
+        self.assertTrue(all(docs['smoke-semantics.json']['checks'].values()))
+        self.assertEqual(act.verify_rulesets(docs['rulesets-pre-genesis.json']), [])
+        # evidence of items 7-10 was collected after the last ruleset change it relies on
+        def when(value):
+            parsed = datetime.datetime.fromisoformat(value.replace('Z', '+00:00'))
+            self.assertIsNotNone(parsed.utcoffset())
+            return parsed
+        last_change = max(when(r['updated_at']) for r in docs['rulesets.json']['rulesets'])
+        for name in ('rulesets.json', 'rulesets-pre-genesis.json', 'write-surface.json'):
+            self.assertGreater(when(docs[name]['collected_at']), last_change)
 
 
 if __name__ == '__main__':

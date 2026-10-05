@@ -39,13 +39,15 @@ SHA-256 `freeze-v3.json` = `39dede91e9ed6e12d298f5bd72f9d94fda9e0ac5c92f7a478815
 
 ## Activation v3: шаги maintainer (по порядку, после review/merge этого PR)
 
+Выполнение шагов 1–4 и infra record (п. 6–10) — [activation-v3-log.md](activation-v3-log.md); v3 по-прежнему NOT_ACTIVE.
+
 Процедура та же, что в [slice-c1b.md](slice-c1b.md), на refs v3:
 
 1. **Rulesets (п. 7).** В ruleset `DELSK registry append-only` (id 24498603) **добавить** targets `delsk/registry-v3` и `delsk/registry-v3-smoke`. В UI вводить без `refs/heads/`, только ASCII. Существующие `delsk/registry` и `delsk/registry-smoke` не удалять: retired refs v2 обязаны оставаться под защитой. Ruleset `main` — без изменений. Evidence собирать `GET /rulesets/{id}` и `GET /rules/branches/{branch}` для `main`, `delsk/registry-v3`, `delsk/registry-v3-smoke`, `delsk/registry`, `delsk/registry-smoke`, затем `oracle_activation_v2.py verify-rulesets`.
 2. **Genesis v3.** `oracle_registry_git.py genesis production DIR` и `genesis smoke DIR` на merged `main`; root commits обязаны совпасть с таблицей выше; push `<root>:refs/heads/delsk/registry-v3` и `<root>:refs/heads/delsk/registry-v3-smoke` без force.
 3. **Smoke (п. 8–9)** на merged `main`, `oracle-registry-smoke.yml`: `stop-before-boundary` (run A) → «Re-run all jobs» A → «Re-run failed jobs» A; `cross-boundary`; `cancel-before-register` (cancel во время hold в `register`); `cancel-after-register` (cancel во время hold в `measure`); ещё один `stop-before-boundary` и удаление этого run. Каждый dispatch — только после завершения предыдущего: concurrency group вытесняет pending run. Затем manifest, `smoke-evaluate`, `verify-smoke`. Лишние dispatch'и дают постоянные лишние entries в smoke registry.
 4. **Write surface (п. 10)**: dispatch `oracle-registry-write-surface.yml` (проба идёт на `refs/heads/delsk/registry-v3`).
-5. **Infra PR, review, decision, enable PR (п. 6, 11, 12)** — как в slice-c1b.md, шаги 5–8: схемы `delsk.oracle.v3-activation-infra.v1` / `delsk.oracle.v3-activation.v1`, файл `.work/oracle/activation-v3.json`. `genesis_review` — этот PR: он вводит production root v3 в `oracle_activation_v2.py`.
+5. **Infra PR, review, decision, enable PR (п. 6, 11, 12)** — как в slice-c1b.md, шаги 5–8: схемы `delsk.oracle.v3-activation-infra.v1` / `delsk.oracle.v3-activation.v2`, файл `.work/oracle/activation-v3.json`. П. 11: в проекте один разработчик, approve другого пользователя не требуется (решение maintainer 2026-10-05), достаточно merge infra PR; см. [activation-v3-log.md](activation-v3-log.md). `genesis_review` — этот PR: он вводит production root v3 в `oracle_activation_v2.py`.
 6. Замена C0 guard `DISPATCH_HISTORY_UNVERIFIED` — отдельный reviewed change после activation.
 
 ## Проверка

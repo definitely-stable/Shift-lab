@@ -1,0 +1,70 @@
+{
+  "checks": {
+    "A never-ran rule accepts it": true,
+    "A normalized measure: started, runner_assigned=false": true,
+    "A raw measure: cancelled, steps=[], runner_id and runner_name reported and null": true,
+    "A the same job with a runner is not never-ran (PM18 shape)": true,
+    "B GitHub created no Post step for upload-artifact": true,
+    "B observed Post/Complete step names equal the closed provider set": true,
+    "B smoke set == pilot set == {Complete job, Post Read-only source checkout}": true,
+    "C every entry source carries the exact witnessed workflow bytes": true,
+    "C unwitnessed source: every entry MISSING": true,
+    "C unwitnessed source: the rerun-failed attempt is no longer PRE-proven (unbound)": true,
+    "D rerun-all: new registered attempt classified PRE": true,
+    "D rerun-failed attempt is PRE-proven against every entry of its run": true,
+    "D rerun-failed: no entry and not unbound": true,
+    "D/PM14 the v2 rule would make stop-before-boundary, rerun-all and cancel-after-register MISSING": true,
+    "E cross-boundary is not PRE even if every other step were a provider step": true,
+    "E cross-boundary: boundary started, MISSING": true,
+    "F deleted run: run=null and MISSING": true,
+    "F dropping any single observation never improves a class": true,
+    "F no provider observations: every entry MISSING": true
+  },
+  "classes": {
+    "37335976976-1": "PRE",
+    "37335976976-2": "PRE",
+    "37336944596-1": "MISSING",
+    "37337378535-1": "PRE",
+    "37337654750-1": "MISSING"
+  },
+  "collected_at": "2026-10-05T16:12:20Z",
+  "counterfactual_no_observations": {
+    "37335976976-1": "MISSING",
+    "37335976976-2": "MISSING",
+    "37336944596-1": "MISSING",
+    "37337378535-1": "MISSING",
+    "37337654750-1": "MISSING"
+  },
+  "counterfactual_pm14_v2_rule": {
+    "37335976976-1": "MISSING",
+    "37335976976-2": "MISSING",
+    "37336944596-1": "MISSING",
+    "37337378535-1": "MISSING",
+    "37337654750-1": "MISSING"
+  },
+  "counterfactual_unwitnessed": {
+    "classes": {
+      "37335976976-1": "MISSING",
+      "37335976976-2": "MISSING",
+      "37336944596-1": "MISSING",
+      "37337378535-1": "MISSING",
+      "37337654750-1": "MISSING"
+    },
+    "unbound": [
+      "37335976976-3"
+    ]
+  },
+  "main_head_sha": "13c7d74ede7e2fd41bade001ec0e88926882459c",
+  "provider_like_step_names_observed": [
+    "Complete job",
+    "Post Read-only source checkout",
+    "Set up job"
+  ],
+  "schema": "delsk.oracle.v3-smoke-semantics.v1",
+  "smoke_registry_head": "479cc9d90ba88329cd5cc2bf2e7786b05a86ffc6",
+  "smoke_workflow_sha256": "de448381b189fe3df2b77ba5bb69f8fd0b91f87d9c13ae628138cbeea156d9f9",
+  "unbound": [],
+  "witnessed_sources": [
+    "13c7d74ede7e2fd41bade001ec0e88926882459c"
+  ]
+}

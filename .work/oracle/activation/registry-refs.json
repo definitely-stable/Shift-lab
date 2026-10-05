@@ -1,0 +1,135 @@
+{
+  "collected_at": "2026-10-05T16:12:12Z",
+  "main": "13c7d74ede7e2fd41bade001ec0e88926882459c",
+  "problems": [],
+  "production_registry_entries": 0,
+  "refs": {
+    "refs/heads/delsk/registry": {
+      "commits": [
+        {
+          "commit": "6cf2c6a7c35cee005f894366c97fca00230a5670",
+          "entry_lines": 0,
+          "parents": [],
+          "subject": "delsk registry genesis (production)"
+        }
+      ],
+      "head": "6cf2c6a7c35cee005f894366c97fca00230a5670",
+      "linear": true,
+      "one_entry_per_commit": true
+    },
+    "refs/heads/delsk/registry-smoke": {
+      "commits": [
+        {
+          "commit": "a429d34d67959e49af8f79da024ce6eed34cbc13",
+          "entry_lines": 0,
+          "parents": [],
+          "subject": "delsk registry genesis (smoke)"
+        },
+        {
+          "commit": "8a45a9e7165ac819259ad835372c9c7dacaf10c7",
+          "entry_lines": 1,
+          "parents": [
+            "a429d34d67959e49af8f79da024ce6eed34cbc13"
+          ],
+          "subject": "registry: entry 1 run 37306997371-1"
+        },
+        {
+          "commit": "4746f38075b92073e53ccab1fe274f8cdecfa5ce",
+          "entry_lines": 2,
+          "parents": [
+            "8a45a9e7165ac819259ad835372c9c7dacaf10c7"
+          ],
+          "subject": "registry: entry 2 run 37306997371-2"
+        },
+        {
+          "commit": "ee9accfde009a87268d78ac0ad5d305c50491747",
+          "entry_lines": 3,
+          "parents": [
+            "4746f38075b92073e53ccab1fe274f8cdecfa5ce"
+          ],
+          "subject": "registry: entry 3 run 37307218114-1"
+        },
+        {
+          "commit": "d3ec84c7fd17ad613dc1e51463532b139e0ae864",
+          "entry_lines": 4,
+          "parents": [
+            "ee9accfde009a87268d78ac0ad5d305c50491747"
+          ],
+          "subject": "registry: entry 4 run 37308739475-1"
+        }
+      ],
+      "head": "d3ec84c7fd17ad613dc1e51463532b139e0ae864",
+      "linear": true,
+      "one_entry_per_commit": true
+    },
+    "refs/heads/delsk/registry-v3": {
+      "commits": [
+        {
+          "commit": "1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258",
+          "entry_lines": 0,
+          "parents": [],
+          "subject": "delsk registry genesis (production)"
+        }
+      ],
+      "head": "1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258",
+      "linear": true,
+      "one_entry_per_commit": true
+    },
+    "refs/heads/delsk/registry-v3-smoke": {
+      "authoritative": true,
+      "commits": [
+        {
+          "commit": "62f79c1ceeb4f61615039104532e8dee251efaa3",
+          "entry_lines": 0,
+          "parents": [],
+          "subject": "delsk registry genesis (smoke)"
+        },
+        {
+          "commit": "e1a6b1343f9b98d89333cb763a65024049fff9c8",
+          "entry_lines": 1,
+          "parents": [
+            "62f79c1ceeb4f61615039104532e8dee251efaa3"
+          ],
+          "subject": "registry: entry 1 run 37335976976-1"
+        },
+        {
+          "commit": "98d3db61d91dc7d9e3f2c5901d5b42bbb5725fd8",
+          "entry_lines": 2,
+          "parents": [
+            "e1a6b1343f9b98d89333cb763a65024049fff9c8"
+          ],
+          "subject": "registry: entry 2 run 37335976976-2"
+        },
+        {
+          "commit": "e7ea6af784c89dbf061cad03ce211d854e420756",
+          "entry_lines": 3,
+          "parents": [
+            "98d3db61d91dc7d9e3f2c5901d5b42bbb5725fd8"
+          ],
+          "subject": "registry: entry 3 run 37336944596-1"
+        },
+        {
+          "commit": "8d63db0716283112c714d6159604929e2c4a7da0",
+          "entry_lines": 4,
+          "parents": [
+            "e7ea6af784c89dbf061cad03ce211d854e420756"
+          ],
+          "subject": "registry: entry 4 run 37337378535-1"
+        },
+        {
+          "commit": "479cc9d90ba88329cd5cc2bf2e7786b05a86ffc6",
+          "entry_lines": 5,
+          "parents": [
+            "8d63db0716283112c714d6159604929e2c4a7da0"
+          ],
+          "subject": "registry: entry 5 run 37337654750-1"
+        }
+      ],
+      "head": "479cc9d90ba88329cd5cc2bf2e7786b05a86ffc6",
+      "linear": true,
+      "one_entry_per_commit": true
+    }
+  },
+  "repository": "definitely-stable/Shift-lab",
+  "schema": "delsk.oracle.registry-refs.v1"
+}
