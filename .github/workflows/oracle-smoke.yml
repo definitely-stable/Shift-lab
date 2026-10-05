@@ -3,7 +3,7 @@ name: Oracle smoke (DELSK-003)
 # PR smoke lane of the DELSK-003 oracle (contract section 12): build the pinned codecs from their locked archives,
 # codec conformance C01-C14, the production evaluator's known answers, G1 vectors, mutants and fault injection, a
 # synthetic mini-run through finalize, verify and bundle, the contract v3 registry/G1 engine (R01-R25, XC01-XC05,
-# PM01-PM17) and its C1-B Git transport and activation tooling on local repositories. Synthetic data only (< 2 MiB):
+# PM01-PM20) and its C1-B Git transport and activation tooling on local repositories. Synthetic data only (< 2 MiB):
 # the natural C_t is never measured here, and no performance or quality verdict is produced. Standard GitHub-hosted
 # runner only.
 
@@ -63,7 +63,7 @@ jobs:
         env:
           ORACLE_TOOLS: ${{ runner.temp }}/build/tools.json
         # v1 suite, then contract v3 in order: frozen v1/v2/v3 bytes, the v3 derivations (D, T, R25), registry, G1 with
-        # exact R01-R25 records and adversarial paths, PM01-PM17 mutants, then C1-B registry transport and activation
+        # exact R01-R25 records and adversarial paths, PM01-PM20 mutants, then C1-B registry transport and activation
         # tooling (local Git only).
         run: >-
           python3 -m unittest -v test_oracle_contract test_oracle_eval test_oracle_build test_oracle_runner

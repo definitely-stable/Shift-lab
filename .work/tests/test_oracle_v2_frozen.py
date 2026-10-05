@@ -34,11 +34,11 @@ FROZEN = {
     'oracle/registry-vectors.json': '5aef8456216da54ef4de4363369b92b6dc65ed29c4c46c864c15f198f8473484',
     'tests/test_oracle_contract_v2.py': '5b1d7b104705becb7bc2f8f200ce011c260c0bb07c4a8221391c578a39893f50',
     # provenance layer delsk.oracle-contract.v3 (freeze-v3.json and the files it pins; v2 above is its base text)
-    'oracle/freeze-v3.json': 'bc1114821c7f1236190918ae45b34f8ab45daa3b4da58ad948b4b70ebedebf70',
-    'oracle/contract-v3.md': '0a26607df7c3d7d2bd122d8e76db1c1d0419ec169880751200a9471702bc9084',
+    'oracle/freeze-v3.json': '39dede91e9ed6e12d298f5bd72f9d94fda9e0ac5c92f7a478815d210a0eb1c85',
+    'oracle/contract-v3.md': '469e8f1487cd24a6c23f9431cd766c1cf7c3208251d44488df9ea87527c28366',
     'oracle/schemas-v3.json': 'b958f9d26708829c29591c35c353f135ee611059298c4d8badb858360877a751',
-    'oracle/registry-vectors-v3.json': '7e9e5c984478d79030495174ed36f888fbf61e6c5f947759513546d0b692c235',
-    'tests/test_oracle_contract_v3.py': '24d28a37d612af6f03694712f4e869136a99caff217a2069c39c63bcc64cf7e2',
+    'oracle/registry-vectors-v3.json': '0b53aa03f46bcb4be43c59dbb8bad65ebdc16a4d5173c811850cc606491111d4',
+    'tests/test_oracle_contract_v3.py': '1bff11dff24ef6b48eb873c6dba5f5462db9b2569573a0e1a5e7e91fa825a584',
     # corpus / candidate / source / protocol / seal locks bound by the v1 freeze
     'corpus/e1/candidate-lock.json': 'cb16d53b164ff393187e0115bdf31c52ac717a5172fb1e91889b5988ac019d2e',
     'corpus/pilot-v1/corpus-lock.json.gz': '86009552183230ab13f9366684eedb4fcfcea746b25cbbed10ab2aabceb8f56b',

@@ -122,7 +122,7 @@ Static witness §4.1/§2 доказывает свойства **конкрет�
 
 ## 4. Vectors и mutants (замена ссылок §14–§15 v2)
 
-`registry-vectors-v3.json` строится так: `T(registry-vectors.json)`, затем `R25`, затем `PM13–PM17`. `schemas-v3.json` = `D(schemas-v2.json)`. D, T и построение R25 нормативно определены в [test_oracle_contract_v3.py](../tests/test_oracle_contract_v3.py), который проверяет оба файла байт в байт.
+`registry-vectors-v3.json` строится так: `T(registry-vectors.json)`, затем `R25.a–l`, затем `PM13–PM20`. `schemas-v3.json` = `D(schemas-v2.json)`. D, T и построение R25 нормативно определены в [test_oracle_contract_v3.py](../tests/test_oracle_contract_v3.py), который проверяет оба файла байт в байт.
 
 ### 4.1 D
 

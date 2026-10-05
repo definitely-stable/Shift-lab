@@ -5,12 +5,13 @@ Offline, synthetic and payload-free: no registry, no provider call, no corpus by
 definition of the two derivations of contract-v3 section 4 and checks them byte for byte:
 
     schemas-v3.json        = D(schemas-v2.json)
-    registry-vectors-v3.json = T(registry-vectors.json) + R25 + PM13-PM17
+    registry-vectors-v3.json = T(registry-vectors.json) + R25 + PM13-PM20
 
 It also checks that freeze-v3 pins the v3 files, the unchanged v2 base text and the unchanged v1 measurement layer;
 that T preserves every v2 outcome (reference PRE predicates of v2 and v3 agree on every R01-R24 observation); that each
-R25 case is its base case with only the named provider observations replaced and the base expectation; and the same
-internal consistency of the vector document as the v2 test. It does not implement or run G1 v3.
+R25 case is its base case with only the named provider observation (R25.a-j) or the witnessed-workflow environment
+(R25.k-l) replaced and a frozen expectation; that every normative statement of the mutant range agrees with the actual
+mutants; and the same internal consistency of the vector document as the v2 test. It does not implement or run G1 v3.
 """
 import copy
 import hashlib
@@ -52,7 +53,8 @@ SCHEMAS_DESCRIPTION = (
     'with (?![\\s\\S]) = end of string in ECMA-262 and Python.')
 VECTORS_DESCRIPTION = (
     'Normative reference vectors of delsk.oracle-contract.v3 (contract-v3.md section 4): R01-R24 = T(registry-vectors.'
-    'json), R25 = real GitHub Actions job shapes over R08/R10/R12, PM01-PM17. Synthetic only: no natural corpus, no '
+    'json), R25.a-j = real GitHub Actions job shapes over R08/R10/R12, R25.k-l = workflow-witness cases over R15, '
+    'PM01-PM20. Synthetic only: no natural corpus, no '
     'real registry. Genesis g1_freeze_sha256 is synthetic; the test core does not check it (production does). Expected '
     'records are test records (authority null, TEST_ONLY_PASS for SCIENTIFIC_PASS).')
 SELF_DIGESTS = ('entry_sha256', 'transition_sha256', 'binding_sha256', 'record_sha256')
@@ -372,6 +374,21 @@ class Freeze(unittest.TestCase):
                 self.assertEqual(sha(ROOT / name), digest)
         self.assertEqual(FREEZE['provenance_layer_sha256'], ev.hc(files))
         self.assertNotIn('.work/oracle/activation-c1b-log.md', files)
+
+    def test_mutant_range_is_stated_consistently(self):
+        """Review of PR 32: every normative statement of the mutant range follows the actual mutants."""
+        last = len(VECTORS_V2['mutants']) + len(MUTANTS_V3)
+        self.assertEqual([m['id'] for m in VECTORS['mutants']], [f'PM{n:02d}' for n in range(1, last + 1)])
+        self.assertIn(f'PM01-PM{last}', VECTORS['description'])
+        self.assertIn(f'PM13-PM{last}', FREEZE['scope'])
+        self.assertIn(f'PM13-PM{last}', __doc__)
+        self.assertIn(f'PM01–PM{last}', (ORACLE / 'contract-v3.md').read_text(encoding='utf-8'))
+        stale = [f'PM{n:02d}' for n in range(13, last)]
+        contract = (ORACLE / 'contract-v3.md').read_text(encoding='utf-8')
+        for text in (VECTORS['description'], FREEZE['scope'], __doc__, contract):
+            for old in stale:
+                self.assertNotIn(f'-{old}', text)
+                self.assertNotIn(f'–{old}', text)
 
     def test_contract_states_layering_and_status(self):
         text = (ORACLE / 'contract-v3.md').read_text(encoding='utf-8')

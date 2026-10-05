@@ -21,7 +21,7 @@
 | Файл | Изменение |
 |---|---|
 | [contract-v3.md](contract-v3.md) | delta-контракт: текст v2 по exact hash + подстановки (§0.2: `g1_contract` v3, `refs/heads/delsk/registry-v3`, results root `…-V3/`, observation tag v2, `V3_NOT_ACTIVE`); новый §8.3: роль `provider` для закрытого набора (`Complete job`, `Post <name>` steps до `boundary`, чей pinned action имеет `runs.post` — сейчас только checkout), PRE исключает только эти steps; `measure` `cancelled` без steps и с `runner_id = runner_name = null` не стартовал; §1.5: класс PRE/BUNDLE только для entries, чей source исполнял ровно активированные bytes `oracle-pilot.yml` (`workflow_sha256`), иначе MISSING; дополнение witness §4.1; activation §16 → §5 |
-| [schemas-v3.json](schemas-v3.json), [registry-vectors-v3.json](registry-vectors-v3.json) | `D(schemas-v2)` и `T(registry-vectors) + R25 + PM13–PM17`; D/T/R25 нормативно определены и проверяются байт в байт в [test_oracle_contract_v3.py](../tests/test_oracle_contract_v3.py); тест доказывает, что T сохраняет все исходы v2 (эталонные предикаты PRE v2/v3 совпадают на каждой observation R01–R24) |
+| [schemas-v3.json](schemas-v3.json), [registry-vectors-v3.json](registry-vectors-v3.json) | `D(schemas-v2)` и `T(registry-vectors) + R25 + PM13–PM20`; D/T/R25 нормативно определены и проверяются байт в байт в [test_oracle_contract_v3.py](../tests/test_oracle_contract_v3.py); тест доказывает, что T сохраняет все исходы v2 (эталонные предикаты PRE v2/v3 совпадают на каждой observation R01–R24) |
 | [oracle_registry_v2.py](../tools/oracle_registry_v2.py), [oracle_g1_v2.py](../tools/oracle_g1_v2.py) | константы поколения v3 (имена модулей сохраняют суффикс `_v2` модели registered attempts); `pre_proven` по contract-v3 §1.3; KAT gate требует неизменные bytes v1, v2 и v3 freeze |
 | [oracle_activation_v2.py](../tools/oracle_activation_v2.py) | имена steps `(contract v3 …)`, именованный checkout `Read-only source checkout`; reviewed карта post hooks (`checkout` — да, `upload-artifact` — нет) и закрытые наборы provider steps pilot/smoke; witness: все steps `measure` с явными уникальными именами, до `boundary` только pinned checkout/upload-artifact, зарезервированные имена запрещены, набор provider steps выводится из workflow; infra record фиксирует набор и `workflow_sha256` reviewed `oracle-pilot.yml`; retired refs v2 обязаны оставаться под ruleset; верификатор `cancel-before-register` принимает реальный отменённый `measure` без steps и без runner |
 | [oracle_registry_git.py](../tools/oracle_registry_git.py) | freeze-v3, роли provider steps из activation record, smoke — свой набор ролей; `workflow_witnessed` — commits entries, чей workflow file (Git-объект pinned snapshot) имеет ровно digest activation record (smoke — smoke workflow pinned `main`) |
@@ -32,10 +32,10 @@ Genesis v3 (детерминированный, `GENESIS_DATE = 2026-10-05T00:00
 
 | Registry | ref | `genesis_sha256` | root commit |
 |---|---|---|---|
-| production | `refs/heads/delsk/registry-v3` | `e87c95cec3bba7e8d576577a60d4b9583cb667c96327494c15c49c4db7d26f55` | `5fe579bd536347c45313feeef90ad4c85661da24` |
-| smoke | `refs/heads/delsk/registry-v3-smoke` | `1826e7a579927fdad107cc0670c26c8a3fbd6e84e95712b789ffc1694574043d` | `b9f8d6b5ad6a87326134c29623841b3453553785` |
+| production | `refs/heads/delsk/registry-v3` | `e60e5bbce3a7e0b411bc36c937df04f098f07428d5e9e23fd66d10b61a06ac03` | `1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258` |
+| smoke | `refs/heads/delsk/registry-v3-smoke` | `c746e25a69febbfe3e38d0548c2a01952c94c56b68e156a839967039c3214f9a` | `62f79c1ceeb4f61615039104532e8dee251efaa3` |
 
-SHA-256 `freeze-v3.json` = `bc1114821c7f1236190918ae45b34f8ab45daa3b4da58ad948b4b70ebedebf70` (`reg.G1_FREEZE_SHA256`).
+SHA-256 `freeze-v3.json` = `39dede91e9ed6e12d298f5bd72f9d94fda9e0ac5c92f7a478815d210a0eb1c85` (`reg.G1_FREEZE_SHA256`).
 
 ## Activation v3: шаги maintainer (по порядку, после review/merge этого PR)
 
@@ -50,7 +50,7 @@ SHA-256 `freeze-v3.json` = `bc1114821c7f1236190918ae45b34f8ab45daa3b4da58ad948b4
 
 ## Проверка
 
-- `python3 -m unittest discover -s .work/tests` (Python 3.12, как в CI) — 715 тестов, OK;
+- `python3 -m unittest discover -s .work/tests` (Python 3.12, как в CI) — 716 тестов, OK;
 - `oracle_activation_v2.py check-workflows` — PASS; `validate.py` — PASS;
 - R01–R25: 63 cases / 72 records воспроизведены байт в байт; PM14 (правило v2) убивают ровно R25.a, R25.d, R25.g — реальные формы, на которых v2 был недоказуем; PM18–PM20 (runner, привязка к workflow для PRE и для BUNDLE) — R25.j, R25.k, R25.l.
 
@@ -62,3 +62,4 @@ SHA-256 `freeze-v3.json` = `bc1114821c7f1236190918ae45b34f8ab45daa3b4da58ad948b4
 | набор provider steps шире реальных post hooks (у `upload-artifact@043fb46…` нет `runs.post`) | `Post <name>` только для actions с post hook по reviewed карте (сейчас checkout); наборы pilot/smoke = `{Complete job, Post Read-only source checkout}`; тест, что `Post <upload>` не provider |
 | static witness не привязан к точному исполненному `oracle-pilot.yml` | §1.5: activation record фиксирует `workflow_sha256`; класс PRE/BUNDLE (и PRE-доказательство rerun §8.5) только для witnessed source, иначе MISSING; R25.k, R25.l, PM19, PM20 |
 | журнал: `3 entries` | `4 entries` |
+| (head `5c40605`) нормативные метаданные говорили `PM13–PM17` / `PM01-PM17` (описание векторов, scope freeze, docstring, §4 контракта, slice, `oracle-smoke.yml`) | всё приведено к `PM01–PM20`; новый тест сверяет каждое такое утверждение с фактическим списком мутантов |

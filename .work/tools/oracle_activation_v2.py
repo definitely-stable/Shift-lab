@@ -69,8 +69,8 @@ KAT_MODULES = ('test_oracle_contract', 'test_oracle_eval', 'test_oracle_v2_froze
 
 # Deterministic registry root commits (oracle_registry_git.genesis_commit; reproduced by the tests).
 GENESIS_SHA256 = {p.name: ev.hc(reg.make_genesis(p.g1_freeze_sha256, p)) for p in reg.PROFILES}
-ROOT_COMMIT = {'production': '5fe579bd536347c45313feeef90ad4c85661da24',
-               'smoke': 'b9f8d6b5ad6a87326134c29623841b3453553785'}
+ROOT_COMMIT = {'production': '1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258',
+               'smoke': '62f79c1ceeb4f61615039104532e8dee251efaa3'}
 
 GITHUB_ACTIONS_APP_ID = 15368   # the GitHub Actions integration: the workflow token's ruleset actor
 # Retired v2 registry refs (contract-v3 3): never evaluated, but they disclose the v2 activation attempt and stay

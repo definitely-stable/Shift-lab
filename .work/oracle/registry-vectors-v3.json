@@ -1,5 +1,5 @@
 {
-  "description": "Normative reference vectors of delsk.oracle-contract.v3 (contract-v3.md section 4): R01-R24 = T(registry-vectors.json), R25 = real GitHub Actions job shapes over R08/R10/R12, PM01-PM17. Synthetic only: no natural corpus, no real registry. Genesis g1_freeze_sha256 is synthetic; the test core does not check it (production does). Expected records are test records (authority null, TEST_ONLY_PASS for SCIENTIFIC_PASS).",
+  "description": "Normative reference vectors of delsk.oracle-contract.v3 (contract-v3.md section 4): R01-R24 = T(registry-vectors.json), R25.a-j = real GitHub Actions job shapes over R08/R10/R12, R25.k-l = workflow-witness cases over R15, PM01-PM20. Synthetic only: no natural corpus, no real registry. Genesis g1_freeze_sha256 is synthetic; the test core does not check it (production does). Expected records are test records (authority null, TEST_ONLY_PASS for SCIENTIFIC_PASS).",
   "environment": {
     "commits": [
       {
