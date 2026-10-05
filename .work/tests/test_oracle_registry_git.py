@@ -123,16 +123,27 @@ class Provider:
         self.world, self.profile, self.runs = world, profile, {}
 
     def add(self, run_id, attempt, scenario, sha=None):
+        """Jobs and steps as GitHub reports them for each smoke scenario (status, conclusion per job and step)."""
         sha = sha or self.world.main
-        ok, skip, fail = ('completed', 'success'), ('completed', 'skipped'), ('completed', 'failure')
-        boundary = ok if scenario == 'cross-boundary' else skip
-        bind = fail if scenario == 'rerun-failed' else ok
-        stop = fail if scenario == 'stop-before-boundary' else skip
-        measure = [('Checkout', ok), ('Synthetic hold before the boundary', skip), (act.BIND_STEP, bind),
-                   ('Retain binding sidecar before the boundary', ok if bind == ok else skip),
-                   ('Synthetic stop before the boundary', stop), (act.BOUNDARY_STEP, boundary)]
-        jobs = [('measure', measure)] if scenario == 'rerun-failed' else \
-            [('register', [('Checkout', ok), (act.REGISTER_STEP, ok)]), ('measure', measure)]
+        ok, skip, fail, cancel = (('completed', c) for c in ('success', 'skipped', 'failure', 'cancelled'))
+        register = [(act.SOURCE_STEP, ok), ('Synthetic hold before register', skip), (act.REGISTER_STEP, ok)]
+        measure = {  # checkout, hold, bind, retain binding, synthetic stop, boundary
+            'stop-before-boundary': ('failure', (ok, skip, ok, ok, fail, skip)),
+            'cross-boundary': ('success', (ok, skip, ok, ok, skip, ok)),
+            'rerun-failed': ('failure', (ok, skip, fail, skip, skip, skip)),
+            'cancel-after-register': ('cancelled', (ok, cancel, skip, skip, skip, skip)),
+        }
+        names = ('Checkout', 'Synthetic hold before the boundary', act.BIND_STEP,
+                 'Retain binding sidecar before the boundary', 'Synthetic stop before the boundary', act.BOUNDARY_STEP)
+        if scenario == 'cancel-before-register':
+            jobs = [('register', 'cancelled', [(act.SOURCE_STEP, ok), ('Synthetic hold before register', cancel),
+                                               (act.REGISTER_STEP, skip)]),
+                    ('measure', 'skipped', [])]
+        else:
+            conclusion, steps = measure[scenario]
+            jobs = [('measure', conclusion, list(zip(names, steps)))]
+            if scenario != 'rerun-failed':  # a failed-job rerun does not execute register again
+                jobs.insert(0, ('register', 'success', register))
         run = self.runs.setdefault(run_id, {'attempts': {}})
         run['attempts'][attempt] = {'sha': sha, 'jobs': jobs}
 
@@ -159,12 +170,34 @@ class Provider:
             return {'id': int(m[1]), 'run_attempt': int(m[2]), 'head_sha': a['sha'], 'head_branch': 'main',
                     'path': self.profile.workflow_path, 'event': 'workflow_dispatch', 'status': 'completed'}
         jobs = [{'id': int(m[1]) * 100 + int(m[2]) * 10 + n, 'name': name, 'run_id': int(m[1]),
-                 'run_attempt': int(m[2]), 'head_sha': a['sha'], 'status': 'completed',
-                 'conclusion': 'failure' if any(c == 'failure' for _, (_, c) in steps) else 'success',
+                 'run_attempt': int(m[2]), 'head_sha': a['sha'], 'status': 'completed', 'conclusion': conclusion,
                  'steps': [{'name': s, 'number': i, 'status': st, 'conclusion': c}
                            for i, (s, (st, c)) in enumerate(steps, 1)]}
-                for n, (name, steps) in enumerate(a['jobs'])]
+                for n, (name, conclusion, steps) in enumerate(a['jobs'])]
         return {'total_count': len(jobs), 'jobs': jobs}
+
+
+SMOKE_RUNS = (('stop-before-boundary', 31, 1), ('cross-boundary', 32, 1), ('rerun-all', 31, 2),
+              ('rerun-failed', 31, 3), ('cancel-after-register', 33, 1), ('deleted-run', 34, 1),
+              ('cancel-before-register', 35, 1))
+
+
+def smoke_documents(world, provider):
+    """Every activation item 8-9 scenario against a local smoke registry (real register code) and the fake provider;
+    returns (smoke-evaluate output, scenario manifest)."""
+    if world.remote_ref(reg.SMOKE_REGISTRY_REF) is None:
+        world.genesis()
+    for name, run_id, attempt in SMOKE_RUNS:
+        if name not in ('rerun-failed', 'cancel-before-register'):  # those never register
+            rg.register(reg.SMOKE, world.env_of(run_id, attempt), world.root, no_api)
+        provider.add(run_id, attempt, {'rerun-all': 'stop-before-boundary',
+                                       'deleted-run': 'stop-before-boundary'}.get(name, name))
+    provider.delete(34)
+    scenarios = {'schema': act.SCENARIOS_SCHEMA, 'workflow': reg.SMOKE_WORKFLOW_PATH,
+                 'registry_ref': reg.SMOKE_REGISTRY_REF,
+                 'runs': [{'scenario': s, 'run_id': r, 'run_attempt': a,
+                           'html_url': f'https://github.com/{REPO}/actions/runs/{r}'} for s, r, a in SMOKE_RUNS]}
+    return rg.smoke_evaluation(world.root, provider, scenarios), scenarios
 
 
 class Base(unittest.TestCase):
@@ -211,6 +244,17 @@ class Genesis(Base):
         self.assertEqual(ev.compact(reg._profile_schemas(reg.REGISTRY_REF, reg.WORKFLOW_PATH)), ev.compact(reg._SCHEMAS))
         diff = [k for k in reg._SCHEMAS['$defs'] if reg._SCHEMAS['$defs'][k] != reg.SMOKE.schemas['$defs'][k]]
         self.assertEqual(diff, ['registry_entry', 'registry_genesis'])
+
+    def test_live_registry_root_must_be_the_reviewed_genesis(self):
+        self.assertIsNone(rg.registry_root(self.w.root))
+        self.w.genesis(reg.PRODUCTION)
+        self.assertEqual(rg.registry_root(self.w.root), act.ROOT_COMMIT['production'])
+        with tempfile.TemporaryDirectory() as t:  # same genesis bytes, another root commit (other date/author)
+            gitdir = rg.init_bare(Path(t) / 'g.git')
+            forged = rg.make_commit(gitdir, {'genesis.json': rg.genesis_bytes(reg.PRODUCTION), 'entries.jsonl': b''},
+                                    None, 'look-alike genesis')
+            sh(gitdir, 'push', '--quiet', '--force', str(self.w.remote), f'{forged}:{reg.REGISTRY_REF}')
+        self.assertNotEqual(rg.registry_root(self.w.root), act.ROOT_COMMIT['production'])
 
     def test_genesis_cli_is_local_only(self):
         out = self.w.tmp / 'cli.git'
@@ -413,28 +457,14 @@ class Evaluation(Base):
         self.provider.add(run_id, attempt, scenario)
 
     def test_smoke_scenarios_classify_as_contract_8_and_10(self):
-        self.run_scenario(31, 1, 'stop-before-boundary')
-        self.run_scenario(32, 1, 'cross-boundary')
-        self.run_scenario(31, 2, 'stop-before-boundary')            # rerun all jobs: register again
-        self.run_scenario(31, 3, 'rerun-failed', register=False)    # rerun failed jobs: bind refuses before B
-        self.run_scenario(33, 1, 'cancel-after-register')
-        self.run_scenario(34, 1, 'stop-before-boundary')
-        self.provider.delete(34)                                    # deleted synthetic run
-        self.provider.add(35, 1, 'cancel-before-register')          # never registered
-        doc = rg.smoke_evaluation(self.w.root, self.provider)
+        doc, scenarios = smoke_documents(self.w, self.provider)
         classes = {(a['run_id'], a['run_attempt']): a['class'] for a in doc['attempts']}
         self.assertIsNone(doc['blocker'])
         self.assertEqual(classes, {(31, 1): 'PRE', (32, 1): 'MISSING', (31, 2): 'PRE', (33, 1): 'PRE',
                                    (34, 1): 'MISSING'})
         self.assertEqual(doc['unbound_attempts'], [])
         self.assertTrue(all(r['verdict'] != 'PASS' and r['authority'] is None for r in doc['records']))
-        runs = [('stop-before-boundary', 31, 1), ('cross-boundary', 32, 1), ('rerun-all', 31, 2),
-                ('rerun-failed', 31, 3), ('cancel-after-register', 33, 1), ('deleted-run', 34, 1),
-                ('cancel-before-register', 35, 1)]
-        scenarios = {'schema': act.SCENARIOS_SCHEMA, 'workflow': reg.SMOKE_WORKFLOW_PATH,
-                     'registry_ref': reg.SMOKE_REGISTRY_REF,
-                     'runs': [{'scenario': s, 'run_id': r, 'run_attempt': a,
-                               'html_url': f'https://github.com/{REPO}/actions/runs/{r}'} for s, r, a in runs]}
+        self.assertIn((35, 1), {(o['run_id'], o['run_attempt']) for o in doc['provider']})  # unregistered, observed
         self.assertEqual(act.verify_smoke(doc, scenarios), [])
 
     def test_failed_job_rerun_that_crosses_the_boundary_is_unbound(self):

@@ -4,19 +4,23 @@
     oracle_activation_v2.py write-surface OUT.json          activation item 10, inside oracle-registry-write-surface.yml
     oracle_activation_v2.py verify-rulesets RULESETS.json   activation item 7 over admin-collected API responses
     oracle_activation_v2.py verify-smoke SMOKE.json SCENARIOS.json   activation items 8-9
-    oracle_activation_v2.py verify-record ACTIVATION.json   the whole activation record against the working tree
+    oracle_activation_v2.py verify-infra INFRA.json         infra record (items 6-10) against the working tree
+    oracle_activation_v2.py verify-record ACTIVATION.json   enable record: infra record + items 6, 11, 12 live
 
-The activation record (`delsk.oracle.v2-activation.v1`, ACTIVATION_FILE) fixes the bind/boundary/KAT step names and
-binds the evidence of items 6-10 by SHA-256. It takes effect only when a reviewed PR also sets
-oracle_g1_v2.ACTIVATION_RECORD to the SHA-256 of its exact bytes; production re-verifies it in the pinned main tree on
-every evaluation (activation_in_tree). Before that, production G1 is NOT_PASSED V2_NOT_ACTIVE without reads and the
+Activation takes two records (see "activation records" below): the infra record fixes the bind/boundary/KAT step
+names and binds the evidence of items 6-10; the enable record (ACTIVATION_FILE) binds the infra record, its
+independent review and the maintainer decision. It takes effect only when the enable PR also sets
+oracle_g1_v2.ACTIVATION_RECORD to the SHA-256 of its exact bytes; production re-verifies both in the pinned main tree,
+and items 6, 11 and 12 live, on every evaluation (activation_in_tree). Before that, production G1 is NOT_PASSED V2_NOT_ACTIVE without reads and the
 production `register` refuses. Nothing here creates the registry branch, configures rulesets or dispatches a workflow.
 """
+from dataclasses import dataclass
 import os
 from pathlib import Path
 import re
 import sys
 import tempfile
+from typing import Callable
 
 import oracle_attempts as oa
 import oracle_eval as ev
@@ -64,12 +68,23 @@ FORBIDDEN_BEFORE_BOUNDARY = ('oracle_build', 'oracle_run', 'oracle_materialize',
 # A step after the boundary may start only if the boundary step itself started. Positive list: a step that was never
 # evaluated has an empty outcome, which a `!= 'skipped'` test would wrongly accept.
 BOUNDARY_STARTED = """contains(fromJSON('["success","failure","cancelled"]'), steps.workload.outcome)"""
-PILOT_REGISTER_STEPS = (None, REGISTER_STEP)
+# Write-capable jobs never run actions/checkout: its `token` input defaults to the job's GITHUB_TOKEN, which there has
+# contents: write, so `persist-credentials: false` alone would still hand the write token to a third-party step
+# (contract 12.2: the token is available to the registry update step only). The source comes from an anonymous fetch of
+# the public repository instead, by exactly this reviewed step.
+SOURCE_STEP = 'Anonymous source checkout without the write token'
+SOURCE_TEXT = '\n'.join((
+    f'name: {SOURCE_STEP}', 'env:', "  GIT_TERMINAL_PROMPT: '0'", 'run: |', '  git init -q .',
+    f'  git -c credential.helper= fetch -q --no-tags {reg.REGISTRY_REMOTE} \\',
+    "    '+refs/heads/main:refs/remotes/source/main' \"$GITHUB_SHA\"",
+    '  git -c advice.detachedHead=false checkout -q --detach "$GITHUB_SHA"'))
+UPLOAD_ACTION = 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a'
+PILOT_REGISTER_STEPS = (SOURCE_STEP, REGISTER_STEP)
 PILOT_PRE_BOUNDARY = ('Bootstrap dispatch proof before checkout', 'Retain immutable dispatch proof', None,
                       'Validate dispatch, frozen chain and register scientific identity', BIND_STEP,
                       'Retain binding sidecar before the boundary', 'Retain attempt before codec setup',
                       'Budget and artifact admission', 'Hard capped transient work filesystem')
-SMOKE_REGISTER_STEPS = (None, 'Synthetic hold before register', REGISTER_STEP)
+SMOKE_REGISTER_STEPS = (SOURCE_STEP, 'Synthetic hold before register', REGISTER_STEP)
 SMOKE_MEASURE_STEPS = (None, 'Synthetic hold before the boundary', BIND_STEP,
                        'Retain binding sidecar before the boundary', 'Synthetic stop before the boundary',
                        BOUNDARY_STEP)
@@ -78,15 +93,12 @@ REGISTER_RUN = {'production': '/usr/bin/python3 .work/tools/oracle_registry_git.
 BIND_RUN = {'production': '/usr/bin/python3 .work/tools/oracle_registry_git.py bind "$RUNNER_TEMP/binding/binding.json"',
             'smoke': '/usr/bin/python3 .work/tools/oracle_registry_git.py smoke-bind "$RUNNER_TEMP/binding/binding.json"'}
 
-SCENARIOS = {  # activation items 8-9: scenario -> (registry entry expected, class, provider run present)
-    'stop-before-boundary': (True, 'PRE', True),
-    'cross-boundary': (True, 'MISSING', True),
-    'rerun-all': (True, 'PRE', True),
-    'rerun-failed': (False, None, True),
-    'cancel-before-register': (False, None, True),
-    'cancel-after-register': (True, 'PRE', True),
-    'deleted-run': (True, 'MISSING', False),
-}
+# Activation items 8-9. Each scenario is a distinct real-GitHub action; verify_smoke checks it against the live provider
+# observation of its run key (never against the manifest label): run topology, job/step facts and registry class.
+SCENARIOS = ('stop-before-boundary', 'cross-boundary', 'rerun-all', 'rerun-failed', 'cancel-before-register',
+             'cancel-after-register', 'deleted-run')
+DISPATCHED = ('stop-before-boundary', 'cross-boundary', 'cancel-before-register', 'cancel-after-register',
+              'deleted-run')   # each a separate workflow_dispatch: own run ID, attempt 1
 
 
 class ActivationError(ev.EvalError):
@@ -178,15 +190,21 @@ def _register_job(job, kind, expected_names, problems):
     if names != expected_names:
         problems.append(f'register: steps {names}')
         return
-    checkout, step = job['steps'][0], job['steps'][-1]
-    if not (checkout['uses'] or '').startswith('actions/checkout@') or 'persist-credentials: false' not in \
-            checkout['text'] or 'fetch-depth: 0' not in checkout['text']:
-        problems.append('register: checkout without credentials and with full history')
+    source, step = job['steps'][0], job['steps'][-1]
+    if source['text'] != SOURCE_TEXT:
+        problems.append('register: source must come from the reviewed anonymous fetch')
+    if any(s['uses'] for s in job['steps']):
+        problems.append('register: no action may run in the write-capable job (actions/checkout defaults to its token)')
     if step['id'] != 'register' or _run_line(step) != REGISTER_RUN[kind] or step['if'] or step['continue-on-error']:
         problems.append('register: register step')
-    tokens = [s['name'] for s in job['steps'] if 'github.token' in s['text']]
-    if tokens != [REGISTER_STEP] or 'github.token' in job['header']:
-        problems.append('register: write token must be visible to the register step only')
+    _token_only_in(job, REGISTER_STEP, 'register', problems)
+
+
+def _token_only_in(job, name, label, problems):
+    """The write token is referenced by exactly one step, and nowhere else in the job (header, env, other steps)."""
+    tokens = [s['name'] for s in job['steps'] if re.search(r'github\.token|GITHUB_TOKEN|secrets\.', s['text'])]
+    if tokens != [name] or re.search(r'github\.token|GITHUB_TOKEN|secrets\.', job['header']):
+        problems.append(f'{label}: write token must be visible to the {name!r} step only')
 
 
 def _measure_job(job, kind, problems):
@@ -278,6 +296,11 @@ def check_write_surface_workflow(text):
     job = jobs.get('write_surface')
     if list(jobs) != ['write_surface'] or _permissions(job['header']) != ['contents: write']:
         return problems + ['write-surface: one job with exactly contents: write']
+    if not job['steps'] or job['steps'][0]['text'] != SOURCE_TEXT:
+        problems.append('write-surface: source must come from the reviewed anonymous fetch')
+    if any(s['uses'] and not s['uses'].startswith(UPLOAD_ACTION) for s in job['steps']):
+        problems.append('write-surface: no action except the pinned artifact upload in the write-capable job')
+    _token_only_in(job, 'Negative write-surface tests (contract v2 section 12.1)', 'write-surface', problems)
     run = [_run_line(s) for s in job['steps']]
     if '/usr/bin/python3 .work/tools/oracle_activation_v2.py write-surface "$RUNNER_TEMP/write-surface.json"' \
             not in run:
@@ -346,43 +369,106 @@ def verify_rulesets(doc):
 
 # --- activation items 8-9: smoke scenarios ----------------------------------------------------------------------------
 
+def _job(run, name):
+    jobs = [j for j in run['jobs'] if j['name'] == name] if run else []
+    return jobs[0] if len(jobs) == 1 else None
+
+
+def _step(job, role):
+    steps = [x for x in job['steps'] if x['role'] == role] if job else []
+    return steps[0] if len(steps) == 1 else None
+
+
+def _started(job, role=None):
+    target = job if role is None else _step(job, role)
+    return target is not None and target['started']
+
+
+def _scenario_facts(name, run, entry):
+    """Problems of one scenario from the provider facts of its own run key and its registry class (topology is checked
+    by the caller). run is the normalized live observation (None = deleted / not found)."""
+    out = []
+    if name == 'deleted-run':
+        if run is not None:
+            out.append('provider still has the run')
+    elif run is None:
+        return ['no provider observation of this run key']
+    elif (run['workflow_path'], run['event'], run['status']) != (SMOKE_WORKFLOW, 'workflow_dispatch', 'completed'):
+        out.append('not a completed dispatch of the smoke workflow')
+    register, measure = _job(run, 'register'), _job(run, 'measure')
+    cls = entry['class'] if entry else None
+    if entry and entry['violations']:
+        out.append(f"violations {entry['violations']}")
+    if name == 'stop-before-boundary':
+        if not (cls == 'PRE' and measure and measure['conclusion'] == 'failure' and _started(measure, 'bind')
+                and _step(measure, 'bind')['conclusion'] == 'success' and not _started(measure, 'boundary')):
+            out.append('must be PRE: bind succeeded, the job failed before the boundary started')
+    elif name == 'cross-boundary':
+        if not (cls == 'MISSING' and _started(measure, 'boundary')):
+            out.append('must be MISSING with the boundary started')
+    elif name == 'rerun-all':
+        if not (cls == 'PRE' and register and register['started'] and register['conclusion'] == 'success'):
+            out.append('must be a new registered attempt (register job re-executed) classified PRE')
+    elif name == 'rerun-failed':
+        if not (cls is None and measure and _started(measure, 'bind')
+                and _step(measure, 'bind')['conclusion'] == 'failure' and not _started(measure, 'boundary')):
+            out.append('must have no entry, a refused bind and no boundary start')
+    elif name == 'cancel-before-register':
+        if not (cls is None and register and register['conclusion'] == 'cancelled' and not _started(measure)):
+            out.append('must have no entry, a cancelled register job and no measure start')
+    elif name == 'cancel-after-register':
+        if not (cls == 'PRE' and register and register['conclusion'] == 'success' and measure
+                and measure['conclusion'] == 'cancelled' and not _started(measure, 'boundary')):
+            out.append('must be PRE with the measure job cancelled before the boundary')
+    elif name == 'deleted-run':
+        if cls != 'MISSING':
+            out.append('a deleted registered run must be MISSING')
+    return out
+
+
 def verify_smoke(evaluation, scenarios):
     """smoke-evaluate output against the maintainer's scenario manifest. [] when every required scenario was executed
-    on real GitHub and classified as contract 8.3-8.5 and 10.2 require."""
-    problems = []
+    on real GitHub and the live provider observation of its own run key proves it (contract 8.3-8.5, 10.2): labels in
+    the manifest only say which key to look at, never what happened."""
     if not (type(evaluation) is dict and evaluation.get('schema') == SMOKE_EVALUATION_SCHEMA):
         return ['smoke evaluation: schema']
     if not (type(scenarios) is dict and scenarios.get('schema') == SCENARIOS_SCHEMA
             and set(scenarios) == {'schema', 'workflow', 'registry_ref', 'runs'}
-            and scenarios['workflow'] == SMOKE_WORKFLOW and scenarios['registry_ref'] == reg.SMOKE_REGISTRY_REF):
+            and scenarios['workflow'] == SMOKE_WORKFLOW and scenarios['registry_ref'] == reg.SMOKE_REGISTRY_REF
+            and type(scenarios['runs']) is list):
         return ['smoke scenarios: closed document']
+    problems = []
     if evaluation.get('blocker') is not None:
         problems.append(f"smoke registry: {evaluation['blocker']}")
     attempts = {(a['run_id'], a['run_attempt']): a for a in evaluation.get('attempts', [])}
-    unbound = {(u['run_id'], u['run_attempt']) for u in evaluation.get('unbound_attempts', [])}
-    provider = {(o['run_id'], o['run_attempt']): o for o in evaluation.get('provider', [])}
-    if unbound:
-        problems.append(f'smoke: unbound attempts {sorted(unbound)}')
-    seen, listed = set(), set()
+    observed = {(o['run_id'], o['run_attempt']): o['run'] for o in evaluation.get('provider', [])}
+    if evaluation.get('unbound_attempts'):
+        problems.append(f"smoke: unbound attempts {evaluation['unbound_attempts']}")
+    runs = {}
     for run in scenarios['runs']:
         if not (type(run) is dict and set(run) == {'scenario', 'run_id', 'run_attempt', 'html_url'}
                 and run['scenario'] in SCENARIOS and oa.positive(run['run_id']) and oa.positive(run['run_attempt'])
-                and run['html_url'] == f"https://github.com/{reg.REPOSITORY}/actions/runs/{run['run_id']}"):
-            problems.append('smoke scenarios: malformed run')
-            continue
-        key = (run['run_id'], run['run_attempt'])
-        entry, cls, present = SCENARIOS[run['scenario']]
-        seen.add(run['scenario'])
-        listed.add(key)
-        got = attempts.get(key)
-        if entry != (got is not None) or (got is not None and (got['class'] != cls or got['violations'])):
-            problems.append(f"{run['scenario']} {key}: registry class {got and got['class']} != {cls}")
-        if entry and (provider.get(key, {}).get('run') is not None) != present:
-            problems.append(f"{run['scenario']} {key}: provider run presence != {present}")
-    missing = sorted(set(SCENARIOS) - seen)
+                and run['html_url'] == f"https://github.com/{reg.REPOSITORY}/actions/runs/{run['run_id']}"
+                and run['scenario'] not in runs):
+            return problems + ['smoke scenarios: malformed or repeated scenario']
+        runs[run['scenario']] = (run['run_id'], run['run_attempt'])
+    missing = [name for name in SCENARIOS if name not in runs]
     if missing:
-        problems.append(f'smoke: scenarios not executed {missing}')
-    extra = sorted(set(attempts) - listed)
+        return problems + [f'smoke: scenarios not executed {missing}']
+    # topology: distinct keys; separate dispatches have distinct run IDs at attempt 1; reruns are later attempts of
+    # the base dispatch, rerun-failed after rerun-all
+    if len(set(runs.values())) != len(runs):
+        problems.append('smoke: one run key cannot prove two scenarios')
+    if len({runs[n][0] for n in DISPATCHED}) != len(DISPATCHED) or any(runs[n][1] != 1 for n in DISPATCHED):
+        problems.append('smoke: each dispatched scenario needs its own run ID at attempt 1')
+    base, rerun_all, rerun_failed = runs['stop-before-boundary'], runs['rerun-all'], runs['rerun-failed']
+    if not (rerun_all[0] == rerun_failed[0] == base[0] and base[1] < rerun_all[1] < rerun_failed[1]):
+        problems.append('smoke: rerun-all and rerun-failed must be later attempts of the stop-before-boundary run')
+    for name, key in runs.items():
+        problems += [f'{name} {key}: {p}' for p in _scenario_facts(name, observed.get(key), attempts.get(key))]
+        if key not in observed:
+            problems.append(f'{name} {key}: provider observation was not collected')
+    extra = sorted(set(attempts) - set(runs.values()))
     if extra:
         problems.append(f'smoke: registry entries without a scenario {extra}')
     return problems
@@ -456,7 +542,33 @@ def verify_write_surface(doc):
     return problems
 
 
-# --- activation record ------------------------------------------------------------------------------------------------
+# --- activation records (contract 16 items 6-12) ---------------------------------------------------------------------
+#
+# Two records, in this order, so that every item is evidence that exists before the step that relies on it:
+#   1. infra record (INFRA_FILE, items 6-10): step names, registry genesis, the reviewed genesis PR and the retained
+#      evidence of items 7-10, merged into main by an "infra PR";
+#   2. after an independent approving review of that infra PR (item 11) and a maintainer decision comment on issue
+#      DELSK-003A naming the infra record digest (item 12), an "enable PR" adds ACTIVATION_FILE, which binds the infra
+#      record, the infra PR review and the decision comment, and sets oracle_g1_v2.ACTIVATION_RECORD to its SHA-256.
+# Items 6, 11 and 12 are verified live against the constant provider API on every production evaluation; anything that
+# cannot be confirmed (edited comment, dismissed review, unmerged PR, other merge commit) keeps v2 not active.
+
+INFRA_FILE = EVIDENCE_DIR + 'infra.json'
+INFRA_SCHEMA = 'delsk.oracle.v2-activation-infra.v1'
+DECISION_ISSUE = 27  # DELSK-003A
+DECISION_PHRASE = 'DELSK-003A NATURAL MEASUREMENT AUTHORIZED infra_sha256={}'
+MAINTAINER_ASSOCIATIONS = ('OWNER', 'MEMBER')
+TOOL_FILE = '.work/tools/oracle_activation_v2.py'
+
+
+@dataclass(frozen=True)
+class TreeView:
+    """Pinned main tree: read(path) and read_at(commit, path) give committed bytes or None; on_main(commit) is
+    ancestor-or-equal of the pinned main head."""
+    read: Callable
+    read_at: Callable
+    on_main: Callable
+
 
 def _evidence(entry, read):
     check(type(entry) is dict and set(entry) == {'path', 'sha256'} and type(entry['path']) is str
@@ -466,56 +578,152 @@ def _evidence(entry, read):
     return ev.parse_doc(data)
 
 
-def validate_activation(doc, read):
-    """All problems of an activation record; read(path) returns committed bytes (pinned tree) or None."""
-    keys = {'schema', 'g1_contract', 'g1_freeze_sha256', 'steps', 'registry', 'evidence', 'review',
-            'natural_measurement'}
-    if not (type(doc) is dict and set(doc) == keys and doc['schema'] == SCHEMA
+def _pull(entry):
+    return type(entry) is dict and set(entry) == {'pull_request', 'merge_commit_sha'} and \
+        oa.positive(entry['pull_request']) and type(entry['merge_commit_sha']) is str and \
+        ev.HEX40.match(entry['merge_commit_sha']) is not None
+
+
+def validate_infra(doc, view):
+    """Problems of the infra record (items 6-10) that need no provider: closed document, constants, evidence bytes and
+    their verifiers, and the workflow witnesses of the pinned tree."""
+    keys = {'schema', 'g1_contract', 'g1_freeze_sha256', 'steps', 'registry', 'genesis_review', 'evidence'}
+    if not (type(doc) is dict and set(doc) == keys and doc['schema'] == INFRA_SCHEMA
             and doc['g1_contract'] == reg.G1_CONTRACT and doc['g1_freeze_sha256'] == reg.G1_FREEZE_SHA256):
-        return ['activation record: closed document of this contract']
+        return ['infra record: closed document of this contract']
     problems = []
     if doc['steps'] != {'register': REGISTER_STEP, 'bind': BIND_STEP, 'boundary': BOUNDARY_STEP, 'kat': KAT_STEP}:
-        problems.append('activation record: step names')
+        problems.append('infra record: step names')
     if doc['registry'] != {'ref': reg.REGISTRY_REF, 'genesis_sha256': GENESIS_SHA256['production'],
                            'root_commit': ROOT_COMMIT['production']}:
-        problems.append('activation record: registry genesis')
-    if not (type(doc['review']) is dict and set(doc['review']) == {'pull_request'}
-            and oa.positive(doc['review']['pull_request'])):
-        problems.append('activation record: independent review (item 11)')
-    decision = doc['natural_measurement']
-    if not (type(decision) is dict and set(decision) == {'decision_url'} and type(decision['decision_url']) is str
-            and re.fullmatch(rf'https://github\.com/{reg.REPOSITORY}/(issues|pull)/[1-9][0-9]*(#issuecomment-[0-9]+)?',
-                             decision['decision_url'])):
-        problems.append('activation record: maintainer decision on natural measurement (item 12)')
+        problems.append('infra record: registry genesis')
+    if not _pull(doc['genesis_review']):
+        problems.append('infra record: genesis review (item 6)')
     ev_doc = doc['evidence']
-    if not (type(ev_doc) is dict and set(ev_doc) == {'genesis_pull_request', 'rulesets', 'smoke', 'scenarios',
-                                                     'write_surface'} and oa.positive(ev_doc['genesis_pull_request'])):
-        return problems + ['activation record: evidence']
+    if not (type(ev_doc) is dict and set(ev_doc) == {'rulesets', 'smoke', 'scenarios', 'write_surface'}):
+        return problems + ['infra record: evidence']
     try:
-        problems += verify_rulesets(_evidence(ev_doc['rulesets'], read))
-        problems += verify_smoke(_evidence(ev_doc['smoke'], read), _evidence(ev_doc['scenarios'], read))
-        problems += verify_write_surface(_evidence(ev_doc['write_surface'], read))
+        problems += verify_rulesets(_evidence(ev_doc['rulesets'], view.read))
+        problems += verify_smoke(_evidence(ev_doc['smoke'], view.read), _evidence(ev_doc['scenarios'], view.read))
+        problems += verify_write_surface(_evidence(ev_doc['write_surface'], view.read))
     except (ev.EvalError, ValueError, UnicodeDecodeError) as error:
-        problems.append(f'activation record: {error}')
+        problems.append(f'infra record: {error}')
     for path, checker in ((PILOT_WORKFLOW, check_pilot_workflow), (SMOKE_WORKFLOW, check_smoke_workflow),
                           (WRITE_SURFACE_WORKFLOW, check_write_surface_workflow), (KAT_WORKFLOW, check_kat_workflow)):
-        data = read(path)
+        data = view.read(path)
         problems += [f'{path}: missing'] if data is None else [f'{path}: {p}' for p in checker(data.decode())]
     return problems
 
 
-def activation_in_tree(read, activation_sha256):
-    """The activation record named by the code constant, verified in a pinned tree, or None (v2 not active)."""
+def _merged(get, view, entry, label):
+    """Live: the pull request is merged into main of this repository by exactly the recorded merge commit, which lies
+    on the pinned main. Returns (pull request document or None, problems)."""
+    pr = get(f"/repos/{reg.REPOSITORY}/pulls/{entry['pull_request']}")
+    try:
+        ok = (pr['number'] == entry['pull_request'] and pr['merged'] is True
+              and pr['merge_commit_sha'] == entry['merge_commit_sha'] and pr['base']['ref'] == 'main'
+              and pr['base']['repo']['full_name'] == reg.REPOSITORY and view.on_main(entry['merge_commit_sha']))
+        oa.timestamp(pr['merged_at'])
+    except (KeyError, TypeError, ev.EvalError):
+        ok = False
+    return (pr, []) if ok else (None, [f'{label}: pull request not merged into main by the recorded commit'])
+
+
+def verify_genesis_review(doc, get, view):
+    """Item 6: the reviewed PR that pinned the genesis root commit is merged on main and its merge tree pins it."""
+    pr, problems = _merged(get, view, doc['genesis_review'], 'genesis review (item 6)')
+    if pr is None:
+        return problems
+    tool = view.read_at(doc['genesis_review']['merge_commit_sha'], TOOL_FILE) or b''
+    if f"'production': '{ROOT_COMMIT['production']}'".encode() not in tool:
+        problems.append('genesis review (item 6): merge tree does not pin the genesis root commit')
+    return problems
+
+
+def validate_activation(doc, view, get):
+    """All problems of the enable record (ACTIVATION_FILE): the infra record it binds, then items 6, 11 and 12 live."""
+    keys = {'schema', 'g1_contract', 'g1_freeze_sha256', 'infra', 'infra_review', 'decision'}
+    if not (type(doc) is dict and set(doc) == keys and doc['schema'] == SCHEMA
+            and doc['g1_contract'] == reg.G1_CONTRACT and doc['g1_freeze_sha256'] == reg.G1_FREEZE_SHA256
+            and type(doc['infra']) is dict and doc['infra'].get('path') == INFRA_FILE):
+        return ['activation record: closed document of this contract']
+    try:
+        infra = _evidence(doc['infra'], view.read)
+    except (ev.EvalError, ValueError, UnicodeDecodeError):
+        return ['activation record: infra record bytes']
+    problems = validate_infra(infra, view)
+    if problems:
+        return problems
+    try:
+        problems += verify_genesis_review(infra, get, view)
+        problems += _verify_review(doc, get, view)
+        problems += _verify_decision(doc, get, view)
+    except (TypeError, KeyError, AttributeError, ev.EvalError, rg.TransportError):
+        problems.append('activation record: provider evidence unavailable')
+    return problems
+
+
+def _verify_review(doc, get, view):
+    """Item 11: the infra PR carried exactly these infra bytes and was approved on its head by someone else."""
+    review = doc['infra_review']
+    if not (type(review) is dict and set(review) == {'pull_request', 'merge_commit_sha', 'review_id'}
+            and _pull({k: review[k] for k in ('pull_request', 'merge_commit_sha')})
+            and oa.positive(review['review_id'])):
+        return ['independent review (item 11): record']
+    pr, problems = _merged(get, view, review, 'independent review (item 11)')
+    if pr is None:
+        return problems
+    merged = view.read_at(review['merge_commit_sha'], INFRA_FILE)
+    if merged is None or ev.sha256(merged) != doc['infra']['sha256']:
+        problems.append('independent review (item 11): infra PR did not merge these infra bytes')
+    reviews = get(f"/repos/{reg.REPOSITORY}/pulls/{review['pull_request']}/reviews?per_page=100")
+    hits = [r for r in reviews or [] if type(r) is dict and r.get('id') == review['review_id']]
+    if not (len(hits) == 1 and hits[0].get('state') == 'APPROVED'
+            and hits[0].get('commit_id') == pr['head']['sha'] and (hits[0].get('user') or {}).get('type') == 'User'
+            and (hits[0].get('user') or {}).get('login') not in (None, pr['user']['login'])):
+        problems.append('independent review (item 11): no approving review by someone other than the author on the '
+                        'merged head')
+    return problems
+
+
+def _verify_decision(doc, get, view):
+    """Item 12: an unedited maintainer comment on issue DELSK-003A, made after the infra PR merged, that authorizes
+    natural measurement for exactly this infra record."""
+    decision = doc['decision']
+    if not (type(decision) is dict and set(decision) == {'issue', 'comment_id', 'body_sha256'}
+            and decision['issue'] == DECISION_ISSUE and oa.positive(decision['comment_id'])
+            and type(decision['body_sha256']) is str and ev.HEX64.match(decision['body_sha256'])):
+        return ['maintainer decision (item 12): record']
+    comment = get(f"/repos/{reg.REPOSITORY}/issues/comments/{decision['comment_id']}")
+    pr = get(f"/repos/{reg.REPOSITORY}/pulls/{doc['infra_review']['pull_request']}")
+    try:
+        body = comment['body']
+        ok = (comment['issue_url'] == f'{reg.PROVIDER_API}/repos/{reg.REPOSITORY}/issues/{DECISION_ISSUE}'
+              and comment['author_association'] in MAINTAINER_ASSOCIATIONS and comment['user']['type'] == 'User'
+              and ev.sha256(body.encode('utf-8')) == decision['body_sha256']
+              and DECISION_PHRASE.format(doc['infra']['sha256']) in body
+              and oa.timestamp(comment['created_at']) > oa.timestamp(pr['merged_at']))
+    except (KeyError, TypeError, AttributeError, ev.EvalError):
+        ok = False
+    return [] if ok else ['maintainer decision (item 12): no unedited maintainer authorization for this infra record '
+                          'after the infra PR merged']
+
+
+def activation_in_tree(view, get, activation_sha256):
+    """(enable record, infra record) named by the code constant and verified in the pinned tree and live, or None
+    (v2 not active)."""
     if not (type(activation_sha256) is str and ev.HEX64.match(activation_sha256)):
         return None
-    data = read(ACTIVATION_FILE)
+    data = view.read(ACTIVATION_FILE)
     if data is None or ev.sha256(data) != activation_sha256:
         return None
     try:
         doc = ev.parse_doc(data)
-    except (ev.EvalError, ValueError, UnicodeDecodeError):
+        if validate_activation(doc, view, get):
+            return None
+        return doc, ev.parse_doc(view.read(INFRA_FILE))
+    except (ev.EvalError, ValueError, UnicodeDecodeError, TypeError):
         return None
-    return doc if not validate_activation(doc, read) else None
 
 
 # --- CLI ---------------------------------------------------------------------------------------------------------------
@@ -523,6 +731,15 @@ def activation_in_tree(read, activation_sha256):
 def _read_tree(path):
     p = ev.ROOT / path
     return p.read_bytes() if p.is_file() and not p.is_symlink() else None
+
+
+def local_view(root=None):
+    """Working tree of the checkout, with HEAD as the pinned main (review tooling; production pins the remote)."""
+    root = root or ev.ROOT
+    def on_main(commit):
+        return type(commit) is str and ev.HEX40.match(commit) is not None and rg.git(
+            root, 'merge-base', '--is-ancestor', commit, 'HEAD', check=False).returncode == 0
+    return TreeView(_read_tree, lambda commit, path: rg.show(root, commit, path), on_main)
 
 
 def main(argv, env=os.environ):
@@ -542,8 +759,10 @@ def main(argv, env=os.environ):
             problems = verify_rulesets(ev.parse_doc(Path(args[0]).read_bytes()))
         elif command == 'verify-smoke' and len(args) == 2:
             problems = verify_smoke(*(ev.parse_doc(Path(a).read_bytes()) for a in args))
+        elif command == 'verify-infra' and len(args) == 1:
+            problems = validate_infra(ev.parse_doc(Path(args[0]).read_bytes()), local_view())
         elif command == 'verify-record' and len(args) == 1:
-            problems = validate_activation(ev.parse_doc(Path(args[0]).read_bytes()), _read_tree)
+            problems = validate_activation(ev.parse_doc(Path(args[0]).read_bytes()), local_view(), rg.api_get)
         else:
             print(__doc__, file=sys.stderr)
             return 2

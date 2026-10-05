@@ -11,6 +11,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+import unittest.mock
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -19,7 +20,8 @@ import oracle_activation_v2 as act
 import oracle_eval as ev
 import oracle_g1_v2 as g1
 import oracle_registry_v2 as reg
-from test_oracle_registry_git import World
+import oracle_registry_git as rg
+from test_oracle_registry_git import Provider, World, smoke_documents
 
 ROOT = ev.ROOT
 REPO = reg.REPOSITORY
@@ -31,6 +33,11 @@ def text(path):
 
 PILOT, SMOKE, WRITE, KAT = (text(p) for p in (act.PILOT_WORKFLOW, act.SMOKE_WORKFLOW, act.WRITE_SURFACE_WORKFLOW,
                                               act.KAT_WORKFLOW))
+
+
+SOURCE_BLOCK = PILOT[PILOT.index(f'      - name: {act.SOURCE_STEP}'):PILOT.index(f'      - name: {act.REGISTER_STEP}')]
+CHECKOUT = ('      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1\n        with:\n'
+            '          persist-credentials: false\n          fetch-depth: 0\n')
 
 
 def swap(source, old, new):
@@ -75,9 +82,17 @@ class Workflows(unittest.TestCase):
                 act.BOUNDARY_STARTED, "steps.workload.outcome != 'skipped'"),
             'write token in measure': swap(PILOT, '    permissions:\n      contents: read\n      actions: read\n    env:',
                                            '    permissions:\n      contents: write\n    env:'),
-            'token leaks to checkout': swap(PILOT, '          fetch-depth: 0\n      - name: Register',
-                                            '          fetch-depth: 0\n          token: ${{ github.token }}\n'
-                                            '      - name: Register'),
+            # review of PR 31: actions/checkout defaults `token` to the job's write-capable GITHUB_TOKEN
+            'checkout in the write job': swap(PILOT, SOURCE_BLOCK, CHECKOUT),
+            'checkout next to the anonymous fetch': swap(PILOT, f'{SOURCE_BLOCK}      - name: Register',
+                                                         f'{SOURCE_BLOCK}{CHECKOUT}      - name: Register'),
+            'token handed to the source step': swap(PILOT, "          GIT_TERMINAL_PROMPT: '0'\n        run: |\n"
+                                                           "          git init -q .\n",
+                                                    "          GIT_TERMINAL_PROMPT: '0'\n"
+                                                    "          GITHUB_TOKEN: ${{ github.token }}\n        run: |\n"
+                                                    "          git init -q .\n"),
+            'source from another remote': PILOT.replace('https://github.com/definitely-stable/Shift-lab.git',
+                                                        'https://example.invalid/fork.git', 1),
             'register depends on measure': swap(PILOT, '  register:\n    runs-on',
                                                 '  register:\n    needs: measure\n    runs-on'),
             'push trigger': swap(PILOT, 'on:\n  workflow_dispatch:', 'on:\n  push:\n  workflow_dispatch:'),
@@ -86,8 +101,7 @@ class Workflows(unittest.TestCase):
             'renamed boundary': PILOT.replace(act.BOUNDARY_STEP, 'Bounded pilot'),
             'bind after boundary': swap(swap(PILOT, act.BIND_STEP, 'TMP'), act.BOUNDARY_STEP, act.BIND_STEP).replace(
                 'TMP', act.BOUNDARY_STEP),
-            'shallow register checkout': swap(PILOT, '          fetch-depth: 0\n      - name: Register',
-                                              '      - name: Register'),
+            'shallow source fetch': swap(PILOT, 'fetch -q --no-tags', 'fetch -q --depth 1 --no-tags'),
         }
         for name, source in mutants.items():
             with self.subTest(name):
@@ -99,6 +113,11 @@ class Workflows(unittest.TestCase):
         self.assertTrue(act.check_smoke_workflow(SMOKE.replace('smoke-register', 'register')))
         self.assertTrue(act.check_smoke_workflow(SMOKE + '# reads the corpus\n'))
         self.assertTrue(act.check_write_surface_workflow(WRITE.replace('write-surface "$RUNNER_TEMP', 'x "$RUNNER_TEMP')))
+        self.assertTrue(act.check_smoke_workflow(swap(SMOKE, SOURCE_BLOCK, CHECKOUT)))
+        self.assertTrue(act.check_write_surface_workflow(swap(WRITE, SOURCE_BLOCK, CHECKOUT)))
+        self.assertTrue(act.check_write_surface_workflow(WRITE.replace(
+            '      - name: Retain write-surface evidence', '      - name: Leak\n        run: echo ${{ github.token }}\n'
+            '      - name: Retain write-surface evidence')))
         self.assertTrue(act.check_kat_workflow(KAT.replace(' test_oracle_v2_mutants', '')))
         self.assertTrue(act.check_kat_workflow(KAT, 'Some other step'))
 
@@ -212,50 +231,92 @@ class WriteSurface(unittest.TestCase):
 
 
 def smoke_docs():
-    """A smoke evaluation and its scenario manifest as the real-GitHub runs would produce them (synthetic)."""
-    runs = [('stop-before-boundary', 31, 1, 'PRE', True), ('cross-boundary', 32, 1, 'MISSING', True),
-            ('rerun-all', 31, 2, 'PRE', True), ('rerun-failed', 31, 3, None, True),
-            ('cancel-after-register', 33, 1, 'PRE', True), ('deleted-run', 34, 1, 'MISSING', False),
-            ('cancel-before-register', 35, 1, None, True)]
-    attempts = [{'run_id': r, 'run_attempt': a, 'class': c, 'violations': []} for _, r, a, c, _ in runs if c]
-    provider = [{'run_id': r, 'run_attempt': a, 'run': {} if present else None} for _, r, a, c, present in runs if c]
-    evaluation = {'schema': act.SMOKE_EVALUATION_SCHEMA, 'blocker': None, 'attempts': attempts,
-                  'unbound_attempts': [], 'provider': provider, 'records': []}
-    scenarios = {'schema': act.SCENARIOS_SCHEMA, 'workflow': reg.SMOKE_WORKFLOW_PATH,
-                 'registry_ref': reg.SMOKE_REGISTRY_REF,
-                 'runs': [{'scenario': s, 'run_id': r, 'run_attempt': a,
-                           'html_url': f'https://github.com/{REPO}/actions/runs/{r}'} for s, r, a, _, _ in runs]}
-    return evaluation, scenarios
+    """Realistic smoke documents: real register code on a local smoke registry and the fake GitHub provider."""
+    if not hasattr(smoke_docs, 'cache'):
+        with tempfile.TemporaryDirectory() as tmp:
+            world = World(tmp)
+            try:
+                smoke_docs.cache = smoke_documents(world, Provider(world))
+            finally:
+                world.close()
+    return copy.deepcopy(smoke_docs.cache)
 
 
 class Smoke(unittest.TestCase):
     def test_required_scenarios(self):
         self.assertEqual(act.verify_smoke(*smoke_docs()), [])
 
-    def test_incomplete_or_misclassified_smoke_is_rejected(self):
+    def test_labels_are_never_evidence(self):
+        """Review of PR 31: a manifest label must not prove a scenario its own run key does not show."""
+        def relabel(**moves):
+            e, s = smoke_docs()
+            for run in s['runs']:
+                if run['scenario'] in moves:
+                    run['run_id'], run['run_attempt'] = moves[run['scenario']]
+                    run['html_url'] = f"https://github.com/{REPO}/actions/runs/{run['run_id']}"
+            return e, s
         cases = {
-            'scenario not executed': lambda e, s: s['runs'].pop(),
-            'pre misclassified': lambda e, s: e['attempts'][0].update({'class': 'MISSING'}),
-            'unexplained entry': lambda e, s: e['attempts'].append({'run_id': 99, 'run_attempt': 1, 'class': 'PRE',
-                                                                    'violations': []}),
-            'unbound attempt': lambda e, s: e['unbound_attempts'].append({'run_id': 31, 'run_attempt': 3}),
-            'rerun-failed registered': lambda e, s: e['attempts'].append({'run_id': 31, 'run_attempt': 3,
-                                                                          'class': 'PRE', 'violations': []}),
-            'deleted run still present': lambda e, s: e['provider'][-1].update({'run': {}}),
-            'registry blocker': lambda e, s: e.update(blocker='REGISTRY_INVALID'),
-            'violations': lambda e, s: e['attempts'][1].update(violations=['BINDING_MISMATCH']),
-            'foreign workflow': lambda e, s: s.update(workflow=reg.WORKFLOW_PATH),
+            'one PRE run as three scenarios': relabel(**{'rerun-all': (31, 1), 'cancel-after-register': (31, 1)}),
+            'absent key as cancel-before-register': relabel(**{'cancel-before-register': (999, 1)}),
+            'absent key as rerun-failed': relabel(**{'rerun-failed': (31, 9)}),
+            'rerun of another run': relabel(**{'rerun-all': (33, 1)}),
+            'rerun-failed before rerun-all': relabel(**{'rerun-all': (31, 3), 'rerun-failed': (31, 2)}),
+            'dispatch reusing a run ID': relabel(**{'cross-boundary': (31, 1)}),
+            'PRE dispatch posing as cancelled': relabel(**{'cancel-after-register': (31, 2)}),
+            'cancel-before-register that registered': relabel(**{'cancel-before-register': (33, 1)}),
+        }
+        for name, (e, s) in cases.items():
+            with self.subTest(name):
+                self.assertTrue(act.verify_smoke(e, s), name)
+
+    def test_provider_facts_decide(self):
+        def edit(fn):
+            e, s = smoke_docs()
+            fn(e, s, {(o['run_id'], o['run_attempt']): o for o in e['provider']})
+            return e, s
+        def job(o, name):
+            return next(j for j in o['run']['jobs'] if j['name'] == name)
+        cases = {
+            'cancel run not cancelled': lambda e, s, o: job(o[33, 1], 'measure').update(conclusion='failure'),
+            'cancel-before-register job succeeded': lambda e, s, o: job(o[35, 1], 'register').update(
+                conclusion='success'),
+            'cancel-before-register not observed': lambda e, s, o: e['provider'].remove(o[35, 1]),
+            'rerun-failed bind succeeded': lambda e, s, o: next(
+                x for x in job(o[31, 3], 'measure')['steps'] if x['role'] == 'bind').update(conclusion='success'),
+            'deleted run still present': lambda e, s, o: o[34, 1].update(run=o[31, 1]['run']),
+            'other workflow': lambda e, s, o: o[32, 1]['run'].update(workflow_path=reg.WORKFLOW_PATH),
+            'pre misclassified': lambda e, s, o: e['attempts'][0].update({'class': 'MISSING'}),
+            'unexplained entry': lambda e, s, o: e['attempts'].append({'run_id': 99, 'run_attempt': 1,
+                                                                       'class': 'PRE', 'violations': []}),
+            'unbound attempt': lambda e, s, o: e['unbound_attempts'].append({'run_id': 31, 'run_attempt': 3}),
+            'registry blocker': lambda e, s, o: e.update(blocker='REGISTRY_INVALID'),
+            'scenario missing': lambda e, s, o: s['runs'].pop(),
+            'scenario repeated': lambda e, s, o: s['runs'].append(dict(s['runs'][0])),
+            'foreign workflow manifest': lambda e, s, o: s.update(workflow=reg.WORKFLOW_PATH),
         }
         for name, fn in cases.items():
             with self.subTest(name):
-                e, s = smoke_docs()
-                fn(e, s)
-                self.assertTrue(act.verify_smoke(e, s), name)
+                self.assertTrue(act.verify_smoke(*edit(fn)), name)
+
+
+class FakeGitHub:
+    """Pull requests, reviews and issue comments as the constant provider API returns them."""
+
+    def __init__(self):
+        self.docs = {}
+
+    def __call__(self, path):
+        return copy.deepcopy(self.docs.get(path))
+
+
+AUTHOR, REVIEWER = 'author-login', 'reviewer-login'
+GENESIS_PR, INFRA_PR = 31, 40
+GENESIS_MERGE, INFRA_MERGE, INFRA_HEAD = 'a' * 40, 'b' * 40, 'c' * 40
 
 
 class Record(unittest.TestCase):
-    """Complete synthetic activation in a temporary tree: proves the record is checkable end to end, not that any
-    item holds on GitHub. Nothing of this is committed."""
+    """Complete synthetic activation (infra record, enable record, live items 6/11/12) in a temporary tree: proves the
+    records are checkable end to end, not that any item holds on GitHub. Nothing of this is committed."""
 
     def setUp(self):
         self.files = {p: (ROOT / p).read_bytes() for p in (act.PILOT_WORKFLOW, act.SMOKE_WORKFLOW,
@@ -273,46 +334,113 @@ class Record(unittest.TestCase):
             path = f'{act.EVIDENCE_DIR}{name}.json'
             self.files[path] = ev.canonical(doc)
             evidence[name] = {'path': path, 'sha256': ev.sha256(self.files[path])}
+        self.infra = {'schema': act.INFRA_SCHEMA, 'g1_contract': reg.G1_CONTRACT,
+                      'g1_freeze_sha256': reg.G1_FREEZE_SHA256,
+                      'steps': {'register': act.REGISTER_STEP, 'bind': act.BIND_STEP, 'boundary': act.BOUNDARY_STEP,
+                                'kat': act.KAT_STEP},
+                      'registry': {'ref': reg.REGISTRY_REF, 'genesis_sha256': act.GENESIS_SHA256['production'],
+                                   'root_commit': act.ROOT_COMMIT['production']},
+                      'genesis_review': {'pull_request': GENESIS_PR, 'merge_commit_sha': GENESIS_MERGE},
+                      'evidence': evidence}
+        self.files[act.INFRA_FILE] = ev.canonical(self.infra)
+        infra_sha = ev.sha256(self.files[act.INFRA_FILE])
+        body = f'Independent review done.\n{act.DECISION_PHRASE.format(infra_sha)}\n'
         self.record = {'schema': act.SCHEMA, 'g1_contract': reg.G1_CONTRACT, 'g1_freeze_sha256': reg.G1_FREEZE_SHA256,
-                       'steps': {'register': act.REGISTER_STEP, 'bind': act.BIND_STEP, 'boundary': act.BOUNDARY_STEP,
-                                 'kat': act.KAT_STEP},
-                       'registry': {'ref': reg.REGISTRY_REF, 'genesis_sha256': act.GENESIS_SHA256['production'],
-                                    'root_commit': act.ROOT_COMMIT['production']},
-                       'evidence': {'genesis_pull_request': 40, **evidence}, 'review': {'pull_request': 41},
-                       'natural_measurement': {'decision_url': f'https://github.com/{REPO}/issues/27#issuecomment-1'}}
+                       'infra': {'path': act.INFRA_FILE, 'sha256': infra_sha},
+                       'infra_review': {'pull_request': INFRA_PR, 'merge_commit_sha': INFRA_MERGE, 'review_id': 501},
+                       'decision': {'issue': act.DECISION_ISSUE, 'comment_id': 9001,
+                                    'body_sha256': ev.sha256(body.encode())}}
+        self.at = {(GENESIS_MERGE, act.TOOL_FILE): (ROOT / act.TOOL_FILE).read_bytes(),
+                   (INFRA_MERGE, act.INFRA_FILE): self.files[act.INFRA_FILE]}
+        self.main = {GENESIS_MERGE, INFRA_MERGE}
+        self.gh = FakeGitHub()
+        api = f'/repos/{REPO}'
+        for number, merge, head, merged_at in ((GENESIS_PR, GENESIS_MERGE, 'd' * 40, '2026-10-05T10:00:00Z'),
+                                               (INFRA_PR, INFRA_MERGE, INFRA_HEAD, '2026-10-06T10:00:00Z')):
+            self.gh.docs[f'{api}/pulls/{number}'] = {
+                'number': number, 'merged': True, 'merge_commit_sha': merge, 'merged_at': merged_at,
+                'base': {'ref': 'main', 'repo': {'full_name': REPO}}, 'head': {'sha': head},
+                'user': {'login': AUTHOR, 'type': 'User'}}
+        self.gh.docs[f'{api}/pulls/{INFRA_PR}/reviews?per_page=100'] = [
+            {'id': 500, 'state': 'COMMENTED', 'commit_id': INFRA_HEAD, 'user': {'login': AUTHOR, 'type': 'User'}},
+            {'id': 501, 'state': 'APPROVED', 'commit_id': INFRA_HEAD, 'user': {'login': REVIEWER, 'type': 'User'}}]
+        self.gh.docs[f'{api}/issues/comments/9001'] = {
+            'id': 9001, 'issue_url': f'{reg.PROVIDER_API}{api}/issues/{act.DECISION_ISSUE}', 'body': body,
+            'author_association': 'OWNER', 'user': {'login': AUTHOR, 'type': 'User'},
+            'created_at': '2026-10-06T12:00:00Z'}
 
-    def read(self, path):
-        return self.files.get(path)
+    def view(self, files=None, at=None, main=None):
+        files, at, main = files or self.files, at or self.at, main or self.main
+        return act.TreeView(files.get, lambda c, p: at.get((c, p)), lambda c: c in main)
 
-    def test_complete_record_verifies_and_binds_by_digest(self):
-        self.assertEqual(act.validate_activation(self.record, self.read), [])
+    def test_complete_records_verify_and_bind_by_digest(self):
+        self.assertEqual(act.validate_infra(self.infra, self.view()), [])
+        self.assertEqual(act.validate_activation(self.record, self.view(), self.gh), [])
         self.files[act.ACTIVATION_FILE] = ev.canonical(self.record)
         digest = ev.sha256(self.files[act.ACTIVATION_FILE])
-        self.assertEqual(act.activation_in_tree(self.read, digest), self.record)
-        self.assertIsNone(act.activation_in_tree(self.read, '0' * 64))
-        self.assertIsNone(act.activation_in_tree(self.read, None))
+        self.assertEqual(act.activation_in_tree(self.view(), self.gh, digest), (self.record, self.infra))
+        self.assertIsNone(act.activation_in_tree(self.view(), self.gh, '0' * 64))
+        self.assertIsNone(act.activation_in_tree(self.view(), self.gh, None))
 
     def test_any_gap_keeps_v2_inactive(self):
-        def edit(fn):
-            r, files = copy.deepcopy(self.record), dict(self.files)
-            fn(r, files)
-            return r, files
-        cases = {
-            'step names': lambda r, f: r['steps'].update(boundary='Bounded pilot'),
-            'genesis': lambda r, f: r['registry'].update(root_commit='0' * 40),
-            'evidence bytes': lambda r, f: f.update({r['evidence']['rulesets']['path']: b'{}'}),
-            'evidence outside the evidence directory': lambda r, f: r['evidence']['smoke'].update(path='README.md'),
-            'no review': lambda r, f: r.update(review={}),
-            'no natural decision': lambda r, f: r.update(natural_measurement={'decision_url': 'https://x.invalid'}),
-            'pilot workflow regressed': lambda r, f: f.update({act.PILOT_WORKFLOW: PILOT.replace(
+        api = f'/repos/{REPO}'
+        comment, reviews = f'{api}/issues/comments/9001', f'{api}/pulls/{INFRA_PR}/reviews?per_page=100'
+        def doc(path):
+            return self.gh.docs[path]
+        cases = {  # (record edit, tree edit, provider edit)
+            'step names': lambda r, f, g: self.infra_edit(f, r, steps={**self.infra['steps'], 'boundary': 'x'}),
+            'genesis root': lambda r, f, g: self.infra_edit(f, r, registry={**self.infra['registry'],
+                                                                            'root_commit': '0' * 40}),
+            'evidence bytes': lambda r, f, g: f.update({self.infra['evidence']['rulesets']['path']: b'{}'}),
+            'pilot workflow regressed': lambda r, f, g: f.update({act.PILOT_WORKFLOW: PILOT.replace(
                 act.BIND_STEP, 'bind').encode()}),
-            'kat workflow missing': lambda r, f: f.pop(act.KAT_WORKFLOW),
-            'other contract': lambda r, f: r.update(g1_freeze_sha256='0' * 64),
+            'infra bytes swapped': lambda r, f, g: f.update({act.INFRA_FILE: f[act.INFRA_FILE] + b' '}),
+            # item 6
+            'genesis PR not merged': lambda r, f, g: doc(f'{api}/pulls/{GENESIS_PR}').update(merged=False),
+            'genesis PR other merge commit': lambda r, f, g: doc(f'{api}/pulls/{GENESIS_PR}').update(
+                merge_commit_sha='e' * 40),
+            'genesis merge tree without the root': lambda r, f, g: self.at.update(
+                {(GENESIS_MERGE, act.TOOL_FILE): b'nothing'}),
+            'genesis PR into another base': lambda r, f, g: doc(f'{api}/pulls/{GENESIS_PR}')['base'].update(ref='x'),
+            # item 11
+            'self approval only': lambda r, f, g: doc(reviews)[1]['user'].update(login=AUTHOR),
+            'dismissed approval': lambda r, f, g: doc(reviews)[1].update(state='DISMISSED'),
+            'approval of an older head': lambda r, f, g: doc(reviews)[1].update(commit_id='f' * 40),
+            'review id of the comment-only review': lambda r, f, g: r['infra_review'].update(review_id=500),
+            'infra PR merged other bytes': lambda r, f, g: self.at.update({(INFRA_MERGE, act.INFRA_FILE): b'{}'}),
+            'infra merge not on main': lambda r, f, g: self.main.discard(INFRA_MERGE),
+            'bot approval': lambda r, f, g: doc(reviews)[1]['user'].update(type='Bot'),
+            # item 12
+            'decision edited': lambda r, f, g: doc(comment).update(body=doc(comment)['body'] + 'edit'),
+            'decision for another infra record': lambda r, f, g: self.redecide(r, act.DECISION_PHRASE.format('0' * 64)),
+            'decision by a non-maintainer': lambda r, f, g: doc(comment).update(author_association='CONTRIBUTOR'),
+            'decision before the infra merge': lambda r, f, g: doc(comment).update(created_at='2026-10-06T09:00:00Z'),
+            'decision on another issue': lambda r, f, g: doc(comment).update(
+                issue_url=f'{reg.PROVIDER_API}{api}/issues/1'),
+            'decision on the wrong issue in the record': lambda r, f, g: r['decision'].update(issue=1),
+            'decision comment deleted': lambda r, f, g: g.docs.pop(comment),
+            'provider down': None,
         }
         for name, fn in cases.items():
             with self.subTest(name):
-                r, files = edit(fn)
-                self.assertTrue(act.validate_activation(r, files.get), name)
+                self.setUp()
+                record, files = copy.deepcopy(self.record), self.files
+                if fn is None:  # provider down
+                    gh = unittest.mock.Mock(side_effect=rg.TransportError('down'))
+                else:
+                    gh = self.gh
+                    fn(record, files, gh)
+                self.assertTrue(act.validate_activation(record, self.view(files), gh), name)
+
+    def infra_edit(self, files, record, **changes):
+        infra = {**self.infra, **changes}
+        files[act.INFRA_FILE] = ev.canonical(infra)
+        record['infra']['sha256'] = ev.sha256(files[act.INFRA_FILE])
+
+    def redecide(self, record, phrase):
+        body = f'{phrase}\n'
+        self.gh.docs[f'/repos/{REPO}/issues/comments/9001']['body'] = body
+        record['decision']['body_sha256'] = ev.sha256(body.encode())
 
 
 class NotActivatedHere(unittest.TestCase):

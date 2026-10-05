@@ -38,10 +38,14 @@ jobs:
     env:
       SOURCE_SHA: ${{ inputs.source_sha }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-          fetch-depth: 0
+      - name: Anonymous source checkout without the write token
+        env:
+          GIT_TERMINAL_PROMPT: '0'
+        run: |
+          git init -q .
+          git -c credential.helper= fetch -q --no-tags https://github.com/definitely-stable/Shift-lab.git \
+            '+refs/heads/main:refs/remotes/source/main' "$GITHUB_SHA"
+          git -c advice.detachedHead=false checkout -q --detach "$GITHUB_SHA"
       - name: Synthetic hold before register
         if: inputs.scenario == 'cancel-before-register'
         run: sleep 600

@@ -5,7 +5,7 @@
     oracle_registry_git.py bind OUT_BINDING.json                    contract 5.8, step `bind` of job `measure`
     oracle_registry_git.py smoke-register                           the same code on the SMOKE registry profile
     oracle_registry_git.py smoke-bind OUT_BINDING.json
-    oracle_registry_git.py smoke-evaluate OUT.json                  classification of the synthetic smoke registry
+    oracle_registry_git.py smoke-evaluate SCENARIOS.json OUT.json   smoke registry + provider facts of every scenario
     oracle_registry_git.py g1 IDENTITY OUT_RECORD.json              production G1 record (none before activation)
 
 Authority is never a parameter: production commands are bound to reg.PRODUCTION (contract 5.1) and the constant provider
@@ -507,6 +507,15 @@ def collect(profile, root, get, roles, evidence, kat_step, evaluator):
     return evaluation, commits
 
 
+def registry_root(root=ev.ROOT, profile=reg.PRODUCTION):
+    """The single root commit of the live registry branch, or None."""
+    with tempfile.TemporaryDirectory() as tmp:
+        gitdir = init_bare(Path(tmp) / 'root.git')
+        head = fetch(gitdir, profile.registry_remote, profile.registry_ref)
+        roots = git(gitdir, 'rev-list', '--max-parents=0', head).decode().split() if head else []
+    return roots[0] if len(roots) == 1 else None
+
+
 def production_inputs(activation_sha256):
     """Inputs of g1._production_evaluate, all from the authority constants. None when the activation record named by
     the code constant is absent or does not verify in the pinned main tree (then v2 is not active)."""
@@ -515,20 +524,30 @@ def production_inputs(activation_sha256):
     main = fetch(root, reg.REGISTRY_REMOTE, MAIN_REF)
     if main is None:
         raise TransportError('main not found')
-    activation = act.activation_in_tree(lambda path: show(root, main, path), activation_sha256)
-    if activation is None:
-        return None
-    steps = activation['steps']
+    view = act.TreeView(lambda path: show(root, main, path), lambda commit, path: show(root, commit, path),
+                        lambda commit: type(commit) is str and ev.HEX40.match(commit) is not None and git(
+                            root, 'merge-base', '--is-ancestor', commit, main, check=False).returncode == 0)
+    activation = act.activation_in_tree(view, api_get, activation_sha256)
+    if activation is None or registry_root(root) != act.ROOT_COMMIT['production']:
+        return None  # item 6: the live registry must start at the reviewed genesis root commit
+    steps = activation[1]['steps']
     roles = {steps['bind']: 'bind', steps['boundary']: 'boundary'}
     return collect(reg.PRODUCTION, root, api_get, roles, lambda pinned: evidence_from_tree(root, pinned),
                    steps['kat'], evaluator_source_sha(root))
 
 
-def smoke_evaluation(root=ev.ROOT, get=api_get):
+def smoke_evaluation(root=ev.ROOT, get=api_get, scenarios=None):
     """Synthetic real-GitHub smoke (activation items 8-9): classification of every entry of the SMOKE registry with the
-    production classifier. No evidence root, no KAT: records are test records and never PASS."""
+    production classifier, plus live provider observations of every run key the scenario manifest names (including
+    runs that never registered), so that each scenario is proven by provider facts. No evidence root, no KAT: records
+    are test records and never PASS."""
     import oracle_activation_v2 as act
     evaluation, commits = collect(reg.SMOKE, root, get, act.ROLES, g1.Evidence.build(), None, None)
+    named = [{'run_id': r['run_id'], 'run_attempt': r['run_attempt']} for r in (scenarios or {}).get('runs', [])
+             if type(r) is dict and oa.positive(r.get('run_id')) and oa.positive(r.get('run_attempt'))]
+    seen = {reg.run_key(o) for o in evaluation.provider}
+    provider = list(evaluation.provider) + [o for o in provider_observations(get, named, act.ROLES)
+                                            if reg.run_key(o) not in seen]
     try:
         reg.authoritative_registry(commits, evaluation.git, reg.SMOKE)
     except (reg.RegistryInvalid, TypeError):
@@ -541,7 +560,7 @@ def smoke_evaluation(root=ev.ROOT, get=api_get):
     return {'schema': act.SMOKE_EVALUATION_SCHEMA, 'main_head_sha': analysis.main_head_sha,
             'blocker': analysis.blocker, 'registry_head': analysis.registry_head,
             'attempts': disclosure['attempts'], 'unbound_attempts': disclosure['unbound_attempts'],
-            'provider': list(evaluation.provider),
+            'provider': sorted(provider, key=reg.run_key),
             'records': [g1.g1_test(i, evaluation, analysis)[1] for i in identities]}
 
 
@@ -575,8 +594,9 @@ def main(argv, env=os.environ):
                            token=env.get('GITHUB_TOKEN'))
             write_new(args[0], ev.canonical(binding))
             print(f"bound sequence={binding['entry_sequence']} observed_head={binding['observed_head']['sequence']}")
-        elif command == 'smoke-evaluate' and len(args) == 1:
-            write_new(args[0], ev.canonical(smoke_evaluation(ev.ROOT)))
+        elif command == 'smoke-evaluate' and len(args) == 2:
+            scenarios = ev.parse_doc(Path(args[0]).read_bytes())
+            write_new(args[1], ev.canonical(smoke_evaluation(ev.ROOT, scenarios=scenarios)))
             print('smoke registry evaluated')
         elif command == 'g1' and len(args) == 2:
             record = g1._production_evaluate(args[0]) if ev.HEX64.match(args[0]) else None
