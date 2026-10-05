@@ -668,33 +668,39 @@ def kat_verified(get, repo, sha, root=ev.ROOT):
         freeze = ev.parse_doc((Path(root) / '.work' / 'oracle' / 'freeze.json').read_bytes())
         check(all(ev.sha256(_git_show(root, sha, path)) == value for path, value in freeze['files'].items()),
               'evaluator commit KAT files differ from freeze')
-        workflow = get(f'/repos/{repo}/actions/workflows/oracle-smoke.yml')
-        check(workflow['path'] == SMOKE_WORKFLOW and positive(workflow['id']), 'smoke workflow identity')
-        green = False
-        for run in budget.paged(get, f'/repos/{repo}/actions/workflows/oracle-smoke.yml/runs?head_sha={sha}',
-                                'workflow_runs'):
-            check(run['head_sha'] == sha and run['workflow_id'] == workflow['id'], 'smoke run identity')
-            if run['event'] not in KAT_EVENTS or run['repository']['full_name'] != repo or \
-                    run['head_repository']['full_name'] != repo:
-                continue
-            for number in range(1, run['run_attempt'] + 1):
-                attempt = get(f"/repos/{repo}/actions/runs/{run['id']}/attempts/{number}")
-                check(attempt['id'] == run['id'] and attempt['run_attempt'] == number and
-                      attempt['head_sha'] == sha, 'smoke attempt identity')
-                if attempt['conclusion'] in ('cancelled', 'skipped'):
-                    continue
-                if attempt['status'] != 'completed' or attempt['conclusion'] != 'success':
-                    return False
-                steps = [step for job in budget.paged(
-                    get, f"/repos/{repo}/actions/runs/{run['id']}/attempts/{number}/jobs", 'jobs')
-                    if job['name'] == KAT_JOB and job['run_attempt'] == number and job['head_sha'] == sha
-                    for step in job['steps'] if step['name'] == KAT_STEP]
-                if len(steps) != 1 or steps[0]['conclusion'] != 'success':
-                    return False
-                green = True
-        return green
+        return kat_actions_green(get, repo, sha)
     except Exception:  # unverifiable evidence is never green
         return False
+
+
+def kat_actions_green(get, repo, sha, step_name=KAT_STEP):
+    """Actions API part of the KAT gate (shared with contract v2): at least one push/dispatch oracle-smoke.yml run for
+    exactly `sha` in `repo` with a successful KAT step, and no red or pending attempt. Raises on inconsistent data."""
+    workflow = get(f'/repos/{repo}/actions/workflows/oracle-smoke.yml')
+    check(workflow['path'] == SMOKE_WORKFLOW and positive(workflow['id']), 'smoke workflow identity')
+    green = False
+    for run in budget.paged(get, f'/repos/{repo}/actions/workflows/oracle-smoke.yml/runs?head_sha={sha}',
+                            'workflow_runs'):
+        check(run['head_sha'] == sha and run['workflow_id'] == workflow['id'], 'smoke run identity')
+        if run['event'] not in KAT_EVENTS or run['repository']['full_name'] != repo or \
+                run['head_repository']['full_name'] != repo:
+            continue
+        for number in range(1, run['run_attempt'] + 1):
+            attempt = get(f"/repos/{repo}/actions/runs/{run['id']}/attempts/{number}")
+            check(attempt['id'] == run['id'] and attempt['run_attempt'] == number and
+                  attempt['head_sha'] == sha, 'smoke attempt identity')
+            if attempt['conclusion'] in ('cancelled', 'skipped'):
+                continue
+            if attempt['status'] != 'completed' or attempt['conclusion'] != 'success':
+                return False
+            steps = [step for job in budget.paged(
+                get, f"/repos/{repo}/actions/runs/{run['id']}/attempts/{number}/jobs", 'jobs')
+                if job['name'] == KAT_JOB and job['run_attempt'] == number and job['head_sha'] == sha
+                for step in job['steps'] if step['name'] == step_name]
+            if len(steps) != 1 or steps[0]['conclusion'] != 'success':
+                return False
+            green = True
+    return green
 
 
 def _g1(identity, results, snap):
