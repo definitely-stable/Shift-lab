@@ -34,12 +34,33 @@ GENESIS_FILE, ENTRIES_FILE = 'genesis.json', 'entries.jsonl'
 ENTRY_SCHEMA = 'delsk.oracle.registry-entry.v1'
 SCIENCE_SCHEMA = 'delsk.oracle.science-identity.v1'
 _SCHEMAS = ev.parse_doc((ev.ORACLE / 'schemas-v2.json').read_bytes())
-# SHA-256 of the v1 freeze.json (contract 1), as frozen in the genesis schema.
+# SHA-256 of the frozen contracts. The v2 digest is an authority constant of this contract generation; a future
+# provenance contract gets a new module/constant rather than making this caller-selectable.
 MEASUREMENT_FREEZE_SHA256 = _SCHEMAS['$defs']['registry_genesis']['properties']['measurement_freeze_sha256']['const']
+G1_FREEZE_SHA256 = 'd8e3c33a8eeaed7c112189b98bd8bd7f7d2a422aa8efca6733528738f2a34b57'
 
 
 class RegistryInvalid(ev.EvalError):
     """Contract 5.6 item 1: the registry is permanently REGISTRY_INVALID. No repair inside v2."""
+
+
+_PHYSICAL_PROOF = object()
+
+
+@dataclass(frozen=True)
+class PhysicalRegistry:
+    """Opaque authoritative registry snapshot.
+
+    Only authoritative_registry() can construct a usable instance: it first verifies the complete Git history shape
+    (contract 5.2), parses canonical bytes and binds genesis to this contract's exact freeze-v2 digest. The snapshot
+    stores immutable bytes so later callers cannot mutate the already-validated registry objects in place.
+    """
+    genesis_bytes: bytes
+    entries_bytes: bytes
+    _proof: object
+
+    def __post_init__(self):
+        require(self._proof is _PHYSICAL_PROOF, 'physical registry proof')
 
 
 def require(ok, reason):
@@ -166,6 +187,25 @@ def validate_physical(commits):
                 'commit must append exactly one entry line')
         entries_bytes = files[ENTRIES_FILE]
     return genesis_bytes, entries_bytes
+
+
+def authoritative_registry(commits, git):
+    """Composition boundary for production/runner code.
+
+    The returned object cannot be obtained from a logically-valid final tree alone: the full registry branch history
+    must first satisfy section 5.2, and genesis must bind to the exact frozen v2 contract. Duplicate run keys remain
+    section 5.6 item 2 and are intentionally checked by the caller so it can preserve REGISTRY_DUPLICATE semantics.
+    """
+    genesis_bytes, entries_bytes = validate_physical(commits)
+    genesis, entries = parse_registry(genesis_bytes, entries_bytes)
+    validate(genesis, entries, git, G1_FREEZE_SHA256)
+    return PhysicalRegistry(genesis_bytes, entries_bytes, _PHYSICAL_PROOF)
+
+
+def physical_objects(snapshot):
+    """Reparse immutable bytes from an authoritative registry snapshot."""
+    require(type(snapshot) is PhysicalRegistry and snapshot._proof is _PHYSICAL_PROOF, 'authoritative registry required')
+    return parse_registry(snapshot.genesis_bytes, snapshot.entries_bytes)
 
 
 def validate(genesis, entries, git, g1_freeze_sha256=None):
