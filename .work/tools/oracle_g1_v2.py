@@ -409,7 +409,7 @@ def analyze_authoritative(evaluation, registry_commits):
     except (reg.RegistryInvalid, TypeError):
         return _no_verdict(evaluation.git, 'REGISTRY_INVALID')
     if (ev.compact(genesis) != ev.compact(evaluation.genesis)
-            or ev.jsonl(entries) != ev.jsonl(evaluation.entries)
+            or ev.compact(list(entries)) != ev.compact(list(evaluation.entries))
             or evaluation.g1_freeze_sha256 != reg.G1_FREEZE_SHA256):
         return _no_verdict(evaluation.git, 'REGISTRY_INVALID')
     return analyze(evaluation)
