@@ -235,8 +235,9 @@ class G1(unittest.TestCase):
             with patch.object(ev, 'attempt_record', side_effect=lambda d: by_name[d.name]), \
                     patch.object(oa, 'check_bundle_binding'), patch.object(oa, '_materialization'), \
                     patch.object(oa, '_envelope_receipt'), patch.dict(os.environ, {'GITHUB_REPOSITORY': REPO}):
-                return oa.g1_root(ID, root, snapshot=None if live else snap, now=NOW,
-                                  get=API(runs), resolve_source=source, **kw)
+                if live:
+                    return oa.g1_root(ID, root, now=NOW, get=API(runs), resolve_source=source, **kw)
+                return oa.g1_offline(ID, root, snap, now=NOW, **kw)
 
     def test_A_no_dispatch_is_not_run(self):
         self.assertEqual(self.evaluate([], []), ('NOT_RUN', []))
@@ -245,7 +246,7 @@ class G1(unittest.TestCase):
         self.assertEqual(self.evaluate([run(1)], [record(run(1))]), ('NOT_PASSED', ['REPEAT_MISSING']))
 
     def test_C_two_identical_independent_runs_pass(self):
-        self.assertEqual(self.evaluate([run(1), run(2)], [record(run(1)), record(run(2))]), ('PASS', []))
+        self.assertEqual(self.evaluate([run(1), run(2)], [record(run(1)), record(run(2))]), ('TEST_ONLY_PASS', []))
 
     def test_D_same_run_rerun_does_not_count(self):
         self.assertEqual(self.evaluate([run(1, 2)], [record(run(1)), record(run(1), run_attempt=2)]),
@@ -289,7 +290,22 @@ class G1(unittest.TestCase):
         # API history with 1/2 can look exactly like 1/2/3 after 3 was deleted
         # before this inventory's first observation. Re-reading cannot prove it.
         self.assertEqual(self.evaluate([run(1), run(2)], [record(run(1)), record(run(2))], live=True),
-                         ('NOT_PASSED', ['DISPATCH_HISTORY_UNVERIFIED']))
+                         ('NOT_PASSED', ['DISPATCH_HISTORY_UNVERIFIED', 'KAT_NOT_VERIFIED']))
+
+    def test_explicit_snapshot_is_not_a_production_input(self):
+        runs = [run(1), run(2)]
+        with self.assertRaises(TypeError):
+            oa.g1_root(ID, Path('unused'), snapshot=snapshot(runs))
+        # The offline projection of a scientifically passing root is never PASS.
+        self.assertEqual(self.evaluate(runs, [record(r) for r in runs]), ('TEST_ONLY_PASS', []))
+
+    def test_kat_evidence_gates_production_g1(self):
+        runs = [run(1), run(2)]
+        for green, expected in ((False, ['DISPATCH_HISTORY_UNVERIFIED', 'KAT_NOT_VERIFIED']),
+                                (True, ['DISPATCH_HISTORY_UNVERIFIED'])):
+            with patch.object(oa, 'kat_verified', return_value=green) as kat:
+                self.assertEqual(self.evaluate(runs, [record(r) for r in runs], live=True), ('NOT_PASSED', expected))
+                self.assertEqual(kat.call_args.args[1:], (REPO, SHA))
 
     def test_deleted_policy_rejected_tail_has_no_inventory_witness(self):
         # Execution policy refusal may create a failed run. If it is deleted
@@ -299,7 +315,7 @@ class G1(unittest.TestCase):
         self.assertEqual(len(snapshot(visible + [rejected])['attempts']), 3)
         self.assertEqual(len(snapshot(visible)['attempts']), 2)
         self.assertEqual(self.evaluate(visible, [record(r) for r in visible], live=True),
-                         ('NOT_PASSED', ['DISPATCH_HISTORY_UNVERIFIED']))
+                         ('NOT_PASSED', ['DISPATCH_HISTORY_UNVERIFIED', 'KAT_NOT_VERIFIED']))
 
     def test_manual_rerun_missing_from_broker_cannot_be_omitted(self):
         # A journal covering only initial requests is incomplete when another
@@ -309,7 +325,7 @@ class G1(unittest.TestCase):
         self.assertEqual([(a['run_id'], a['run_attempt']) for a in with_rerun['attempts']],
                          [(10, 1), (10, 2), (20, 1)])
         self.assertEqual(self.evaluate(visible, [record(r) for r in visible], live=True),
-                         ('NOT_PASSED', ['ATTEMPT_NOT_RETAINED', 'DISPATCH_HISTORY_UNVERIFIED']))
+                         ('NOT_PASSED', ['ATTEMPT_NOT_RETAINED', 'DISPATCH_HISTORY_UNVERIFIED', 'KAT_NOT_VERIFIED']))
 
     def test_custom_results_root_cannot_bypass_production_inventory(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -318,6 +334,59 @@ class G1(unittest.TestCase):
             with patch.object(oa, 'g1_root', return_value=('NOT_PASSED', ['DISPATCH_HISTORY_UNVERIFIED'])) as call:
                 self.assertEqual(ev.g1_root(ID, root), ('NOT_PASSED', ['DISPATCH_HISTORY_UNVERIFIED']))
                 call.assert_called_once_with(ID, root)
+
+
+class SmokeAPI:
+    """oracle-smoke.yml runs at SHA: attempts [(event, [(status, conclusion, kat_step_conclusion)])]."""
+    def __init__(self, runs, repo=REPO):
+        self.runs = [dict(id=100 + i, event=event, head_sha=SHA, workflow_id=9, run_attempt=len(attempts),
+                          repository={'full_name': REPO}, head_repository={'full_name': repo})
+                     for i, (event, attempts) in enumerate(runs)]
+        self.attempts = {(100 + i, n): a for i, (_, attempts) in enumerate(runs) for n, a in enumerate(attempts, 1)}
+
+    def __call__(self, path):
+        if path.endswith('/actions/workflows/oracle-smoke.yml'):
+            return {'id': 9, 'path': oa.SMOKE_WORKFLOW}
+        if '/runs?head_sha=' in path:
+            return {'total_count': len(self.runs), 'workflow_runs': copy.deepcopy(self.runs)}
+        tail = path.split('/actions/runs/')[1].split('?')[0].split('/')
+        status, conclusion, step = self.attempts[int(tail[0]), int(tail[2])]
+        if len(tail) == 3:
+            return dict(id=int(tail[0]), run_attempt=int(tail[2]), head_sha=SHA, status=status, conclusion=conclusion)
+        job = dict(id=int(tail[0]) * 10 + int(tail[2]), name='smoke', run_attempt=int(tail[2]), head_sha=SHA,
+                   steps=[{'name': oa.KAT_STEP, 'conclusion': step}])
+        return {'total_count': 1, 'jobs': [job]}
+
+
+class KAT(unittest.TestCase):
+    GREEN = ('completed', 'success', 'success')
+
+    def verified(self, runs, repo=REPO, show=None):
+        reviewed = lambda root, sha, path: (Path(root) / path).read_bytes()
+        with patch.object(oa, '_git_show', side_effect=show or reviewed):
+            return oa.kat_verified(SmokeAPI(runs, repo), REPO, SHA)
+
+    def test_green_exact_commit_kat_is_verified(self):
+        self.assertTrue(self.verified([('push', [self.GREEN])]))
+        self.assertTrue(self.verified([('workflow_dispatch', [('completed', 'cancelled', None), self.GREEN])]))
+
+    def test_missing_failed_pending_or_foreign_kat_is_not_verified(self):
+        for runs, repo in (([], REPO),
+                           ([('pull_request', [self.GREEN])], REPO),
+                           ([('push', [self.GREEN])], 'fork/repo'),
+                           ([('push', [('completed', 'failure', 'failure'), self.GREEN])], REPO),
+                           ([('push', [self.GREEN]), ('workflow_dispatch', [('in_progress', None, None)])], REPO),
+                           ([('push', [('completed', 'success', 'skipped')])], REPO)):
+            with self.subTest(runs=runs, repo=repo):
+                self.assertFalse(self.verified(runs, repo))
+
+    def test_unreviewed_suite_at_evaluator_commit_is_not_verified(self):
+        for changed in (oa.SMOKE_WORKFLOW, '.work/oracle/known-answer.json'):
+            def show(root, sha, path, changed=changed):
+                data = (Path(root) / path).read_bytes()
+                return data + b'#' if path == changed else data
+            with self.subTest(changed=changed):
+                self.assertFalse(self.verified([('push', [self.GREEN])], show=show))
 
 
 class Envelopes(unittest.TestCase):
@@ -431,7 +500,7 @@ class Envelopes(unittest.TestCase):
             oa.retain(envelope, root, snapshot=snap)
             self.assertFalse((root / '10-1').exists())
             self.assertTrue((root / '.attempts' / '10-1' / 'attempt.json').is_file())
-            self.assertIn('ATTEMPT_NOT_RETAINED', oa.g1_root(ID, root, snapshot=snap, now=NOW)[1])
+            self.assertIn('ATTEMPT_NOT_RETAINED', oa.g1_offline(ID, root, snap, now=NOW)[1])
 
     def test_unknown_envelope_and_source_mismatch_leave_no_retained_output(self):
         for mode in ('source', 'extra', 'unknown', 'materialization'):

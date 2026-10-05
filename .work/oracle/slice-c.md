@@ -34,7 +34,9 @@ Intended flow: Actions → immutable dispatch/status/envelope artifacts → insp
 
 Every dispatch entry retains measurement identity, run ID/attempt, source/workflow SHA and creation metadata. Immutable dispatch identity is distinct from changing status observations in snapshots and from verified scientific bundles. Retention verifies closed checksums and bindings, preserves attempt/materialization sidecars under `.attempts/<run-id>-<attempt>/`, and retains normative bundles through the existing independent verifier. PR CI compares against the immutable base commit: prior entries, snapshots, sidecars and bundles cannot be deleted, rewritten or cherry-picked. A status-only artifact records existence but never counts as a verified oracle bundle. Missing bundle blocks PASS with `ATTEMPT_NOT_RETAINED`; INVALID cannot be replaced by later success. Reruns do not count as independent run IDs; identities cannot be mixed.
 
-Synthetic A–J tests preserve frozen G1 outcomes (two independent identical COMPLETE → PASS; INVALID precedence; incomplete/missing/extra/identity/rerun rejection; commitments/cost/target mismatches → INVALID). Explicit injected snapshots exist only for offline synthetic integration tests; production CLI has no snapshot bypass. The production history guard prevents these synthetic PASS examples from being mistaken for natural evidence.
+Synthetic A–J tests preserve frozen G1 outcomes (two independent identical COMPLETE → scientific pass; INVALID precedence; incomplete/missing/extra/identity/rerun rejection; commitments/cost/target mismatches → INVALID). Production `g1_root` takes no snapshot: it always refreshes the independent inventory. Supplied snapshots go only to the separate offline `g1_offline`, which reports a scientific pass as `TEST_ONLY_PASS`, never `PASS`.
+
+Frozen §7 also requires a green KAT suite on the evaluator commit. Production G1 checks this from the independent Actions API, never from bundle fields: the reviewed `oracle-smoke.yml` and the frozen KAT files must be byte-identical at the exact measured commit, and at least one push/dispatch smoke run for that commit in this repository must have a successful KAT step. Every attempt counts; a red or pending attempt is not outvoted by a green rerun, and pull_request runs (merge refs) do not count. Missing, red or unverifiable evidence adds `KAT_NOT_VERIFIED`.
 
 ## Bounds, failures and leakage
 
@@ -52,6 +54,7 @@ Job ≤30 min; supervised setup/workload ≤22 min; frozen per-codec timeout; pe
 | Killed runner / wall limit | `RUNNER_KILLED` / `PROCESS_WALL_TIMEOUT` |
 | Artifact upload failure | `ARTIFACT_UPLOAD_FAILED` |
 | Unprovable historical dispatch coverage | `DISPATCH_HISTORY_UNVERIFIED` |
+| No green exact-commit KAT evidence (G1 blocker) | `KAT_NOT_VERIFIED` |
 
 Before the first pair, failures leave bounded attempt/status evidence when upload is possible. Partial runs recover missing rows as INCOMPLETE via the frozen finalizer; they never count as COMPLETE. Runner loss or upload failure still needs independently captured dispatch evidence, which is why production remains blocked.
 

@@ -71,6 +71,10 @@ API_STATUSES = frozenset(('queued', 'in_progress', 'completed', 'waiting', 'pend
 API_CONCLUSIONS = frozenset(('success', 'failure', 'neutral', 'cancelled', 'skipped', 'timed_out',
                              'action_required', 'stale', 'startup_failure'))
 MAX_AGE_SECONDS = 3600
+SMOKE_WORKFLOW = '.github/workflows/oracle-smoke.yml'
+KAT_JOB = 'smoke'
+KAT_STEP = 'Oracle tests (contract, production KAT/G1, mutants, metamorphic, faults, pinned codecs)'
+KAT_EVENTS = frozenset(('push', 'workflow_dispatch'))
 
 
 class AttemptError(ev.EvalError):
@@ -613,6 +617,13 @@ def retain(envelope, results=ev.RESULTS, snapshot=None, validate_materialization
     return target if has_bundle else sidecar
 
 
+def _git_show(root, sha, path):
+    out = subprocess.run(['git', '-c', f'safe.directory={Path(root).as_posix()}', 'show', f'{sha}:{path}'],
+                         cwd=root, capture_output=True, check=False)
+    check(out.returncode == 0, 'unavailable source commit manifest')
+    return out.stdout
+
+
 def git_source(head_sha, ref, root=ev.ROOT):
     """Pilot identity exactly as run.prepare, from Git object bytes; no build/fetch/measurement.
 
@@ -621,10 +632,7 @@ def git_source(head_sha, ref, root=ev.ROOT):
     """
     check(digest(head_sha, 40), 'immutable source SHA required')
     def read(path):
-        out = subprocess.run(['git', '-c', f'safe.directory={Path(root).as_posix()}', 'show',
-                              f'{head_sha}:{path}'], cwd=root, capture_output=True, check=False)
-        check(out.returncode == 0, 'unavailable source commit manifest')
-        return out.stdout
+        return _git_show(root, head_sha, path)
     read(WORKFLOW)
     freeze_data, codec_data = read('.work/oracle/freeze.json'), read('.work/oracle/codec-lock.json')
     check(freeze_data == (ev.ORACLE / 'freeze.json').read_bytes() and
@@ -645,27 +653,57 @@ def git_source(head_sha, ref, root=ev.ROOT):
                 workflow_sha=head_sha, workflow_ref=ref)
 
 
-def g1_root(identity, results=ev.RESULTS, snapshot=None, now=None, max_age_seconds=MAX_AGE_SECONDS,
-            get=None, resolve_source=None):
-    """Enumerate the full evidence root. Explicit snapshots are offline test/review inputs;
-    production default refreshes API and uses immutable Git commit manifests.
+def kat_verified(get, repo, sha, root=ev.ROOT):
+    """Frozen contract section 7: KAT suite green on the exact evaluator commit.
+
+    Evidence is the independent Actions API, never a field claimed by a bundle. Only the
+    reviewed oracle-smoke.yml with the frozen KAT files counts, run for exactly `sha` in
+    this repository by push or dispatch (pull_request tests a merge ref, not the commit).
+    Every attempt counts: a red attempt is not outvoted by a green rerun; pending blocks.
     """
+    try:
+        check(repository(repo) and digest(sha, 40), 'KAT evidence identity')
+        check(_git_show(root, sha, SMOKE_WORKFLOW) == (Path(root) / SMOKE_WORKFLOW).read_bytes(),
+              'evaluator commit smoke workflow differs from reviewed KAT suite')
+        freeze = ev.parse_doc((Path(root) / '.work' / 'oracle' / 'freeze.json').read_bytes())
+        check(all(ev.sha256(_git_show(root, sha, path)) == value for path, value in freeze['files'].items()),
+              'evaluator commit KAT files differ from freeze')
+        workflow = get(f'/repos/{repo}/actions/workflows/oracle-smoke.yml')
+        check(workflow['path'] == SMOKE_WORKFLOW and positive(workflow['id']), 'smoke workflow identity')
+        green = False
+        for run in budget.paged(get, f'/repos/{repo}/actions/workflows/oracle-smoke.yml/runs?head_sha={sha}',
+                                'workflow_runs'):
+            check(run['head_sha'] == sha and run['workflow_id'] == workflow['id'], 'smoke run identity')
+            if run['event'] not in KAT_EVENTS or run['repository']['full_name'] != repo or \
+                    run['head_repository']['full_name'] != repo:
+                continue
+            for number in range(1, run['run_attempt'] + 1):
+                attempt = get(f"/repos/{repo}/actions/runs/{run['id']}/attempts/{number}")
+                check(attempt['id'] == run['id'] and attempt['run_attempt'] == number and
+                      attempt['head_sha'] == sha, 'smoke attempt identity')
+                if attempt['conclusion'] in ('cancelled', 'skipped'):
+                    continue
+                if attempt['status'] != 'completed' or attempt['conclusion'] != 'success':
+                    return False
+                steps = [step for job in budget.paged(
+                    get, f"/repos/{repo}/actions/runs/{run['id']}/attempts/{number}/jobs", 'jobs')
+                    if job['name'] == KAT_JOB and job['run_attempt'] == number and job['head_sha'] == sha
+                    for step in job['steps'] if step['name'] == KAT_STEP]
+                if len(steps) != 1 or steps[0]['conclusion'] != 'success':
+                    return False
+                green = True
+        return green
+    except Exception:  # unverifiable evidence is never green
+        return False
+
+
+def _g1(identity, results, snap):
+    """Audit the whole evidence root against a validated snapshot and apply the frozen
+    scientific G1. Returns (verdict, blockers, evaluator commit); never authority alone."""
     check(digest(identity), 'G1 identity syntax')
-    production = snapshot is None
     results = Path(results)
     doc = _read(results / 'attempts.json') if results.exists() else dict(schema=LEDGER_SCHEMA, attempts=[])
     entries = audit_ledger(doc)
-    if snapshot is None:
-        prior = _read(results / 'inventory.json') if (results / 'inventory.json').exists() else None
-        repo = prior['repository'] if prior else os.environ.get('GITHUB_REPOSITORY')
-        if repo is None:
-            rem = subprocess.run(['git', 'remote', 'get-url', 'origin'], cwd=ev.ROOT, capture_output=True,
-                                 text=True, check=False)
-            match = re.search(r'github\.com[:/]([^/]+/[^/]+?)(?:\.git)?\s*$', rem.stdout)
-            check(rem.returncode == 0 and match is not None, 'G1 needs repository for independent inventory')
-            repo = match[1]
-        snapshot = inventory(get or budget.github_get, repo, resolve_source or git_source, now)
-    snap = validate_snapshot(snapshot, now, max_age_seconds)
     check(reconcile(snap, doc) == doc, 'G1 ledger missing independently inventoried dispatch')
     if results.exists():
         _no_links(results)
@@ -703,22 +741,49 @@ def g1_root(identity, results=ev.RESULTS, snapshot=None, now=None, max_age_secon
     selected = [r for r in records if r['identity'] == identity]
     ledger = [k for k, a in entries.items() if a['measurement_identity_sha256'] == identity]
     if not ledger and not selected:
-        return 'NOT_RUN', []
+        return 'NOT_RUN', [], None
     verdict, blockers = ev.g1_inventory(selected, ledger)
-    pending = any(a['measurement_identity_sha256'] == identity and a['github_status'] != 'completed'
-                  for a in snap['attempts'])
-    if verdict != 'INVALID':
-        if pending:
-            blockers = sorted({*blockers, 'INVENTORY_PENDING'})
-        # The Actions API cannot reveal a trailing run deleted before anyone
-        # inventoried it. A contiguous list and two reads do not prove inception
-        # completeness. No independently durable dispatch capture exists in C0;
-        # never manufacture a production PASS from this API-only projection.
-        if production:
-            blockers = sorted({*blockers, 'DISPATCH_HISTORY_UNVERIFIED'})
-        if blockers:
-            return 'NOT_PASSED', blockers
-    return verdict, blockers
+    sources = {entries[k]['measured_source_sha'] for k in ledger}
+    check(len(sources) == 1, 'G1 identity spans evaluator commits')
+    if verdict != 'INVALID' and any(a['measurement_identity_sha256'] == identity and
+                                    a['github_status'] != 'completed' for a in snap['attempts']):
+        verdict, blockers = 'NOT_PASSED', sorted({*blockers, 'INVENTORY_PENDING'})
+    return verdict, blockers, sources.pop()
+
+
+def g1_offline(identity, results, snapshot, now=None, max_age_seconds=MAX_AGE_SECONDS):
+    """Review/test projection over a supplied snapshot. A supplied snapshot is not
+    independent history, so it never yields PASS: a passing root reports TEST_ONLY_PASS."""
+    verdict, blockers, _ = _g1(identity, results, validate_snapshot(snapshot, now, max_age_seconds))
+    return ('TEST_ONLY_PASS' if verdict == 'PASS' else verdict), blockers
+
+
+def g1_root(identity, results=ev.RESULTS, now=None, max_age_seconds=MAX_AGE_SECONDS, get=None,
+            resolve_source=None):
+    """Production G1 over the full evidence root. Always refreshes the independent API
+    inventory and checks KAT evidence for the evaluator commit; takes no snapshot."""
+    check(digest(identity), 'G1 identity syntax')
+    get = get or budget.github_get
+    results = Path(results)
+    prior = _read(results / 'inventory.json') if (results / 'inventory.json').exists() else None
+    repo = prior['repository'] if prior else os.environ.get('GITHUB_REPOSITORY')
+    if repo is None:
+        rem = subprocess.run(['git', 'remote', 'get-url', 'origin'], cwd=ev.ROOT, capture_output=True,
+                             text=True, check=False)
+        match = re.search(r'github\.com[:/]([^/]+/[^/]+?)(?:\.git)?\s*$', rem.stdout)
+        check(rem.returncode == 0 and match is not None, 'G1 needs repository for independent inventory')
+        repo = match[1]
+    snap = validate_snapshot(inventory(get, repo, resolve_source or git_source, now), now, max_age_seconds)
+    verdict, blockers, source = _g1(identity, results, snap)
+    if verdict in ('INVALID', 'NOT_RUN'):
+        return verdict, blockers
+    if not kat_verified(get, repo, source):
+        blockers = [*blockers, 'KAT_NOT_VERIFIED']
+    # The Actions API cannot reveal a trailing run deleted before anyone
+    # inventoried it. A contiguous list and two reads do not prove inception
+    # completeness. No independently durable dispatch capture exists in C0;
+    # never manufacture a production PASS from this API-only projection.
+    return 'NOT_PASSED', sorted({*blockers, 'DISPATCH_HISTORY_UNVERIFIED'})
 
 
 def main(argv):
