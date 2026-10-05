@@ -133,24 +133,40 @@ def bound_before_boundary(run):
 
 
 def provider_observation(run_id, run_attempt, run, attempt, jobs, roles):
-    """Normalize GitHub API documents (contract 8.3): run = GET runs/{id}, attempt = GET runs/{id}/attempts/{n}
-    (None when deleted/not found), jobs = every page of that attempt's jobs, roles = {step name: bind|boundary} from
-    the activation record. started = status in_progress/completed and conclusion != skipped."""
+    """Normalize GitHub API documents (contract 8.3) fail-closed.
+
+    Raw documents must prove that they belong to the requested (run_id, run_attempt). Cache, pagination or adapter
+    mix-ups are treated as missing provider evidence; data is never relabelled under another scientific key.
+    """
     doc = {'schema': 'delsk.oracle.provider-observation.v1', 'run_id': run_id, 'run_attempt': run_attempt,
            'run': None}
     if run is None or attempt is None:
         return doc
+    if not (type(run) is dict and type(attempt) is dict and run.get('id') == run_id
+            and attempt.get('id') == run_id and attempt.get('run_attempt') == run_attempt
+            and oa.positive(run.get('run_attempt')) and run['run_attempt'] >= run_attempt):
+        return doc
+    head = attempt.get('head_sha')
+    if not oa.digest(head, 40):
+        return doc
+    for job in jobs:
+        if not (type(job) is dict and job.get('run_id') == run_id and job.get('run_attempt') == run_attempt
+                and job.get('head_sha') == head):
+            return doc
 
     def started(x):
         return x['status'] in ('in_progress', 'completed') and x['conclusion'] != 'skipped'
 
-    doc['run'] = {'head_sha': attempt['head_sha'], 'head_branch': attempt['head_branch'],
-                  'workflow_path': attempt['path'], 'event': attempt['event'], 'status': attempt['status'],
-                  'latest_run_attempt': run['run_attempt'],
-                  'jobs': [{'name': j['name'], 'started': started(j), 'conclusion': j['conclusion'],
-                            'steps': [{'number': s['number'], 'role': roles.get(s['name'], 'other'),
-                                       'started': started(s), 'conclusion': s['conclusion']} for s in j['steps']]}
-                           for j in jobs]}
+    try:
+        doc['run'] = {'head_sha': head, 'head_branch': attempt['head_branch'],
+                      'workflow_path': attempt['path'], 'event': attempt['event'], 'status': attempt['status'],
+                      'latest_run_attempt': run['run_attempt'],
+                      'jobs': [{'name': j['name'], 'started': started(j), 'conclusion': j['conclusion'],
+                                'steps': [{'number': s['number'], 'role': roles.get(s['name'], 'other'),
+                                           'started': started(s), 'conclusion': s['conclusion']} for s in j['steps']]}
+                               for j in jobs]}
+    except (KeyError, TypeError):
+        doc['run'] = None
     return doc
 
 
@@ -383,6 +399,19 @@ def analyze(evaluation):
     green = frozenset(c for c in x.kat_green if git.on_main(c))
     return Analysis(git.main_head_sha, None, registry_head, genesis_sha256, tuple(entries), classes,
                     unbound_attempts(entries, provider), series, transitions, green, x.evaluator_source_sha)
+
+
+def analyze_authoritative(evaluation, registry):
+    """Production composition boundary: physical history and exact v2 freeze precede scientific analysis."""
+    try:
+        genesis, entries = reg.physical_objects(registry)
+    except (reg.RegistryInvalid, TypeError):
+        return _no_verdict(evaluation.git, 'REGISTRY_INVALID')
+    if (ev.compact(genesis) != ev.compact(evaluation.genesis)
+            or ev.jsonl(entries) != ev.jsonl(evaluation.entries)
+            or evaluation.g1_freeze_sha256 != reg.G1_FREEZE_SHA256):
+        return _no_verdict(evaluation.git, 'REGISTRY_INVALID')
+    return analyze(evaluation)
 
 
 # --- G1 for one identity ----------------------------------------------------------------------------------------------
@@ -649,15 +678,13 @@ def kat_verified_v2(get, sha, main_head_sha, kat_step, root=ev.ROOT):
 
 # --- runner-level decisions (contract 5.7, 5.8): pure, no Git write ---------------------------------------------------
 
-def register_check(genesis, entries, execution, git, pull_requests, transition_bytes=None):
-    """Decision of the register job for execution {event, repository, run_id, run_attempt, sha, workflow_sha,
-    workflow_ref} over the fetched registry. Returns (code, entry): APPENDED with the entry to append, or a refusal
-    code (DISPATCH_REJECTED, SOURCE_NOT_ON_MAIN, REGISTRY_INVALID, REGISTRY_DUPLICATE, TRANSITION_REQUIRED,
-    TRANSITION_INVALID) with None."""
+def _register_check_core(genesis, entries, execution, git, pull_requests, transition_bytes=None,
+                         g1_freeze_sha256=None):
+    """Pure register decision. Synthetic callers may omit the freeze digest; authoritative callers never do."""
     x = execution
     if not (x['event'] == 'workflow_dispatch' and x['repository'] == reg.REPOSITORY and x['sha'] == x['workflow_sha']
-            and oa.digest(x['sha'], 40) and oa.positive(x['run_id']) and oa.positive(x['run_attempt']) and re.search(reg._SCHEMAS['$defs']['registry_entry']['properties']
-                                                       ['workflow_ref']['pattern'], x['workflow_ref'])):
+            and oa.digest(x['sha'], 40) and oa.positive(x['run_id']) and oa.positive(x['run_attempt']) and re.search(
+                reg._SCHEMAS['$defs']['registry_entry']['properties']['workflow_ref']['pattern'], x['workflow_ref'])):
         return 'DISPATCH_REJECTED', None
     if not git.on_main(x['sha']):
         return 'SOURCE_NOT_ON_MAIN', None
@@ -665,7 +692,7 @@ def register_check(genesis, entries, execution, git, pull_requests, transition_b
     if mi is None:
         return 'DISPATCH_REJECTED', None
     try:
-        reg.validate(genesis, entries, git)
+        reg.validate(genesis, entries, git, g1_freeze_sha256)
     except reg.RegistryInvalid:
         return 'REGISTRY_INVALID', None
     if reg.duplicate_keys(entries):
@@ -673,8 +700,8 @@ def register_check(genesis, entries, execution, git, pull_requests, transition_b
     key = (x['run_id'], x['run_attempt'])
     existing = [e for e in entries if reg.run_key(e) == key]
     if existing:  # idempotent retry after a lost push response
-        code, mine = register_check(genesis, entries[:existing[0]['sequence'] - 1], execution, git, pull_requests,
-                                    transition_bytes)
+        code, mine = _register_check_core(genesis, entries[:existing[0]['sequence'] - 1], execution, git,
+                                          pull_requests, transition_bytes, g1_freeze_sha256)
         same = code == 'APPENDED' and all(mine[k] == existing[0][k] for k in mine
                                           if k not in ('sequence', 'previous_entry_sha256', 'entry_sha256'))
         return ('APPENDED', existing[0]) if same else ('REGISTRY_DUPLICATE', None)
@@ -699,11 +726,26 @@ def register_check(genesis, entries, execution, git, pull_requests, transition_b
                                       measurement_identity=mi, transition=transition)
 
 
-def bind_check(genesis, entries, execution, git, register_entry_sha256):
-    """Step bind of the measure job, before B. Returns ('BOUND', binding sidecar) or ('REGISTRY_UNBOUND', None)."""
+def register_check(registry, execution, git, pull_requests, transition_bytes=None):
+    """Authoritative register decision over a physically validated exact-freeze registry snapshot."""
+    try:
+        genesis, entries = reg.physical_objects(registry)
+    except (reg.RegistryInvalid, TypeError):
+        return 'REGISTRY_INVALID', None
+    return _register_check_core(genesis, entries, execution, git, pull_requests, transition_bytes,
+                                reg.G1_FREEZE_SHA256)
+
+
+def register_check_test(genesis, entries, execution, git, pull_requests, transition_bytes=None):
+    """Synthetic-only runner-vector decision; the frozen synthetic genesis intentionally has a non-production digest."""
+    return _register_check_core(genesis, entries, execution, git, pull_requests, transition_bytes, None)
+
+
+def _bind_check_core(genesis, entries, execution, git, register_entry_sha256, g1_freeze_sha256=None):
+    """Pure bind decision used by the authoritative wrapper and frozen synthetic vectors."""
     x = execution
     try:
-        registry_head = reg.validate(genesis, entries, git)
+        registry_head = reg.validate(genesis, entries, git, g1_freeze_sha256)
     except reg.RegistryInvalid:
         return 'REGISTRY_UNBOUND', None
     mine = [e for e in entries if reg.run_key(e) == (x['run_id'], x['run_attempt'])]
@@ -722,3 +764,17 @@ def bind_check(genesis, entries, execution, git, register_entry_sha256):
                'measurement_identity_sha256': e['measurement_identity_sha256'], 'entry_sequence': e['sequence'],
                'entry_sha256': e['entry_sha256'], 'observed_head': registry_head}
     return 'BOUND', {**binding, 'binding_sha256': ev.hc(binding)}
+
+
+def bind_check(registry, execution, git, register_entry_sha256):
+    """Authoritative bind decision over a physically validated exact-freeze registry snapshot."""
+    try:
+        genesis, entries = reg.physical_objects(registry)
+    except (reg.RegistryInvalid, TypeError):
+        return 'REGISTRY_UNBOUND', None
+    return _bind_check_core(genesis, entries, execution, git, register_entry_sha256, reg.G1_FREEZE_SHA256)
+
+
+def bind_check_test(genesis, entries, execution, git, register_entry_sha256):
+    """Synthetic-only bind decision for frozen runner vectors."""
+    return _bind_check_core(genesis, entries, execution, git, register_entry_sha256, None)
