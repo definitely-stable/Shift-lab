@@ -361,6 +361,11 @@ class Record(unittest.TestCase):
                 'number': number, 'merged': True, 'merge_commit_sha': merge, 'merged_at': merged_at,
                 'base': {'ref': 'main', 'repo': {'full_name': REPO}}, 'head': {'sha': head},
                 'user': {'login': AUTHOR, 'type': 'User'}}
+        self.gh.docs[f'{api}/pulls/{GENESIS_PR}/files?per_page=100&page=1'] = [
+            {'filename': act.TOOL_FILE, 'status': 'modified',
+             'patch': f"+reviewed genesis root {act.ROOT_COMMIT['production']}"}]
+        self.gh.docs[f'{api}/pulls/{INFRA_PR}/files?per_page=100&page=1'] = [
+            {'filename': act.INFRA_FILE, 'status': 'added', 'patch': '+infra record'}]
         self.gh.docs[f'{api}/pulls/{INFRA_PR}/reviews?per_page=100'] = [
             {'id': 500, 'state': 'COMMENTED', 'commit_id': INFRA_HEAD, 'user': {'login': AUTHOR, 'type': 'User'}},
             {'id': 501, 'state': 'APPROVED', 'commit_id': INFRA_HEAD, 'user': {'login': REVIEWER, 'type': 'User'}}]
@@ -402,12 +407,21 @@ class Record(unittest.TestCase):
             'genesis merge tree without the root': lambda r, f, g: self.at.update(
                 {(GENESIS_MERGE, act.TOOL_FILE): b'nothing'}),
             'genesis PR into another base': lambda r, f, g: doc(f'{api}/pulls/{GENESIS_PR}')['base'].update(ref='x'),
+            'late unrelated PR cannot claim genesis review': lambda r, f, g: g.docs.update({
+                f'{api}/pulls/{GENESIS_PR}/files?per_page=100&page=1':
+                    [{'filename': 'README.md', 'status': 'modified', 'patch': '+unrelated'}]}),
+            'genesis PR changed tool but not the root binding': lambda r, f, g: g.docs.update({
+                f'{api}/pulls/{GENESIS_PR}/files?per_page=100&page=1':
+                    [{'filename': act.TOOL_FILE, 'status': 'modified', 'patch': '+unrelated tool change'}]}),
             # item 11
             'self approval only': lambda r, f, g: doc(reviews)[1]['user'].update(login=AUTHOR),
             'dismissed approval': lambda r, f, g: doc(reviews)[1].update(state='DISMISSED'),
             'approval of an older head': lambda r, f, g: doc(reviews)[1].update(commit_id='f' * 40),
             'review id of the comment-only review': lambda r, f, g: r['infra_review'].update(review_id=500),
             'infra PR merged other bytes': lambda r, f, g: self.at.update({(INFRA_MERGE, act.INFRA_FILE): b'{}'}),
+            'late unrelated approved PR cannot claim infra review': lambda r, f, g: g.docs.update({
+                f'{api}/pulls/{INFRA_PR}/files?per_page=100&page=1':
+                    [{'filename': 'README.md', 'status': 'modified', 'patch': '+unrelated'}]}),
             'infra merge not on main': lambda r, f, g: self.main.discard(INFRA_MERGE),
             'bot approval': lambda r, f, g: doc(reviews)[1]['user'].update(type='Bot'),
             # item 12
