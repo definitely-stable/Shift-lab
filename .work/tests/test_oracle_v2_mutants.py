@@ -1,4 +1,4 @@
-"""DELSK-003A C1-A: executable mutation obligations PM01-PM12 (contract-v2 section 15).
+"""DELSK-003A C1-A: executable mutation obligations PM01-PM17 (contract-v2 section 15, contract-v3 section 4.4).
 
 Each mutant is one exact single-occurrence source change of oracle_g1_v2.py or oracle_registry_v2.py that breaks one
 semantic rule. The mutated modules are loaded from source and run on the frozen vector *inputs*; a mutant is killed
@@ -45,7 +45,7 @@ MUTANTS = {
               "    if False:\n"),                                                                   # gate dropped
              (G1, "def g1_production(measurement_identity_sha256):\n",
               "def g1_production(measurement_identity_sha256, provider=None):\n"),                  # injectable
-             (G1, "    return 'NOT_PASSED', ['V2_NOT_ACTIVE']\n",
+             (G1, "    return 'NOT_PASSED', ['V3_NOT_ACTIVE']\n",
               "    return 'PASS', []\n")],                                                          # production PASS
     'PM08': [(G1, "        if e['measurement_identity_sha256'] == identity or c['class'] == 'PRE':\n",
               "        if True:\n"),                                                                  # no sibling codes
@@ -77,6 +77,18 @@ MUTANTS = {
               "                         ('MAIN_STALE', lambda: False),\n"),                            # not re-read
              (G1, "            'science_identity_sha256': None, 'main_head_sha': a.main_head_sha,",
               "            'science_identity_sha256': None, 'main_head_sha': evaluation.main_reread,")],  # floating
+    # contract-v3 section 1.3 item 4 (provider steps, cancelled measure job without steps)
+    'PM13': [(G1, "and s['role'] != 'provider')\n", "and False)\n")],                         # every step exempt
+    'PM14': [(G1, "and s['role'] != 'provider')\n", ")\n")],                                  # v2 rule
+    'PM15': [(G1, "or (measure[0]['conclusion'] == 'cancelled'\n"
+                  "                                                     and not measure[0]['steps']):\n",
+              "or False:\n")],
+    'PM16': [(G1, "or (measure[0]['conclusion'] == 'cancelled'\n"
+                  "                                                     and not measure[0]['steps']):\n",
+              "or measure[0]['conclusion'] == 'cancelled':\n")],
+    'PM17': [(G1, "or (measure[0]['conclusion'] == 'cancelled'\n"
+                  "                                                     and not measure[0]['steps']):\n",
+              "or not measure[0]['steps']:\n")],
 }
 
 
@@ -107,7 +119,7 @@ def api_failures(module):
     if list(inspect.signature(module.g1_production).parameters) != case['api']['production_parameters']:
         out.append('signature')
     try:
-        if module.g1_production(identity) != ('NOT_PASSED', ['V2_NOT_ACTIVE']):
+        if module.g1_production(identity) != ('NOT_PASSED', ['V3_NOT_ACTIVE']):
             out.append('production verdict')
         x = V.evaluation(case, module)
         verdict, body = module._g1_core(identity, x)
