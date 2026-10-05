@@ -11,7 +11,7 @@
 | 7 | rulesets, проверенные read-only API | **DONE**: `verify-rulesets` PASS | [rulesets.json](activation/rulesets.json), [rulesets-pre-genesis.json](activation/rulesets-pre-genesis.json) |
 | 8–9 | synthetic smoke, 7 сценариев, live observations | **DONE**: `verify-smoke` PASS | [smoke-scenarios.json](activation/smoke-scenarios.json), [smoke-evaluation.json](activation/smoke-evaluation.json), [smoke-semantics.json](activation/smoke-semantics.json) |
 | 10 | write-surface на `refs/heads/delsk/registry-v3` | **DONE**: три операции отклонены сервером | [write-surface.json](activation/write-surface.json), [write-surface-supplementary.json](activation/write-surface-supplementary.json) |
-| 11 | independent review | **NOT_DONE** (review этого infra PR) | — |
+| 11 | review | **NOT_DONE**: merge этого infra PR в `main` (решение maintainer 2026-10-05: в проекте один разработчик, approve другого пользователя не требуется) | — |
 | 12 | maintainer decision | **NOT_DONE** | — |
 
 ## 1. Preconditions
@@ -92,4 +92,5 @@ Frozen bytes v1/v2/v3 не менялись. Ни один ref не переза
 
 - Smoke registry и smoke runs не трогать: новый dispatch добавит постоянную entry без сценария, rerun любого smoke run — unbound attempt; оба ломают `verify-smoke` (fail closed).
 - Изменение `oracle-pilot.yml` до активации требует нового infra record (`workflow_sha256`).
-- Дальше — только по решению людей: independent review этого infra PR (п. 11), maintainer decision на issue #27 с `infra_sha256` (п. 12), отдельный enable PR (`activation-v3.json`, `ACTIVATION_RECORD`). Natural pilot, production oracle и DELSK-004 — не начаты.
+- Дальше — только по решению maintainer: merge этого infra PR (п. 11), maintainer decision на issue #27 с `infra_sha256` (п. 12), отдельный enable PR (`activation-v3.json`, `ACTIVATION_RECORD`). Natural pilot, production oracle и DELSK-004 — не начаты.
+- П. 11 (решение maintainer 2026-10-05): в проекте один разработчик, поэтому approve другого пользователя не требуется. Enable record (`delsk.oracle.v3-activation.v2`) называет infra PR полем `infra_pr` (`pull_request`, `merge_commit_sha`) без `review_id`. Проверка провенанса остаётся: PR смержен в `main` ровно этим commit и сам ввёл ровно эти bytes `infra.json`.
