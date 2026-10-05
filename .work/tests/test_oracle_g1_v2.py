@@ -318,6 +318,18 @@ class Classification(unittest.TestCase):
         self.assertEqual(g1.classify(e, None, bundle, binding, False), ('MISSING', set()))
         self.assertEqual(g1.classify(e, obs, None, binding, False), ('MISSING', set()))  # crossed B, nothing kept
 
+    def test_foreign_but_verified_bundle_is_a_binding_mismatch(self):
+        case = copy.deepcopy(BY_ID['R01'])
+        b = case['evidence']['bundles'][1]
+        b['run'] = {**b['run'], 'workflow_ref': 'definitely-stable/Shift-lab/.github/workflows/oracle-smoke.yml@refs/pull/1/merge'}
+        self.assertFalse(reg.valid(b, 'bundle_projection'))
+        self.assertTrue(g1.bundle_admissible(b))
+        self.assertEqual(first(case)[1]['blockers'], ['BINDING_MISMATCH', 'RUN_INVALID'])
+        for bad in ({**b['run'], 'run_id': '1'}, {**b['run'], 'extra': 1}, None):
+            with self.subTest(bad=bad):
+                self.assertFalse(g1.bundle_admissible({**b, 'run': bad}))
+        self.assertFalse(g1.bundle_admissible({**b, 'bundle_verified': False}))
+
     def test_unbound_attempts_of_registered_runs(self):
         case = copy.deepcopy(BY_ID['R12.b'])
         entries, provider = case['registry']['entries'], {key(o): o for o in case['provider']}
@@ -904,10 +916,16 @@ class BundleProjection(unittest.TestCase):
         self.assertEqual(ev.verify(second), [])
         p, q = g1.bundle_projection(first_bundle), g1.bundle_projection(second)
         record = ev.attempt_record(first_bundle)
-        self.assertTrue(p['bundle_verified'] and reg.valid(p, 'bundle_projection'))
+        self.assertTrue(p['bundle_verified'] and g1.bundle_admissible(p))
         self.assertEqual((p['run_status'], p['cost_projection_sha256'], p['conformance']),
                          (record['run_status'], record['cost_projection_sha256'], record['conformance']))
         self.assertEqual(p['run']['sha'], 'f' * 40)
+        # a smoke bundle is v1-verified but not from oracle-pilot.yml: representable, and a binding mismatch (8.4)
+        self.assertFalse(reg.valid(p, 'bundle_projection'))
+        case = BY_ID['R01']
+        e, obs, binding = case['registry']['entries'][0], case['provider'][0], case['evidence']['bindings'][0]
+        self.assertEqual(g1.classify(e, obs, {**p, 'run_id': e['run_id'], 'run_attempt': 1}, binding, False)[1],
+                         {'BINDING_MISMATCH'})
         if p['run_status'] == 'COMPLETE':
             # series projection is source-independent where the v1 cost projection is not (contract 7.4)
             self.assertNotEqual(p['cost_projection_sha256'], q['cost_projection_sha256'])

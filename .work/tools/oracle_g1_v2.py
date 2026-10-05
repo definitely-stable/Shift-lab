@@ -182,12 +182,32 @@ def _no_verdict(git, code, registry_head=None, genesis_sha256=None):
     return Analysis(git.main_head_sha, code, registry_head, genesis_sha256, (), {}, (), {}, (), frozenset(), None)
 
 
+_RUN_TYPES = {'repository': str, 'run_id': int, 'run_attempt': int, 'sha': str, 'workflow_ref': str,
+              'workflow_sha': str}
+_PILOT_RUN = {'repository': reg.REPOSITORY, 'run_id': 1, 'run_attempt': 1, 'sha': '0' * 40, 'workflow_sha': '0' * 40,
+              'workflow_ref': f'{reg.REPOSITORY}/{reg.WORKFLOW_PATH}@refs/heads/main'}
+
+
+def bundle_admissible(doc):
+    """bundle_projection by schema. v1 verify accepts any run.json repository/workflow_ref, which the v2 bundle_run
+    schema cannot express; such a verified bundle keeps its true run block (well-typed, checked against a
+    schema-valid stand-in only for the other fields) so that classify reports it as BINDING_MISMATCH (8.4) instead of
+    treating the root as malformed. The stand-in is never compared with an entry."""
+    if reg.valid(doc, 'bundle_projection'):
+        return True
+    run = doc.get('run') if type(doc) is dict else None
+    return (type(run) is dict and doc.get('bundle_verified') is True and set(run) == set(_RUN_TYPES)
+            and all(type(run[k]) is t for k, t in _RUN_TYPES.items()) and reg.canonical_value(run)
+            and reg.valid({**doc, 'run': _PILOT_RUN}, 'bundle_projection'))
+
+
 def evidence_root_valid(evidence, keys):
     """Contract 8.1 (Model 1, no v1/v2 mixing) over the read root."""
     if evidence.foreign_paths or set(evidence.v1_root_keys) & keys:
         return False
-    for docs, name in ((evidence.bundles, 'bundle_projection'), (evidence.bindings, 'attempt_binding')):
-        if not all(reg.valid(d, name) for d in docs):
+    for docs, admissible in ((evidence.bundles, bundle_admissible),
+                             (evidence.bindings, lambda d: reg.valid(d, 'attempt_binding'))):
+        if not all(admissible(d) for d in docs):
             return False
         found = [reg.run_key(d) for d in docs]
         if len(set(found)) != len(found) or not set(found) <= keys:
