@@ -172,6 +172,12 @@ class Analysis:
     evaluator_source_sha: str
 
 
+def _unique(docs, key):
+    """{key: doc} of the valid documents; a key reported more than once is ambiguous and dropped (never chosen)."""
+    count = collections.Counter(key(d) for d in docs)
+    return {key(d): d for d in docs if count[key(d)] == 1}
+
+
 def _no_verdict(git, code, registry_head=None, genesis_sha256=None):
     return Analysis(git.main_head_sha, code, registry_head, genesis_sha256, (), {}, (), {}, (), frozenset(), None)
 
@@ -321,28 +327,29 @@ def analyze(evaluation):
     except reg.RegistryInvalid:
         return _no_verdict(git, 'REGISTRY_INVALID')
     genesis_sha256 = ev.hc(x.genesis)
+    chain = reg.history(x.genesis, entries)
     for code, failed in (('REGISTRY_DUPLICATE', lambda: reg.duplicate_keys(entries)),
                          ('REGISTRY_STALE', lambda: reg.stale(registry_head, x.registry_reread)),
                          ('MAIN_STALE', lambda: reg.stale(git.main_head_sha, x.main_reread)),
                          ('REGISTRY_ROLLBACK', lambda: any(
-                             not reg.on_history(b['observed_head'], reg.history(x.genesis, entries))
-                             for b in x.evidence.bindings
+                             not reg.on_history(b['observed_head'], chain) for b in x.evidence.bindings
                              if type(b) is dict and reg.valid(b.get('observed_head'), 'registry_head'))),
                          ('EVIDENCE_ROOT_INVALID', lambda: not evidence_root_valid(
                              x.evidence, {reg.run_key(e) for e in entries}))):
         if failed():
             return _no_verdict(git, code, registry_head, genesis_sha256)
-    provider = {reg.run_key(o): o for o in x.provider if reg.valid(o, 'provider_observation')}
+    provider = _unique([o for o in x.provider if reg.valid(o, 'provider_observation')], reg.run_key)
     bundles = {reg.run_key(b): b for b in x.evidence.bundles}
     bindings = {reg.run_key(b): b for b in x.evidence.bindings}
     claimed = collections.defaultdict(list)
     for key, b in bindings.items():
         claimed[b['entry_sha256']].append(key)
+    by_sha = {e['entry_sha256']: reg.run_key(e) for e in entries}
     duplicate = set()
     for sha, keys in claimed.items():
         if len(keys) > 1:
             duplicate.update(keys)
-            duplicate.update(reg.run_key(e) for e in entries if e['entry_sha256'] == sha)
+            duplicate.update([by_sha[sha]] if sha in by_sha else [])
     classes = {}
     for e in entries:
         key = reg.run_key(e)
@@ -351,7 +358,8 @@ def analyze(evaluation):
         classes[key] = {'class': cls, 'violations': sorted(violations), 'bundle': bundle,
                         'outcome': bundle['run_status'] if bundle else None,
                         'conformance': bundle['conformance'] if bundle else None}
-    series, transitions, _ = series_machine(entries, git, {p['number']: p for p in x.pull_requests})
+    pull_requests = _unique([p for p in x.pull_requests if reg.valid(p, 'pull_request')], lambda p: p['number'])
+    series, transitions, _ = series_machine(entries, git, pull_requests)
     green = frozenset(c for c in x.kat_green if git.on_main(c))
     return Analysis(git.main_head_sha, None, registry_head, genesis_sha256, tuple(entries), classes,
                     unbound_attempts(entries, provider), series, transitions, green, x.evaluator_source_sha)
@@ -494,8 +502,8 @@ def g1_production(measurement_identity_sha256):
     contract 5.1; nothing (registry, remote, repository, results root, provider, snapshot, subset, records) can be
     injected. Not active (contract 16): no registry, provider, Git or evidence read is made and the result is
     NOT_PASSED V2_NOT_ACTIVE. C1-B wires the authority reads behind the activation record."""
-    reg.require(type(measurement_identity_sha256) is str and ev.HEX64.match(measurement_identity_sha256),
-                'G1 identity syntax')
+    ev.check(type(measurement_identity_sha256) is str and ev.HEX64.match(measurement_identity_sha256) is not None,
+             'G1 identity syntax')
     return 'NOT_PASSED', ['V2_NOT_ACTIVE']
 
 
@@ -628,7 +636,7 @@ def register_check(genesis, entries, execution, git, pull_requests, transition_b
     TRANSITION_INVALID) with None."""
     x = execution
     if not (x['event'] == 'workflow_dispatch' and x['repository'] == reg.REPOSITORY and x['sha'] == x['workflow_sha']
-            and oa.digest(x['sha'], 40) and re.search(reg._SCHEMAS['$defs']['registry_entry']['properties']
+            and oa.digest(x['sha'], 40) and oa.positive(x['run_id']) and oa.positive(x['run_attempt']) and re.search(reg._SCHEMAS['$defs']['registry_entry']['properties']
                                                        ['workflow_ref']['pattern'], x['workflow_ref'])):
         return 'DISPATCH_REJECTED', None
     if not git.on_main(x['sha']):
@@ -656,7 +664,7 @@ def register_check(genesis, entries, execution, git, pull_requests, transition_b
     if phase and all(e['science_identity_sha256'] != science for e in phase):
         if transition_bytes is None:
             return 'TRANSITION_REQUIRED', None
-        _, _, current = series_machine(entries, git, {p['number']: p for p in pull_requests})
+        _, _, current = series_machine(entries, git, _unique(pull_requests, lambda p: p['number']))
         try:
             transition = ev.parse_doc(transition_bytes)
         except (ev.EvalError, ValueError, UnicodeDecodeError):

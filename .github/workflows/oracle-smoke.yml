@@ -1,19 +1,22 @@
 name: Oracle smoke (DELSK-003)
 
 # PR smoke lane of the DELSK-003 oracle (contract section 12): build the pinned codecs from their locked archives,
-# codec conformance C01-C14, the production evaluator's known answers, G1 vectors, mutants and fault injection, and a
-# synthetic mini-run through finalize, verify and bundle. Synthetic data only (< 2 MiB): the natural C_t is never
+# codec conformance C01-C14, the production evaluator's known answers, G1 vectors, mutants and fault injection, a
+# synthetic mini-run through finalize, verify and bundle, and the contract v2 registry/G1 engine (R01-R24, XC01-XC05,
+# PM01-PM12). Synthetic data only (< 2 MiB): the natural C_t is never
 # measured here, and no performance or quality verdict is produced. Standard GitHub-hosted runner only.
 
 on:
   pull_request:
     paths: ['.work/tools/oracle_*.py', '.work/tools/manifests.py', '.work/tools/materialize.py',
-            '.work/tests/test_oracle_*.py', '.work/tests/oracle_reference.py', '.work/oracle/**',
+            '.work/tests/test_oracle_*.py', '.work/tests/oracle_reference.py', '.work/tests/oracle_v2_vectors.py',
+            '.work/oracle/**',
             '.github/workflows/oracle-smoke.yml', '.github/workflows/oracle-pilot.yml']
   push:
     branches: [main]
     paths: ['.work/tools/oracle_*.py', '.work/tools/manifests.py', '.work/tools/materialize.py',
-            '.work/tests/test_oracle_*.py', '.work/tests/oracle_reference.py', '.work/oracle/**',
+            '.work/tests/test_oracle_*.py', '.work/tests/oracle_reference.py', '.work/tests/oracle_v2_vectors.py',
+            '.work/oracle/**',
             '.github/workflows/oracle-smoke.yml', '.github/workflows/oracle-pilot.yml']
   workflow_dispatch:
 
@@ -56,7 +59,12 @@ jobs:
         working-directory: .work/tests
         env:
           ORACLE_TOOLS: ${{ runner.temp }}/build/tools.json
-        run: python3 -m unittest -v test_oracle_contract test_oracle_eval test_oracle_build test_oracle_runner test_oracle_materialize test_oracle_attempts test_oracle_pilot test_oracle_dispatch
+        # v1 suite, then contract v2 in order: frozen v1/v2 bytes, registry, G1 with exact R01-R24 records and
+        # adversarial paths, PM01-PM12 mutants. Synthetic only.
+        run: >-
+          python3 -m unittest -v test_oracle_contract test_oracle_eval test_oracle_build test_oracle_runner
+          test_oracle_materialize test_oracle_attempts test_oracle_pilot test_oracle_dispatch
+          test_oracle_v2_frozen test_oracle_registry_v2 test_oracle_g1_v2 test_oracle_v2_mutants
       - name: Synthetic pilot supervisor and sealed envelope
         run: |
           python3 .work/tools/oracle_pilot.py smoke "$RUNNER_TEMP/build/tools.json" "$RUNNER_TEMP/out/conformance.json" \
