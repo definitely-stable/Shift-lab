@@ -312,6 +312,7 @@ class FakeGitHub:
 AUTHOR, REVIEWER = 'author-login', 'reviewer-login'
 GENESIS_PR, INFRA_PR = 31, 40
 GENESIS_MERGE, INFRA_MERGE, INFRA_HEAD = 'a' * 40, 'b' * 40, 'c' * 40
+GENESIS_PARENT, INFRA_PARENT = '1' * 40, '2' * 40
 
 
 class Record(unittest.TestCase):
@@ -350,9 +351,11 @@ class Record(unittest.TestCase):
                        'infra_review': {'pull_request': INFRA_PR, 'merge_commit_sha': INFRA_MERGE, 'review_id': 501},
                        'decision': {'issue': act.DECISION_ISSUE, 'comment_id': 9001,
                                     'body_sha256': ev.sha256(body.encode())}}
-        self.at = {(GENESIS_MERGE, act.TOOL_FILE): (ROOT / act.TOOL_FILE).read_bytes(),
+        tool_bytes = (ROOT / act.TOOL_FILE).read_bytes()
+        self.at = {(GENESIS_MERGE, act.TOOL_FILE): tool_bytes,
                    (INFRA_MERGE, act.INFRA_FILE): self.files[act.INFRA_FILE]}
-        self.main = {GENESIS_MERGE, INFRA_MERGE}
+        self.parents = {GENESIS_MERGE: GENESIS_PARENT, INFRA_MERGE: INFRA_PARENT}
+        self.main = {GENESIS_PARENT, GENESIS_MERGE, INFRA_PARENT, INFRA_MERGE}
         self.gh = FakeGitHub()
         api = f'/repos/{REPO}'
         for number, merge, head, merged_at in ((GENESIS_PR, GENESIS_MERGE, 'd' * 40, '2026-10-05T10:00:00Z'),
@@ -362,10 +365,11 @@ class Record(unittest.TestCase):
                 'base': {'ref': 'main', 'repo': {'full_name': REPO}}, 'head': {'sha': head},
                 'user': {'login': AUTHOR, 'type': 'User'}}
         self.gh.docs[f'{api}/pulls/{GENESIS_PR}/files?per_page=100&page=1'] = [
-            {'filename': act.TOOL_FILE, 'status': 'modified',
+            {'filename': act.TOOL_FILE, 'status': 'added', 'sha': act._git_blob_sha(tool_bytes),
              'patch': f"+reviewed genesis root {act.ROOT_COMMIT['production']}"}]
         self.gh.docs[f'{api}/pulls/{INFRA_PR}/files?per_page=100&page=1'] = [
-            {'filename': act.INFRA_FILE, 'status': 'added', 'patch': '+infra record'}]
+            {'filename': act.INFRA_FILE, 'status': 'added', 'sha': act._git_blob_sha(self.files[act.INFRA_FILE]),
+             'patch': '+infra record'}]
         self.gh.docs[f'{api}/pulls/{INFRA_PR}/reviews?per_page=100'] = [
             {'id': 500, 'state': 'COMMENTED', 'commit_id': INFRA_HEAD, 'user': {'login': AUTHOR, 'type': 'User'}},
             {'id': 501, 'state': 'APPROVED', 'commit_id': INFRA_HEAD, 'user': {'login': REVIEWER, 'type': 'User'}}]
@@ -374,9 +378,9 @@ class Record(unittest.TestCase):
             'author_association': 'OWNER', 'user': {'login': AUTHOR, 'type': 'User'},
             'created_at': '2026-10-06T12:00:00Z'}
 
-    def view(self, files=None, at=None, main=None):
-        files, at, main = files or self.files, at or self.at, main or self.main
-        return act.TreeView(files.get, lambda c, p: at.get((c, p)), lambda c: c in main)
+    def view(self, files=None, at=None, main=None, parents=None):
+        files, at, main, parents = files or self.files, at or self.at, main or self.main, parents or self.parents
+        return act.TreeView(files.get, lambda c, p: at.get((c, p)), lambda c: c in main, parents.get)
 
     def test_complete_records_verify_and_bind_by_digest(self):
         self.assertEqual(act.validate_infra(self.infra, self.view()), [])
@@ -407,21 +411,27 @@ class Record(unittest.TestCase):
             'genesis merge tree without the root': lambda r, f, g: self.at.update(
                 {(GENESIS_MERGE, act.TOOL_FILE): b'nothing'}),
             'genesis PR into another base': lambda r, f, g: doc(f'{api}/pulls/{GENESIS_PR}')['base'].update(ref='x'),
-            'late unrelated PR cannot claim genesis review': lambda r, f, g: g.docs.update({
+            'late unrelated PR cannot claim genesis review': lambda r, f, g: (
+                self.at.update({(GENESIS_PARENT, act.TOOL_FILE): self.at[(GENESIS_MERGE, act.TOOL_FILE)]}),
+                g.docs.update({f'{api}/pulls/{GENESIS_PR}/files?per_page=100&page=1':
+                    [{'filename': 'README.md', 'status': 'modified', 'sha': '9' * 40, 'patch': '+unrelated'}]})),
+            'genesis PR file blob differs from merged binding': lambda r, f, g: g.docs.update({
                 f'{api}/pulls/{GENESIS_PR}/files?per_page=100&page=1':
-                    [{'filename': 'README.md', 'status': 'modified', 'patch': '+unrelated'}]}),
-            'genesis PR changed tool but not the root binding': lambda r, f, g: g.docs.update({
-                f'{api}/pulls/{GENESIS_PR}/files?per_page=100&page=1':
-                    [{'filename': act.TOOL_FILE, 'status': 'modified', 'patch': '+unrelated tool change'}]}),
+                    [{'filename': act.TOOL_FILE, 'status': 'modified', 'sha': '9' * 40,
+                      'patch': f"+reviewed genesis root {act.ROOT_COMMIT['production']}"}]}),
             # item 11
             'self approval only': lambda r, f, g: doc(reviews)[1]['user'].update(login=AUTHOR),
             'dismissed approval': lambda r, f, g: doc(reviews)[1].update(state='DISMISSED'),
             'approval of an older head': lambda r, f, g: doc(reviews)[1].update(commit_id='f' * 40),
             'review id of the comment-only review': lambda r, f, g: r['infra_review'].update(review_id=500),
             'infra PR merged other bytes': lambda r, f, g: self.at.update({(INFRA_MERGE, act.INFRA_FILE): b'{}'}),
-            'late unrelated approved PR cannot claim infra review': lambda r, f, g: g.docs.update({
+            'late unrelated approved PR cannot claim infra review': lambda r, f, g: (
+                self.at.update({(INFRA_PARENT, act.INFRA_FILE): self.files[act.INFRA_FILE]}),
+                g.docs.update({f'{api}/pulls/{INFRA_PR}/files?per_page=100&page=1':
+                    [{'filename': 'README.md', 'status': 'modified', 'sha': '8' * 40, 'patch': '+unrelated'}]})),
+            'infra PR file blob differs from merged bytes': lambda r, f, g: g.docs.update({
                 f'{api}/pulls/{INFRA_PR}/files?per_page=100&page=1':
-                    [{'filename': 'README.md', 'status': 'modified', 'patch': '+unrelated'}]}),
+                    [{'filename': act.INFRA_FILE, 'status': 'modified', 'sha': '8' * 40, 'patch': '+wrong'}]}),
             'infra merge not on main': lambda r, f, g: self.main.discard(INFRA_MERGE),
             'bot approval': lambda r, f, g: doc(reviews)[1]['user'].update(type='Bot'),
             # item 12
