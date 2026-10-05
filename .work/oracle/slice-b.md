@@ -19,7 +19,7 @@
 | [conformance.json](conformance.json) | Golden SHA-256 patch/frame C02–C09 (C14), привязанные к codec lock и synthetic inputs |
 | [oracle-smoke.yml](../../.github/workflows/oracle-smoke.yml) | PR smoke: один job ≤ 8 min, сборка codecs, conformance, synthetic mini-run → finalize → verify → bundle, все oracle tests |
 
-Phase `smoke` принимает только synthetic locks и отказывает на natural `C_t`; phase `pilot` требует frozen natural locks, conformance PASS и `workflow_dispatch`. Workflow pilot (Slice C) не добавлен: natural run только после отдельного подтверждения maintainer.
+Phase `smoke` принимает только synthetic locks и отказывает на natural `C_t`; phase `pilot` требует frozen natural locks, conformance PASS и `workflow_dispatch`. [Slice C0](slice-c.md) добавляет pilot workflow и инфраструктурные gates, но natural path остаётся закрыт `DISPATCH_HISTORY_UNVERIFIED`. Smoke теперь также отвергает natural object IDs после relabelling schemas. Natural run требует устранения инфраструктурного блокера и отдельного задания.
 
 ## Evidence
 
@@ -43,5 +43,5 @@ Phase `smoke` принимает только synthetic locks и отказыв�
 
 - Процессы codec ограничены process group; codec, который сам вызывает `setsid()`, вышел бы из group (собранные codecs этого не делают; изоляция cgroup — upgrade path).
 - `RLIMIT_AS` распознаётся по тексту ошибки allocation; codec, падающий по signal на NULL, записывается как `codec_error/signal` — оба bounded `+inf`.
-- Natural materialization в object store для pilot (адаптер к pilot-v1 recipe) — часть Slice C: в этом slice natural payloads не скачивались.
+- Natural materialization adapter реализован в [Slice C0](slice-c.md); в Slice B/C0 natural payloads не скачивались, natural encode не выполнялся. All-dispatch history остаётся инфраструктурным блокером C0.
 - Smoke conformance и mini-run подтверждают корректность на synthetic inputs, не качество oracle и не G1.

@@ -40,7 +40,7 @@ WINDOW = dt.timedelta(days=7)
 # created earlier than window + 30 days cannot have jobs inside the window
 # (one extra day covers a re-run started on day 30 that finishes later).
 RERUN_HORIZON = dt.timedelta(days=31)
-EXPERIMENTAL_WORKFLOWS = ("foundation.yml",)
+EXPERIMENTAL_WORKFLOWS = ("foundation.yml", "oracle-pilot.yml")
 # Full cap of one experimental run: the single job's timeout-minutes in
 # foundation.yml (test_foundation checks they match).
 RUN_RESERVATION_MINUTES = 30

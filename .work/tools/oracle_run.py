@@ -301,6 +301,13 @@ def load_locks(phase, lock_dir, freeze):
         if sha256(candidate) == freeze["bindings"]["candidate_lock_sha256"] or \
                 [m.loads_strict(candidate)["schema"], m.loads_strict(corpus)["schema"]] != list(SYNTHETIC):
             raise RunError("smoke runs only on synthetic locks, never on the natural C_t")
+        # Schema relabelling is not proof of synthetic inputs. No frozen natural object may be measured in smoke.
+        natural_corpus = gzip.decompress(natural[1].read_bytes())
+        if sha256(natural_corpus) != freeze["bindings"]["corpus_lock_sha256"]:
+            raise RunError("smoke boundary needs the frozen natural corpus binding")
+        natural_ids = {o["object_id"] for o in m.loads_strict(natural_corpus)["occurrences"]}
+        if any(o["object_id"] in natural_ids for o in m.loads_strict(corpus)["occurrences"]):
+            raise RunError("smoke refuses objects from the frozen natural corpus")
         return candidate, corpus
     candidate, corpus = natural[0].read_bytes(), gzip.decompress(natural[1].read_bytes())
     if (sha256(candidate), sha256(corpus)) != (freeze["bindings"]["candidate_lock_sha256"],
@@ -376,6 +383,12 @@ def prepare(phase, tools_path, conformance_path, lock_dir=None, env=os.environ):
         fresh, _ = conformance_record(tools_path, env=env)
         if fresh["verdict"] != "PASS" or m.canonical_bytes(fresh) != m.canonical_bytes(conformance):
             raise RunError("pilot refused: C01-C14 re-run on these executables does not reproduce the PASS record")
+        # Slice C0 infrastructure: a direct CLI invocation cannot bypass dispatch/admission/attempt retention.
+        from oracle_pilot import validate_gate, PilotError
+        try:
+            validate_gate(env, tools_path, conformance_path)
+        except (PilotError, OSError, ValueError, KeyError) as error:
+            raise RunError("pilot infrastructure gate refused") from None
     if not (re.fullmatch(r"[0-9a-f]{40}", gh["sha"]) and gh["sha"] == gh["workflow_sha"]):
         raise RunError("GITHUB_SHA must be a commit equal to GITHUB_WORKFLOW_SHA")
     candidate_data, corpus_data = load_locks(phase, lock_dir, freeze)
@@ -406,7 +419,8 @@ def prepare(phase, tools_path, conformance_path, lock_dir=None, env=os.environ):
               for c in codecs.values()]
     return {"phase": phase, "identity": identity, "identity_sha256": m.digest(identity), "codecs": codecs,
             "queries": queries, "copies": copies, "builds": builds, "github": gh,
-            "compiler": tools["compiler"]["version"], "limits": LIMITS[phase]}
+            "compiler": tools["compiler"]["version"], "limits": LIMITS[phase],
+            "tools_path": str(Path(tools_path).resolve()), "conformance_path": str(Path(conformance_path).resolve())}
 
 
 # --- the run -----------------------------------------------------------------------------------------------------------
@@ -510,6 +524,13 @@ def execute(ctx, store, evidence, private, env=os.environ, codec_limits=None, fi
     """Measure every task and write run.json; returns the workload status. codec_limits/file_cap override the lock
     limits only in fault-injection tests."""
     import resource
+
+    if ctx["phase"] == "pilot":
+        from oracle_pilot import validate_gate
+        validate_gate(env, ctx["tools_path"], ctx["conformance_path"], store)
+        _, current = load_tools(ctx["tools_path"], CODEC_LOCK.read_bytes())
+        if any(current[role]["record"] != ctx["codecs"][role]["record"] for role in current):
+            raise RunError("pilot codec changed after conformance")
 
     evidence, private = Path(evidence), Path(private)
     for d in (evidence, private):
@@ -849,6 +870,9 @@ def main(argv, env=os.environ):
         if command == "run" and len(args) in (6, 7):
             phase, tools_path, conformance_path, store, evidence, private, *lock_dir = args
             ctx = prepare(phase, tools_path, conformance_path, lock_dir[0] if lock_dir else None, env)
+            if phase == "pilot":
+                from oracle_pilot import validate_gate
+                validate_gate(env, tools_path, conformance_path, store)
             return 0 if execute(ctx, store, evidence, private, env) == "ok" else 1
     except (RunError, KeyError, ValueError, OSError) as error:
         print(f"REFUSED: {type(error).__name__}: {str(error)[:300]}", file=sys.stderr)

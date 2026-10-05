@@ -1025,6 +1025,13 @@ def attempt_record(directory):
 
 def read_ledger(results, identity):
     doc = parse_doc((Path(results) / ATTEMPTS).read_bytes())
+    # Slice C0's independent dispatch layer owns enriched append-only metadata.
+    # The frozen scientific g1_inventory still receives only run/attempt pairs.
+    if any(type(a) is dict and set(a) != {"measurement_identity_sha256", "run_id", "run_attempt"}
+           for a in doc.get("attempts", [])):
+        import oracle_attempts
+        entries = oracle_attempts.audit_ledger(doc)
+        return [k for k, a in entries.items() if a["measurement_identity_sha256"] == identity]
     check(set(doc) == {"schema", "attempts"} and doc["schema"] == "delsk.oracle.attempts.v1" and
           type(doc["attempts"]) is list, "attempts ledger: schema")
     for a in doc["attempts"]:
@@ -1040,10 +1047,10 @@ def read_ledger(results, identity):
 def g1_root(identity, results=RESULTS):
     """G1 of one measurement identity over every bundle under results and the attempts ledger there. No subset of
     bundles can be passed: the tool enumerates the root itself, and any unreadable bundle stops the verdict."""
-    results = Path(results)
-    ledger = read_ledger(results, identity)
-    records = [attempt_record(d) for d in sorted(results.iterdir()) if d.is_dir() and not d.name.startswith(".")]
-    return g1_inventory([r for r in records if r["identity"] == identity], ledger)
+    # Infrastructure validation is independent of the frozen scientific G1 rule.
+    # Every production path (including a supplied root) requires current history.
+    import oracle_attempts
+    return oracle_attempts.g1_root(identity, Path(results))
 
 
 def main(argv):
