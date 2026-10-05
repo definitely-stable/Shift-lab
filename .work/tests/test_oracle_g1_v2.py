@@ -97,11 +97,11 @@ class ExactVectors(unittest.TestCase):
             with self.subTest(cid):
                 if r['register'] != 'NOT_RUN':  # register sees the registry as it was before the run's own entry
                     prefix = entries[:mine[0]['sequence'] - 1]
-                    self.assertEqual(g1.register_check(genesis, prefix, execution(key(r), mine[0]['measured_source_sha']),
+                    self.assertEqual(g1.register_check_test(genesis, prefix, execution(key(r), mine[0]['measured_source_sha']),
                                                        git, VECTORS['environment']['pull_requests'])[0], r['register'])
                 else:  # failed-job rerun: register does not run, there is no entry, bind refuses before B
                     self.assertEqual(mine, [])
-                    self.assertEqual(g1.bind_check(genesis, entries, execution(key(r), A), git, '0' * 64)[0],
+                    self.assertEqual(g1.bind_check_test(genesis, entries, execution(key(r), A), git, '0' * 64)[0],
                                      r['bind'])
                 self.assertFalse(r['crosses_boundary'])
 
@@ -691,13 +691,13 @@ class RunnerDecisions(unittest.TestCase):
     PRS = VECTORS['environment']['pull_requests']
 
     def register(self, entries, k, sha=A, transition=None, **changes):
-        return g1.register_check(self.GENESIS, entries, execution(k, sha, **changes), self.GIT, self.PRS, transition)
+        return g1.register_check_test(self.GENESIS, entries, execution(k, sha, **changes), self.GIT, self.PRS, transition)
 
     def test_register_reproduces_frozen_entries_and_bind_frozen_sidecars(self):
         for n, e in enumerate(self.ENTRIES):
             code, entry = self.register(self.ENTRIES[:n], key(e))
             self.assertEqual((code, entry), ('APPENDED', e))
-            status, binding = g1.bind_check(self.GENESIS, self.ENTRIES[:n + 1], execution(key(e), A), self.GIT,
+            status, binding = g1.bind_check_test(self.GENESIS, self.ENTRIES[:n + 1], execution(key(e), A), self.GIT,
                                             e['entry_sha256'])
             self.assertEqual((status, binding), ('BOUND', self.CASE['evidence']['bindings'][n]))
 
@@ -709,7 +709,7 @@ class RunnerDecisions(unittest.TestCase):
         self.assertEqual(self.register([], (1, 1), sha=OFF_MAIN, workflow_sha=OFF_MAIN)[0], 'SOURCE_NOT_ON_MAIN')
         self.assertEqual(self.register([], (0, 1))[0], 'DISPATCH_REJECTED')
         self.assertEqual(self.register([], (1, True))[0], 'DISPATCH_REJECTED')
-        self.assertEqual(g1.register_check(BY_ID['R02.a']['registry']['genesis'], BY_ID['R02.a']['registry']['entries'],
+        self.assertEqual(g1.register_check_test(BY_ID['R02.a']['registry']['genesis'], BY_ID['R02.a']['registry']['entries'],
                                            execution((9, 1), A), self.GIT, self.PRS)[0], 'REGISTRY_INVALID')
         self.assertEqual(self.register(BY_ID['R04']['registry']['entries'], (9, 1))[0], 'REGISTRY_DUPLICATE')
         self.assertEqual(self.register(self.ENTRIES, key(self.ENTRIES[0])), ('APPENDED', self.ENTRIES[0]))  # retry
@@ -750,29 +750,116 @@ class RunnerDecisions(unittest.TestCase):
                             ('duplicate', (BY_ID['R04']['registry']['entries'], execution((24000000001, 1), A),
                                            BY_ID['R04']['registry']['entries'][0]['entry_sha256']))):
             with self.subTest(label):
-                self.assertEqual(g1.bind_check(self.GENESIS, *args[:2], self.GIT, args[2]), ('REGISTRY_UNBOUND', None))
+                self.assertEqual(g1.bind_check_test(self.GENESIS, *args[:2], self.GIT, args[2]), ('REGISTRY_UNBOUND', None))
 
 
 class ProviderNormalization(unittest.TestCase):
     def test_api_documents_to_observation(self):
-        run_doc = {'id': 24000000003, 'run_attempt': 1}
-        attempt = {'head_sha': A, 'head_branch': 'main', 'path': reg.WORKFLOW_PATH, 'event': 'workflow_dispatch',
-                   'status': 'completed'}
-        jobs = [{'name': 'register', 'status': 'completed', 'conclusion': 'success',
+        run_id, attempt_no = 24000000003, 1
+        run_doc = {'id': run_id, 'run_attempt': attempt_no}
+        attempt = {'id': run_id, 'run_attempt': attempt_no, 'head_sha': A, 'head_branch': 'main',
+                   'path': reg.WORKFLOW_PATH, 'event': 'workflow_dispatch', 'status': 'completed'}
+        raw = {'run_id': run_id, 'run_attempt': attempt_no, 'head_sha': A}
+        jobs = [{**raw, 'name': 'register', 'status': 'completed', 'conclusion': 'success',
                  'steps': [{'number': 1, 'name': 'Register', 'status': 'completed', 'conclusion': 'success'}]},
-                {'name': 'measure', 'status': 'completed', 'conclusion': 'failure',
+                {**raw, 'name': 'measure', 'status': 'completed', 'conclusion': 'failure',
                  'steps': [{'number': 1, 'name': 'Checkout', 'status': 'completed', 'conclusion': 'success'},
                            {'number': 2, 'name': 'Bind', 'status': 'completed', 'conclusion': 'failure'},
                            {'number': 3, 'name': 'Boundary', 'status': 'completed', 'conclusion': 'skipped'},
                            {'number': 4, 'name': 'Measure', 'status': 'completed', 'conclusion': 'skipped'}]}]
         roles = {'Bind': 'bind', 'Boundary': 'boundary'}
-        doc = g1.provider_observation(24000000003, 1, run_doc, attempt, jobs, roles)
+        doc = g1.provider_observation(run_id, attempt_no, run_doc, attempt, jobs, roles)
         self.assertEqual(doc, BY_ID['R08.a']['provider'][2])  # the frozen PRE observation
         self.assertTrue(reg.valid(doc, 'provider_observation'))
-        self.assertIsNone(g1.provider_observation(24000000003, 1, run_doc, None, [], roles)['run'])
-        self.assertIsNone(g1.provider_observation(24000000003, 1, None, attempt, jobs, roles)['run'])
-        unnamed = g1.provider_observation(24000000003, 1, run_doc, attempt, jobs, {})  # roles unknown: never PRE
+        self.assertIsNone(g1.provider_observation(run_id, attempt_no, run_doc, None, [], roles)['run'])
+        self.assertIsNone(g1.provider_observation(run_id, attempt_no, None, attempt, jobs, roles)['run'])
+        unnamed = g1.provider_observation(run_id, attempt_no, run_doc, attempt, jobs, {})  # roles unknown: never PRE
         self.assertFalse(g1.pre_proven(unnamed, BY_ID['R08.a']['registry']['entries'][2]))
+
+        # Raw provider identity is authority. Data from another run/attempt/job must never be relabelled under the
+        # requested scientific key; a mismatch degrades to missing evidence (run = null).
+        wrong = [
+            ({**run_doc, 'id': run_id + 1}, attempt, jobs),
+            (run_doc, {**attempt, 'id': run_id + 1}, jobs),
+            (run_doc, {**attempt, 'run_attempt': attempt_no + 1}, jobs),
+            ({**run_doc, 'run_attempt': 0}, attempt, jobs),
+            (run_doc, attempt, [{**jobs[0], 'run_id': run_id + 1}, jobs[1]]),
+            (run_doc, attempt, [{**jobs[0], 'run_attempt': attempt_no + 1}, jobs[1]]),
+            (run_doc, attempt, [{**jobs[0], 'head_sha': C}, jobs[1]]),
+        ]
+        for n, (run_raw, attempt_raw, jobs_raw) in enumerate(wrong):
+            with self.subTest(n=n):
+                got = g1.provider_observation(run_id, attempt_no, run_raw, attempt_raw, jobs_raw, roles)
+                self.assertIsNone(got['run'])
+
+
+class AuthoritativeRegistryBoundary(unittest.TestCase):
+    GIT = V.git_snapshot(VECTORS['environment'])
+    PRS = VECTORS['environment']['pull_requests']
+
+    @staticmethod
+    def registry_entries(genesis, *runs):
+        entries = []
+        for run_id, run_attempt, source in runs:
+            entries.append(reg.make_entry(genesis, entries, run_id=run_id, run_attempt=run_attempt,
+                                          measured_source_sha=source, workflow_ref=REF,
+                                          measurement_identity=SOURCES[source]))
+        return entries
+
+    @staticmethod
+    def commits(genesis, entries, one_per_commit=True):
+        g = ev.canonical(genesis)
+        if not one_per_commit:
+            data = b''.join(ev.compact(x).encode() + b'\n' for x in entries)
+            return [(0, {reg.GENESIS_FILE: g, reg.ENTRIES_FILE: b''}),
+                    (1, {reg.GENESIS_FILE: g, reg.ENTRIES_FILE: data})]
+        out, data = [(0, {reg.GENESIS_FILE: g, reg.ENTRIES_FILE: b''})], b''
+        for entry in entries:
+            data += ev.compact(entry).encode() + b'\n'
+            out.append((1, {reg.GENESIS_FILE: g, reg.ENTRIES_FILE: data}))
+        return out
+
+    def test_authoritative_register_bind_require_exact_v2_freeze(self):
+        good_genesis = reg.make_genesis(reg.G1_FREEZE_SHA256)
+        entries = self.registry_entries(good_genesis, (25000000001, 1, A))
+        snapshot = reg.authoritative_registry(self.commits(good_genesis, entries), self.GIT)
+
+        status, binding = g1.bind_check(snapshot, execution((25000000001, 1), A), self.GIT,
+                                        entries[0]['entry_sha256'])
+        self.assertEqual(status, 'BOUND')
+        self.assertEqual(binding['entry_sha256'], entries[0]['entry_sha256'])
+        status, appended = g1.register_check(snapshot, execution((25000000002, 1), A), self.GIT, self.PRS)
+        self.assertEqual(status, 'APPENDED')
+        self.assertEqual((appended['run_id'], appended['run_attempt']), (25000000002, 1))
+
+        bad_genesis = reg.make_genesis('f' * 64)
+        with self.assertRaises(reg.RegistryInvalid):
+            reg.authoritative_registry(self.commits(bad_genesis, []), self.GIT)
+        self.assertEqual(g1._register_check_core(bad_genesis, [], execution((9, 1), A), self.GIT, self.PRS,
+                                                 g1_freeze_sha256=reg.G1_FREEZE_SHA256)[0],
+                         'REGISTRY_INVALID')
+        self.assertEqual(g1._bind_check_core(bad_genesis, entries, execution((25000000001, 1), A), self.GIT,
+                                             entries[0]['entry_sha256'],
+                                             g1_freeze_sha256=reg.G1_FREEZE_SHA256),
+                         ('REGISTRY_UNBOUND', None))
+
+    def test_physical_history_is_mandatory_before_runner_or_g1(self):
+        genesis = reg.make_genesis(reg.G1_FREEZE_SHA256)
+        entries = self.registry_entries(genesis, (25000000001, 1, A), (25000000002, 1, A))
+
+        # The final objects are logically valid, but one commit appended two lines, violating frozen section 5.2.
+        reg.validate(genesis, entries, self.GIT, reg.G1_FREEZE_SHA256)
+        bad_commits = self.commits(genesis, entries, one_per_commit=False)
+        with self.assertRaises(reg.RegistryInvalid):
+            reg.authoritative_registry(bad_commits, self.GIT)
+
+        good = reg.authoritative_registry(self.commits(genesis, entries), self.GIT)
+        evaluation = g1.Evaluation.build(
+            genesis=genesis, entries=entries, registry_reread=reg.head(genesis, entries), git=self.GIT,
+            main_reread=self.GIT.main_head_sha, provider=(), pull_requests=self.PRS, evidence=g1.Evidence.build(),
+            evaluator_source_sha=self.GIT.main_head_sha, kat_green=(), g1_freeze_sha256=reg.G1_FREEZE_SHA256)
+        self.assertIsNone(g1.analyze_authoritative(evaluation, good).blocker)
+        self.assertEqual(g1.analyze_authoritative(evaluation, object()).blocker, 'REGISTRY_INVALID')
 
 
 class SmokeAPI:
