@@ -15,6 +15,7 @@ and items 6, 11 and 12 live, on every evaluation (activation_in_tree). Before th
 production `register` refuses. Nothing here creates the registry branch, configures rulesets or dispatches a workflow.
 """
 from dataclasses import dataclass
+import hashlib
 import os
 from pathlib import Path
 import re
@@ -563,11 +564,11 @@ TOOL_FILE = '.work/tools/oracle_activation_v2.py'
 
 @dataclass(frozen=True)
 class TreeView:
-    """Pinned main tree: read(path) and read_at(commit, path) give committed bytes or None; on_main(commit) is
-    ancestor-or-equal of the pinned main head."""
+    """Pinned main tree plus commit ancestry used by activation provenance checks."""
     read: Callable
     read_at: Callable
     on_main: Callable
+    first_parent: Callable
 
 
 def _evidence(entry, read):
@@ -630,11 +631,7 @@ def _merged(get, view, entry, label):
 
 
 def _pr_files(get, number):
-    """Complete GitHub PR-files inventory, fail-closed.
-
-    GitHub caps this endpoint at 3000 files. A PR that reaches that cap cannot be used as activation evidence because
-    completeness of the reviewed-artifact binding would be unprovable.
-    """
+    """Complete GitHub PR-files inventory, fail-closed at the provider's 3000-file ceiling."""
     out = []
     for page in range(1, 31):
         batch = get(f"/repos/{reg.REPOSITORY}/pulls/{number}/files?per_page=100&page={page}")
@@ -646,26 +643,41 @@ def _pr_files(get, number):
     raise rg.TransportError('pull request files exceed verifiable provider limit')
 
 
-def _pr_changed_path(get, number, path, patch_needle=None):
-    """True only when this PR itself changed the reviewed artifact; mere presence in its merge tree is insufficient."""
-    hits = [item for item in _pr_files(get, number)
-            if item.get('filename') == path and item.get('status') in ('added', 'modified')]
-    if len(hits) != 1:
+def _git_blob_sha(data):
+    return hashlib.sha1(f'blob {len(data)}\0'.encode() + data).hexdigest()
+
+
+def _introduced(get, view, pr, path, *, expected_sha256=None, marker=None):
+    """Bind a reviewed PR to the exact artifact bytes it introduced.
+
+    Presence in a later merge tree is insufficient: the merge's first parent must not already carry these bytes (or,
+    for a marker, the marker itself), and GitHub's PR-files blob SHA must equal the blob actually present after merge.
+    """
+    merge = pr.get('merge_commit_sha')
+    parent = view.first_parent(merge)
+    if not (type(parent) is str and ev.HEX40.match(parent) and view.on_main(parent)):
         return False
-    return patch_needle is None or (type(hits[0].get('patch')) is str and patch_needle in hits[0]['patch'])
+    merged = view.read_at(merge, path)
+    before = view.read_at(parent, path)
+    if merged is None or before == merged:
+        return False
+    if expected_sha256 is not None and ev.sha256(merged) != expected_sha256:
+        return False
+    if marker is not None and (marker not in merged or (before is not None and marker in before)):
+        return False
+    hits = [item for item in _pr_files(get, pr['number'])
+            if item.get('filename') == path and item.get('status') in ('added', 'modified')]
+    return len(hits) == 1 and hits[0].get('sha') == _git_blob_sha(merged)
 
 
 def verify_genesis_review(doc, get, view):
-    """Item 6: the reviewed PR itself pinned the deterministic genesis root and merged that exact binding into main."""
+    """Item 6: the recorded PR itself introduced the deterministic production-root binding."""
     pr, problems = _merged(get, view, doc['genesis_review'], 'genesis review (item 6)')
     if pr is None:
         return problems
-    root = ROOT_COMMIT['production']
-    if not _pr_changed_path(get, doc['genesis_review']['pull_request'], TOOL_FILE, root):
-        problems.append('genesis review (item 6): recorded PR did not change the reviewed genesis binding')
-    tool = view.read_at(doc['genesis_review']['merge_commit_sha'], TOOL_FILE) or b''
-    if f"'production': '{root}'".encode() not in tool:
-        problems.append('genesis review (item 6): merge tree does not pin the genesis root commit')
+    marker = f"'production': '{ROOT_COMMIT['production']}'".encode()
+    if not _introduced(get, view, pr, TOOL_FILE, marker=marker):
+        problems.append('genesis review (item 6): recorded PR did not introduce the reviewed genesis binding')
     return problems
 
 
@@ -705,8 +717,8 @@ def _verify_review(doc, get, view):
     merged = view.read_at(review['merge_commit_sha'], INFRA_FILE)
     if merged is None or ev.sha256(merged) != doc['infra']['sha256']:
         problems.append('independent review (item 11): infra PR did not merge these infra bytes')
-    if not _pr_changed_path(get, review['pull_request'], INFRA_FILE):
-        problems.append('independent review (item 11): reviewed PR did not change the exact infra artifact')
+    if not _introduced(get, view, pr, INFRA_FILE, expected_sha256=doc['infra']['sha256']):
+        problems.append('independent review (item 11): reviewed PR did not introduce the exact infra artifact')
     reviews = get(f"/repos/{reg.REPOSITORY}/pulls/{review['pull_request']}/reviews?per_page=100")
     hits = [r for r in reviews or [] if type(r) is dict and r.get('id') == review['review_id']]
     if not (len(hits) == 1 and hits[0].get('state') == 'APPROVED'
@@ -770,7 +782,10 @@ def local_view(root=None):
     def on_main(commit):
         return type(commit) is str and ev.HEX40.match(commit) is not None and rg.git(
             root, 'merge-base', '--is-ancestor', commit, 'HEAD', check=False).returncode == 0
-    return TreeView(_read_tree, lambda commit, path: rg.show(root, commit, path), on_main)
+    def first_parent(commit):
+        out = rg.git(root, 'rev-parse', '--verify', f'{commit}^1', check=False)
+        return out.stdout.decode().strip() if out.returncode == 0 else None
+    return TreeView(_read_tree, lambda commit, path: rg.show(root, commit, path), on_main, first_parent)
 
 
 def main(argv, env=os.environ):
