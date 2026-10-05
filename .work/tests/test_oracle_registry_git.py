@@ -520,6 +520,41 @@ class Production(Base):
             self.assertEqual(rg.main(['g1', identity, str(self.w.tmp / 'r.json')]), 1)
         self.assertFalse((self.w.tmp / 'r.json').exists())
 
+    def test_live_registry_root_gates_activation(self):
+        """Review 2 of PR 31: valid genesis bytes under another root commit cannot satisfy item 6."""
+        enable, infra = {}, {'steps': {'bind': act.BIND_STEP, 'boundary': act.BOUNDARY_STEP, 'kat': act.KAT_STEP}}
+        with tempfile.TemporaryDirectory() as t:
+            gitdir = rg.init_bare(Path(t) / 'g.git')
+            forged = rg.make_commit(gitdir, {'genesis.json': rg.genesis_bytes(reg.PRODUCTION), 'entries.jsonl': b''},
+                                    None, 'look-alike genesis')
+            sh(gitdir, 'push', '--quiet', str(self.w.remote), f'{forged}:{reg.REGISTRY_REF}')
+        with patch.object(ev, 'ROOT', self.w.root), patch.object(act, 'activation_in_tree',
+                                                                 return_value=(enable, infra)), \
+                patch.object(rg, 'collect', return_value='collected') as collect:
+            self.assertIsNone(rg.production_inputs('4' * 64))
+            collect.assert_not_called()
+            sh(self.w.remote, 'update-ref', '-d', reg.REGISTRY_REF)
+            self.w.genesis(reg.PRODUCTION)
+            self.assertEqual(rg.production_inputs('4' * 64), 'collected')
+
+    def test_provenance_primitives_on_real_git(self):
+        """Blob ids and first parents as the activation verifier reads them, on a real merge."""
+        data = b'reviewed artifact\n'
+        blob = subprocess.run(['git', 'hash-object', '--stdin'], input=data, capture_output=True,
+                              check=True).stdout.decode().strip()
+        self.assertEqual(act._git_blob_sha(data), blob)
+        side = self.w.commit('side', {'z': b'1'})
+        sh(self.w.root, 'checkout', '-q', '-b', 'pr', self.w.base)
+        head = self.w.commit('pr change', {'pr.txt': b'1'})
+        sh(self.w.root, 'checkout', '-q', 'main')
+        sh(self.w.root, 'merge', '-q', '--no-ff', '-m', 'merge pr', head)
+        merge = sh(self.w.root, 'rev-parse', 'HEAD')
+        view = act.local_view(self.w.root)
+        self.assertEqual(view.first_parent(merge), side)  # main just before the merge, not the PR head
+        self.assertIsNone(view.first_parent(self.w.base))
+        self.assertIsNone(view.read_at(side, 'pr.txt'))
+        self.assertEqual(view.read_at(merge, 'pr.txt'), b'1')
+
     def test_unverified_activation_record_keeps_v2_inactive(self):
         self.w.genesis(reg.PRODUCTION)
         with patch.object(ev, 'ROOT', self.w.root), patch.object(g1, 'ACTIVATION_RECORD', '2' * 64), \

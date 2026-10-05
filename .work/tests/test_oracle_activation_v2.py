@@ -391,6 +391,14 @@ class Record(unittest.TestCase):
         self.assertIsNone(act.activation_in_tree(self.view(), self.gh, '0' * 64))
         self.assertIsNone(act.activation_in_tree(self.view(), self.gh, None))
 
+    def test_infra_diff_on_a_later_files_page(self):
+        api = f'/repos/{REPO}/pulls/{INFRA_PR}/files?per_page=100&page='
+        real = self.gh.docs[f'{api}1']
+        self.gh.docs[f'{api}1'] = [{'filename': f'docs/{n}.md', 'status': 'added', 'sha': '9' * 40}
+                                   for n in range(100)]
+        self.gh.docs[f'{api}2'] = real
+        self.assertEqual(act.validate_activation(self.record, self.view(), self.gh), [])
+
     def test_any_gap_keeps_v2_inactive(self):
         api = f'/repos/{REPO}'
         comment, reviews = f'{api}/issues/comments/9001', f'{api}/pulls/{INFRA_PR}/reviews?per_page=100'
@@ -433,6 +441,14 @@ class Record(unittest.TestCase):
                 f'{api}/pulls/{INFRA_PR}/files?per_page=100&page=1':
                     [{'filename': act.INFRA_FILE, 'status': 'modified', 'sha': '8' * 40, 'patch': '+wrong'}]}),
             'infra merge not on main': lambda r, f, g: self.main.discard(INFRA_MERGE),
+            'infra file only renamed into place': lambda r, f, g: doc(
+                f'{api}/pulls/{INFRA_PR}/files?per_page=100&page=1')[0].update(status='renamed'),
+            'infra merge without a parent': lambda r, f, g: self.parents.pop(INFRA_MERGE),
+            'infra merge parent off main': lambda r, f, g: self.main.discard(INFRA_PARENT),
+            'files API unavailable': lambda r, f, g: g.docs.pop(f'{api}/pulls/{INFRA_PR}/files?per_page=100&page=1'),
+            'infra diff hidden behind a full first page': lambda r, f, g: g.docs.update(
+                {f'{api}/pulls/{INFRA_PR}/files?per_page=100&page=1':
+                    [{'filename': f'docs/{n}.md', 'status': 'added', 'sha': '9' * 40} for n in range(100)]}),
             'bot approval': lambda r, f, g: doc(reviews)[1]['user'].update(type='Bot'),
             # item 12
             'decision edited': lambda r, f, g: doc(comment).update(body=doc(comment)['body'] + 'edit'),
