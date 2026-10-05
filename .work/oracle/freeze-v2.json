@@ -1,0 +1,65 @@
+{
+  "adopted_on": "2026-10-05",
+  "contract_id": "delsk.oracle-contract.v2",
+  "decisions": {
+    "accepted": [
+      "D1",
+      "D2",
+      "D3",
+      "D4",
+      "D5"
+    ],
+    "issue": "https://github.com/definitely-stable/Shift-lab/issues/27",
+    "non_normative": [
+      ".work/oracle/attempt-v2-proposal.md",
+      ".work/research/DELSK-ATTEMPT-V2-DESK-RESEARCH.md"
+    ],
+    "research_merge_commit": "2c89c8d9edb3c3dec02f45c07a2efa5c7623d053"
+  },
+  "g1": "NOT_RUN",
+  "governance": "Takes effect when a maintainer merges this record into main. Immutable; any change of registry, classification, population, series, codes or record semantics needs a new G1 contract with a new freeze record. Adoption does not activate v2: implementation, genesis, rulesets and natural runs follow contract-v2 section 16 and a separate maintainer decision.",
+  "implementation": "NOT_ACTIVE",
+  "layering": {
+    "g1_provenance_contract": "delsk.oracle-contract.v2",
+    "measurement_contract": "delsk.oracle-contract.v1"
+  },
+  "limitations": [
+    "Expected records were derived from the contract by its author; independence comes from the separate implementation required by activation criterion 3.",
+    "Registry corruption is unrecoverable inside v2; recovery needs a new G1 contract and genesis.",
+    "Level-1 witness leaves an undetected tail-truncation window before the next retained binding; against non-admins it is closed by the registry ruleset, against a malicious admin only by an external checkpoint.",
+    "G1 v2 is defined for phase pilot only; reveal entries are registered and disclosed but not evaluated."
+  ],
+  "measurement_layer": {
+    "bindings": {
+      "candidate_lock_sha256": "cb16d53b164ff393187e0115bdf31c52ac717a5172fb1e91889b5988ac019d2e",
+      "codec_lock_sha256": "9823e4c933c27fb4116bfce5add59ef6e926e43d2f0ebae258d7bb869a38f7b1",
+      "corpus_lock_sha256": "e5c288256bed284572a9f111186411517b4c73d097d13aea4cf48e2fb9f6fffa",
+      "protocol_sha256": "a0c518247d111e8ad1294562d65eb34c28da87c7027c009efb64a39e6f4e0038",
+      "seal_sha256": "0c87fd5c96279c377d6031051d0cf990cb0afc6041212fc973b1ef35a8be73ef"
+    },
+    "contract_id": "delsk.oracle-contract.v1",
+    "files": {
+      ".work/oracle/codec-lock.json": "9823e4c933c27fb4116bfce5add59ef6e926e43d2f0ebae258d7bb869a38f7b1",
+      ".work/oracle/contract.md": "d3bde26f6abf642dacc1ea8b767c0d3262928a9d27547d0e311c682b542c8387",
+      ".work/oracle/known-answer.json": "911eab6897a72fd9bf3cd27bed8ce9733b4da45a2bebc8f974a9a2e3c8fab3d6",
+      ".work/oracle/schemas.json": "bdd46170b426161e7b455cc4b93545de7e46354df1a5fe072c9af46168698124",
+      ".work/tests/oracle_reference.py": "be84b37e66916b1172a575b842b327a018fbac2c24154b06e6ffef8caaed338f",
+      ".work/tests/test_oracle_contract.py": "2b5e60c69829588f502575cf45175e3d13ecc58192ac176cb2e80fb11937d8f1"
+    },
+    "freeze_path": ".work/oracle/freeze.json"
+  },
+  "measurement_layer_sha256": "c56fc053b103cecd38446b3791db104a12b9fafabacdfc6b71f6f23c0bf7f729",
+  "natural_measurements": "NOT_RUN",
+  "provenance_layer": {
+    "files": {
+      ".work/oracle/contract-v2.md": "c9905258f7fc2dacb3ff6884dc421babd66efe1b4509c3d6476b06f373768454",
+      ".work/oracle/registry-vectors.json": "98468815a6a4a65025aeae82c9824f6ba68de533a2afdefb099636524a5d0d34",
+      ".work/oracle/schemas-v2.json": "7c17682e922e194d4c753df78dcaf1fb396babbccf50aca3771f2e7e2e14a924",
+      ".work/tests/test_oracle_contract_v2.py": "f06f3f01ee1846843ed23a764b9d352237e95321adb2e014a09bd732e46cb8cc"
+    }
+  },
+  "provenance_layer_sha256": "94bb34eadc3a7b7c635a31df4845891376c0b6d11c53a4f36aeff38f9a8024dc",
+  "schema": "delsk.oracle-contract.freeze.v2",
+  "scope": "G1/provenance layer only: definition of scientific attempt, registry authority, bind-before-measure, PRE/BUNDLE/MISSING, G1 population, series and transitions, production/test API, ruleset/write-token/witness requirements, activation criteria. The measurement layer is delsk.oracle-contract.v1 by hash.",
+  "status": "FROZEN_ON_MERGE"
+}
