@@ -5,6 +5,8 @@ registry remote https://github.com/definitely-stable/Shift-lab.git to a local ba
 keeps its authority constants and no network, GitHub write, natural byte or codec is involved. The source repository
 holds only the committed metadata that git_source reads (workflow, frozen v1 files, locks, code manifest).
 """
+import copy
+import json
 import os
 from pathlib import Path
 import re
@@ -52,7 +54,7 @@ class World:
         self.env = patch.dict(os.environ, {'HOME': str(self.home)})
         self.env.start()
         subprocess.run(['git', 'init', '--quiet', '-b', 'main', str(self.root)], check=True)
-        for name in IDENTITY_FILES:
+        for name in (*IDENTITY_FILES, reg.SMOKE_WORKFLOW_PATH):  # + the workflow the smoke runs execute (1.5)
             dest = self.root / name
             dest.parent.mkdir(parents=True, exist_ok=True)
             dest.write_bytes((ev.ROOT / name).read_bytes())
@@ -123,27 +125,31 @@ class Provider:
         self.world, self.profile, self.runs = world, profile, {}
 
     def add(self, run_id, attempt, scenario, sha=None):
-        """Jobs and steps as GitHub reports them for each smoke scenario (status, conclusion per job and step)."""
+        """Jobs and steps exactly as GitHub reports them for each smoke scenario (status, conclusion per job and step),
+        including the steps the provider adds itself: Set up job, Post <checkout> and Complete job (contract-v3 1.1)."""
         sha = sha or self.world.main
         ok, skip, fail, cancel = (('completed', c) for c in ('success', 'skipped', 'failure', 'cancelled'))
-        register = [(act.SOURCE_STEP, ok), ('Synthetic hold before register', skip), (act.REGISTER_STEP, ok)]
+        register = [('Set up job', ok), (act.SOURCE_STEP, ok), ('Synthetic hold before register', skip),
+                    (act.REGISTER_STEP, ok), (act.PROVIDER_COMPLETE, ok)]
         measure = {  # checkout, hold, bind, retain binding, synthetic stop, boundary
             'stop-before-boundary': ('failure', (ok, skip, ok, ok, fail, skip)),
             'cross-boundary': ('success', (ok, skip, ok, ok, skip, ok)),
             'rerun-failed': ('failure', (ok, skip, fail, skip, skip, skip)),
             'cancel-after-register': ('cancelled', (ok, cancel, skip, skip, skip, skip)),
         }
-        names = ('Checkout', 'Synthetic hold before the boundary', act.BIND_STEP,
-                 'Retain binding sidecar before the boundary', 'Synthetic stop before the boundary', act.BOUNDARY_STEP)
-        if scenario == 'cancel-before-register':
-            jobs = [('register', 'cancelled', [(act.SOURCE_STEP, ok), ('Synthetic hold before register', cancel),
-                                               (act.REGISTER_STEP, skip)]),
-                    ('measure', 'skipped', [])]
+        names = ('Set up job', act.CHECKOUT_STEP, 'Synthetic hold before the boundary', act.BIND_STEP,
+                 'Retain binding sidecar before the boundary', 'Synthetic stop before the boundary', act.BOUNDARY_STEP,
+                 f'Post {act.CHECKOUT_STEP}', act.PROVIDER_COMPLETE)
+        if scenario == 'cancel-before-register':  # measure never got a runner: completed/cancelled, no steps at all
+            jobs = [('register', 'cancelled', [('Set up job', ok), (act.SOURCE_STEP, ok),
+                                               ('Synthetic hold before register', cancel), (act.REGISTER_STEP, skip),
+                                               (act.PROVIDER_COMPLETE, ok)]),
+                    ('measure', 'cancelled', [])]
         else:
             conclusion, steps = measure[scenario]
-            jobs = [('measure', conclusion, list(zip(names, steps)))]
-            if scenario != 'rerun-failed':  # a failed-job rerun does not execute register again
-                jobs.insert(0, ('register', 'success', register))
+            # A failed-job rerun does not execute register again, but GitHub still lists the reused job (a copy with a
+            # new job id and the original timestamps) under the new attempt, as the recorded 2026-10-05 runs show.
+            jobs = [('register', 'success', register), ('measure', conclusion, list(zip(names, (ok, *steps, ok, ok))))]
         run = self.runs.setdefault(run_id, {'attempts': {}})
         run['attempts'][attempt] = {'sha': sha, 'jobs': jobs}
 
@@ -169,8 +175,12 @@ class Provider:
         if m[3] is None:
             return {'id': int(m[1]), 'run_attempt': int(m[2]), 'head_sha': a['sha'], 'head_branch': 'main',
                     'path': self.profile.workflow_path, 'event': 'workflow_dispatch', 'status': 'completed'}
+        # as GitHub: a job that ran has a runner; one cancelled before a runner reports runner_id = runner_name = null
         jobs = [{'id': int(m[1]) * 100 + int(m[2]) * 10 + n, 'name': name, 'run_id': int(m[1]),
                  'run_attempt': int(m[2]), 'head_sha': a['sha'], 'status': 'completed', 'conclusion': conclusion,
+                 'runner_id': 1000 + n if steps else None,
+                 'runner_name': f'GitHub Actions {1000 + n}' if steps else None,
+                 'runner_group_id': 0 if steps else None,
                  'steps': [{'name': s, 'number': i, 'status': st, 'conclusion': c}
                            for i, (s, (st, c)) in enumerate(steps, 1)]}
                 for n, (name, conclusion, steps) in enumerate(a['jobs'])]
@@ -198,6 +208,80 @@ def smoke_documents(world, provider):
                  'runs': [{'scenario': s, 'run_id': r, 'run_attempt': a,
                            'html_url': f'https://github.com/{REPO}/actions/runs/{r}'} for s, r, a in SMOKE_RUNS]}
     return rg.smoke_evaluation(world.root, provider, scenarios), scenarios
+
+
+RECORDED = json.loads((Path(__file__).resolve().parent / 'fixtures' / 'github-actions-smoke-2026-10-05.json')
+                      .read_text(encoding='utf-8'))
+# Step names of the workflow that produced the recordings (contract v2 names, unnamed checkout) and its provider steps.
+RECORDED_ROLES = {'Bind registry entry before the measurement boundary (contract v2 bind)': 'bind',
+                  'Measurement boundary (contract v2 boundary)': 'boundary', act.PROVIDER_COMPLETE: 'provider',
+                  'Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1': 'provider'}
+
+
+class RecordedGitHub(unittest.TestCase):
+    """The real smoke runs of 2026-10-05 (tests/fixtures, recorded REST responses) through the production transport,
+    normalizer, PRE rule and smoke verifier. They exposed the v2 defect: GitHub runs Post <checkout> and Complete job
+    after the boundary step and reports a measure job cancelled before a runner as completed/cancelled without steps."""
+
+    def get(self, path):
+        self.assertIn(path, RECORDED['responses'])
+        return copy.deepcopy(RECORDED['responses'][path])
+
+    def observations(self, roles):
+        keys = sorted(map(tuple, RECORDED['scenarios'].values()))
+        found = rg.provider_observations(self.get, [{'run_id': r, 'run_attempt': a} for r, a in keys], roles)
+        return {(o['run_id'], o['run_attempt']): o for o in found}
+
+    @staticmethod
+    def entry(o):
+        """The run binding fields of the entry registered for this run (contract 8.3 run binding)."""
+        run = o['run']
+        return {'repository': REPO, 'measured_source_sha': run['head_sha'], 'workflow_path': run['workflow_path'],
+                'workflow_ref': f"{REPO}/{run['workflow_path']}@refs/heads/{run['head_branch']}"}
+
+    def test_pre_exactly_where_b_was_not_crossed(self):
+        obs = self.observations(RECORDED_ROLES)
+        expected = {'stop-before-boundary': True, 'rerun-all': True, 'rerun-failed': True, 'cross-boundary': False,
+                    'cancel-before-register': True, 'cancel-after-register': True}
+        for scenario, key in RECORDED['scenarios'].items():
+            o = obs[tuple(key)]
+            with self.subTest(scenario):
+                self.assertEqual(o['schema'], 'delsk.oracle.provider-observation.v2')
+                self.assertTrue(reg.valid(o, 'provider_observation'))
+                self.assertEqual(g1.pre_proven(o, self.entry(o)), expected[scenario])
+                roles = [s['role'] for j in o['run']['jobs'] if j['name'] == 'measure' for s in j['steps']]
+                if scenario != 'cancel-before-register':
+                    self.assertEqual(roles[-2:], ['provider', 'provider'])  # Post <checkout>, Complete job
+
+    def test_failed_job_rerun_stopped_before_b_is_not_unbound(self):
+        obs = self.observations(RECORDED_ROLES)
+        a1, a2 = obs[(37306997371, 1)], obs[(37306997371, 2)]
+        entries = [{**self.entry(a1), 'run_id': 37306997371, 'run_attempt': n, 'measurement_identity_sha256': 'a' * 64,
+                    'science_identity_sha256': 'b' * 64} for n in (1, 2)]
+        self.assertEqual(g1.unbound_attempts(entries, obs, {a1['run']['head_sha']}), ())
+        self.assertEqual(a2['run']['latest_run_attempt'], 3)
+
+    def test_unknown_step_names_fail_closed(self):
+        """Without the provider names (or under the v3 step names the recordings do not carry) nothing that started
+        a measure job is PRE: a renamed provider step is `other`, a renamed boundary is no boundary."""
+        for roles in ({k: v for k, v in RECORDED_ROLES.items() if v != 'provider'}, act.SMOKE_ROLES):
+            obs = self.observations(roles)
+            for scenario, key in RECORDED['scenarios'].items():
+                o = obs[tuple(key)]
+                with self.subTest(scenario, roles=sorted(roles)[0]):
+                    self.assertEqual(g1.pre_proven(o, self.entry(o)), scenario == 'cancel-before-register')
+
+    def test_smoke_verifier_accepts_every_recorded_scenario(self):
+        obs = self.observations(RECORDED_ROLES)
+        registered = {'stop-before-boundary', 'rerun-all', 'cross-boundary', 'cancel-after-register'}
+        for scenario, key in RECORDED['scenarios'].items():
+            o = obs[tuple(key)]
+            e = {**self.entry(o), 'run_id': key[0], 'run_attempt': key[1], 'workflow_sha': o['run']['head_sha']}
+            cls, violations = g1.classify(e, o, None, None, False, {o['run']['head_sha']})
+            entry = {'class': cls, 'violations': sorted(violations)} if scenario in registered else None
+            with self.subTest(scenario):
+                self.assertEqual(act._scenario_facts(scenario, o['run'], entry), [])
+        self.assertTrue(act._never_ran(next(j for j in obs[(37307308985, 1)]['run']['jobs'] if j['name'] == 'measure')))
 
 
 class Base(unittest.TestCase):
@@ -366,7 +450,7 @@ class Register(Base):
         self.assertEqual(rg.main(['register'], self.w.env_of(11, profile=reg.PRODUCTION)), 3)
 
     def test_production_profile_path_with_a_stand_in_activation(self):
-        """The production code path itself (frozen schemas, real freeze-v2 digest) on a local remote."""
+        """The production code path itself (frozen schemas, real freeze-v3 digest) on a local remote."""
         self.w.genesis(reg.PRODUCTION)
         with patch.object(g1, 'ACTIVATION_RECORD', '1' * 64):
             entry = self.register(11, profile=reg.PRODUCTION)
@@ -476,7 +560,8 @@ class Evaluation(Base):
 
     def test_collect_pins_main_and_rereads(self):
         self.run_scenario(51, 1, 'stop-before-boundary')
-        x, commits = rg.collect(reg.SMOKE, self.w.root, self.provider, act.ROLES, g1.Evidence.build(), None, None)
+        x, commits = rg.collect(reg.SMOKE, self.w.root, self.provider, act.ROLES, g1.Evidence.build(), None, None,
+                                self.smoke_workflow)
         self.assertEqual((x.git.main_head_sha, x.main_reread), (self.w.main, self.w.main))
         self.assertEqual(x.registry_reread, reg.head(x.genesis, list(x.entries)))
         self.assertEqual(len(commits), 2)
@@ -491,10 +576,35 @@ class Evaluation(Base):
             return real(gitdir, head)
 
         with patch.object(rg, 'registry_history', moving):
-            x, _ = rg.collect(reg.SMOKE, self.w.root, self.provider, act.ROLES, g1.Evidence.build(), None, None)
+            x, _ = rg.collect(reg.SMOKE, self.w.root, self.provider, act.ROLES, g1.Evidence.build(), None, None,
+                              self.smoke_workflow)
         a = g1.analyze(x)
         self.assertEqual(a.blocker, 'REGISTRY_STALE')
         self.assertNotEqual(x.main_reread, x.git.main_head_sha)
+
+    def smoke_workflow(self, main):
+        return ev.sha256(rg.show(self.w.root, main, reg.SMOKE_WORKFLOW_PATH))
+
+    def test_only_the_reviewed_workflow_bytes_are_witnessed(self):
+        """Contract-v3 1.5: an attempt whose source commit carries other workflow bytes than the reference is MISSING,
+        whatever its provider facts; the reference is the exact digest, never the workflow name."""
+        self.run_scenario(61, 1, 'stop-before-boundary')
+        source = self.w.main
+        x, _ = rg.collect(reg.SMOKE, self.w.root, self.provider, act.SMOKE_ROLES, g1.Evidence.build(), None, None,
+                          self.smoke_workflow)
+        self.assertEqual(x.workflow_witnessed, {source})
+        self.assertEqual(g1.analyze(x).classes[(61, 1)]['class'], 'PRE')
+        changed = self.w.commit('workflow edited after the attempt', {
+            reg.SMOKE_WORKFLOW_PATH: rg.show(self.w.root, source, reg.SMOKE_WORKFLOW_PATH) + b'# edited\n'})
+        self.w.publish_main(changed)
+        x, _ = rg.collect(reg.SMOKE, self.w.root, self.provider, act.SMOKE_ROLES, g1.Evidence.build(), None, None,
+                          self.smoke_workflow)
+        self.assertEqual(x.workflow_witnessed, set())
+        self.assertEqual(g1.analyze(x).classes[(61, 1)]['class'], 'MISSING')
+        for reference in (None, '0' * 64):
+            x, _ = rg.collect(reg.SMOKE, self.w.root, self.provider, act.SMOKE_ROLES, g1.Evidence.build(), None,
+                              None, reference)
+            self.assertEqual(x.workflow_witnessed, set())
 
     def test_evidence_root_is_read_from_the_pinned_tree(self):
         key = '7-1'
@@ -515,14 +625,15 @@ class Production(Base):
         identity = '0' * 64
         with patch.object(rg, 'fetch', side_effect=AssertionError('read')), \
                 patch.object(rg, 'api_get', side_effect=AssertionError('read')):
-            self.assertEqual(g1.g1_production(identity), ('NOT_PASSED', ['V2_NOT_ACTIVE']))
+            self.assertEqual(g1.g1_production(identity), ('NOT_PASSED', ['V3_NOT_ACTIVE']))
             self.assertIsNone(g1._production_evaluate(identity))
             self.assertEqual(rg.main(['g1', identity, str(self.w.tmp / 'r.json')]), 1)
         self.assertFalse((self.w.tmp / 'r.json').exists())
 
     def test_live_registry_root_gates_activation(self):
         """Review 2 of PR 31: valid genesis bytes under another root commit cannot satisfy item 6."""
-        enable, infra = {}, {'steps': {'bind': act.BIND_STEP, 'boundary': act.BOUNDARY_STEP, 'kat': act.KAT_STEP}}
+        enable, infra = {}, {'steps': {'bind': act.BIND_STEP, 'boundary': act.BOUNDARY_STEP, 'kat': act.KAT_STEP,
+                                       'provider': list(act.PILOT_PROVIDER_STEPS)}, 'workflow_sha256': '0' * 64}
         with tempfile.TemporaryDirectory() as t:
             gitdir = rg.init_bare(Path(t) / 'g.git')
             forged = rg.make_commit(gitdir, {'genesis.json': rg.genesis_bytes(reg.PRODUCTION), 'entries.jsonl': b''},
@@ -555,12 +666,12 @@ class Production(Base):
         self.assertIsNone(view.read_at(side, 'pr.txt'))
         self.assertEqual(view.read_at(merge, 'pr.txt'), b'1')
 
-    def test_unverified_activation_record_keeps_v2_inactive(self):
+    def test_unverified_activation_record_keeps_v3_inactive(self):
         self.w.genesis(reg.PRODUCTION)
         with patch.object(ev, 'ROOT', self.w.root), patch.object(g1, 'ACTIVATION_RECORD', '2' * 64), \
                 patch.object(rg, 'api_get', side_effect=AssertionError('provider read without activation')):
             self.assertIsNone(rg.production_inputs('2' * 64))
-            self.assertEqual(g1.g1_production('3' * 64), ('NOT_PASSED', ['V2_NOT_ACTIVE']))
+            self.assertEqual(g1.g1_production('3' * 64), ('NOT_PASSED', ['V3_NOT_ACTIVE']))
             self.w.publish_main(self.w.commit('record', {act.ACTIVATION_FILE: b'{}\n'}))
             self.assertIsNone(rg.production_inputs(ev.sha256(b'{}\n')))  # bytes match, record invalid
 

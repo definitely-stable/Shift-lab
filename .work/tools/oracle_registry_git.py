@@ -1,4 +1,4 @@
-"""DELSK-003A C1-B: Git and provider transport of delsk.oracle-contract.v2 (registry runner and production reads).
+"""DELSK-003A C1-B: Git and provider transport of delsk.oracle-contract.v3 (registry runner and production reads).
 
     oracle_registry_git.py genesis {production|smoke} OUT_GIT_DIR   deterministic registry root commit, local only
     oracle_registry_git.py register                                 contract 5.7, job `register` of oracle-pilot.yml
@@ -15,7 +15,7 @@ forced. Before activation (g1.ACTIVATION_RECORD is None) the production `registe
 any read or write, so the production registry stays untouched; the smoke profile exercises the same code paths.
 
 No command reads a natural byte, builds or runs a codec, or measures anything. `genesis` never pushes: creating the
-remote registry branch, configuring rulesets and dispatching workflows are maintainer activation steps (slice-c1b.md).
+remote registry branch, configuring rulesets and dispatching workflows are maintainer activation steps (slice-c1c.md).
 """
 import base64
 import json
@@ -44,7 +44,7 @@ COMMITTER = {'GIT_AUTHOR_NAME': 'delsk-registry', 'GIT_AUTHOR_EMAIL': 'delsk-reg
              'GIT_COMMITTER_NAME': 'delsk-registry', 'GIT_COMMITTER_EMAIL': 'delsk-registry@users.noreply.github.com'}
 V2_ROOT = reg.RESULTS_ROOT
 V1_ROOT = ev.RESULTS.relative_to(ev.ROOT).as_posix() + '/'
-FREEZE_V2 = '.work/oracle/freeze-v2.json'
+FREEZE_V3 = '.work/oracle/freeze-v3.json'
 EVALUATOR_FILES = ('oracle_g1_v2.py', 'oracle_registry_v2.py', 'oracle_registry_git.py', 'oracle_activation_v2.py',
                    'oracle_eval.py', 'oracle_attempts.py', 'budget.py')
 
@@ -347,7 +347,7 @@ def register(profile, env, root=ev.ROOT, get=api_get, token=None):
     the entry. Refusal(code) means nothing was written; TransportError means the write could not be completed (the
     job fails, `measure` never starts, and a retry of this attempt is idempotent)."""
     if profile is reg.PRODUCTION and g1.ACTIVATION_RECORD is None:
-        raise Refusal('DISPATCH_REJECTED')  # V2_NOT_ACTIVE: production registry stays untouched before activation
+        raise Refusal('DISPATCH_REJECTED')  # V3_NOT_ACTIVE: production registry stays untouched before activation
     x = execution(env, profile)
     transition_data = _transition_bytes(root, x['sha'])
     transition = _parsed(transition_data)
@@ -425,7 +425,7 @@ def write_new(path, data):
 # --- evaluation inputs (contract 9.0, 9.1) ---------------------------------------------------------------------------
 
 def evidence_from_tree(root, commit):
-    """Retained v2 and v1 results roots exactly as in the pinned main tree (contract 8.1), not the working tree."""
+    """Retained v3 and v1 results roots exactly as in the pinned main tree (contract 8.1), not the working tree."""
     with tempfile.TemporaryDirectory() as tmp:
         tmp, foreign = Path(tmp), []
         for prefix in (V2_ROOT, V1_ROOT):
@@ -473,10 +473,11 @@ def registry_reread(gitdir, profile, head_commit, evaluated_head, token=None):
     return reg.head(genesis, entries) if genesis else None
 
 
-def collect(profile, root, get, roles, evidence, kat_step, evaluator):
+def collect(profile, root, get, roles, evidence, kat_step, evaluator, workflow_sha256):
     """Every input of one evaluation, read once from the profile's constant remote and the provider (contract 9.0):
-    main pin, registry history, live provider observations, pull requests, evidence, KAT, then the re-reads.
-    Returns (Evaluation, registry commits)."""
+    main pin, registry history, live provider observations, pull requests, evidence, KAT, the witnessed workflow
+    commits (contract-v3 1.5: the profile's workflow file in each entry source has exactly workflow_sha256, a digest
+    or a function of the pinned main), then the re-reads. Returns (Evaluation, registry commits)."""
     remote = profile.registry_remote
     main = fetch(root, remote, MAIN_REF)
     if main is None:
@@ -492,16 +493,19 @@ def collect(profile, root, get, roles, evidence, kat_step, evaluator):
         provider = provider_observations(get, ok_entries, roles)
         prs = pull_requests(get, transition_numbers(entries))
         evidence = evidence(main) if callable(evidence) else evidence
+        reference = workflow_sha256(main) if callable(workflow_sha256) else workflow_sha256
+        witnessed = {c for c in sources if reference is not None and snap.on_main(c)
+                     and (data := show(root, c, profile.workflow_path)) is not None and ev.sha256(data) == reference}
         kat = {c for c in sources | ({evaluator} if evaluator else set())
                if kat_step is not None and g1.kat_verified_v2(get, c, main, kat_step, root)}
-        freeze = show(root, main, FREEZE_V2)
+        freeze = show(root, main, FREEZE_V3)
         evaluated_head = reg.head(genesis, entries) if genesis else None
         reread = registry_reread(gitdir, profile, head, evaluated_head)
     main_again = ls_remote(root, remote, MAIN_REF)
     evaluation = g1.Evaluation.build(
         genesis=genesis, entries=entries, registry_reread=reread, git=snap, main_reread=main_again,
         provider=provider, pull_requests=prs, evidence=evidence, evaluator_source_sha=evaluator, kat_green=kat,
-        g1_freeze_sha256=(profile.g1_freeze_sha256 if profile is reg.SMOKE else
+        workflow_witnessed=witnessed, g1_freeze_sha256=(profile.g1_freeze_sha256 if profile is reg.SMOKE else
                           ev.sha256(freeze) if freeze is not None else None),
         profile=None if profile is reg.PRODUCTION else profile)
     return evaluation, commits
@@ -518,7 +522,7 @@ def registry_root(root=ev.ROOT, profile=reg.PRODUCTION):
 
 def production_inputs(activation_sha256):
     """Inputs of g1._production_evaluate, all from the authority constants. None when the activation record named by
-    the code constant is absent or does not verify in the pinned main tree (then v2 is not active)."""
+    the code constant is absent or does not verify in the pinned main tree (then v3 is not active)."""
     import oracle_activation_v2 as act
     root = ev.ROOT
     main = fetch(root, reg.REGISTRY_REMOTE, MAIN_REF)
@@ -535,9 +539,9 @@ def production_inputs(activation_sha256):
     if activation is None or registry_root(root) != act.ROOT_COMMIT['production']:
         return None  # item 6: the live registry must start at the reviewed genesis root commit
     steps = activation[1]['steps']
-    roles = {steps['bind']: 'bind', steps['boundary']: 'boundary'}
+    roles = {steps['bind']: 'bind', steps['boundary']: 'boundary', **{n: 'provider' for n in steps['provider']}}
     return collect(reg.PRODUCTION, root, api_get, roles, lambda pinned: evidence_from_tree(root, pinned),
-                   steps['kat'], evaluator_source_sha(root))
+                   steps['kat'], evaluator_source_sha(root), activation[1]['workflow_sha256'])
 
 
 def smoke_evaluation(root=ev.ROOT, get=api_get, scenarios=None):
@@ -546,11 +550,16 @@ def smoke_evaluation(root=ev.ROOT, get=api_get, scenarios=None):
     runs that never registered), so that each scenario is proven by provider facts. No evidence root, no KAT: records
     are test records and never PASS."""
     import oracle_activation_v2 as act
-    evaluation, commits = collect(reg.SMOKE, root, get, act.ROLES, g1.Evidence.build(), None, None)
+    # the smoke runs execute the smoke workflow of the pinned main: that file is the witnessed reference
+    def smoke_workflow(main):
+        data = show(root, main, reg.SMOKE_WORKFLOW_PATH)
+        return ev.sha256(data) if data is not None else None
+    evaluation, commits = collect(reg.SMOKE, root, get, act.SMOKE_ROLES, g1.Evidence.build(), None, None,
+                                  smoke_workflow)
     named = [{'run_id': r['run_id'], 'run_attempt': r['run_attempt']} for r in (scenarios or {}).get('runs', [])
              if type(r) is dict and oa.positive(r.get('run_id')) and oa.positive(r.get('run_attempt'))]
     seen = {reg.run_key(o) for o in evaluation.provider}
-    provider = list(evaluation.provider) + [o for o in provider_observations(get, named, act.ROLES)
+    provider = list(evaluation.provider) + [o for o in provider_observations(get, named, act.SMOKE_ROLES)
                                             if reg.run_key(o) not in seen]
     try:
         reg.authoritative_registry(commits, evaluation.git, reg.SMOKE)
@@ -605,7 +614,7 @@ def main(argv, env=os.environ):
         elif command == 'g1' and len(args) == 2:
             record = g1._production_evaluate(args[0]) if ev.HEX64.match(args[0]) else None
             if record is None:
-                print('G1: NOT_PASSED V2_NOT_ACTIVE')
+                print('G1: NOT_PASSED V3_NOT_ACTIVE')
                 return 1
             write_new(args[1], ev.canonical(record))
             print(f"G1: {record['verdict']} {' '.join(record['blockers'])}".rstrip())

@@ -1,4 +1,4 @@
-"""DELSK-003A C1-B: activation tooling of delsk.oracle-contract.v2 (contract 16, items 6-11). Activates nothing.
+"""DELSK-003A C1-B: activation tooling of delsk.oracle-contract.v3 (contract-v3 5, items 6-11). Activates nothing.
 
     oracle_activation_v2.py check-workflows                 static witness of contract 4.1 / 12.2 on the reviewed files
     oracle_activation_v2.py write-surface OUT.json          activation item 10, inside oracle-registry-write-surface.yml
@@ -8,11 +8,12 @@
     oracle_activation_v2.py verify-record ACTIVATION.json   enable record: infra record + items 6, 11, 12 live
 
 Activation takes two records (see "activation records" below): the infra record fixes the bind/boundary/KAT step
-names and binds the evidence of items 6-10; the enable record (ACTIVATION_FILE) binds the infra record, its
-independent review and the maintainer decision. It takes effect only when the enable PR also sets
-oracle_g1_v2.ACTIVATION_RECORD to the SHA-256 of its exact bytes; production re-verifies both in the pinned main tree,
-and items 6, 11 and 12 live, on every evaluation (activation_in_tree). Before that, production G1 is NOT_PASSED V2_NOT_ACTIVE without reads and the
-production `register` refuses. Nothing here creates the registry branch, configures rulesets or dispatches a workflow.
+names and the closed provider-step set (contract-v3 1.1) and binds the evidence of items 6-10; the enable record
+(ACTIVATION_FILE) binds the infra record, its independent review and the maintainer decision. It takes effect only
+when the enable PR also sets oracle_g1_v2.ACTIVATION_RECORD to the SHA-256 of its exact bytes; production re-verifies both in the pinned main tree,
+and items 6, 11 and 12 live, on every evaluation (activation_in_tree). Before that, production G1 is NOT_PASSED
+V3_NOT_ACTIVE without reads and the production `register` refuses. Nothing here creates the registry branch,
+configures rulesets or dispatches a workflow.
 """
 from dataclasses import dataclass
 import hashlib
@@ -28,9 +29,9 @@ import oracle_eval as ev
 import oracle_registry_git as rg
 import oracle_registry_v2 as reg
 
-ACTIVATION_FILE = '.work/oracle/activation-v2.json'
+ACTIVATION_FILE = '.work/oracle/activation-v3.json'
 EVIDENCE_DIR = '.work/oracle/activation/'
-SCHEMA = 'delsk.oracle.v2-activation.v1'
+SCHEMA = 'delsk.oracle.v3-activation.v1'
 RULESETS_SCHEMA = 'delsk.oracle.rulesets-evidence.v1'
 SMOKE_EVALUATION_SCHEMA = 'delsk.oracle.registry-smoke-evaluation.v1'
 SCENARIOS_SCHEMA = 'delsk.oracle.registry-smoke-scenarios.v1'
@@ -42,23 +43,43 @@ WRITE_SURFACE_WORKFLOW = '.github/workflows/oracle-registry-write-surface.yml'
 KAT_WORKFLOW = oa.SMOKE_WORKFLOW
 
 # Step names proposed for the activation record (contract 4.1, 9.1 item 10). Reviewed code constants.
-REGISTER_STEP = 'Register attempt in the append-only registry (contract v2 register)'
-BIND_STEP = 'Bind registry entry before the measurement boundary (contract v2 bind)'
-BOUNDARY_STEP = 'Measurement boundary (contract v2 boundary)'
+REGISTER_STEP = 'Register attempt in the append-only registry (contract v3 register)'
+BIND_STEP = 'Bind registry entry before the measurement boundary (contract v3 bind)'
+BOUNDARY_STEP = 'Measurement boundary (contract v3 boundary)'
+CHECKOUT_STEP = 'Read-only source checkout'
 KAT_STEP = oa.KAT_STEP
-ROLES = {BIND_STEP: 'bind', BOUNDARY_STEP: 'boundary'}
-KAT_MODULES = ('test_oracle_contract', 'test_oracle_eval', 'test_oracle_v2_frozen', 'test_oracle_registry_v2',
-               'test_oracle_g1_v2', 'test_oracle_v2_mutants')
+# The only actions allowed before the boundary (contract-v3 2 item 2), with the reviewed post-hook map of contract-v3
+# 1.1: whether action.yml at exactly this SHA declares `runs.post` (checkout: `post: dist/index.js`; upload-artifact:
+# `main` only). A new action or SHA needs a review of its metadata and of this map.
+CHECKOUT_ACTION = 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'
+UPLOAD_ACTION = 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a'
+POST_HOOK = {CHECKOUT_ACTION: True, UPLOAD_ACTION: False}
+# Provider steps (contract-v3 1.1): steps GitHub Actions adds to a started job itself. Exactly `Complete job` and
+# `Post <name>` of every step of job measure before the boundary whose pinned action has a post hook; check_*_workflow
+# derives the set from the reviewed workflow and requires equality, and forbids these names (and `Set up job`,
+# `Post ...`) as workflow steps.
+PROVIDER_COMPLETE = 'Complete job'
+PILOT_PROVIDER_STEPS = (PROVIDER_COMPLETE, f'Post {CHECKOUT_STEP}')
+SMOKE_PROVIDER_STEPS = (PROVIDER_COMPLETE, f'Post {CHECKOUT_STEP}')
+RESERVED_STEP_NAMES = ('Set up job', PROVIDER_COMPLETE)
+ROLES = {BIND_STEP: 'bind', BOUNDARY_STEP: 'boundary', **{n: 'provider' for n in PILOT_PROVIDER_STEPS}}
+SMOKE_ROLES = {BIND_STEP: 'bind', BOUNDARY_STEP: 'boundary', **{n: 'provider' for n in SMOKE_PROVIDER_STEPS}}
+KAT_MODULES = ('test_oracle_contract', 'test_oracle_eval', 'test_oracle_v2_frozen', 'test_oracle_contract_v3',
+               'test_oracle_registry_v2', 'test_oracle_g1_v2', 'test_oracle_v2_mutants')
 
 # Deterministic registry root commits (oracle_registry_git.genesis_commit; reproduced by the tests).
 GENESIS_SHA256 = {p.name: ev.hc(reg.make_genesis(p.g1_freeze_sha256, p)) for p in reg.PROFILES}
-ROOT_COMMIT = {'production': '6cf2c6a7c35cee005f894366c97fca00230a5670',
-               'smoke': 'a429d34d67959e49af8f79da024ce6eed34cbc13'}
+ROOT_COMMIT = {'production': '1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258',
+               'smoke': '62f79c1ceeb4f61615039104532e8dee251efaa3'}
 
 GITHUB_ACTIONS_APP_ID = 15368   # the GitHub Actions integration: the workflow token's ruleset actor
+# Retired v2 registry refs (contract-v3 3): never evaluated, but they disclose the v2 activation attempt and stay
+# protected against deletion and rewrite.
+RETIRED_REGISTRY_REFS = ('refs/heads/delsk/registry', 'refs/heads/delsk/registry-smoke')
 REQUIRED_RULES = {'refs/heads/main': {'deletion', 'non_fast_forward', 'pull_request'},
                   reg.REGISTRY_REF: {'deletion', 'non_fast_forward'},
-                  reg.SMOKE_REGISTRY_REF: {'deletion', 'non_fast_forward'}}
+                  reg.SMOKE_REGISTRY_REF: {'deletion', 'non_fast_forward'},
+                  **{ref: {'deletion', 'non_fast_forward'} for ref in RETIRED_REGISTRY_REFS}}
 
 # Anything that may read natural bytes or run the measurement apparatus (contract 4.1 B) must not appear before the
 # boundary step. Syntactic witness only: the exact step list and bodies are reviewed, this keeps them honest.
@@ -79,14 +100,13 @@ SOURCE_TEXT = '\n'.join((
     f'  git -c credential.helper= fetch -q --no-tags {reg.REGISTRY_REMOTE} \\',
     "    '+refs/heads/main:refs/remotes/source/main' \"$GITHUB_SHA\"",
     '  git -c advice.detachedHead=false checkout -q --detach "$GITHUB_SHA"'))
-UPLOAD_ACTION = 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a'
 PILOT_REGISTER_STEPS = (SOURCE_STEP, REGISTER_STEP)
-PILOT_PRE_BOUNDARY = ('Bootstrap dispatch proof before checkout', 'Retain immutable dispatch proof', None,
+PILOT_PRE_BOUNDARY = ('Bootstrap dispatch proof before checkout', 'Retain immutable dispatch proof', CHECKOUT_STEP,
                       'Validate dispatch, frozen chain and register scientific identity', BIND_STEP,
                       'Retain binding sidecar before the boundary', 'Retain attempt before codec setup',
                       'Budget and artifact admission', 'Hard capped transient work filesystem')
 SMOKE_REGISTER_STEPS = (SOURCE_STEP, 'Synthetic hold before register', REGISTER_STEP)
-SMOKE_MEASURE_STEPS = (None, 'Synthetic hold before the boundary', BIND_STEP,
+SMOKE_MEASURE_STEPS = (CHECKOUT_STEP, 'Synthetic hold before the boundary', BIND_STEP,
                        'Retain binding sidecar before the boundary', 'Synthetic stop before the boundary',
                        BOUNDARY_STEP)
 REGISTER_RUN = {'production': '/usr/bin/python3 .work/tools/oracle_registry_git.py register',
@@ -208,6 +228,26 @@ def _token_only_in(job, name, label, problems):
         problems.append(f'{label}: write token must be visible to the {name!r} step only')
 
 
+def _action(step):
+    return step['uses'].split(' ')[0] if step['uses'] else None
+
+
+def provider_steps(steps, boundary):
+    """Contract-v3 1.1 from the reviewed measure steps before the boundary: Complete job and Post <name> of each step
+    whose pinned action has a post hook by the reviewed map (a nameless one yields None, which matches nothing)."""
+    return {PROVIDER_COMPLETE} | {f"Post {s['name']}" if s['name'] else None for s in steps[:boundary]
+                                  if POST_HOOK.get(_action(s)) is True}
+
+
+def _reserved_names(jobs, problems):
+    """Contract-v3 2 item 2: no workflow step may carry a provider step name, so none can be exempt from PRE."""
+    for job, j in jobs.items():
+        for step in j['steps']:
+            name = step['name'] or ''
+            if name in RESERVED_STEP_NAMES or name.startswith('Post '):
+                problems.append(f'{job}: step name {name!r} is reserved for provider steps')
+
+
 def _measure_job(job, kind, problems):
     perms = _permissions(job['header'])
     if perms not in (['actions: read', 'contents: read'], ['contents: read']):
@@ -233,6 +273,16 @@ def _measure_job(job, kind, problems):
         problems.append('measure: boundary must require a successful bind')
     if boundary['id'] != 'workload':
         problems.append('measure: boundary step id workload')
+    if None in names or len(set(names)) != len(names):
+        problems.append('measure: every step needs an explicit unique name (provider steps are matched by name)')
+    for step in steps[:x]:
+        if step['uses'] and (not step['name'] or _action(step) not in POST_HOOK):
+            problems.append(f"measure: {step['name'] or step['uses']} before the boundary must be a named pinned "
+                            'checkout or upload-artifact (its post hook is part of the witness)')
+    expected_provider = PILOT_PROVIDER_STEPS if kind == 'production' else SMOKE_PROVIDER_STEPS
+    if provider_steps(steps, x) != set(expected_provider):
+        problems.append(f'measure: provider steps {sorted(map(str, provider_steps(steps, x)))} differ from the '
+                        'reviewed closed set')
     for step in steps[:x]:
         body = '\n'.join(l for l in step['text'].splitlines() if not l.startswith('name:')).lower()
         hits = [t for t in FORBIDDEN_BEFORE_BOUNDARY if t in body]
@@ -257,6 +307,7 @@ def check_pilot_workflow(text):
         return problems + [f'pilot jobs {list(jobs)}']
     _register_job(jobs['register'], 'production', PILOT_REGISTER_STEPS, problems)
     _measure_job(jobs['measure'], 'production', problems)
+    _reserved_names(jobs, problems)
     if text.count('contents: write') != 1:
         problems.append('contents: write outside the register job')
     return problems
@@ -277,6 +328,7 @@ def check_smoke_workflow(text):
         return problems + [f'smoke jobs {list(jobs)}']
     _register_job(jobs['register'], 'smoke', SMOKE_REGISTER_STEPS, problems)
     _measure_job(jobs['measure'], 'smoke', problems)
+    _reserved_names(jobs, problems)
     names = tuple(s['name'] for s in jobs['measure']['steps'])
     if names != SMOKE_MEASURE_STEPS:
         problems.append(f'smoke measure steps {names}')
@@ -301,7 +353,7 @@ def check_write_surface_workflow(text):
         problems.append('write-surface: source must come from the reviewed anonymous fetch')
     if any(s['uses'] and not s['uses'].startswith(UPLOAD_ACTION) for s in job['steps']):
         problems.append('write-surface: no action except the pinned artifact upload in the write-capable job')
-    _token_only_in(job, 'Negative write-surface tests (contract v2 section 12.1)', 'write-surface', problems)
+    _token_only_in(job, 'Negative write-surface tests (contract v3 section 12.1)', 'write-surface', problems)
     run = [_run_line(s) for s in job['steps']]
     if '/usr/bin/python3 .work/tools/oracle_activation_v2.py write-surface "$RUNNER_TEMP/write-surface.json"' \
             not in run:
@@ -385,6 +437,13 @@ def _started(job, role=None):
     return target is not None and target['started']
 
 
+def _never_ran(job):
+    """No step of the job ran: absent, not started, or cancelled before it got a runner (GitHub then reports the job
+    completed/cancelled without a single step and with runner_id = runner_name = null; contract-v3 1.3 item 4)."""
+    return job is None or not job['started'] or (job['conclusion'] == 'cancelled' and not job['steps']
+                                                 and job['runner_assigned'] is False)
+
+
 def _scenario_facts(name, run, entry):
     """Problems of one scenario from the provider facts of its own run key and its registry class (topology is checked
     by the caller). run is the normalized live observation (None = deleted / not found)."""
@@ -415,7 +474,7 @@ def _scenario_facts(name, run, entry):
                 and _step(measure, 'bind')['conclusion'] == 'failure' and not _started(measure, 'boundary')):
             out.append('must have no entry, a refused bind and no boundary start')
     elif name == 'cancel-before-register':
-        if not (cls is None and register and register['conclusion'] == 'cancelled' and not _started(measure)):
+        if not (cls is None and register and register['conclusion'] == 'cancelled' and _never_ran(measure)):
             out.append('must have no entry, a cancelled register job and no measure start')
     elif name == 'cancel-after-register':
         if not (cls == 'PRE' and register and register['conclusion'] == 'success' and measure
@@ -552,10 +611,10 @@ def verify_write_surface(doc):
 #      DELSK-003A naming the infra record digest (item 12), an "enable PR" adds ACTIVATION_FILE, which binds the infra
 #      record, the infra PR review and the decision comment, and sets oracle_g1_v2.ACTIVATION_RECORD to its SHA-256.
 # Items 6, 11 and 12 are verified live against the constant provider API on every production evaluation; anything that
-# cannot be confirmed (edited comment, dismissed review, unmerged PR, other merge commit) keeps v2 not active.
+# cannot be confirmed (edited comment, dismissed review, unmerged PR, other merge commit) keeps v3 not active.
 
 INFRA_FILE = EVIDENCE_DIR + 'infra.json'
-INFRA_SCHEMA = 'delsk.oracle.v2-activation-infra.v1'
+INFRA_SCHEMA = 'delsk.oracle.v3-activation-infra.v1'
 DECISION_ISSUE = 27  # DELSK-003A
 DECISION_PHRASE = 'DELSK-003A NATURAL MEASUREMENT AUTHORIZED infra_sha256={}'
 MAINTAINER_ASSOCIATIONS = ('OWNER', 'MEMBER')
@@ -588,13 +647,18 @@ def _pull(entry):
 def validate_infra(doc, view):
     """Problems of the infra record (items 6-10) that need no provider: closed document, constants, evidence bytes and
     their verifiers, and the workflow witnesses of the pinned tree."""
-    keys = {'schema', 'g1_contract', 'g1_freeze_sha256', 'steps', 'registry', 'genesis_review', 'evidence'}
+    keys = {'schema', 'g1_contract', 'g1_freeze_sha256', 'steps', 'workflow_sha256', 'registry', 'genesis_review',
+            'evidence'}
     if not (type(doc) is dict and set(doc) == keys and doc['schema'] == INFRA_SCHEMA
             and doc['g1_contract'] == reg.G1_CONTRACT and doc['g1_freeze_sha256'] == reg.G1_FREEZE_SHA256):
         return ['infra record: closed document of this contract']
     problems = []
-    if doc['steps'] != {'register': REGISTER_STEP, 'bind': BIND_STEP, 'boundary': BOUNDARY_STEP, 'kat': KAT_STEP}:
+    if doc['steps'] != {'register': REGISTER_STEP, 'bind': BIND_STEP, 'boundary': BOUNDARY_STEP, 'kat': KAT_STEP,
+                        'provider': list(PILOT_PROVIDER_STEPS)}:
         problems.append('infra record: step names')
+    pilot = view.read(PILOT_WORKFLOW)
+    if pilot is None or doc['workflow_sha256'] != ev.sha256(pilot):  # contract-v3 1.5: the witnessed bytes
+        problems.append('infra record: workflow_sha256 is not the reviewed oracle-pilot.yml')
     if doc['registry'] != {'ref': reg.REGISTRY_REF, 'genesis_sha256': GENESIS_SHA256['production'],
                            'root_commit': ROOT_COMMIT['production']}:
         problems.append('infra record: registry genesis')
@@ -754,7 +818,7 @@ def _verify_decision(doc, get, view):
 
 def activation_in_tree(view, get, activation_sha256):
     """(enable record, infra record) named by the code constant and verified in the pinned tree and live, or None
-    (v2 not active)."""
+    (v3 not active)."""
     if not (type(activation_sha256) is str and ev.HEX64.match(activation_sha256)):
         return None
     data = view.read(ACTIVATION_FILE)

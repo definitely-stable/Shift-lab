@@ -1,0 +1,1306 @@
+{
+ "description": "Recorded GitHub Actions REST responses (GET paths exactly as oracle_registry_git.provider_observations requests them) of the real DELSK-003A C1-B smoke runs on retired v2 smoke registry, 2026-10-05. Nested repository/actor/head_commit objects are dropped (unused); every other field is verbatim.",
+ "responses": {
+  "/repos/definitely-stable/Shift-lab/actions/runs/37306997371": {
+   "artifacts_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371/artifacts",
+   "cancel_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371/cancel",
+   "check_suite_id": 101045813213,
+   "check_suite_node_id": "CS_kwDOU6ih3M8AAAAXhsy_3Q",
+   "check_suite_url": "https://api.github.com/repos/definitely-stable/Shift-lab/check-suites/101045813213",
+   "conclusion": "failure",
+   "created_at": "2026-10-05T12:04:07Z",
+   "display_title": "Oracle registry smoke (DELSK-003A)",
+   "event": "workflow_dispatch",
+   "head_branch": "main",
+   "head_sha": "ba68ec73e1e2943005d372459742f063ea768e94",
+   "html_url": "https://github.com/definitely-stable/Shift-lab/actions/runs/37306997371",
+   "id": 37306997371,
+   "jobs_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371/jobs",
+   "logs_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371/logs",
+   "name": "Oracle registry smoke (DELSK-003A)",
+   "node_id": "WFR_kwLOU6ih3M8AAAAIr6uaew",
+   "path": ".github/workflows/oracle-registry-smoke.yml",
+   "previous_attempt_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371/attempts/2",
+   "pull_requests": [],
+   "rerun_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371/rerun",
+   "run_attempt": 3,
+   "run_number": 1,
+   "run_started_at": "2026-10-05T12:05:33Z",
+   "status": "completed",
+   "updated_at": "2026-10-05T12:05:51Z",
+   "url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371",
+   "workflow_id": 375316168,
+   "workflow_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/workflows/375316168"
+  },
+  "/repos/definitely-stable/Shift-lab/actions/runs/37306997371/attempts/1": {
+   "artifacts_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371/artifacts",
+   "cancel_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371/cancel",
+   "check_suite_id": 101045813213,
+   "check_suite_node_id": "CS_kwDOU6ih3M8AAAAXhsy_3Q",
+   "check_suite_url": "https://api.github.com/repos/definitely-stable/Shift-lab/check-suites/101045813213",
+   "conclusion": "failure",
+   "created_at": "2026-10-05T12:04:07Z",
+   "display_title": "Oracle registry smoke (DELSK-003A)",
+   "event": "workflow_dispatch",
+   "head_branch": "main",
+   "head_sha": "ba68ec73e1e2943005d372459742f063ea768e94",
+   "html_url": "https://github.com/definitely-stable/Shift-lab/actions/runs/37306997371",
+   "id": 37306997371,
+   "jobs_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371/attempts/1/jobs",
+   "logs_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371/attempts/1/logs",
+   "name": "Oracle registry smoke (DELSK-003A)",
+   "node_id": "WFR_kwLOU6ih3M8AAAAIr6uaew",
+   "path": ".github/workflows/oracle-registry-smoke.yml",
+   "previous_attempt_url": null,
+   "pull_requests": [],
+   "rerun_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371/rerun",
+   "run_attempt": 1,
+   "run_number": 1,
+   "run_started_at": "2026-10-05T12:04:07Z",
+   "status": "completed",
+   "updated_at": "2026-10-05T12:04:29Z",
+   "url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371",
+   "workflow_id": 375316168,
+   "workflow_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/workflows/375316168"
+  },
+  "/repos/definitely-stable/Shift-lab/actions/runs/37306997371/attempts/1/jobs?per_page=100&page=1": {
+   "jobs": [
+    {
+     "check_run_url": "https://api.github.com/repos/definitely-stable/Shift-lab/check-runs/111752977673",
+     "completed_at": "2026-10-05T12:04:19Z",
+     "conclusion": "success",
+     "created_at": "2026-10-05T12:04:08Z",
+     "head_branch": "main",
+     "head_sha": "ba68ec73e1e2943005d372459742f063ea768e94",
+     "html_url": "https://github.com/definitely-stable/Shift-lab/actions/runs/37306997371/job/111752977673",
+     "id": 111752977673,
+     "labels": [
+      "ubuntu-24.04"
+     ],
+     "name": "register",
+     "node_id": "CR_kwDOU6ih3M8AAAAaBP8dCQ",
+     "run_attempt": 1,
+     "run_id": 37306997371,
+     "run_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371",
+     "runner_group_id": 0,
+     "runner_group_name": "GitHub Actions",
+     "runner_id": 1000028344,
+     "runner_name": "GitHub Actions 1000028344",
+     "started_at": "2026-10-05T12:04:11Z",
+     "status": "completed",
+     "steps": [
+      {
+       "completed_at": "2026-10-05T12:04:12Z",
+       "conclusion": "success",
+       "name": "Set up job",
+       "number": 1,
+       "started_at": "2026-10-05T12:04:12Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:04:14Z",
+       "conclusion": "success",
+       "name": "Anonymous source checkout without the write token",
+       "number": 2,
+       "started_at": "2026-10-05T12:04:12Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:04:14Z",
+       "conclusion": "skipped",
+       "name": "Synthetic hold before register",
+       "number": 3,
+       "started_at": "2026-10-05T12:04:14Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:04:17Z",
+       "conclusion": "success",
+       "name": "Register attempt in the append-only registry (contract v2 register)",
+       "number": 4,
+       "started_at": "2026-10-05T12:04:14Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:04:17Z",
+       "conclusion": "success",
+       "name": "Complete job",
+       "number": 5,
+       "started_at": "2026-10-05T12:04:17Z",
+       "status": "completed"
+      }
+     ],
+     "url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/jobs/111752977673",
+     "workflow_name": "Oracle registry smoke (DELSK-003A)"
+    },
+    {
+     "check_run_url": "https://api.github.com/repos/definitely-stable/Shift-lab/check-runs/111753044247",
+     "completed_at": "2026-10-05T12:04:28Z",
+     "conclusion": "failure",
+     "created_at": "2026-10-05T12:04:19Z",
+     "head_branch": "main",
+     "head_sha": "ba68ec73e1e2943005d372459742f063ea768e94",
+     "html_url": "https://github.com/definitely-stable/Shift-lab/actions/runs/37306997371/job/111753044247",
+     "id": 111753044247,
+     "labels": [
+      "ubuntu-24.04"
+     ],
+     "name": "measure",
+     "node_id": "CR_kwDOU6ih3M8AAAAaBQAhFw",
+     "run_attempt": 1,
+     "run_id": 37306997371,
+     "run_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371",
+     "runner_group_id": 0,
+     "runner_group_name": "GitHub Actions",
+     "runner_id": 1000028345,
+     "runner_name": "GitHub Actions 1000028345",
+     "started_at": "2026-10-05T12:04:22Z",
+     "status": "completed",
+     "steps": [
+      {
+       "completed_at": "2026-10-05T12:04:24Z",
+       "conclusion": "success",
+       "name": "Set up job",
+       "number": 1,
+       "started_at": "2026-10-05T12:04:23Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:04:25Z",
+       "conclusion": "success",
+       "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+       "number": 2,
+       "started_at": "2026-10-05T12:04:24Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:04:25Z",
+       "conclusion": "skipped",
+       "name": "Synthetic hold before the boundary",
+       "number": 3,
+       "started_at": "2026-10-05T12:04:25Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:04:26Z",
+       "conclusion": "success",
+       "name": "Bind registry entry before the measurement boundary (contract v2 bind)",
+       "number": 4,
+       "started_at": "2026-10-05T12:04:25Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:04:27Z",
+       "conclusion": "success",
+       "name": "Retain binding sidecar before the boundary",
+       "number": 5,
+       "started_at": "2026-10-05T12:04:26Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:04:27Z",
+       "conclusion": "failure",
+       "name": "Synthetic stop before the boundary",
+       "number": 6,
+       "started_at": "2026-10-05T12:04:27Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:04:27Z",
+       "conclusion": "skipped",
+       "name": "Measurement boundary (contract v2 boundary)",
+       "number": 7,
+       "started_at": "2026-10-05T12:04:27Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:04:27Z",
+       "conclusion": "success",
+       "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+       "number": 14,
+       "started_at": "2026-10-05T12:04:27Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:04:27Z",
+       "conclusion": "success",
+       "name": "Complete job",
+       "number": 15,
+       "started_at": "2026-10-05T12:04:27Z",
+       "status": "completed"
+      }
+     ],
+     "url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/jobs/111753044247",
+     "workflow_name": "Oracle registry smoke (DELSK-003A)"
+    }
+   ],
+   "total_count": 2
+  },
+  "/repos/definitely-stable/Shift-lab/actions/runs/37306997371/attempts/2": {
+   "artifacts_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371/artifacts",
+   "cancel_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371/cancel",
+   "check_suite_id": 101045813213,
+   "check_suite_node_id": "CS_kwDOU6ih3M8AAAAXhsy_3Q",
+   "check_suite_url": "https://api.github.com/repos/definitely-stable/Shift-lab/check-suites/101045813213",
+   "conclusion": "failure",
+   "created_at": "2026-10-05T12:04:56Z",
+   "display_title": "Oracle registry smoke (DELSK-003A)",
+   "event": "workflow_dispatch",
+   "head_branch": "main",
+   "head_sha": "ba68ec73e1e2943005d372459742f063ea768e94",
+   "html_url": "https://github.com/definitely-stable/Shift-lab/actions/runs/37306997371",
+   "id": 37306997371,
+   "jobs_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371/attempts/2/jobs",
+   "logs_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371/attempts/2/logs",
+   "name": "Oracle registry smoke (DELSK-003A)",
+   "node_id": "WFR_kwLOU6ih3M8AAAAIr6uaew",
+   "path": ".github/workflows/oracle-registry-smoke.yml",
+   "previous_attempt_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371/attempts/1",
+   "pull_requests": [],
+   "rerun_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371/rerun",
+   "run_attempt": 2,
+   "run_number": 1,
+   "run_started_at": "2026-10-05T12:04:55Z",
+   "status": "completed",
+   "updated_at": "2026-10-05T12:05:19Z",
+   "url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371",
+   "workflow_id": 375316168,
+   "workflow_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/workflows/375316168"
+  },
+  "/repos/definitely-stable/Shift-lab/actions/runs/37306997371/attempts/2/jobs?per_page=100&page=1": {
+   "jobs": [
+    {
+     "check_run_url": "https://api.github.com/repos/definitely-stable/Shift-lab/check-runs/111753274197",
+     "completed_at": "2026-10-05T12:05:08Z",
+     "conclusion": "success",
+     "created_at": "2026-10-05T12:04:57Z",
+     "head_branch": "main",
+     "head_sha": "ba68ec73e1e2943005d372459742f063ea768e94",
+     "html_url": "https://github.com/definitely-stable/Shift-lab/actions/runs/37306997371/job/111753274197",
+     "id": 111753274197,
+     "labels": [
+      "ubuntu-24.04"
+     ],
+     "name": "register",
+     "node_id": "CR_kwDOU6ih3M8AAAAaBQOjVQ",
+     "run_attempt": 2,
+     "run_id": 37306997371,
+     "run_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371",
+     "runner_group_id": 0,
+     "runner_group_name": "GitHub Actions",
+     "runner_id": 1000028346,
+     "runner_name": "GitHub Actions 1000028346",
+     "started_at": "2026-10-05T12:05:00Z",
+     "status": "completed",
+     "steps": [
+      {
+       "completed_at": "2026-10-05T12:05:01Z",
+       "conclusion": "success",
+       "name": "Set up job",
+       "number": 1,
+       "started_at": "2026-10-05T12:05:01Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:05:03Z",
+       "conclusion": "success",
+       "name": "Anonymous source checkout without the write token",
+       "number": 2,
+       "started_at": "2026-10-05T12:05:01Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:05:03Z",
+       "conclusion": "skipped",
+       "name": "Synthetic hold before register",
+       "number": 3,
+       "started_at": "2026-10-05T12:05:03Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:05:06Z",
+       "conclusion": "success",
+       "name": "Register attempt in the append-only registry (contract v2 register)",
+       "number": 4,
+       "started_at": "2026-10-05T12:05:03Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:05:06Z",
+       "conclusion": "success",
+       "name": "Complete job",
+       "number": 5,
+       "started_at": "2026-10-05T12:05:06Z",
+       "status": "completed"
+      }
+     ],
+     "url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/jobs/111753274197",
+     "workflow_name": "Oracle registry smoke (DELSK-003A)"
+    },
+    {
+     "check_run_url": "https://api.github.com/repos/definitely-stable/Shift-lab/check-runs/111753343745",
+     "completed_at": "2026-10-05T12:05:18Z",
+     "conclusion": "failure",
+     "created_at": "2026-10-05T12:05:08Z",
+     "head_branch": "main",
+     "head_sha": "ba68ec73e1e2943005d372459742f063ea768e94",
+     "html_url": "https://github.com/definitely-stable/Shift-lab/actions/runs/37306997371/job/111753343745",
+     "id": 111753343745,
+     "labels": [
+      "ubuntu-24.04"
+     ],
+     "name": "measure",
+     "node_id": "CR_kwDOU6ih3M8AAAAaBQSzAQ",
+     "run_attempt": 2,
+     "run_id": 37306997371,
+     "run_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371",
+     "runner_group_id": 0,
+     "runner_group_name": "GitHub Actions",
+     "runner_id": 1000028347,
+     "runner_name": "GitHub Actions 1000028347",
+     "started_at": "2026-10-05T12:05:11Z",
+     "status": "completed",
+     "steps": [
+      {
+       "completed_at": "2026-10-05T12:05:13Z",
+       "conclusion": "success",
+       "name": "Set up job",
+       "number": 1,
+       "started_at": "2026-10-05T12:05:12Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:05:14Z",
+       "conclusion": "success",
+       "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+       "number": 2,
+       "started_at": "2026-10-05T12:05:13Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:05:14Z",
+       "conclusion": "skipped",
+       "name": "Synthetic hold before the boundary",
+       "number": 3,
+       "started_at": "2026-10-05T12:05:14Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:05:14Z",
+       "conclusion": "success",
+       "name": "Bind registry entry before the measurement boundary (contract v2 bind)",
+       "number": 4,
+       "started_at": "2026-10-05T12:05:14Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:05:16Z",
+       "conclusion": "success",
+       "name": "Retain binding sidecar before the boundary",
+       "number": 5,
+       "started_at": "2026-10-05T12:05:14Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:05:16Z",
+       "conclusion": "failure",
+       "name": "Synthetic stop before the boundary",
+       "number": 6,
+       "started_at": "2026-10-05T12:05:16Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:05:16Z",
+       "conclusion": "skipped",
+       "name": "Measurement boundary (contract v2 boundary)",
+       "number": 7,
+       "started_at": "2026-10-05T12:05:16Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:05:16Z",
+       "conclusion": "success",
+       "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+       "number": 14,
+       "started_at": "2026-10-05T12:05:16Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:05:16Z",
+       "conclusion": "success",
+       "name": "Complete job",
+       "number": 15,
+       "started_at": "2026-10-05T12:05:16Z",
+       "status": "completed"
+      }
+     ],
+     "url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/jobs/111753343745",
+     "workflow_name": "Oracle registry smoke (DELSK-003A)"
+    }
+   ],
+   "total_count": 2
+  },
+  "/repos/definitely-stable/Shift-lab/actions/runs/37306997371/attempts/3": {
+   "artifacts_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371/artifacts",
+   "cancel_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371/cancel",
+   "check_suite_id": 101045813213,
+   "check_suite_node_id": "CS_kwDOU6ih3M8AAAAXhsy_3Q",
+   "check_suite_url": "https://api.github.com/repos/definitely-stable/Shift-lab/check-suites/101045813213",
+   "conclusion": "failure",
+   "created_at": "2026-10-05T12:05:35Z",
+   "display_title": "Oracle registry smoke (DELSK-003A)",
+   "event": "workflow_dispatch",
+   "head_branch": "main",
+   "head_sha": "ba68ec73e1e2943005d372459742f063ea768e94",
+   "html_url": "https://github.com/definitely-stable/Shift-lab/actions/runs/37306997371",
+   "id": 37306997371,
+   "jobs_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371/attempts/3/jobs",
+   "logs_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371/attempts/3/logs",
+   "name": "Oracle registry smoke (DELSK-003A)",
+   "node_id": "WFR_kwLOU6ih3M8AAAAIr6uaew",
+   "path": ".github/workflows/oracle-registry-smoke.yml",
+   "previous_attempt_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371/attempts/2",
+   "pull_requests": [],
+   "rerun_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371/rerun",
+   "run_attempt": 3,
+   "run_number": 1,
+   "run_started_at": "2026-10-05T12:05:33Z",
+   "status": "completed",
+   "updated_at": "2026-10-05T12:05:51Z",
+   "url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371",
+   "workflow_id": 375316168,
+   "workflow_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/workflows/375316168"
+  },
+  "/repos/definitely-stable/Shift-lab/actions/runs/37306997371/attempts/3/jobs?per_page=100&page=1": {
+   "jobs": [
+    {
+     "check_run_url": "https://api.github.com/repos/definitely-stable/Shift-lab/check-runs/111753511221",
+     "completed_at": "2026-10-05T12:05:08Z",
+     "conclusion": "success",
+     "created_at": "2026-10-05T12:05:36Z",
+     "head_branch": "main",
+     "head_sha": "ba68ec73e1e2943005d372459742f063ea768e94",
+     "html_url": "https://github.com/definitely-stable/Shift-lab/actions/runs/37306997371/job/111753511221",
+     "id": 111753511221,
+     "labels": [
+      "ubuntu-24.04"
+     ],
+     "name": "register",
+     "node_id": "CR_kwDOU6ih3M8AAAAaBQdBNQ",
+     "run_attempt": 3,
+     "run_id": 37306997371,
+     "run_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371",
+     "runner_group_id": null,
+     "runner_group_name": "GitHub Actions",
+     "runner_id": 1000028346,
+     "runner_name": "GitHub Actions 1000028346",
+     "started_at": "2026-10-05T12:05:00Z",
+     "status": "completed",
+     "steps": [
+      {
+       "completed_at": "2026-10-05T12:05:01Z",
+       "conclusion": "success",
+       "name": "Set up job",
+       "number": 1,
+       "started_at": "2026-10-05T12:05:01Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:05:03Z",
+       "conclusion": "success",
+       "name": "Anonymous source checkout without the write token",
+       "number": 2,
+       "started_at": "2026-10-05T12:05:01Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:05:03Z",
+       "conclusion": "skipped",
+       "name": "Synthetic hold before register",
+       "number": 3,
+       "started_at": "2026-10-05T12:05:03Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:05:06Z",
+       "conclusion": "success",
+       "name": "Register attempt in the append-only registry (contract v2 register)",
+       "number": 4,
+       "started_at": "2026-10-05T12:05:03Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:05:06Z",
+       "conclusion": "success",
+       "name": "Complete job",
+       "number": 5,
+       "started_at": "2026-10-05T12:05:06Z",
+       "status": "completed"
+      }
+     ],
+     "url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/jobs/111753511221",
+     "workflow_name": "Oracle registry smoke (DELSK-003A)"
+    },
+    {
+     "check_run_url": "https://api.github.com/repos/definitely-stable/Shift-lab/check-runs/111753512404",
+     "completed_at": "2026-10-05T12:05:50Z",
+     "conclusion": "failure",
+     "created_at": "2026-10-05T12:05:36Z",
+     "head_branch": "main",
+     "head_sha": "ba68ec73e1e2943005d372459742f063ea768e94",
+     "html_url": "https://github.com/definitely-stable/Shift-lab/actions/runs/37306997371/job/111753512404",
+     "id": 111753512404,
+     "labels": [
+      "ubuntu-24.04"
+     ],
+     "name": "measure",
+     "node_id": "CR_kwDOU6ih3M8AAAAaBQdF1A",
+     "run_attempt": 3,
+     "run_id": 37306997371,
+     "run_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37306997371",
+     "runner_group_id": 0,
+     "runner_group_name": "GitHub Actions",
+     "runner_id": 1000028348,
+     "runner_name": "GitHub Actions 1000028348",
+     "started_at": "2026-10-05T12:05:44Z",
+     "status": "completed",
+     "steps": [
+      {
+       "completed_at": "2026-10-05T12:05:45Z",
+       "conclusion": "success",
+       "name": "Set up job",
+       "number": 1,
+       "started_at": "2026-10-05T12:05:45Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:05:47Z",
+       "conclusion": "success",
+       "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+       "number": 2,
+       "started_at": "2026-10-05T12:05:45Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:05:47Z",
+       "conclusion": "skipped",
+       "name": "Synthetic hold before the boundary",
+       "number": 3,
+       "started_at": "2026-10-05T12:05:47Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:05:48Z",
+       "conclusion": "failure",
+       "name": "Bind registry entry before the measurement boundary (contract v2 bind)",
+       "number": 4,
+       "started_at": "2026-10-05T12:05:47Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:05:48Z",
+       "conclusion": "skipped",
+       "name": "Retain binding sidecar before the boundary",
+       "number": 5,
+       "started_at": "2026-10-05T12:05:48Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:05:48Z",
+       "conclusion": "skipped",
+       "name": "Synthetic stop before the boundary",
+       "number": 6,
+       "started_at": "2026-10-05T12:05:48Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:05:48Z",
+       "conclusion": "skipped",
+       "name": "Measurement boundary (contract v2 boundary)",
+       "number": 7,
+       "started_at": "2026-10-05T12:05:48Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:05:48Z",
+       "conclusion": "success",
+       "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+       "number": 14,
+       "started_at": "2026-10-05T12:05:48Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:05:48Z",
+       "conclusion": "success",
+       "name": "Complete job",
+       "number": 15,
+       "started_at": "2026-10-05T12:05:48Z",
+       "status": "completed"
+      }
+     ],
+     "url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/jobs/111753512404",
+     "workflow_name": "Oracle registry smoke (DELSK-003A)"
+    }
+   ],
+   "total_count": 2
+  },
+  "/repos/definitely-stable/Shift-lab/actions/runs/37307218114": {
+   "artifacts_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37307218114/artifacts",
+   "cancel_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37307218114/cancel",
+   "check_suite_id": 101046433671,
+   "check_suite_node_id": "CS_kwDOU6ih3M8AAAAXhtY3hw",
+   "check_suite_url": "https://api.github.com/repos/definitely-stable/Shift-lab/check-suites/101046433671",
+   "conclusion": "success",
+   "created_at": "2026-10-05T12:06:06Z",
+   "display_title": "Oracle registry smoke (DELSK-003A)",
+   "event": "workflow_dispatch",
+   "head_branch": "main",
+   "head_sha": "ba68ec73e1e2943005d372459742f063ea768e94",
+   "html_url": "https://github.com/definitely-stable/Shift-lab/actions/runs/37307218114",
+   "id": 37307218114,
+   "jobs_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37307218114/jobs",
+   "logs_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37307218114/logs",
+   "name": "Oracle registry smoke (DELSK-003A)",
+   "node_id": "WFR_kwLOU6ih3M8AAAAIr674wg",
+   "path": ".github/workflows/oracle-registry-smoke.yml",
+   "previous_attempt_url": null,
+   "pull_requests": [],
+   "rerun_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37307218114/rerun",
+   "run_attempt": 1,
+   "run_number": 2,
+   "run_started_at": "2026-10-05T12:06:06Z",
+   "status": "completed",
+   "updated_at": "2026-10-05T12:06:31Z",
+   "url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37307218114",
+   "workflow_id": 375316168,
+   "workflow_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/workflows/375316168"
+  },
+  "/repos/definitely-stable/Shift-lab/actions/runs/37307218114/attempts/1": {
+   "artifacts_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37307218114/artifacts",
+   "cancel_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37307218114/cancel",
+   "check_suite_id": 101046433671,
+   "check_suite_node_id": "CS_kwDOU6ih3M8AAAAXhtY3hw",
+   "check_suite_url": "https://api.github.com/repos/definitely-stable/Shift-lab/check-suites/101046433671",
+   "conclusion": "success",
+   "created_at": "2026-10-05T12:06:06Z",
+   "display_title": "Oracle registry smoke (DELSK-003A)",
+   "event": "workflow_dispatch",
+   "head_branch": "main",
+   "head_sha": "ba68ec73e1e2943005d372459742f063ea768e94",
+   "html_url": "https://github.com/definitely-stable/Shift-lab/actions/runs/37307218114",
+   "id": 37307218114,
+   "jobs_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37307218114/attempts/1/jobs",
+   "logs_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37307218114/attempts/1/logs",
+   "name": "Oracle registry smoke (DELSK-003A)",
+   "node_id": "WFR_kwLOU6ih3M8AAAAIr674wg",
+   "path": ".github/workflows/oracle-registry-smoke.yml",
+   "previous_attempt_url": null,
+   "pull_requests": [],
+   "rerun_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37307218114/rerun",
+   "run_attempt": 1,
+   "run_number": 2,
+   "run_started_at": "2026-10-05T12:06:06Z",
+   "status": "completed",
+   "updated_at": "2026-10-05T12:06:31Z",
+   "url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37307218114",
+   "workflow_id": 375316168,
+   "workflow_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/workflows/375316168"
+  },
+  "/repos/definitely-stable/Shift-lab/actions/runs/37307218114/attempts/1/jobs?per_page=100&page=1": {
+   "jobs": [
+    {
+     "check_run_url": "https://api.github.com/repos/definitely-stable/Shift-lab/check-runs/111753700543",
+     "completed_at": "2026-10-05T12:06:19Z",
+     "conclusion": "success",
+     "created_at": "2026-10-05T12:06:08Z",
+     "head_branch": "main",
+     "head_sha": "ba68ec73e1e2943005d372459742f063ea768e94",
+     "html_url": "https://github.com/definitely-stable/Shift-lab/actions/runs/37307218114/job/111753700543",
+     "id": 111753700543,
+     "labels": [
+      "ubuntu-24.04"
+     ],
+     "name": "register",
+     "node_id": "CR_kwDOU6ih3M8AAAAaBQokvw",
+     "run_attempt": 1,
+     "run_id": 37307218114,
+     "run_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37307218114",
+     "runner_group_id": 0,
+     "runner_group_name": "GitHub Actions",
+     "runner_id": 1000028349,
+     "runner_name": "GitHub Actions 1000028349",
+     "started_at": "2026-10-05T12:06:11Z",
+     "status": "completed",
+     "steps": [
+      {
+       "completed_at": "2026-10-05T12:06:12Z",
+       "conclusion": "success",
+       "name": "Set up job",
+       "number": 1,
+       "started_at": "2026-10-05T12:06:12Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:06:14Z",
+       "conclusion": "success",
+       "name": "Anonymous source checkout without the write token",
+       "number": 2,
+       "started_at": "2026-10-05T12:06:12Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:06:14Z",
+       "conclusion": "skipped",
+       "name": "Synthetic hold before register",
+       "number": 3,
+       "started_at": "2026-10-05T12:06:14Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:06:17Z",
+       "conclusion": "success",
+       "name": "Register attempt in the append-only registry (contract v2 register)",
+       "number": 4,
+       "started_at": "2026-10-05T12:06:14Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:06:17Z",
+       "conclusion": "success",
+       "name": "Complete job",
+       "number": 5,
+       "started_at": "2026-10-05T12:06:17Z",
+       "status": "completed"
+      }
+     ],
+     "url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/jobs/111753700543",
+     "workflow_name": "Oracle registry smoke (DELSK-003A)"
+    },
+    {
+     "check_run_url": "https://api.github.com/repos/definitely-stable/Shift-lab/check-runs/111753767561",
+     "completed_at": "2026-10-05T12:06:30Z",
+     "conclusion": "success",
+     "created_at": "2026-10-05T12:06:19Z",
+     "head_branch": "main",
+     "head_sha": "ba68ec73e1e2943005d372459742f063ea768e94",
+     "html_url": "https://github.com/definitely-stable/Shift-lab/actions/runs/37307218114/job/111753767561",
+     "id": 111753767561,
+     "labels": [
+      "ubuntu-24.04"
+     ],
+     "name": "measure",
+     "node_id": "CR_kwDOU6ih3M8AAAAaBQsqiQ",
+     "run_attempt": 1,
+     "run_id": 37307218114,
+     "run_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37307218114",
+     "runner_group_id": 0,
+     "runner_group_name": "GitHub Actions",
+     "runner_id": 1000028350,
+     "runner_name": "GitHub Actions 1000028350",
+     "started_at": "2026-10-05T12:06:23Z",
+     "status": "completed",
+     "steps": [
+      {
+       "completed_at": "2026-10-05T12:06:24Z",
+       "conclusion": "success",
+       "name": "Set up job",
+       "number": 1,
+       "started_at": "2026-10-05T12:06:24Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:06:26Z",
+       "conclusion": "success",
+       "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+       "number": 2,
+       "started_at": "2026-10-05T12:06:24Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:06:26Z",
+       "conclusion": "skipped",
+       "name": "Synthetic hold before the boundary",
+       "number": 3,
+       "started_at": "2026-10-05T12:06:26Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:06:27Z",
+       "conclusion": "success",
+       "name": "Bind registry entry before the measurement boundary (contract v2 bind)",
+       "number": 4,
+       "started_at": "2026-10-05T12:06:26Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:06:28Z",
+       "conclusion": "success",
+       "name": "Retain binding sidecar before the boundary",
+       "number": 5,
+       "started_at": "2026-10-05T12:06:27Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:06:28Z",
+       "conclusion": "skipped",
+       "name": "Synthetic stop before the boundary",
+       "number": 6,
+       "started_at": "2026-10-05T12:06:28Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:06:28Z",
+       "conclusion": "success",
+       "name": "Measurement boundary (contract v2 boundary)",
+       "number": 7,
+       "started_at": "2026-10-05T12:06:28Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:06:28Z",
+       "conclusion": "success",
+       "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+       "number": 14,
+       "started_at": "2026-10-05T12:06:28Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:06:28Z",
+       "conclusion": "success",
+       "name": "Complete job",
+       "number": 15,
+       "started_at": "2026-10-05T12:06:28Z",
+       "status": "completed"
+      }
+     ],
+     "url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/jobs/111753767561",
+     "workflow_name": "Oracle registry smoke (DELSK-003A)"
+    }
+   ],
+   "total_count": 2
+  },
+  "/repos/definitely-stable/Shift-lab/actions/runs/37307308985": {
+   "artifacts_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37307308985/artifacts",
+   "cancel_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37307308985/cancel",
+   "check_suite_id": 101046694616,
+   "check_suite_node_id": "CS_kwDOU6ih3M8AAAAXhtoy2A",
+   "check_suite_url": "https://api.github.com/repos/definitely-stable/Shift-lab/check-suites/101046694616",
+   "conclusion": "cancelled",
+   "created_at": "2026-10-05T12:06:56Z",
+   "display_title": "Oracle registry smoke (DELSK-003A)",
+   "event": "workflow_dispatch",
+   "head_branch": "main",
+   "head_sha": "ba68ec73e1e2943005d372459742f063ea768e94",
+   "html_url": "https://github.com/definitely-stable/Shift-lab/actions/runs/37307308985",
+   "id": 37307308985,
+   "jobs_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37307308985/jobs",
+   "logs_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37307308985/logs",
+   "name": "Oracle registry smoke (DELSK-003A)",
+   "node_id": "WFR_kwLOU6ih3M8AAAAIr7BbuQ",
+   "path": ".github/workflows/oracle-registry-smoke.yml",
+   "previous_attempt_url": null,
+   "pull_requests": [],
+   "rerun_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37307308985/rerun",
+   "run_attempt": 1,
+   "run_number": 3,
+   "run_started_at": "2026-10-05T12:06:56Z",
+   "status": "completed",
+   "updated_at": "2026-10-05T12:08:31Z",
+   "url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37307308985",
+   "workflow_id": 375316168,
+   "workflow_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/workflows/375316168"
+  },
+  "/repos/definitely-stable/Shift-lab/actions/runs/37307308985/attempts/1": {
+   "artifacts_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37307308985/artifacts",
+   "cancel_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37307308985/cancel",
+   "check_suite_id": 101046694616,
+   "check_suite_node_id": "CS_kwDOU6ih3M8AAAAXhtoy2A",
+   "check_suite_url": "https://api.github.com/repos/definitely-stable/Shift-lab/check-suites/101046694616",
+   "conclusion": "cancelled",
+   "created_at": "2026-10-05T12:06:57Z",
+   "display_title": "Oracle registry smoke (DELSK-003A)",
+   "event": "workflow_dispatch",
+   "head_branch": "main",
+   "head_sha": "ba68ec73e1e2943005d372459742f063ea768e94",
+   "html_url": "https://github.com/definitely-stable/Shift-lab/actions/runs/37307308985",
+   "id": 37307308985,
+   "jobs_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37307308985/attempts/1/jobs",
+   "logs_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37307308985/attempts/1/logs",
+   "name": "Oracle registry smoke (DELSK-003A)",
+   "node_id": "WFR_kwLOU6ih3M8AAAAIr7BbuQ",
+   "path": ".github/workflows/oracle-registry-smoke.yml",
+   "previous_attempt_url": null,
+   "pull_requests": [],
+   "rerun_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37307308985/rerun",
+   "run_attempt": 1,
+   "run_number": 3,
+   "run_started_at": "2026-10-05T12:06:56Z",
+   "status": "completed",
+   "updated_at": "2026-10-05T12:08:32Z",
+   "url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37307308985",
+   "workflow_id": 375316168,
+   "workflow_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/workflows/375316168"
+  },
+  "/repos/definitely-stable/Shift-lab/actions/runs/37307308985/attempts/1/jobs?per_page=100&page=1": {
+   "jobs": [
+    {
+     "check_run_url": "https://api.github.com/repos/definitely-stable/Shift-lab/check-runs/111754001093",
+     "completed_at": "2026-10-05T12:08:30Z",
+     "conclusion": "cancelled",
+     "created_at": "2026-10-05T12:06:58Z",
+     "head_branch": "main",
+     "head_sha": "ba68ec73e1e2943005d372459742f063ea768e94",
+     "html_url": "https://github.com/definitely-stable/Shift-lab/actions/runs/37307308985/job/111754001093",
+     "id": 111754001093,
+     "labels": [
+      "ubuntu-24.04"
+     ],
+     "name": "register",
+     "node_id": "CR_kwDOU6ih3M8AAAAaBQ66xQ",
+     "run_attempt": 1,
+     "run_id": 37307308985,
+     "run_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37307308985",
+     "runner_group_id": 0,
+     "runner_group_name": "GitHub Actions",
+     "runner_id": 1000028351,
+     "runner_name": "GitHub Actions 1000028351",
+     "started_at": "2026-10-05T12:07:01Z",
+     "status": "completed",
+     "steps": [
+      {
+       "completed_at": "2026-10-05T12:07:37Z",
+       "conclusion": "success",
+       "name": "Set up job",
+       "number": 1,
+       "started_at": "2026-10-05T12:07:37Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:07:38Z",
+       "conclusion": "success",
+       "name": "Anonymous source checkout without the write token",
+       "number": 2,
+       "started_at": "2026-10-05T12:07:37Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:08:29Z",
+       "conclusion": "cancelled",
+       "name": "Synthetic hold before register",
+       "number": 3,
+       "started_at": "2026-10-05T12:07:38Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:08:29Z",
+       "conclusion": "skipped",
+       "name": "Register attempt in the append-only registry (contract v2 register)",
+       "number": 4,
+       "started_at": "2026-10-05T12:08:29Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:08:29Z",
+       "conclusion": "success",
+       "name": "Complete job",
+       "number": 5,
+       "started_at": "2026-10-05T12:08:29Z",
+       "status": "completed"
+      }
+     ],
+     "url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/jobs/111754001093",
+     "workflow_name": "Oracle registry smoke (DELSK-003A)"
+    },
+    {
+     "check_run_url": "https://api.github.com/repos/definitely-stable/Shift-lab/check-runs/111754567770",
+     "completed_at": "2026-10-05T12:08:31Z",
+     "conclusion": "cancelled",
+     "created_at": "2026-10-05T12:08:31Z",
+     "head_branch": "main",
+     "head_sha": "ba68ec73e1e2943005d372459742f063ea768e94",
+     "html_url": "https://github.com/definitely-stable/Shift-lab/actions/runs/37307308985/job/111754567770",
+     "id": 111754567770,
+     "labels": [
+      "ubuntu-24.04"
+     ],
+     "name": "measure",
+     "node_id": "CR_kwDOU6ih3M8AAAAaBRdgWg",
+     "run_attempt": 1,
+     "run_id": 37307308985,
+     "run_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37307308985",
+     "runner_group_id": null,
+     "runner_group_name": null,
+     "runner_id": null,
+     "runner_name": null,
+     "started_at": "2026-10-05T12:08:31Z",
+     "status": "completed",
+     "steps": [],
+     "url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/jobs/111754567770",
+     "workflow_name": "Oracle registry smoke (DELSK-003A)"
+    }
+   ],
+   "total_count": 2
+  },
+  "/repos/definitely-stable/Shift-lab/actions/runs/37308739475": {
+   "artifacts_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37308739475/artifacts",
+   "cancel_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37308739475/cancel",
+   "check_suite_id": 101050598527,
+   "check_suite_node_id": "CS_kwDOU6ih3M8AAAAXhxXEfw",
+   "check_suite_url": "https://api.github.com/repos/definitely-stable/Shift-lab/check-suites/101050598527",
+   "conclusion": "cancelled",
+   "created_at": "2026-10-05T12:19:30Z",
+   "display_title": "Oracle registry smoke (DELSK-003A)",
+   "event": "workflow_dispatch",
+   "head_branch": "main",
+   "head_sha": "ba68ec73e1e2943005d372459742f063ea768e94",
+   "html_url": "https://github.com/definitely-stable/Shift-lab/actions/runs/37308739475",
+   "id": 37308739475,
+   "jobs_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37308739475/jobs",
+   "logs_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37308739475/logs",
+   "name": "Oracle registry smoke (DELSK-003A)",
+   "node_id": "WFR_kwLOU6ih3M8AAAAIr8Yvkw",
+   "path": ".github/workflows/oracle-registry-smoke.yml",
+   "previous_attempt_url": null,
+   "pull_requests": [],
+   "rerun_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37308739475/rerun",
+   "run_attempt": 1,
+   "run_number": 4,
+   "run_started_at": "2026-10-05T12:19:30Z",
+   "status": "completed",
+   "updated_at": "2026-10-05T12:20:38Z",
+   "url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37308739475",
+   "workflow_id": 375316168,
+   "workflow_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/workflows/375316168"
+  },
+  "/repos/definitely-stable/Shift-lab/actions/runs/37308739475/attempts/1": {
+   "artifacts_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37308739475/artifacts",
+   "cancel_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37308739475/cancel",
+   "check_suite_id": 101050598527,
+   "check_suite_node_id": "CS_kwDOU6ih3M8AAAAXhxXEfw",
+   "check_suite_url": "https://api.github.com/repos/definitely-stable/Shift-lab/check-suites/101050598527",
+   "conclusion": "cancelled",
+   "created_at": "2026-10-05T12:19:30Z",
+   "display_title": "Oracle registry smoke (DELSK-003A)",
+   "event": "workflow_dispatch",
+   "head_branch": "main",
+   "head_sha": "ba68ec73e1e2943005d372459742f063ea768e94",
+   "html_url": "https://github.com/definitely-stable/Shift-lab/actions/runs/37308739475",
+   "id": 37308739475,
+   "jobs_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37308739475/attempts/1/jobs",
+   "logs_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37308739475/attempts/1/logs",
+   "name": "Oracle registry smoke (DELSK-003A)",
+   "node_id": "WFR_kwLOU6ih3M8AAAAIr8Yvkw",
+   "path": ".github/workflows/oracle-registry-smoke.yml",
+   "previous_attempt_url": null,
+   "pull_requests": [],
+   "rerun_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37308739475/rerun",
+   "run_attempt": 1,
+   "run_number": 4,
+   "run_started_at": "2026-10-05T12:19:30Z",
+   "status": "completed",
+   "updated_at": "2026-10-05T12:20:38Z",
+   "url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37308739475",
+   "workflow_id": 375316168,
+   "workflow_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/workflows/375316168"
+  },
+  "/repos/definitely-stable/Shift-lab/actions/runs/37308739475/attempts/1/jobs?per_page=100&page=1": {
+   "jobs": [
+    {
+     "check_run_url": "https://api.github.com/repos/definitely-stable/Shift-lab/check-runs/111758667875",
+     "completed_at": "2026-10-05T12:19:43Z",
+     "conclusion": "success",
+     "created_at": "2026-10-05T12:19:32Z",
+     "head_branch": "main",
+     "head_sha": "ba68ec73e1e2943005d372459742f063ea768e94",
+     "html_url": "https://github.com/definitely-stable/Shift-lab/actions/runs/37308739475/job/111758667875",
+     "id": 111758667875,
+     "labels": [
+      "ubuntu-24.04"
+     ],
+     "name": "register",
+     "node_id": "CR_kwDOU6ih3M8AAAAaBVXwYw",
+     "run_attempt": 1,
+     "run_id": 37308739475,
+     "run_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37308739475",
+     "runner_group_id": 0,
+     "runner_group_name": "GitHub Actions",
+     "runner_id": 1000028355,
+     "runner_name": "GitHub Actions 1000028355",
+     "started_at": "2026-10-05T12:19:35Z",
+     "status": "completed",
+     "steps": [
+      {
+       "completed_at": "2026-10-05T12:19:36Z",
+       "conclusion": "success",
+       "name": "Set up job",
+       "number": 1,
+       "started_at": "2026-10-05T12:19:36Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:19:38Z",
+       "conclusion": "success",
+       "name": "Anonymous source checkout without the write token",
+       "number": 2,
+       "started_at": "2026-10-05T12:19:36Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:19:38Z",
+       "conclusion": "skipped",
+       "name": "Synthetic hold before register",
+       "number": 3,
+       "started_at": "2026-10-05T12:19:38Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:19:41Z",
+       "conclusion": "success",
+       "name": "Register attempt in the append-only registry (contract v2 register)",
+       "number": 4,
+       "started_at": "2026-10-05T12:19:38Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:19:41Z",
+       "conclusion": "success",
+       "name": "Complete job",
+       "number": 5,
+       "started_at": "2026-10-05T12:19:41Z",
+       "status": "completed"
+      }
+     ],
+     "url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/jobs/111758667875",
+     "workflow_name": "Oracle registry smoke (DELSK-003A)"
+    },
+    {
+     "check_run_url": "https://api.github.com/repos/definitely-stable/Shift-lab/check-runs/111758736574",
+     "completed_at": "2026-10-05T12:20:37Z",
+     "conclusion": "cancelled",
+     "created_at": "2026-10-05T12:19:43Z",
+     "head_branch": "main",
+     "head_sha": "ba68ec73e1e2943005d372459742f063ea768e94",
+     "html_url": "https://github.com/definitely-stable/Shift-lab/actions/runs/37308739475/job/111758736574",
+     "id": 111758736574,
+     "labels": [
+      "ubuntu-24.04"
+     ],
+     "name": "measure",
+     "node_id": "CR_kwDOU6ih3M8AAAAaBVb8vg",
+     "run_attempt": 1,
+     "run_id": 37308739475,
+     "run_url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/runs/37308739475",
+     "runner_group_id": 0,
+     "runner_group_name": "GitHub Actions",
+     "runner_id": 1000028356,
+     "runner_name": "GitHub Actions 1000028356",
+     "started_at": "2026-10-05T12:19:46Z",
+     "status": "completed",
+     "steps": [
+      {
+       "completed_at": "2026-10-05T12:19:47Z",
+       "conclusion": "success",
+       "name": "Set up job",
+       "number": 1,
+       "started_at": "2026-10-05T12:19:46Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:19:49Z",
+       "conclusion": "success",
+       "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+       "number": 2,
+       "started_at": "2026-10-05T12:19:47Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:20:35Z",
+       "conclusion": "cancelled",
+       "name": "Synthetic hold before the boundary",
+       "number": 3,
+       "started_at": "2026-10-05T12:19:49Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:20:35Z",
+       "conclusion": "skipped",
+       "name": "Bind registry entry before the measurement boundary (contract v2 bind)",
+       "number": 4,
+       "started_at": "2026-10-05T12:20:35Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:20:35Z",
+       "conclusion": "skipped",
+       "name": "Retain binding sidecar before the boundary",
+       "number": 5,
+       "started_at": "2026-10-05T12:20:35Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:20:35Z",
+       "conclusion": "skipped",
+       "name": "Synthetic stop before the boundary",
+       "number": 6,
+       "started_at": "2026-10-05T12:20:35Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:20:35Z",
+       "conclusion": "skipped",
+       "name": "Measurement boundary (contract v2 boundary)",
+       "number": 7,
+       "started_at": "2026-10-05T12:20:35Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:20:35Z",
+       "conclusion": "success",
+       "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+       "number": 14,
+       "started_at": "2026-10-05T12:20:35Z",
+       "status": "completed"
+      },
+      {
+       "completed_at": "2026-10-05T12:20:35Z",
+       "conclusion": "success",
+       "name": "Complete job",
+       "number": 15,
+       "started_at": "2026-10-05T12:20:35Z",
+       "status": "completed"
+      }
+     ],
+     "url": "https://api.github.com/repos/definitely-stable/Shift-lab/actions/jobs/111758736574",
+     "workflow_name": "Oracle registry smoke (DELSK-003A)"
+    }
+   ],
+   "total_count": 2
+  }
+ },
+ "scenarios": {
+  "cancel-after-register": [
+   37308739475,
+   1
+  ],
+  "cancel-before-register": [
+   37307308985,
+   1
+  ],
+  "cross-boundary": [
+   37307218114,
+   1
+  ],
+  "rerun-all": [
+   37306997371,
+   2
+  ],
+  "rerun-failed": [
+   37306997371,
+   3
+  ],
+  "stop-before-boundary": [
+   37306997371,
+   1
+  ]
+ }
+}

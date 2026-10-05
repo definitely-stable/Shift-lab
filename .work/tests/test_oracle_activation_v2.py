@@ -1,4 +1,4 @@
-"""DELSK-003A C1-B: activation tooling of contract v2 section 16 (oracle_activation_v2.py), offline.
+"""DELSK-003A C1-B: activation tooling of contract-v3 section 5 (oracle_activation_v2.py), offline.
 
 1. static witness of contract 4.1 / 12.2 on the reviewed workflows, and the mutations it must reject;
 2. ruleset evidence (item 7), smoke scenarios (items 8-9) and write-surface evidence (item 10) verifiers;
@@ -107,6 +107,64 @@ class Workflows(unittest.TestCase):
             with self.subTest(name):
                 self.assertTrue(act.check_pilot_workflow(source), name)
 
+    def test_provider_steps_are_derived_from_the_reviewed_workflows(self):
+        """Contract-v3 1.1 / 2 item 3: the closed sets equal what the reviewed measure jobs imply."""
+        for source, expected in ((PILOT, act.PILOT_PROVIDER_STEPS), (SMOKE, act.SMOKE_PROVIDER_STEPS)):
+            steps = act.workflow_jobs(source)['measure']['steps']
+            x = [s['name'] for s in steps].index(act.BOUNDARY_STEP)
+            self.assertEqual(act.provider_steps(steps, x), set(expected))
+        self.assertLessEqual(set(act.SMOKE_PROVIDER_STEPS), set(act.PILOT_PROVIDER_STEPS))
+        self.assertEqual({n for n, r in act.ROLES.items() if r == 'provider'}, set(act.PILOT_PROVIDER_STEPS))
+        self.assertEqual({n for n, r in act.SMOKE_ROLES.items() if r == 'provider'}, set(act.SMOKE_PROVIDER_STEPS))
+        # review of PR 32: only actions whose pinned action.yml declares runs.post get a Post <name> provider step
+        self.assertEqual(act.POST_HOOK, {act.CHECKOUT_ACTION: True, act.UPLOAD_ACTION: False})
+        for name in ('Post Retain immutable dispatch proof', 'Post Retain binding sidecar before the boundary',
+                     'Post Retain attempt before codec setup'):
+            self.assertNotIn(name, act.ROLES)
+            self.assertNotIn(name, act.SMOKE_ROLES)
+
+    def test_provider_step_mutations_are_rejected(self):
+        """Contract-v3 2: no workflow step can hide behind a provider step name or add an unreviewed post hook."""
+        last = '      - name: Require workload and export success'
+        export = '      - name: Record export failure without debug data'
+        checkout = f'      - name: {act.CHECKOUT_STEP}\n        uses: actions/checkout@'
+        tmpfs = '      - name: Hard capped transient work filesystem'
+        cache = ('      - name: Warm cache\n        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830\n'
+                 '        with:\n          path: x\n          key: x\n')
+        second_checkout = ('      - name: Second checkout\n        uses: ' + act.CHECKOUT_ACTION + '\n'
+                           '        with:\n          persist-credentials: false\n')
+        upload = ('      - name: Extra upload\n'
+                  '        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a\n'
+                  '        with:\n          name: x\n          path: x\n')
+        mutants = {
+            'workflow step named Complete job after the boundary': (
+                swap(PILOT, last, '      - name: Complete job'), 'reserved for provider steps'),
+            'workflow step named Post <checkout> after the boundary': (
+                swap(PILOT, last, f'      - name: Post {act.CHECKOUT_STEP}'), 'reserved for provider steps'),
+            'workflow step named Set up job': (swap(PILOT, export, '      - name: Set up job'),
+                                               'reserved for provider steps'),
+            'unnamed checkout before the boundary': (
+                swap(PILOT, checkout, '      - uses: actions/checkout@'), 'named pinned checkout or upload-artifact'),
+            'other action before the boundary': (swap(PILOT, tmpfs, cache + tmpfs),
+                                                 'named pinned checkout or upload-artifact'),
+            'extra upload adds no provider step but breaks the reviewed step list': (
+                swap(PILOT, tmpfs, upload + tmpfs), 'steps before the boundary'),
+            'unreviewed post hook before the boundary': (swap(PILOT, tmpfs, second_checkout + tmpfs),
+                                                         'differ from the reviewed closed set'),
+            'post-boundary action named like a pre-boundary step': (
+                swap(PILOT, '      - name: Immutable sealed pilot envelope',
+                     '      - name: Retain binding sidecar before the boundary'), 'explicit unique name'),
+            'unnamed step in measure': (swap(PILOT, last + '\n        if: ', '      - if: '), 'explicit unique name'),
+            'smoke: workflow step named Complete job': (
+                swap(SMOKE, '      - name: Synthetic stop before the boundary', '      - name: Complete job'),
+                'reserved for provider steps'),
+        }
+        for name, (source, reason) in mutants.items():
+            with self.subTest(name):
+                checker = act.check_smoke_workflow if name.startswith('smoke') else act.check_pilot_workflow
+                problems = checker(source)
+                self.assertTrue(any(reason in p for p in problems), problems)
+
     def test_smoke_and_write_surface_mutations_are_rejected(self):
         self.assertTrue(act.check_smoke_workflow(SMOKE.replace("echo 'synthetic boundary marker'",
                                                                'python3 .work/tools/oracle_run.py synthetic x')))
@@ -137,10 +195,11 @@ def rulesets_doc():
     admin = {'actor_id': 5, 'actor_type': 'RepositoryRole', 'bypass_mode': 'always'}
     return {'schema': act.RULESETS_SCHEMA, 'repository': REPO, 'collected_at': '2026-10-05T12:00:00Z',
             'rulesets': [ruleset(1, ['~DEFAULT_BRANCH'], ['deletion', 'non_fast_forward', 'pull_request'], [admin]),
-                         ruleset(2, [reg.REGISTRY_REF, reg.SMOKE_REGISTRY_REF], ['deletion', 'non_fast_forward'])],
+                         ruleset(2, [reg.REGISTRY_REF, reg.SMOKE_REGISTRY_REF, *act.RETIRED_REGISTRY_REFS],
+                                 ['deletion', 'non_fast_forward'])],
             'effective': {'refs/heads/main': [{'type': t} for t in ('deletion', 'non_fast_forward', 'pull_request')],
-                          reg.REGISTRY_REF: [{'type': 'deletion'}, {'type': 'non_fast_forward'}],
-                          reg.SMOKE_REGISTRY_REF: [{'type': 'deletion'}, {'type': 'non_fast_forward'}]}}
+                          **{ref: [{'type': 'deletion'}, {'type': 'non_fast_forward'}]
+                             for ref in (reg.REGISTRY_REF, reg.SMOKE_REGISTRY_REF, *act.RETIRED_REGISTRY_REFS)}}}
 
 
 class Rulesets(unittest.TestCase):
@@ -338,7 +397,8 @@ class Record(unittest.TestCase):
         self.infra = {'schema': act.INFRA_SCHEMA, 'g1_contract': reg.G1_CONTRACT,
                       'g1_freeze_sha256': reg.G1_FREEZE_SHA256,
                       'steps': {'register': act.REGISTER_STEP, 'bind': act.BIND_STEP, 'boundary': act.BOUNDARY_STEP,
-                                'kat': act.KAT_STEP},
+                                'kat': act.KAT_STEP, 'provider': list(act.PILOT_PROVIDER_STEPS)},
+                      'workflow_sha256': ev.sha256(PILOT.encode('utf-8')),
                       'registry': {'ref': reg.REGISTRY_REF, 'genesis_sha256': act.GENESIS_SHA256['production'],
                                    'root_commit': act.ROOT_COMMIT['production']},
                       'genesis_review': {'pull_request': GENESIS_PR, 'merge_commit_sha': GENESIS_MERGE},
@@ -399,13 +459,17 @@ class Record(unittest.TestCase):
         self.gh.docs[f'{api}2'] = real
         self.assertEqual(act.validate_activation(self.record, self.view(), self.gh), [])
 
-    def test_any_gap_keeps_v2_inactive(self):
+    def test_any_gap_keeps_v3_inactive(self):
         api = f'/repos/{REPO}'
         comment, reviews = f'{api}/issues/comments/9001', f'{api}/pulls/{INFRA_PR}/reviews?per_page=100'
         def doc(path):
             return self.gh.docs[path]
         cases = {  # (record edit, tree edit, provider edit)
             'step names': lambda r, f, g: self.infra_edit(f, r, steps={**self.infra['steps'], 'boundary': 'x'}),
+            'provider steps widened': lambda r, f, g: self.infra_edit(f, r, steps={
+                **self.infra['steps'],
+                'provider': [*act.PILOT_PROVIDER_STEPS, 'Post Retain binding sidecar before the boundary']}),
+            'other workflow bytes': lambda r, f, g: self.infra_edit(f, r, workflow_sha256='0' * 64),
             'genesis root': lambda r, f, g: self.infra_edit(f, r, registry={**self.infra['registry'],
                                                                             'root_commit': '0' * 40}),
             'evidence bytes': lambda r, f, g: f.update({self.infra['evidence']['rulesets']['path']: b'{}'}),

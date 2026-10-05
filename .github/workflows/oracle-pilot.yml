@@ -1,9 +1,10 @@
 name: Oracle pilot (DELSK-003)
 
-# Slice C0 infrastructure with the DELSK-003A C1-B register/measure split of contract v2 (sections 4.1, 5.7, 5.8, 12.2).
-# Dispatches are a separate post-activation task: before activation the register job refuses (V2_NOT_ACTIVE) and the
+# Slice C0 infrastructure with the DELSK-003A register/measure split of contract v3 (v2 sections 4.1, 5.7, 5.8, 12.2).
+# Dispatches are a separate post-activation task: before activation the register job refuses (V3_NOT_ACTIVE) and the
 # measure job keeps the C0 guard DISPATCH_HISTORY_UNVERIFIED. Nothing before the boundary step reads natural bytes;
-# steps after it start only if the boundary step itself started, so a stop before B stays provable as PRE (8.3).
+# steps after it start only if the boundary step itself started, so a stop before B stays provable as PRE (contract-v3
+# 1.3; the provider steps Post <step> of the actions before the boundary and Complete job are exempt by name).
 on:
   workflow_dispatch:
     inputs:
@@ -40,7 +41,7 @@ jobs:
           git -c credential.helper= fetch -q --no-tags https://github.com/definitely-stable/Shift-lab.git \
             '+refs/heads/main:refs/remotes/source/main' "$GITHUB_SHA"
           git -c advice.detachedHead=false checkout -q --detach "$GITHUB_SHA"
-      - name: Register attempt in the append-only registry (contract v2 register)
+      - name: Register attempt in the append-only registry (contract v3 register)
         id: register
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -80,7 +81,8 @@ jobs:
           retention-days: 30
           if-no-files-found: error
           overwrite: false
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Read-only source checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         id: checkout
         with:
           persist-credentials: false
@@ -88,7 +90,7 @@ jobs:
       - name: Validate dispatch, frozen chain and register scientific identity
         id: initialize
         run: /usr/bin/python3 .work/tools/oracle_pilot.py initialize "$RUNNER_TEMP/pilot-evidence"
-      - name: Bind registry entry before the measurement boundary (contract v2 bind)
+      - name: Bind registry entry before the measurement boundary (contract v3 bind)
         id: bind
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -125,7 +127,7 @@ jobs:
           mkdir "$RUNNER_TEMP/pilot-work"
           sudo mount -t tmpfs -o size=1280m,nodev,nosuid tmpfs "$RUNNER_TEMP/pilot-work"
       # Contract 4.1 boundary witness: the first step after whose start B may be crossed (codec build, natural fetch).
-      - name: Measurement boundary (contract v2 boundary)
+      - name: Measurement boundary (contract v3 boundary)
         id: workload
         if: steps.bind.outcome == 'success' && steps.binding_record.outcome == 'success' && steps.admission.outcome == 'success'
         continue-on-error: true

@@ -1,6 +1,7 @@
-"""DELSK-003A C1-A: G1 v2 of the frozen provenance/G1 contract delsk.oracle-contract.v2 (synthetic conformance only).
+"""DELSK-003A C1-A: G1 of the frozen provenance/G1 contract delsk.oracle-contract.v3 (synthetic conformance only).
 
-Implements contract-v2 sections 7-11 (.work/oracle/contract-v2.md) on top of oracle_registry_v2.py:
+Implements sections 7-11 of the v2 text as amended by .work/oracle/contract-v3.md (PRE of section 8.3 replaced by
+contract-v3 section 1) on top of oracle_registry_v2.py:
 
     registry validation (5.6) -> evidence root (8.1) -> PRE / BUNDLE / MISSING + violations (8.3-8.4)
     -> unbound attempts of registered runs (8.5) -> series state machine (7.3) -> v1 G1 core (oracle_eval.g1)
@@ -9,7 +10,7 @@ Implements contract-v2 sections 7-11 (.work/oracle/contract-v2.md) on top of ora
 The population is always every entry of the registry: no caller selects entries, bundles or a subset. The core
 (_g1_core) is a pure function of an immutable Evaluation and only ever returns SCIENTIFIC_PASS / NOT_PASSED / INVALID /
 NOT_RUN / NO_VERDICT. g1_test maps SCIENTIFIC_PASS to TEST_ONLY_PASS with authority = evaluator = null.
-g1_production takes only the identity; before activation (contract 16) it is NOT_PASSED V2_NOT_ACTIVE and performs
+g1_production takes only the identity; before activation (contract-v3 5) it is NOT_PASSED V3_NOT_ACTIVE and performs
 no read at all. After activation it reads every input itself from the authority constants (oracle_registry_git.py,
 C1-B). Never imports test modules; not in the v1 code manifest.
 """
@@ -29,16 +30,16 @@ NO_VERDICT_CODES = ('REGISTRY_INVALID', 'REGISTRY_DUPLICATE', 'REGISTRY_STALE', 
 INVALID_V2 = frozenset(('BINDING_MISMATCH', 'UNBOUND_MEASUREMENT', 'DUPLICATE_EXECUTION', 'SERIES_INVALID',
                         'SERIES_REPEAT_MISMATCH', 'SERIES_TRANSITION_MISMATCH', 'SERIES_FORK', 'SERIES_REENTRY'))
 NOT_PASSED_V2 = frozenset(('RESULT_MISSING', 'SERIES_FAILURE', 'SERIES_TRANSITION_MISSING', 'SERIES_SUPERSEDED',
-                           'KAT_NOT_VERIFIED', 'V2_NOT_ACTIVE'))
+                           'KAT_NOT_VERIFIED', 'V3_NOT_ACTIVE'))
 CORE_VERDICTS = ('SCIENTIFIC_PASS', 'NOT_PASSED', 'INVALID', 'NOT_RUN', 'NO_VERDICT')
 TEST_VERDICT = {'SCIENTIFIC_PASS': 'TEST_ONLY_PASS'}
 BINDING_FIELDS = ('run_id', 'run_attempt', 'repository', 'measured_source_sha', 'measurement_identity_sha256',
                   'entry_sha256')
 RUN_KEY = re.compile(r'[1-9][0-9]*-[1-9][0-9]*\Z')
 V1_RESULTS = Path(ev.RESULTS)
-# Activation record (contract 16): SHA-256 of the bytes of the reviewed activation record file (bind/boundary step
-# names, KAT step name, evidence of items 6-10; oracle_activation_v2.py). Set only by the reviewed activation PR after
-# every item of contract 16 holds; until then production performs no read and can never return PASS.
+# Activation record (contract-v3 5): SHA-256 of the bytes of the reviewed activation record file (bind/boundary step
+# names, provider step names, KAT step name, evidence of items 6-10; oracle_activation_v2.py). Set only by the reviewed
+# activation PR after every activation item holds; until then production performs no read and can never return PASS.
 ACTIVATION_RECORD = None
 
 
@@ -50,7 +51,7 @@ def _copy(value):
 
 @dataclass(frozen=True)
 class Evidence:
-    """Retained v2 results root (contract 8.1) as read from the pinned main tree."""
+    """Retained v3 results root (contract 8.1) as read from the pinned main tree."""
     bundles: tuple          # bundle_projection documents, one per bundles/<run_id>-<run_attempt>/
     bindings: tuple         # attempt_binding documents, one per bindings/<run_id>-<run_attempt>.json
     foreign_paths: tuple    # any other path, symlink, bad name or unreadable sidecar
@@ -77,15 +78,18 @@ class Evaluation:
     evidence: Evidence
     evaluator_source_sha: str
     kat_green: frozenset
-    g1_freeze_sha256: str = None   # production: SHA-256 of freeze-v2.json in the pinned tree; test core: None
+    # contract-v3 1.5: commits whose oracle-pilot.yml has the activated workflow digest. Empty (the default) witnesses
+    # nothing, so every entry is MISSING: forgetting the input can never create a PRE or BUNDLE.
+    workflow_witnessed: frozenset = frozenset()
+    g1_freeze_sha256: str = None   # production: SHA-256 of freeze-v3.json in the pinned tree; test core: None
     profile: reg.Profile = None    # None = frozen production schemas; reg.SMOKE only for the synthetic smoke registry
 
     @classmethod
     def build(cls, *, genesis, entries, registry_reread, git, main_reread, provider, pull_requests, evidence,
-              evaluator_source_sha, kat_green, g1_freeze_sha256=None, profile=None):
+              evaluator_source_sha, kat_green, workflow_witnessed=(), g1_freeze_sha256=None, profile=None):
         return cls(_copy(genesis), tuple(map(_copy, entries)), _copy(registry_reread), git, main_reread,
                    tuple(map(_copy, provider)), tuple(map(_copy, pull_requests)), evidence, evaluator_source_sha,
-                   frozenset(kat_green), g1_freeze_sha256, profile)
+                   frozenset(kat_green), frozenset(workflow_witnessed), g1_freeze_sha256, profile)
 
 
 # --- provider facts (contract 8.3) ------------------------------------------------------------------------------------
@@ -105,8 +109,11 @@ def _steps(job, role):
 
 
 def pre_proven(observation, e):
-    """PRE conditions 2-4 for one live observation against entry e. Absent, deleted, pending or ambiguous data,
-    unknown jobs, a started boundary or a started measure job without a boundary step are never PRE."""
+    """PRE conditions 2-4 of contract-v3 1.3 for one live observation against entry e. Absent, deleted, pending or
+    ambiguous data, unknown jobs, a started boundary, a started non-provider step after it, or a started measure job
+    without a boundary step are never PRE. Provider steps (role provider: the closed set of contract-v3 1.1) after the
+    boundary are exempt; a measure job cancelled before it got a runner (no steps, no runner) never started. Whether
+    the executed workflow is the activated one (contract-v3 1.5) is checked by the callers."""
     run = observation['run'] if observation else None
     if run is None or not run_binding(run, e) or run['status'] != 'completed':
         return False
@@ -114,11 +121,13 @@ def pre_proven(observation, e):
     if not set(names) <= set(reg.JOBS) or names.count('measure') > 1:
         return False
     measure = _measure_jobs(run)
-    if not measure or not measure[0]['started']:
+    if not measure or not measure[0]['started'] or (measure[0]['conclusion'] == 'cancelled'
+                                                     and not measure[0]['steps']
+                                                     and measure[0]['runner_assigned'] is False):
         return True
     boundary = _steps(measure[0], 'boundary')
     return len(boundary) == 1 and not any(s['started'] for s in measure[0]['steps']
-                                          if s['number'] >= boundary[0]['number'])
+                                          if s['number'] >= boundary[0]['number'] and s['role'] != 'provider')
 
 
 def boundary_started(run):
@@ -141,7 +150,7 @@ def provider_observation(run_id, run_attempt, run, attempt, jobs, roles):
     Raw documents must prove that they belong to the requested (run_id, run_attempt). Cache, pagination or adapter
     mix-ups are treated as missing provider evidence; data is never relabelled under another scientific key.
     """
-    doc = {'schema': 'delsk.oracle.provider-observation.v1', 'run_id': run_id, 'run_attempt': run_attempt,
+    doc = {'schema': 'delsk.oracle.provider-observation.v2', 'run_id': run_id, 'run_attempt': run_attempt,
            'run': None}
     if run is None or attempt is None:
         return doc
@@ -160,11 +169,17 @@ def provider_observation(run_id, run_attempt, run, attempt, jobs, roles):
     def started(x):
         return x['status'] in ('in_progress', 'completed') and x['conclusion'] != 'skipped'
 
+    def runner_assigned(job):
+        """Contract-v3 1: unassigned only when the provider reports both runner fields and both are null."""
+        return not ('runner_id' in job and 'runner_name' in job and job['runner_id'] is None
+                    and job['runner_name'] is None)
+
     try:
         doc['run'] = {'head_sha': head, 'head_branch': attempt['head_branch'],
                       'workflow_path': attempt['path'], 'event': attempt['event'], 'status': attempt['status'],
                       'latest_run_attempt': run['run_attempt'],
                       'jobs': [{'name': j['name'], 'started': started(j), 'conclusion': j['conclusion'],
+                                'runner_assigned': runner_assigned(j),
                                 'steps': [{'number': s['number'], 'role': roles.get(s['name'], 'other'),
                                            'started': started(s), 'conclusion': s['conclusion']} for s in j['steps']]}
                                for j in jobs]}
@@ -234,8 +249,10 @@ def evidence_root_valid(evidence, keys):
     return all(reg.self_digest_ok(b, 'binding_sha256') for b in evidence.bindings)
 
 
-def classify(e, observation, bundle, binding, duplicate):
-    """Contract 8.4 for one entry: (class, violations). observation None = not obtained (never better than deleted)."""
+def classify(e, observation, bundle, binding, duplicate, witnessed):
+    """Contract 8.4 for one entry: (class, violations). observation None = not obtained (never better than deleted).
+    witnessed: the commits whose executed oracle-pilot.yml is the activated workflow (contract-v3 1.5); an entry of any
+    other source has no static witness of bind-before-B and is MISSING, neither PRE nor BUNDLE."""
     run = observation['run'] if observation else None
     violations = set()
     if duplicate:
@@ -260,7 +277,7 @@ def classify(e, observation, bundle, binding, duplicate):
         violations.add('UNBOUND_MEASUREMENT')
     if bundle is not None and run is not None and not bound_before_boundary(run):
         violations.add('UNBOUND_MEASUREMENT')
-    if violations:
+    if violations or e['measured_source_sha'] not in witnessed:
         return 'MISSING', violations
     if verified and run is not None:
         return 'BUNDLE', violations
@@ -269,9 +286,10 @@ def classify(e, observation, bundle, binding, duplicate):
     return 'MISSING', violations
 
 
-def unbound_attempts(entries, provider):
+def unbound_attempts(entries, provider, witnessed):
     """Contract 8.5: attempts 1..latest_run_attempt of every registered run ID without an entry and without PRE proof
-    (run binding against every entry of that run). Only registered run IDs are inspected (Model 1)."""
+    (run binding against every entry of that run, whose source must be witnessed, contract-v3 1.5). Only registered run
+    IDs are inspected (Model 1)."""
     by_run = collections.defaultdict(list)
     for e in entries:
         by_run[e['run_id']].append(e)
@@ -285,7 +303,8 @@ def unbound_attempts(entries, provider):
         # ponytail: one pass per attempt number; a provider claiming an absurd latest_run_attempt only lengthens the
         # (already INVALID) unbound list.
         for n in range(1, latest[run_id] + 1):
-            if n in keys or all(pre_proven(provider.get((run_id, n)), e) for e in es):
+            if n in keys or all(e['measured_source_sha'] in witnessed and pre_proven(provider.get((run_id, n)), e)
+                                for e in es):
                 continue
             for mi, si in sorted({(e['measurement_identity_sha256'], e['science_identity_sha256']) for e in es}):
                 out.append({'measurement_identity_sha256': mi, 'science_identity_sha256': si, 'run_id': run_id,
@@ -392,7 +411,8 @@ def analyze(evaluation):
     classes = {}
     for e in entries:
         key = reg.run_key(e)
-        cls, violations = classify(e, provider.get(key), bundles.get(key), bindings.get(key), key in duplicate)
+        cls, violations = classify(e, provider.get(key), bundles.get(key), bindings.get(key), key in duplicate,
+                                   x.workflow_witnessed)
         bundle = bundles.get(key) if cls == 'BUNDLE' else None
         classes[key] = {'class': cls, 'violations': sorted(violations), 'bundle': bundle,
                         'outcome': bundle['run_status'] if bundle else None,
@@ -401,11 +421,12 @@ def analyze(evaluation):
     series, transitions, _ = series_machine(entries, git, pull_requests)
     green = frozenset(c for c in x.kat_green if git.on_main(c))
     return Analysis(git.main_head_sha, None, registry_head, genesis_sha256, tuple(entries), classes,
-                    unbound_attempts(entries, provider), series, transitions, green, x.evaluator_source_sha)
+                    unbound_attempts(entries, provider, x.workflow_witnessed), series, transitions, green,
+                    x.evaluator_source_sha)
 
 
 def analyze_authoritative(evaluation, registry_commits):
-    """Production composition boundary: validate raw physical history and exact v2 freeze before analysis."""
+    """Production composition boundary: validate raw physical history and exact v3 freeze before analysis."""
     try:
         snapshot = reg.authoritative_registry(registry_commits, evaluation.git)
         genesis, entries = reg.physical_objects(snapshot)
@@ -539,11 +560,11 @@ def g1_code_sha256():
 
 def _production_record(verdict, body, evaluator_source_sha):
     """Production record from a core result over inputs production itself obtained from the authority constants.
-    Before activation V2_NOT_ACTIVE joins NOT_PASSED-class codes (contract 9.1 item 10, 9.3); PASS needs the
+    Before activation V3_NOT_ACTIVE joins NOT_PASSED-class codes (contract 9.1 item 10, 9.3); PASS needs the
     activation record."""
     blockers = list(body['blockers'])
     if ACTIVATION_RECORD is None and verdict in ('SCIENTIFIC_PASS', 'NOT_PASSED'):
-        verdict, blockers = 'NOT_PASSED', sorted({*blockers, 'V2_NOT_ACTIVE'})
+        verdict, blockers = 'NOT_PASSED', sorted({*blockers, 'V3_NOT_ACTIVE'})
     if verdict == 'SCIENTIFIC_PASS':
         verdict = 'PASS'
     return seal({**body, 'verdict': verdict, 'blockers': blockers, 'authority': dict(reg.AUTHORITY),
@@ -553,18 +574,18 @@ def _production_record(verdict, body, evaluator_source_sha):
 def g1_production(measurement_identity_sha256):
     """Contract 11 production entry point: exactly one parameter. Authority is hard-bound to the constants of
     contract 5.1; nothing (registry, remote, repository, results root, provider, snapshot, subset, records) can be
-    injected. Not active (contract 16, ACTIVATION_RECORD is None): no registry, provider, Git or evidence read is made
-    and the result is NOT_PASSED V2_NOT_ACTIVE. Active: _production_evaluate reads everything itself."""
+    injected. Not active (contract-v3 5, ACTIVATION_RECORD is None): no registry, provider, Git or evidence read is made
+    and the result is NOT_PASSED V3_NOT_ACTIVE. Active: _production_evaluate reads everything itself."""
     ev.check(type(measurement_identity_sha256) is str and ev.HEX64.match(measurement_identity_sha256) is not None,
              'G1 identity syntax')
     record = None if ACTIVATION_RECORD is None else _production_evaluate(measurement_identity_sha256)
     if record is None:  # not activated, or the activation record does not verify in the pinned main tree
-        return 'NOT_PASSED', ['V2_NOT_ACTIVE']
+        return 'NOT_PASSED', ['V3_NOT_ACTIVE']
     return record['verdict'], record['blockers']
 
 
 def _production_evaluate(measurement_identity_sha256):
-    """Full production record (contract 9.6) or None when v2 is not active. Same single parameter as g1_production:
+    """Full production record (contract 9.6) or None when v3 is not active. Same single parameter as g1_production:
     every input (main pin, registry history, provider, pull requests, evidence root, KAT, activation record, re-reads)
     is obtained by oracle_registry_git.production_inputs from the authority constants of contract 5.1."""
     if ACTIVATION_RECORD is None:
@@ -628,7 +649,7 @@ def v1_root_keys(v1_root):
 
 
 def read_evidence_root(root, v1_root=V1_RESULTS):
-    """Evidence of the v2 results root checked out from the pinned main tree. Every path outside
+    """Evidence of the v3 results root checked out from the pinned main tree. Every path outside
     bundles/<run_id>-<run_attempt>/ and bindings/<run_id>-<run_attempt>.json, every symlink and every unreadable,
     non-canonical or misnamed sidecar becomes a foreign path (EVIDENCE_ROOT_INVALID)."""
     root = Path(root)
@@ -675,9 +696,10 @@ def _git(root, *args):
 def kat_verified_v2(get, sha, main_head_sha, kat_step, root=ev.ROOT):
     """Green exact-commit KAT evidence for commit `sha` evaluated at the pinned main_head_sha: sha is ancestor-or-equal
     main_head_sha; at sha the reviewed oracle-smoke.yml (as in main_head_sha), v1 freeze.json with every v1 frozen
-    file and freeze-v2.json with every provenance_layer file are byte-identical; and the Actions API shows a green KAT
-    step (named by the activation record) for sha with no red or pending attempt. Called for both the evaluator and the
-    measured commit; anything unverifiable is not green. get must be bound to the constant provider API."""
+    file, freeze-v2.json (base text of v3) and freeze-v3.json with every provenance_layer file are byte-identical; and
+    the Actions API shows a green KAT step (named by the activation record) for sha with no red or pending attempt.
+    Called for both the evaluator and the measured commit; anything unverifiable is not green. get must be bound to
+    the constant provider API."""
     try:
         oa.check(kat_step is not None and oa.digest(sha, 40) and oa.digest(main_head_sha, 40), 'KAT inputs')
         oa.check(_git(root, 'merge-base', '--is-ancestor', sha, main_head_sha).returncode == 0, 'off pinned main')
@@ -686,14 +708,17 @@ def kat_verified_v2(get, sha, main_head_sha, kat_step, root=ev.ROOT):
             return oa._git_show(root, sha, path) == oa._git_show(root, main_head_sha, path)
 
         oa.check(same(oa.SMOKE_WORKFLOW), 'smoke workflow differs from the pinned main')
-        for freeze_path, layer in (('.work/oracle/freeze.json', None), ('.work/oracle/freeze-v2.json',
-                                                                         'provenance_layer')):
+        for freeze_path, layer in (('.work/oracle/freeze.json', None),
+                                   ('.work/oracle/freeze-v2.json', 'provenance_layer'),
+                                   ('.work/oracle/freeze-v3.json', 'provenance_layer')):
             oa.check(same(freeze_path), f'{freeze_path} differs from the pinned main')
             freeze = ev.parse_doc(oa._git_show(root, main_head_sha, freeze_path))
             files = freeze[layer]['files'] if layer else freeze['files']
             oa.check(all(ev.sha256(oa._git_show(root, sha, p)) == d for p, d in files.items()), 'frozen file differs')
         oa.check(ev.sha256(oa._git_show(root, main_head_sha, '.work/oracle/freeze.json')) ==
                  reg.MEASUREMENT_FREEZE_SHA256, 'v1 freeze differs from contract-v2 section 1')
+        oa.check(ev.sha256(oa._git_show(root, main_head_sha, '.work/oracle/freeze-v3.json')) ==
+                 reg.G1_FREEZE_SHA256, 'freeze-v3 differs from the authority constant')
         return oa.kat_actions_green(get, reg.REPOSITORY, sha, kat_step)
     except Exception:  # unverifiable evidence is never green
         return False

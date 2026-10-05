@@ -1,4 +1,4 @@
-"""Test-only adapter: frozen registry-vectors.json cases -> immutable inputs of the v2 G1 core.
+"""Test-only adapter: frozen registry-vectors-v3.json cases -> immutable inputs of the v3 G1 core.
 
 Feeds the vector *inputs* (registry, provider observations, evidence, environment) to the implementation; expected
 records are only ever compared against, never returned. The vectors' generator was never committed and is not used.
@@ -12,7 +12,7 @@ sys.path.insert(0, str(WORK / 'tools'))
 import oracle_eval as ev
 import oracle_g1_v2 as g1
 
-VECTORS = ev.parse_doc((WORK / 'oracle' / 'registry-vectors.json').read_bytes())
+VECTORS = ev.parse_doc((WORK / 'oracle' / 'registry-vectors-v3.json').read_bytes())
 CASES = [c for v in VECTORS['vectors'] for c in v['cases']]
 BY_ID = {c['id']: c for c in CASES}
 
@@ -37,7 +37,8 @@ def evaluation(case, module=g1):
         main_reread=case['main_remote_head'], provider=case['provider'], pull_requests=env['pull_requests'],
         evidence=module.Evidence.build(x['bundles'], x['bindings'], x['foreign_paths'],
                                        [(k['run_id'], k['run_attempt']) for k in x['v1_root_keys']]),
-        evaluator_source_sha=env['evaluator_source_sha'], kat_green=env['kat_green'])
+        evaluator_source_sha=env['evaluator_source_sha'], kat_green=env['kat_green'],
+        workflow_witnessed=env['workflow_witnessed'])
 
 
 def results(case, module=g1):

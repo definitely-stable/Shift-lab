@@ -1,6 +1,6 @@
-"""DELSK-003A C1-A/C1-B gate 1: frozen v1/v2 bytes are unchanged and nothing is activated.
+"""DELSK-003A C1-A/C1-B gate 1: frozen v1/v2/v3 bytes are unchanged and nothing is activated.
 
-Runs before the v2 implementation tests. Hashes are spelled out here (not read from the freeze records) so that an
+Runs before the v3 implementation tests (module names keep the _v2 suffix of the registered-attempt model). Hashes are spelled out here (not read from the freeze records) so that an
 edit of a freeze record together with the file it pins is caught as well. Offline; reads no natural byte.
 """
 import gzip
@@ -33,6 +33,12 @@ FROZEN = {
     'oracle/schemas-v2.json': '3ee790cf8d9b0a68c553aec673194c3f781f61ed704ee5c43479b0f5a41120b0',
     'oracle/registry-vectors.json': '5aef8456216da54ef4de4363369b92b6dc65ed29c4c46c864c15f198f8473484',
     'tests/test_oracle_contract_v2.py': '5b1d7b104705becb7bc2f8f200ce011c260c0bb07c4a8221391c578a39893f50',
+    # provenance layer delsk.oracle-contract.v3 (freeze-v3.json and the files it pins; v2 above is its base text)
+    'oracle/freeze-v3.json': '39dede91e9ed6e12d298f5bd72f9d94fda9e0ac5c92f7a478815d210a0eb1c85',
+    'oracle/contract-v3.md': '469e8f1487cd24a6c23f9431cd766c1cf7c3208251d44488df9ea87527c28366',
+    'oracle/schemas-v3.json': 'b958f9d26708829c29591c35c353f135ee611059298c4d8badb858360877a751',
+    'oracle/registry-vectors-v3.json': '0b53aa03f46bcb4be43c59dbb8bad65ebdc16a4d5173c811850cc606491111d4',
+    'tests/test_oracle_contract_v3.py': '1bff11dff24ef6b48eb873c6dba5f5462db9b2569573a0e1a5e7e91fa825a584',
     # corpus / candidate / source / protocol / seal locks bound by the v1 freeze
     'corpus/e1/candidate-lock.json': 'cb16d53b164ff393187e0115bdf31c52ac717a5172fb1e91889b5988ac019d2e',
     'corpus/pilot-v1/corpus-lock.json.gz': '86009552183230ab13f9366684eedb4fcfcea746b25cbbed10ab2aabceb8f56b',
@@ -56,20 +62,27 @@ class FrozenBytes(unittest.TestCase):
     def test_freeze_records_pin_exactly_these_bytes(self):
         v1 = ev.parse_doc((WORK / 'oracle/freeze.json').read_bytes())
         v2 = ev.parse_doc((WORK / 'oracle/freeze-v2.json').read_bytes())
-        for files in (v1['files'], v2['measurement_layer']['files'], v2['provenance_layer']['files']):
+        v3 = ev.parse_doc((WORK / 'oracle/freeze-v3.json').read_bytes())
+        for files in (v1['files'], v2['measurement_layer']['files'], v2['provenance_layer']['files'],
+                      v3['measurement_layer']['files'], v3['base_layer']['files'], v3['provenance_layer']['files']):
             for name, digest in files.items():
                 self.assertEqual(FROZEN[name.removeprefix('.work/')], digest, name)
         self.assertEqual(v2['measurement_layer_sha256'], FROZEN['oracle/freeze.json'])
         self.assertEqual(v2['provenance_layer_sha256'], ev.hc(v2['provenance_layer']['files']))
-        self.assertEqual(reg.G1_FREEZE_SHA256, FROZEN['oracle/freeze-v2.json'])
+        self.assertEqual(v3['measurement_layer_sha256'], FROZEN['oracle/freeze.json'])
+        self.assertEqual(v3['base_layer']['freeze_sha256'], FROZEN['oracle/freeze-v2.json'])
+        self.assertEqual(v3['provenance_layer_sha256'], ev.hc(v3['provenance_layer']['files']))
+        self.assertEqual(reg.G1_FREEZE_SHA256, FROZEN['oracle/freeze-v3.json'])
+        self.assertEqual(reg.G1_CONTRACT, v3['contract_id'])
         self.assertEqual(v1['bindings']['corpus_lock_sha256'], ev.sha256(gzip.decompress(
             (WORK / 'corpus/pilot-v1/corpus-lock.json.gz').read_bytes())))
         for key, name in (('candidate_lock_sha256', 'corpus/e1/candidate-lock.json'),
                           ('seal_sha256', 'corpus/e1/seal.json'), ('protocol_sha256', 'protocol.md'),
                           ('codec_lock_sha256', 'oracle/codec-lock.json')):
             self.assertEqual(v1['bindings'][key], FROZEN[name], key)
-        self.assertEqual((v2['status'], v2['implementation'], v2['g1'], v2['natural_measurements']),
-                         ('FROZEN_ON_MERGE', 'NOT_ACTIVE', 'NOT_RUN', 'NOT_RUN'))
+        for freeze in (v2, v3):
+            self.assertEqual((freeze['status'], freeze['implementation'], freeze['g1'], freeze['natural_measurements']),
+                             ('FROZEN_ON_MERGE', 'NOT_ACTIVE', 'NOT_RUN', 'NOT_RUN'))
 
     def test_v2_tooling_is_outside_the_v1_code_manifest(self):
         for module in (reg, g1):
@@ -77,8 +90,9 @@ class FrozenBytes(unittest.TestCase):
 
 
 class NotActivated(unittest.TestCase):
-    def test_no_registry_genesis_transition_or_v2_evidence(self):
+    def test_no_registry_genesis_transition_or_v2_v3_evidence(self):
         self.assertFalse((WORK / 'results' / 'DELSK-003-ORACLE-V2').exists())
+        self.assertFalse((WORK / 'results' / 'DELSK-003-ORACLE-V3').exists())
         self.assertFalse((WORK / 'oracle' / 'series-transition.json').exists())
         self.assertFalse(list(WORK.rglob('genesis.json')))
         self.assertIsNone(g1.ACTIVATION_RECORD)
