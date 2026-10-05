@@ -2,7 +2,9 @@
 
 Основание: [slice-c1b.md](slice-c1b.md) (граница реальных GitHub settings), [contract-v2.md](contract-v2.md) §12, §16, `main` = `ba68ec73e1e2943005d372459742f063ea768e94` (merge PR #31), [issue #27](https://github.com/definitely-stable/Shift-lab/issues/27).
 
-**Verdict: `ACTIVATION STOPPED` на шаге 3 (smoke, §16 п. 8–9). V2 NOT_ACTIVE. Natural oracle / G1 — NOT_RUN.** Замороженный §8.3 п. 4 на реальных данных GitHub Actions не позволяет доказать PRE ни для одного execution, у которого стартовал job `measure` (ниже). Исправление меняет семантику классификации и по §0 возможно только новым G1 contract.
+**Verdict: `ACTIVATION STOPPED` на шаге 3 (smoke, §16 п. 8–9). V2 NOT_ACTIVE (и никогда не активируется). Natural oracle / G1 — NOT_RUN.** Замороженный §8.3 п. 4 на реальных данных GitHub Actions не позволяет доказать PRE ни для одного execution, у которого стартовал job `measure` (ниже). Исправление меняет семантику классификации и по §0 возможно только новым G1 contract.
+
+**Решение:** maintainer выбрал вариант 1 — G1 contract v3 ([contract-v3.md](contract-v3.md), реализация и процедура — [slice-c1c.md](slice-c1c.md)). v2 superseded до активации; этот журнал остаётся раскрытием v2-попытки.
 
 | Шаг slice-c1b | §16 | Статус |
 |---|---|---|
@@ -47,9 +49,10 @@ Effective rules (`GET /rules/branches/{branch}`): `main` — `deletion`, `non_fa
 | `rerun-failed` | 37306997371 / 3 | measure: bind ✗ (отказ), boundary skipped | нет | OK, но (A, 3) — **unbound attempt** |
 | `cross-boundary` | [37307218114](https://github.com/definitely-stable/Shift-lab/actions/runs/37307218114) / 1 | bind ✓, boundary ✓ | seq 3, MISSING | OK |
 | `cancel-before-register` | [37307308985](https://github.com/definitely-stable/Shift-lab/actions/runs/37307308985) / 1 | cancel во время hold; register не исполнялся | нет | FAIL: measure считается started |
-| `cancel-after-register`, `deleted-run` | — | не запускались после обнаружения дефекта | — | — |
+| `cancel-after-register` | [37308739475](https://github.com/definitely-stable/Shift-lab/actions/runs/37308739475) / 1 | запущен после остановки, только чтобы записать реальную форму jobs для v3: cancel во время hold в `measure`, bind..boundary skipped, provider steps исполнены | seq 4, MISSING под v2 (PRE под v3) | не оценивался |
+| `deleted-run` | — | не запускался | — | — |
 
-Smoke registry head: `{sequence: 3, entry_sha256: 722e0f47…78fb5747}`. Smoke registry append-only и защищён ruleset: эти entries постоянны. На production registry не влияет: другой ref, domain-separated genesis.
+Smoke registry head: `{sequence: 4, entry_sha256: 7b5648c5…0ce0659}`. Ответы GitHub API всех шести attempts записаны в [fixture](../tests/fixtures/github-actions-smoke-2026-10-05.json) и используются тестами v3. Smoke registry append-only и защищён ruleset: эти entries постоянны. На production registry не влияет: другой ref, domain-separated genesis.
 
 ### 3.1 Дефект: §8.3 п. 4 недоказуем на реальном provider
 
@@ -79,7 +82,7 @@ GitHub Actions добавляет в каждый стартовавший job �
 
 `cancel-before-register`: GitHub возвращает job `measure` как `status = completed`, `conclusion = cancelled`, `steps = []`, `runner_name = null`. По нормализации §8.3 это `started = true`, а `_scenario_facts` требует `not _started(measure)`. На классификацию не влияет (entry нет), но verifier п. 9 этот сценарий на реальном GitHub не принимает.
 
-## 4. Что требуется (решение maintainer)
+## 4. Что требовалось (решение maintainer: вариант 1, выполнено в [slice-c1c.md](slice-c1c.md))
 
 1. **G1 contract v3**, новый freeze (по §0 v2 bytes не меняются). Минимальная правка §8.3 п. 4: учитывать только steps, объявленные reviewed workflow (по именам из activation record), либо требовать, чтобы ни один step workflow после `boundary` не стартовал, а provider-служебные `Post …`/`Complete job` исключить по закрытому списку. Плюс vectors с реальной формой provider jobs. Новый contract — новый genesis и новые registry refs. Текущие `delsk/registry` (пуст) и `delsk/registry-smoke` (3 entries) остаются раскрытыми.
 2. C1-B: `cancel-before-register` — принять `measure` с `steps = []` и `conclusion = cancelled` как не исполнявшийся, либо проверять это через отсутствие runner. Fake providers в тестах дополнить служебными steps.
