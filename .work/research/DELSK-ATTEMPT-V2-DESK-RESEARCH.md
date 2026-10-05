@@ -111,7 +111,7 @@ Issue: [DELSK-003A #27](https://github.com/definitely-stable/Shift-lab/issues/27
 | CE3 | registry mutable | удалить запись C | append-only + ruleset (+ witness для admin) |
 | CE4 | запись без evidence игнорируется | удалить run C → C «пропал» | `MISSING ⇒ NOT_PASSED` |
 | CE5 | «не дошло до B» по self-reported sidecar | пересёкший run объявить пустым | классификация `PRE` только по provider jobs/steps API |
-| CE6 | G1 только внутри identity | неудача на SHA X; docs-коммит → SHA Y → новая identity → повтор до PASS | **уже есть в v1**; закрывается disclosure и carry-over (§8) |
+| CE6 | G1 только внутри identity | неудача на SHA X; docs-коммит → SHA Y → новая identity → повтор до PASS | **уже есть в v1**; закрывается disclosure, carry-over и transition record (§8) |
 
 Без CE1/CE2-условия registered-attempt model **не** заменяет v1: отбор переезжает внутрь intent. С ним — заменяет.
 
@@ -129,7 +129,7 @@ verdict                G1 v2 = frozen v1 §7 над A(I)
 
 GitHub inventory остаётся в двух ролях: (1) подтвердить, что bundle пришёл из provider run с правильным SHA/workflow/attempt; (2) доказать `PRE` (job/step не стартовал). Ни в одной роли его неполнота не может дать PASS.
 
-Минимальный набор полей записи **до** `B`: `sequence`, `previous_entry_sha256`, `repository`, `workflow_path`, `workflow_ref`, `workflow_sha`, `measured_source_sha`, `measurement_identity_sha256`, `science_identity_sha256` (identity без `measured_source_sha`, §8), `run_id`, `run_attempt`, `phase`, `registry_schema`, `g1_contract`. Не нужны: отдельные corpus/candidate/codec bindings (входят в identity и выводятся из source SHA через `git_source`), timestamp как доверенное поле (runner clock не authority; порядок задаёт sequence/цепочка; время — информативно), «reservation state» (в self-registration не нужен, §7).
+Минимальный набор полей записи **до** `B`: `sequence`, `previous_entry_sha256`, `repository`, `workflow_path`, `workflow_ref`, `workflow_sha`, `measured_source_sha`, `measurement_identity_sha256`, `science_identity_sha256` (identity без `measured_source_sha`, §8), `run_id`, `run_attempt`, `phase`, `registry_schema`, `g1_contract`, `transition` (null, кроме первой записи новой `science_identity` после natural попытки другой серии, §8). Не нужны: отдельные corpus/candidate/codec bindings (входят в identity и выводятся из source SHA через `git_source`), timestamp как доверенное поле (runner clock не authority; порядок задаёт sequence/цепочка; время — информативно), «reservation state» (в self-registration не нужен, §7).
 
 ## 6. Bypass: ручной `Run workflow` или API вне controller
 
@@ -188,7 +188,7 @@ Crash matrix (B2; для B1 — в [proposal](../oracle/attempt-v2-proposal.md#b
 
 Infrastructure-only retry: попытки класса `PRE` остаются в истории и в отчёте, но не считаются ни неудачей, ни repeat. Попытки после `B` (включая cancel) — всегда в популяции. Retry не может исчезнуть: запись создаётся до `B`.
 
-**Identity hopping (CE6) — дефект v1, не только v2.** `measured_source_sha` входит в identity, поэтому docs-коммит создаёт новую identity с пустой популяцией. Registry делает это видимым и дешёво закрываемым: `science_identity` = identity без `measured_source_sha` (тот же `oracle_code_sha256`, locks, phase). Предложение (решение maintainer, D3 в proposal): исходы `INVALID`, `REPEAT_MISMATCH` и `COMPLETE_WITH_FAILURES` любой записи переносятся на все identity той же `science_identity`; каждый G1 record перечисляет весь registry этой фазы. Смена кода (новая `science_identity`) остаётся легитимным путём «исправлять измерение» (P1 §6), но видна в истории. Злонамеренный no-op в коде этим не остановить — только раскрыть.
+**Identity hopping (CE6) — дефект v1, не только v2.** `measured_source_sha` входит в identity, поэтому docs-коммит создаёт новую identity с пустой популяцией. Registry делает это видимым и дешёво закрываемым: `science_identity` = identity без `measured_source_sha` (тот же `oracle_code_sha256`, locks, phase). Предложение (решение maintainer, D3 в proposal): исходы `INVALID`, `REPEAT_MISMATCH` и `COMPLETE_WITH_FAILURES` любой записи переносятся на все identity той же `science_identity`; каждый G1 record перечисляет весь registry этой фазы. Смена кода (новая `science_identity`) остаётся легитимным путём «исправлять измерение» (P1 §6). Но она не должна молча обнулять серию: после любой natural попытки (не `PRE`) в фазе первая запись новой `science_identity` обязана нести **transition record** — `previous_science_identity`, `new_science_identity`, reviewed reason (`BUG_FIX | SEMANTIC_CHANGE | IMPLEMENTATION_CHANGE`) и ссылку на change review (PR и merge commit). Декларация лежит в reviewed коде на `measured_source_sha`, `register` job копирует её в запись до `B`, а без неё отказывается регистрировать. Старый `INVALID` не переносится через реальный bug fix, но переход виден в registry и в каждом G1 record (proposal §6, D3). Злонамеренный no-op в коде этим не остановить — только раскрыть и заставить назвать причину.
 
 ## 9. Нужно ли знать все GitHub runs
 
@@ -219,7 +219,7 @@ Infrastructure-only retry: попытки класса `PRE` остаются в
 | Вопрос | Ответ |
 |---|---|
 | Удаление / rewrite ref | branch с ruleset: запрещено всем без bypass; admin может изменить или удалить ruleset. Custom refs rulesets не защищают |
-| Кто имеет права | писать: write access, workflows с `contents: write`. Запрещать FF-push не нужно: лишняя запись даёт только `MISSING` (DoS, не PASS) |
+| Кто имеет права | писать: write access, workflows с `contents: write`. Запрещать FF-push в registry не нужно: лишняя запись даёт только `MISSING` (DoS, не PASS). Но `contents: write` — permission на contents **всего репозитория**, не capability одной ветки ([workflow syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax)); см. §11.1 |
 | Branch protection / force push | ruleset `non_fast_forward` + `deletion` |
 | Reflog | у GitHub нет пользовательского reflog; [Repository Activity API](https://docs.github.com/en/rest/repos/repos#list-repository-activities) перечисляет `push`, `force_push`, `branch_deletion` с before/after. Retention не документирована — сигнал обнаружения, не authority |
 | GitHub GC | достижимые коммиты не собираются; переписанная история становится недостижимой и со временем пропадает — поэтому нужен внешний snapshot |
@@ -227,6 +227,20 @@ Infrastructure-only retry: попытки класса `PRE` остаются в
 | Race | push fast-forward = compare-and-swap на ref; проигравший делает fetch, проверяет, что его ключа нет, append, повтор. Concurrency group `delsk-experimental` и так сериализует pilot |
 | Mobile / API | запись делает workflow; оператор только нажимает `Run workflow` |
 | Malicious maintainer | может снять ruleset и переписать. Обнаружимо: Activity API, клоны, Software Heritage snapshot, уже retained bundles в `main` со ссылкой на digest записи. Не предотвращаемо в одном trust domain |
+
+### 11.1 Write surface `register` job
+
+`GITHUB_TOKEN` с `contents: write` может писать в **любую** ветку и tag репозитория, которые не защищены ruleset. На 2026-10-05 у Shift-lab rulesets = `[]`, `main` не защищён. Значит, ошибочный или скомпрометированный `register` job мог бы не только добавить запись в registry, но и изменить `main` (frozen contract, locks, retained evidence) или создать ветку/tag с подменённым кодом. Для научной модели это опаснее DoS: правка frozen файлов или evidence root в `main` меняет то, на что опираются identity и G1.
+
+Обязательные условия **до** активации v2 (входят в activation criteria proposal):
+
+1. Registry ruleset: target `refs/heads/delsk/registry`, `deletion` + `non_fast_forward`, bypass list пуст.
+2. Ruleset на `main` (и на ветки/tags с frozen scientific bytes, если появятся): `deletion`, `non_fast_forward`, изменения только через pull request. Тогда direct push workflow token в `main` отклоняется сервером.
+3. `register` job: `permissions: contents: write`, все остальные scopes не указаны (по правилам GitHub они становятся `none`); checkout с `persist-credentials: false`; token передаётся только шагу push; corpus, codecs и сторонние actions в этом job не исполняются.
+4. Hardcoded registry: remote URL, ref `refs/heads/delsk/registry` и форма дерева (orphan tree ровно с `genesis.json` и `entries.jsonl`) — константы reviewed кода; push только явным refspec `HEAD:refs/heads/delsk/registry`; любая другая форма дерева при readback = отказ.
+5. Synthetic negative test на реальном GitHub до natural pilot: тот же `register` credential пытается push в `main`, удалить registry, сделать non-FF push в registry — все три попытки отклонены сервером; результат сохраняется как evidence активации.
+
+Остаточный риск после 1–5: credential может создавать новые незащищённые ветки. Это не влияет на G1, потому что попытки привязаны к `measured_source_sha` reviewed commit, а retention идёт только через reviewed PR в защищённый `main`.
 
 Вывод: Git **достаточен** для honest-operator модели (D1 выполняется против всех, кроме admin) и **недостаточен** против malicious admin без внешнего witness. При единственном участнике org admin и оператор — одно лицо, поэтому защита от admin — это защита для третьих лиц (publishable), а не для внутренних решений.
 
@@ -289,7 +303,8 @@ Exact-commit KAT через Actions API (`kat_verified`) — другая trust 
 | bundle unregistered run | prevent | `EVIDENCE_ROOT_INVALID` |
 | mismatched source SHA | prevent | binding check → `BINDING_MISMATCH` (INVALID) |
 | fake provider в production | prevent | §13 |
-| compromised `GITHUB_TOKEN` (`register` job) | detect / fail-closed | может добавить записи (DoS) или попытаться переписать (ruleset); не создаёт PASS. Corpus не обрабатывается в job с write token |
+| compromised `GITHUB_TOKEN` (`register` job) | prevent при условиях §11.1; иначе **unresolved** | `contents: write` действует на весь репозиторий: без rulesets token мог бы изменить `main` (frozen files, evidence root). §11.1 п. 1–5 обязательны до активации; после них остаются только лишние записи registry (DoS → `MISSING`) и незащищённые новые ветки, не влияющие на G1 |
+| молчаливый сброс серии сменой кода | detect / fail-closed | transition record обязателен до `B` первой записи новой `science_identity`; без него `register` отказывает, G1 даёт `SERIES_TRANSITION_MISSING` |
 | compromised admin token | unresolved в Minimal; detect в Hardened | |
 | operator error (не тот rerun, не тот branch) | fail-closed | неверный путь останавливается до `B` |
 
@@ -298,10 +313,10 @@ Exact-commit KAT через Actions API (`kat_verified`) — другая trust 
 | | V2-Minimal | V2-Hardened |
 |---|---|---|
 | Guarantees | теорема §4.2 против honest-but-fallible оператора, crash, non-admin; ни одна потеря provider данных не даёт PASS | + обнаружение rollback/rewrite admin с окном ≈ время до checkpoint; provenance bundle переживает удаление run |
-| Infra | orphan branch + ruleset; два jobs в pilot workflow | + Sigstore keyless checkpoints/attestations (`id-token: write`, `attestations: write`), witness/SWH, OIDC-проверка claims |
+| Infra | orphan branch; rulesets на registry и на `main` (§11.1); два jobs в pilot workflow | + Sigstore keyless checkpoints/attestations (`id-token: write`, `attestations: write`), witness/SWH, OIDC-проверка claims |
 | Объём (оценка) | ~150–250 строк Python (registry validate/append, population, `PRE` классификация) + ~80 строк workflow + R-vectors; удаляется inventory-as-completeness | +200–400 строк и внешняя зависимость |
 | Operational cost | 0 secrets, 0 $, одно нажатие `Run workflow` | 0 $, внешние сервисы без SLA |
-| Failure modes | admin снимает ruleset; GitHub недоступен (нет записи ⇒ нет измерения) | + недоступность Rekor/witness блокирует измерение |
+| Failure modes | admin снимает ruleset; ruleset на `main` не настроен — workflow token получает write surface всего репозитория (§11.1); GitHub недоступен (нет записи ⇒ нет измерения) | + недоступность Rekor/witness блокирует измерение |
 | Защищает | всё из §16, кроме admin | + admin rewrite, удалённый provider run для bundle authenticity |
 | Не защищает | malicious admin; частные вычисления на публичных inputs | частные вычисления на публичных inputs; сговор admin и witness |
 
@@ -327,11 +342,11 @@ Rust `delsk-core` (Cargo.toml, crates, FFI, SIMD, index, sketch) **не начи
 4. **Unregistered runs?** Model 1: не attempts, неприемлемы как evidence, в results root — `EVIDENCE_ROOT_INVALID`. Reviewed workflow не даёт им пересечь `B`.
 5. **Reruns?** Каждый `run_attempt`, пересёкший `B`, — новая запись в популяции, не независимый repeat. Только «Re-run all jobs»; failed-job rerun останавливается до `B`. `PRE`-попытки отчитываются, но нейтральны.
 6. **Adversary model P1?** Honest-but-fallible оператор + crash/infra + non-admin writers. Malicious admin — явно вне scope P1, обязателен для release claims.
-7. **Минимальный registry?** Orphan branch `delsk/registry` в Shift-lab, ruleset без force push/удаления, hash-chained JSON entries, запись из `register` job.
+7. **Минимальный registry?** Orphan branch `delsk/registry` в Shift-lab, ruleset без force push/удаления, hash-chained JSON entries, запись из `register` job (только `contents: write`, hardcoded ref и форма дерева). Обязателен и ruleset на `main`: `contents: write` действует на весь репозиторий (§11.1).
 8. **Нужен ли внешний сервис?** Нет для internal decision. Для publishable — бесплатный Software Heritage snapshot; для release — Sigstore/witness.
 9. **Что reuse без изменений?** Codec lock, conformance C01–C14 и golden, schemas, evaluator scientific logic, K01–K42, G01–G09 (ядро `g1`), M01–M30, metamorphic, frame/oracle/metrics/sealing, `C_t`, locks, thresholds. Slice A/B не повторяются.
-10. **Новые vectors?** R01–R20 и mutants PM01–PM09 (proposal §8): цепочка registry, population, `PRE`, binding, reruns, carry-over, injection.
-11. **Когда снять `DISPATCH_HISTORY_UNVERIFIED`?** Никогда для v1 G1. В v2 production path он заменяется на `REGISTRY_BINDING_REQUIRED` только после: freeze v2, настроенного и проверенного API ruleset, genesis registry, synthetic registry dry-run на реальном GitHub (UI dispatch, rerun all, rerun failed, cancel, удаление synthetic run → NOT_PASSED) и review.
+10. **Новые vectors?** R01–R22 и mutants PM01–PM10 (proposal §8): цепочка registry, population, `PRE`, binding, reruns, carry-over, transition records, injection; плюс synthetic negative test write surface (§11.1 п. 5).
+11. **Когда снять `DISPATCH_HISTORY_UNVERIFIED`?** Никогда для v1 G1. В v2 production path он заменяется на `REGISTRY_BINDING_REQUIRED` только после: freeze v2, настроенных и проверенных через API rulesets на registry и `main` (§11.1), negative test write surface, genesis registry, synthetic registry dry-run на реальном GitHub (UI dispatch, rerun all, rerun failed, cancel, удаление synthetic run → NOT_PASSED) и review.
 12. **Когда natural oracle?** После п. 11 и отдельного подтверждения maintainer.
 13. **Baselines сразу после G1?** random-seed, size-closest, recency/lineage order, git-like (size sort + window, path/name hash), bottom-k MinHash resemblance и containment, FracMinHash containment, SimHash, TLSH, LZJD/ssdeep, Finesse и Odess (reimplemented, с маркировкой), trial-encode proxy (дешёвый delta encode как scorer); затем BePro/SpeedSketch при CLEAR лицензии.
 14. **Evidence перед Rust?** §18: v2 freeze, G1 PASS record, DELSK-004 matrix с CIs, измеренное окно над лучшим baseline, Hx с prediction и Python prototype.

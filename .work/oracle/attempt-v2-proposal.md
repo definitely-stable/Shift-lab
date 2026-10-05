@@ -38,20 +38,46 @@ v2 = { measurement_layer: v1 (contract.md, codec-lock.json, schemas.json, known-
 | `science_identity_sha256` | hex64 | |
 | `phase` | `pilot` \| `reveal` | |
 | `run_id`, `run_attempt` | int | provider binding, известен `register` job из `GITHUB_RUN_ID`/`GITHUB_RUN_ATTEMPT` |
+| `transition` | object \| null | transition record (§3.1); не null ровно у первой записи новой `science_identity` после natural попытки другой `science_identity` той же фазы |
 | `entry_sha256` | hex64 | `Hc(запись без entry_sha256)` |
+
+### 3.1 Transition record между `science_identity`
+
+```text
+transition = { previous_science_identity_sha256, new_science_identity_sha256,
+               reason: BUG_FIX | SEMANTIC_CHANGE | IMPLEMENTATION_CHANGE,
+               change_review: { pull_request_url, merge_commit_sha } }
+```
+
+- **Когда обязателен.** Если registry уже содержит запись фазы с другой `science_identity` и классом не `PRE` (natural попытка была), первая запись новой `science_identity` обязана нести `transition`. `previous_science_identity_sha256` — `science_identity` последней такой записи; `new_science_identity_sha256` — своей.
+- **Откуда берётся.** Reviewed файл `.work/oracle/series-transition.json` в дереве `measured_source_sha`. `register` job копирует его в запись до `B`; если файл обязателен, но отсутствует или не совпадает с registry history, `register` отказывает: нет записи, нет измерения.
+- **`change_review`.** `merge_commit_sha` — предок `measured_source_sha`; PR — тот, которым изменён код. Проверяется G1 через git и provider API.
+- **Семантика.** Transition прекращает carry-over старой серии (реальный bug fix не тащит старый `INVALID` навечно), но старая серия и причина перехода входят в disclosure каждого G1 record. Повторный transition из той же старой серии в другую новую запрещён (`SERIES_FORK`): одна серия заменяется одной.
 
 Genesis: `{"schema":"delsk.oracle.registry-genesis.v1","repository":…,"g1_contract":…,"v1_freeze_sha256":…}` — первый коммит ветки, создаётся reviewed PR вместе с v2 freeze **до** первой v2 попытки.
 
 Валидация (fail-closed, иначе `REGISTRY_INVALID`, вердикт не вычисляется): каждая запись закрыта по схеме; `sequence` непрерывна; цепочка `previous_entry_sha256` сходится к genesis; `(run_id, run_attempt)` уникальны (`REGISTRY_DUPLICATE`); каждый коммит ветки добавляет ровно одну строку в конец и ничего не меняет; оцениваемый head равен текущему remote head (`REGISTRY_STALE` иначе); каждый registry head, записанный в retained sidecars в `main` (witness уровень 1), — префикс оцениваемой истории (`REGISTRY_ROLLBACK` иначе).
 
-Ruleset (настраивается maintainer, проверяется read-only API до активации): target `refs/heads/delsk/registry`; `deletion`, `non_fast_forward`; bypass list пуст.
+### 3.2 Rulesets и write surface
+
+`contents: write` у `GITHUB_TOKEN` — permission на contents всего репозитория, не на одну ветку. На 2026-10-05 у Shift-lab rulesets = `[]` и `main` не защищён, поэтому до активации обязательны (настраивает maintainer, проверяется read-only API):
+
+| Ruleset | Target | Rules | Bypass |
+|---|---|---|---|
+| registry | `refs/heads/delsk/registry` | `deletion`, `non_fast_forward` | пуст |
+| scientific refs | `refs/heads/main` (и любые будущие refs с frozen scientific bytes) | `deletion`, `non_fast_forward`, `pull_request` (direct push отклоняется) | по решению maintainer; workflow token — никогда |
+
+Remote URL, ref и форма дерева registry (orphan tree ровно с `genesis.json` и `entries.jsonl`) — константы reviewed кода. Push только явным refspec `HEAD:refs/heads/delsk/registry`. Readback с другой формой дерева = отказ.
 
 ## 4. Workflow topology (B2 self-registration)
 
 ```text
 oracle-pilot.yml (workflow_dispatch, exact source_sha, concurrency delsk-experimental)
-  job register   permissions: contents: write; checkout кода; без corpus и codecs
-                 identity = git_source(GITHUB_SHA); fetch registry; append entry (run_id, run_attempt);
+  job register   permissions: только contents: write (остальные scopes не указаны → none);
+                 checkout кода с persist-credentials: false; без corpus, codecs и сторонних actions;
+                 token передаётся только шагу push
+                 identity = git_source(GITHUB_SHA); transition из series-transition.json (§3.1);
+                 fetch registry; append entry (run_id, run_attempt);
                  fast-forward push; при отказе — fetch, проверить что ключа нет, повторить (≤ 3);
                  readback: ls-remote head содержит entry; output entry_sha256
   job measure    needs: register; permissions: contents: read, actions: read
@@ -87,10 +113,11 @@ Self-reported sidecar без provider-подтверждения не даёт `
 4. `records` = attempt records `BUNDLE` из `A(I)`; `ledger` = ключи всех `A(I)`.
 5. `verdict, blockers = oracle_eval.g1_inventory(records, ledger)` — **frozen функция без изменений** (`MISSING` = её `ATTEMPT_NOT_RETAINED`).
 6. Carry-over (решение D3): если любая запись той же `science_identity` (другой `measured_source_sha`) имеет исход `INVALID` → `INVALID (SERIES_INVALID)`; `COMPLETE_WITH_FAILURES` или `REPEAT_MISMATCH` между COMPLETE записями серии → `NOT_PASSED (SERIES_FAILURE)`.
-7. KAT: существующий `kat_verified` (Actions API) без изменений; иначе `KAT_NOT_VERIFIED`.
-8. Record: verdict, blockers, `g1_contract`, registry head SHA и последний `entry_sha256`, полный список записей фазы (все identity) с классами, evaluator SHA, provider base URL.
+7. Transitions (§3.1): первая запись `science_identity` `I` после natural попытки другой серии без валидного `transition` → `NOT_PASSED (SERIES_TRANSITION_MISSING)`; `transition`, не совпадающий с registry history или с `change_review` → `INVALID (SERIES_TRANSITION_MISMATCH)`; второй transition из одной старой серии → `INVALID (SERIES_FORK)`. Валидный transition прекращает carry-over старой серии.
+8. KAT: существующий `kat_verified` (Actions API) без изменений; иначе `KAT_NOT_VERIFIED`.
+9. Record: verdict, blockers, `g1_contract`, registry head SHA и последний `entry_sha256`, полный список записей фазы (все identity) с классами, все transition records с причинами и change review, evaluator SHA, provider base URL.
 
-v1 G1 таблица §7 остаётся ядром дословно: INVALID-приоритет, `REPEAT_MISMATCH`, NOT_PASSED для `INCOMPLETE`/`CWF`, `CONFORMANCE_OR_BUNDLE`, `REPEAT_MISSING` (два разных `run_id`). v2 меняет только откуда берётся популяция и добавляет `PRE`, carry-over и disclosure.
+v1 G1 таблица §7 остаётся ядром дословно: INVALID-приоритет, `REPEAT_MISMATCH`, NOT_PASSED для `INCOMPLETE`/`CWF`, `CONFORMANCE_OR_BUNDLE`, `REPEAT_MISSING` (два разных `run_id`). v2 меняет только откуда берётся популяция и добавляет `PRE`, carry-over, transitions и disclosure.
 
 ## 7. Production / test API
 
@@ -126,8 +153,10 @@ test helper: offline_g1(...) -> TEST_ONLY_PASS | ...        # только в .w
 | R18 | оцениваемый head ≠ remote head | `REGISTRY_STALE` |
 | R19 | лишняя запись без provider run | `MISSING → NOT_PASSED` |
 | R20 | два bundle ссылаются на одну запись | `INVALID DUPLICATE_EXECUTION` |
+| R21 | серия S1 имела natural попытку; первая запись S2 без `transition` | `NOT_PASSED SERIES_TRANSITION_MISSING`; runner-level: `register` отказывает |
+| R22 | `transition` ссылается не на последнюю серию, `merge_commit_sha` не предок source, или второй transition из S1 | `INVALID SERIES_TRANSITION_MISMATCH` / `SERIES_FORK` |
 
-Mutants (каждый обязан быть убит): PM01 missing игнорируется (R05); PM02 популяция из bundles (R05, R07); PM03 unregistered bundle принимается (R07); PM04 `PRE` по sidecar (R09); PM05 reruns как независимые (R11); PM06 цепочка не проверяется (R02); PM07 PASS через injected provider (R17); PM08 без carry-over (R15); PM09 binding после `B` принят (R16).
+Mutants (каждый обязан быть убит): PM01 missing игнорируется (R05); PM02 популяция из bundles (R05, R07); PM03 unregistered bundle принимается (R07); PM04 `PRE` по sidecar (R09); PM05 reruns как независимые (R11); PM06 цепочка не проверяется (R02); PM07 PASS через injected provider (R17); PM08 без carry-over (R15); PM09 binding после `B` принят (R16); PM10 смена `science_identity` без transition принята (R21).
 
 Reuse без изменений: K01–K42, G01–G09, M01–M30, metamorphic, C01–C14 и golden, fault injection. Slice A/B не повторяются.
 
@@ -144,7 +173,8 @@ Reuse без изменений: K01–K42, G01–G09, M01–M30, metamorphic, C
 | Unresolved dispatch | permanent blocker | B2: не существует; B1: `PRE` благодаря bind-before-measure | | нет |
 | Provider inventory | доказательство полноты | reconciliation и `PRE` | | нет |
 | Attempt identity | `(run_id, run_attempt)` | то же + `entry_sha256` | binding к записи | нет |
-| Identity hopping | возможно незаметно | disclosure + carry-over (D3) | v1 дефект | ужесточение |
+| Identity hopping | возможно незаметно | disclosure + carry-over внутри `science_identity` + обязательный transition record между ними (D3) | v1 дефект | ужесточение |
+| Write surface | workflows read-only | `register` job с `contents: write` (весь репозиторий) при обязательных rulesets на registry и `main` | registry пишется workflow token | нет, при выполнении §3.2 |
 | Production/test API | injectable `get` | hard-bound `g1_production`; test → `TEST_ONLY_*` | | нет |
 | KAT | Actions API exact commit | без изменений | KAT переисполним | нет |
 | Evidence retention | reviewed PR, append-only | то же + sidecar с `entry_sha256` и registry head | witness уровень 1 | нет |
@@ -154,9 +184,9 @@ Byte/semantic compatible: pair universe, oracle, `D_E`, `S/O/O_delta`, frame v1,
 ## 10. Activation criteria (до снятия блокера в v2 path)
 
 1. v2 freeze record принят maintainer merge (отдельный PR после этого research).
-2. Ruleset §3 настроен; read-only API подтверждает правила и пустой bypass.
+2. Оба ruleset §3.2 настроены; read-only API подтверждает правила, пустой bypass registry и отсутствие bypass для workflow token на `main`.
 3. Genesis в registry; v2 attempts tooling и R-vectors зелёные в CI.
-4. Synthetic-only `registry-smoke` workflow на реальном GitHub: UI dispatch, rerun all, rerun failed (остановка до `B`), cancel до и после `register`, удаление synthetic run → G1 `NOT_PASSED`. Corpus не используется.
+4. Synthetic-only `registry-smoke` workflow на реальном GitHub: UI dispatch, rerun all, rerun failed (остановка до `B`), cancel до и после `register`, удаление synthetic run → G1 `NOT_PASSED`. Negative test write surface: тот же `register` credential пытается push в `main`, удалить registry и сделать non-FF push в registry — все три отклонены сервером, результат сохранён как evidence активации. Corpus не используется.
 5. Review. После этого v2 path заменяет `DISPATCH_HISTORY_UNVERIFIED` на `REGISTRY_BINDING_REQUIRED`; v1 path остаётся заблокирован.
 6. Natural pilot — только после отдельного подтверждения maintainer.
 
@@ -166,6 +196,6 @@ Byte/semantic compatible: pair universe, oracle, `D_E`, `S/O/O_delta`, frame v1,
 |---|---|---|
 | D1 | v2 как G1-слой с неизменной `measurement_identity` (contract_id v1) или полный bump identity | G1-слой: bump меняет frozen schemas `const`, evaluator и vectors без научной причины |
 | D2 | B2 self-registration или B1 pre-submission broker | B2 |
-| D3 | carry-over внутри `science_identity` | принять |
+| D3 | carry-over внутри `science_identity` и обязательный transition record (`BUG_FIX \| SEMANTIC_CHANGE \| IMPLEMENTATION_CHANGE` + change review) между ними | принять |
 | D4 | adversary model P1 = honest-but-fallible оператор + crash/infra + non-admin writers; malicious admin вне scope до release claims | принять явно |
 | D5 | witness | уровень 1 сейчас, уровень 2 (Software Heritage snapshot) перед публикацией |
