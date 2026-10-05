@@ -401,10 +401,11 @@ def analyze(evaluation):
                     unbound_attempts(entries, provider), series, transitions, green, x.evaluator_source_sha)
 
 
-def analyze_authoritative(evaluation, registry):
-    """Production composition boundary: physical history and exact v2 freeze precede scientific analysis."""
+def analyze_authoritative(evaluation, registry_commits):
+    """Production composition boundary: validate raw physical history and exact v2 freeze before analysis."""
     try:
-        genesis, entries = reg.physical_objects(registry)
+        snapshot = reg.authoritative_registry(registry_commits, evaluation.git)
+        genesis, entries = reg.physical_objects(snapshot)
     except (reg.RegistryInvalid, TypeError):
         return _no_verdict(evaluation.git, 'REGISTRY_INVALID')
     if (ev.compact(genesis) != ev.compact(evaluation.genesis)
@@ -726,10 +727,11 @@ def _register_check_core(genesis, entries, execution, git, pull_requests, transi
                                       measurement_identity=mi, transition=transition)
 
 
-def register_check(registry, execution, git, pull_requests, transition_bytes=None):
-    """Authoritative register decision over a physically validated exact-freeze registry snapshot."""
+def register_check(registry_commits, execution, git, pull_requests, transition_bytes=None):
+    """Authoritative register decision; raw registry history is physically and logically validated inside."""
     try:
-        genesis, entries = reg.physical_objects(registry)
+        snapshot = reg.authoritative_registry(registry_commits, git)
+        genesis, entries = reg.physical_objects(snapshot)
     except (reg.RegistryInvalid, TypeError):
         return 'REGISTRY_INVALID', None
     return _register_check_core(genesis, entries, execution, git, pull_requests, transition_bytes,
@@ -766,10 +768,11 @@ def _bind_check_core(genesis, entries, execution, git, register_entry_sha256, g1
     return 'BOUND', {**binding, 'binding_sha256': ev.hc(binding)}
 
 
-def bind_check(registry, execution, git, register_entry_sha256):
-    """Authoritative bind decision over a physically validated exact-freeze registry snapshot."""
+def bind_check(registry_commits, execution, git, register_entry_sha256):
+    """Authoritative bind decision; raw registry history is validated again before binding."""
     try:
-        genesis, entries = reg.physical_objects(registry)
+        snapshot = reg.authoritative_registry(registry_commits, git)
+        genesis, entries = reg.physical_objects(snapshot)
     except (reg.RegistryInvalid, TypeError):
         return 'REGISTRY_UNBOUND', None
     return _bind_check_core(genesis, entries, execution, git, register_entry_sha256, reg.G1_FREEZE_SHA256)
