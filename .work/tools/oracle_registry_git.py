@@ -524,9 +524,13 @@ def production_inputs(activation_sha256):
     main = fetch(root, reg.REGISTRY_REMOTE, MAIN_REF)
     if main is None:
         raise TransportError('main not found')
+    def first_parent(commit):
+        out = git(root, 'rev-parse', '--verify', f'{commit}^1', check=False)
+        return out.stdout.decode().strip() if out.returncode == 0 else None
     view = act.TreeView(lambda path: show(root, main, path), lambda commit, path: show(root, commit, path),
                         lambda commit: type(commit) is str and ev.HEX40.match(commit) is not None and git(
-                            root, 'merge-base', '--is-ancestor', commit, main, check=False).returncode == 0)
+                            root, 'merge-base', '--is-ancestor', commit, main, check=False).returncode == 0,
+                        first_parent)
     activation = act.activation_in_tree(view, api_get, activation_sha256)
     if activation is None or registry_root(root) != act.ROOT_COMMIT['production']:
         return None  # item 6: the live registry must start at the reviewed genesis root commit
