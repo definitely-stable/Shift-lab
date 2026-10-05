@@ -420,8 +420,11 @@ def recheck():
     # them the live read cannot re-prove an empty bypass list: that stays proven by the admin-collected evidence only,
     # and a live read that does show bypass_actors must still match it exactly.
     visible = ('id', 'name', 'target', 'source_type', 'source', 'enforcement', 'conditions', 'rules', 'updated_at')
+    # updated_at is rendered in the reader's profile time zone (admin read: +05:00, workflow token: UTC): compare
+    # the instant, not the string.
     def shape(doc, admin):
-        return [{k: r.get(k) for k in visible + (('bypass_actors',) if admin else ())} for r in doc['rulesets']]
+        return [{k: _when(r[k]).astimezone(datetime.timezone.utc) if k == 'updated_at' else r.get(k)
+                 for k in visible + (('bypass_actors',) if admin else ())} for r in doc['rulesets']]
     admin = all('bypass_actors' in r for r in live['rulesets'])
     seen, kept = shape(live, admin), shape(committed, admin)
     if [r['id'] for r in seen] != [r['id'] for r in kept]:
