@@ -423,8 +423,14 @@ def recheck():
     def shape(doc, admin):
         return [{k: r.get(k) for k in visible + (('bypass_actors',) if admin else ())} for r in doc['rulesets']]
     admin = all('bypass_actors' in r for r in live['rulesets'])
-    if shape(live, admin) != shape(committed, admin) or live['effective'] != committed['effective']:
-        problems.append('rulesets or effective rules changed since the evidence was collected')
+    seen, kept = shape(live, admin), shape(committed, admin)
+    if [r['id'] for r in seen] != [r['id'] for r in kept]:
+        problems.append('ruleset list changed since the evidence was collected')
+    for a, b in zip(seen, kept):
+        problems += [f"ruleset {b['id']} field {k} differs from the evidence" for k in a if a[k] != b[k]]
+    for ref in RULESET_REFS:
+        if live['effective'].get(ref) != committed['effective'].get(ref):
+            problems.append(f'effective rules of {ref} differ from the evidence: {live["effective"].get(ref)}')
     if admin:
         problems += [f'rulesets live: {p}' for p in act.verify_rulesets(live)]
     else:
