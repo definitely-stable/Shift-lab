@@ -22,6 +22,17 @@ class Plan(unittest.TestCase):
             plan["consumer"]["commit"],
             "74bb301b6d8ecc52cf0bc0e00d86fa174093d91b",
         )
+        self.assertEqual(
+            plan["consumer"]["manifest"],
+            {
+                "command": "chunkshift create <content> <manifest> --blake3",
+                "hash_suite": "blake3-256",
+                "block_index": False,
+            },
+        )
+        self.assertEqual(plan["consumer"]["object_transform"], "none")
+        self.assertEqual(plan["consumer"]["cli_build"]["configuration"], "Release")
+        self.assertEqual(plan["consumer"]["cli_build"]["target_framework"], "net10.0")
         # Same natural population retained by S3: 119 targets.
         self.assertEqual(len(plan["targets"]), 119)
         self.assertEqual(
