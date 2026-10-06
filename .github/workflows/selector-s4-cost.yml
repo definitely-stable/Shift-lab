@@ -39,6 +39,7 @@ jobs:
           set -euo pipefail
           test "$GITHUB_REF" = "refs/heads/main"
           test "$SOURCE_SHA" = "$GITHUB_SHA"
+          test "$GITHUB_WORKFLOW_SHA" = "$GITHUB_SHA"
 
       - name: Admission (runner-minute ledger, artifact cap)
         id: admit
