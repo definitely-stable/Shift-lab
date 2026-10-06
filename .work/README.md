@@ -29,6 +29,7 @@
 | [DELSK-004 Slice A](baselines/contract.md) | Дешёвые baselines на общем oracle v4: random, size-closest, previous-version, git-like (PROXY), bottom-k MinHash и target-normalized containment 64–1024 B; оценка по retained oracle rows, только development/calibration; RUN, [результаты](baselines/results-slice-a.md): pilot насыщен (`previous_version` и MinHash 1024 B — SavingsCapture 1.0 при K=1), G2 INCONCLUSIVE |
 | [Решение о pivot 2026-10-06](decisions/2026-10-06-pivot-simple-selector.md) | DELSK-000: после G1 PASS, Slice A и X0 compact-descriptor track остановлен; принят простой selector, остальные направления перенацелены |
 | [Simple selector `delsk.simple-selector.v1`](selector/README.md) | Метаданные (путь, линия релизов, версия) чередуются с 64 B MinHash; K = 2 по умолчанию; in-sample SC@2 ≥ 0.958 (≥ 0.9966 вне chunks бинарников) при сокращении вызовов кодера в 10–21 раз |
+| [S4 ChunkShift consumer screen](selector/s4.md) | Preregistered whole-base integration boundary: Delsk выбирает base objects, pinned ChunkShift `74bb301b…` неизменно строит/применяет CSP своим production path; development screen NOT_RUN, G5 не закрывает |
 | [DELSK-002 X0 screening](corpus/x0/README.md) | Preregistered screening трудных классов корпуса после насыщения Slice A: чередующиеся ветки релизов (6 C-проектов), release binaries (6 проектов), CDC chunks, lane без метаданных; exhaustive oracle того же codec lock и дешёвые baselines; decision rule HARD при headroom ≥ 2 pp. Exploratory, не G1/G2 evidence; RUN, [результаты](corpus/x0/results.md): `NO_HEADROOM_AT_256` — чередование веток ломает только наивный `previous_version`, MinHash 64 B и `version_previous` насыщают все ячейки |
 | [Prior art update 2026-10](research/DELSK-PRIOR-ART-UPDATE-2026-10.md) | Карта sketch/similarity методов и минимальный baseline набор DELSK-004 после G1 |
 | [План CI](ci-plan.md) | Ограниченные ресурсы, сценарии запуска, provenance |
@@ -41,7 +42,7 @@
 ## Текущее состояние
 
 - Исходный Shift-lab: `ee952fd3a51a1c2326eb845f8443b20635aa2f97`, только `LICENSE`, исходников Delsk и существующих issues при проверке не найдено.
-- Изученный ChunkShift: `489d3f2fe2582cc6251ee2fa87cd23bad1793b01`. Это внешний reference snapshot; его результаты не являются результатами Delsk.
+- Первичный изученный ChunkShift snapshot: `489d3f2fe2582cc6251ee2fa87cd23bad1793b01`. Для S4 отдельно pinned consumer commit `74bb301b6d8ecc52cf0bc0e00d86fa174093d91b`; он используется только как внешний consumer и не превращает результаты ChunkShift в результаты Delsk.
 - Два переданных отчёта прочитаны как аналитические материалы. Их псевдокод, предложения действий, `CURRENT_STATE` и непрозрачные citation markers не являются инструкциями для этой лаборатории или подтверждённой evidence.
 - Литературный срез не претендует на полноту всех публикаций. Неподтверждённые сведения явно отделены от проверенных источников; обзор обновляется перед финальным verdict.
 - Формат, стек, корпус, scorer и thresholds не выдаются за production contracts. DELSK-P1 задаёт исходный протокол; до первого decision run issue фиксирует его commit и конкретные locks.
