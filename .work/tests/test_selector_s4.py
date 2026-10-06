@@ -54,7 +54,7 @@ class Evaluate(unittest.TestCase):
         return {
             "schema": s4.PLAN_SCHEMA,
             "status": "PREREGISTERED_NOT_RUN",
-            "consumer": {"commit": "x"},
+            "consumer": {"commit": "b" * 40},
             "selector": "delsk.simple-selector.v1",
             "s3_abstention_level": 0,
             "lanes": list(s4.LANES),
@@ -79,32 +79,47 @@ class Evaluate(unittest.TestCase):
         rows = []
         values = {None: 1000, **base_bytes}
         for base, patch_bytes in values.items():
+            ok = base != bad
             rows.append({
                 "schema": s4.MEASUREMENT_SCHEMA,
                 "target_occurrence_id": "t",
+                "target_object_id": "a" * 64,
                 "base_object_id": base,
+                "chunkshift_commit": "b" * 40,
+                "status": "ok" if ok else "verify_failed",
+                "error_class": None if ok else "SHA256_MISMATCH",
                 "patch_bytes": patch_bytes,
                 "create_wall_ns": 10,
                 "create_cpu_ns": 9,
                 "apply_wall_ns": 4,
                 "apply_cpu_ns": 3,
-                "reconstruction_ok": base != bad,
-                "target_object_id": "a" * 64,
-                "chunkshift_commit": "x" * 40,
+                "create_exit_code": 0,
+                "apply_exit_code": 0,
+                "target_manifest_id": "target-manifest",
+                "base_manifest_id": None if base is None else f"manifest-{base}",
+                "patch_file_digest": "c" * 64,
+                "applied_sha256": "a" * 64 if ok else "d" * 64,
             })
         if extra:
             rows.append({
                 "schema": s4.MEASUREMENT_SCHEMA,
                 "target_occurrence_id": "t",
-                "base_object_id": "not-in-plan",
+                "target_object_id": "a" * 64,
+                "base_object_id": "e" * 64,
+                "chunkshift_commit": "b" * 40,
+                "status": "ok",
+                "error_class": None,
                 "patch_bytes": 1,
                 "create_wall_ns": 1,
                 "create_cpu_ns": 1,
                 "apply_wall_ns": 1,
                 "apply_cpu_ns": 1,
-                "reconstruction_ok": True,
-                "target_object_id": "a" * 64,
-                "chunkshift_commit": "x" * 40,
+                "create_exit_code": 0,
+                "apply_exit_code": 0,
+                "target_manifest_id": "target-manifest",
+                "base_manifest_id": "manifest-extra",
+                "patch_file_digest": "c" * 64,
+                "applied_sha256": "a" * 64,
             })
         tmp = tempfile.NamedTemporaryFile("w", encoding="utf-8", delete=False)
         with tmp:
@@ -170,11 +185,26 @@ class Evaluate(unittest.TestCase):
             with self.assertRaises(s4.S4Error):
                 s4.evaluate(plan, path)
 
+
+    def test_unknown_measurement_field_is_rejected(self):
+        plan = self.synthetic_plan()
+        path = self.write_measurements(self.complete_bytes())
+        rows = [json.loads(line) for line in Path(path).read_text(encoding="utf-8").splitlines()]
+        rows[0]["surprise"] = True
+        bad = tempfile.NamedTemporaryFile("w", encoding="utf-8", delete=False)
+        with bad:
+            for row in rows:
+                bad.write(json.dumps(row, sort_keys=True) + "\n")
+        self.addCleanup(lambda: Path(bad.name).unlink(missing_ok=True))
+        with unittest.mock.patch.object(s4, "build_plan", return_value=plan):
+            with self.assertRaises(s4.S4Error):
+                s4.evaluate(plan, bad.name)
+
     def test_measurement_must_bind_target_and_consumer(self):
         plan = self.synthetic_plan()
         path = self.write_measurements(self.complete_bytes())
         rows = [json.loads(line) for line in Path(path).read_text(encoding="utf-8").splitlines()]
-        rows[0]["chunkshift_commit"] = "y" * 40
+        rows[0]["chunkshift_commit"] = "f" * 40
         bad = tempfile.NamedTemporaryFile("w", encoding="utf-8", delete=False)
         with bad:
             for row in rows:
