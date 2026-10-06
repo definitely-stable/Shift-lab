@@ -1,0 +1,13 @@
+[package]
+name = "delsk-selector"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+description = "Delsk simple selector delsk.simple-selector.v1 (research prototype, not a public API)"
+publish = false
+
+[dependencies]
+
+[profile.release]
+debug = false
+codegen-units = 1
