@@ -128,7 +128,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python3 .work/tools/selector_s4_runner.py measure-shard             "$RUNNER_TEMP/s4-plan.json"             "$RUNNER_TEMP/pilot-store"             "$RUNNER_TEMP/x0-store"             "$GITHUB_WORKSPACE/consumer/src/ChunkShift.Cli/bin/Release/net10.0/ChunkShift.Cli.dll"             "$SHARD_INDEX"             "$RUNNER_TEMP/evidence"             --protocol-dir "$GITHUB_WORKSPACE/protocol"             --protocol-authority "$PROTOCOL_SHA"             --implementation-sha "$SOURCE_SHA"
+          python3 .work/tools/selector_s4_runner.py measure-shard             "$RUNNER_TEMP/s4-plan.json"             "$RUNNER_TEMP/pilot-store"             "$RUNNER_TEMP/x0-store"             "$GITHUB_WORKSPACE/consumer/src/ChunkShift.Cli/bin/Release/net10.0/ChunkShift.Cli.dll"             "$SHARD_INDEX"             "$RUNNER_TEMP/evidence"             --protocol-authority "$PROTOCOL_SHA"             --implementation-sha "$SOURCE_SHA"
 
       - name: Verify external tracked sources remained unchanged
         if: always()
