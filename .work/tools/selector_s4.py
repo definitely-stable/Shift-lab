@@ -134,6 +134,12 @@ def build_plan():
           "S4 consumer pin changed candidate unit")
     check(pin.get("internal_chunkshift_candidate_policy") == "CspEncoderPolicy.Default",
           "S4 consumer pin changed the internal ChunkShift policy")
+    check(pin.get("manifest") == {
+        "command": "chunkshift create <content> <manifest> --blake3",
+        "hash_suite": "blake3-256",
+        "block_index": False,
+    }, "S4 consumer pin changed manifest construction")
+    check(pin.get("object_transform") == "none", "S4 consumer pin changed object bytes")
     rows = sorted(_pilot_rows() + _x0_rows(), key=lambda r: r["target_occurrence_id"])
     ids = [r["target_occurrence_id"] for r in rows]
     check(len(ids) == len(set(ids)), "duplicate target occurrence across S4 populations")
@@ -146,6 +152,11 @@ def build_plan():
             "commit": pin["commit"],
             "candidate_unit": pin["candidate_unit"],
             "internal_chunkshift_candidate_policy": pin["internal_chunkshift_candidate_policy"],
+            "manifest": pin["manifest"],
+            "object_transform": pin["object_transform"],
+            "cli_build": pin["cli_build"],
+            "patch_create": pin["patch_create"],
+            "patch_apply": pin["patch_apply"],
         },
         "selector": ss.SPEC,
         "s3_abstention_level": 0,
