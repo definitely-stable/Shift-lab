@@ -6,10 +6,29 @@ import textwrap
 import unittest
 from pathlib import Path
 
-TOOLS = Path(__file__).resolve().parents[1] / "tools"
+WORK = Path(__file__).resolve().parents[1]
+ROOT = WORK.parent
+TOOLS = WORK / "tools"
+WORKFLOW = ROOT / ".github" / "workflows" / "selector-s4.yml"
 sys.path.insert(0, str(TOOLS))
 
 import selector_s4_run as run  # noqa: E402
+
+
+class Workflow(unittest.TestCase):
+    def test_workflow_is_main_only_bounded_and_uses_frozen_authorities(self):
+        text = WORKFLOW.read_text(encoding="utf-8")
+        self.assertIn("runs-on: ubuntu-24.04", text)
+        self.assertIn("timeout-minutes: 30", text)
+        self.assertNotIn("self-hosted", text)
+        self.assertIn("test \"$GITHUB_REF\" = \"refs/heads/main\"", text)
+        self.assertIn(run.S4_AUTHORITY, text)
+        self.assertIn(run.CONSUMER_COMMIT, text)
+        self.assertIn("protocol/.work/tools/selector_s4.py plan", text)
+        self.assertIn("protocol/.work/tools/selector_s4.py evaluate", text)
+        self.assertIn(".work/tools/selector_s4_run.py measure", text)
+        self.assertIn("actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1", text)
+        self.assertIn("actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a", text)
 
 
 class Helpers(unittest.TestCase):
