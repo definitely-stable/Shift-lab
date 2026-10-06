@@ -65,6 +65,8 @@ class FakeAPI:
             key, items = "workflow_runs", getattr(self, 'selector_bench_runs', [])
         elif url.path == f"/repos/{REPO}/actions/workflows/selector-s3.yml/runs":
             key, items = "workflow_runs", getattr(self, 'selector_s3_runs', [])
+        elif url.path == f"/repos/{REPO}/actions/workflows/selector-s4-shard.yml/runs":
+            key, items = "workflow_runs", getattr(self, 'selector_s4_shard_runs', [])
         elif url.path == f"/repos/{REPO}/actions/artifacts":
             key, items = "artifacts", self.artifacts
         else:
