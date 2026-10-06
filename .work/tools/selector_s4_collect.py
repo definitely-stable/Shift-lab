@@ -66,13 +66,19 @@ def load_artifact_index(path):
     out = {}
     for row in rows:
         check(set(row) == {
-            "run_id", "run_attempt", "head_sha", "workflow_path",
+            "run_id", "run_attempt", "event", "status", "conclusion",
+            "head_branch", "head_sha", "workflow_path",
             "artifact_id", "artifact_name", "artifact_digest", "artifact_size",
         }, "artifact-index row shape changed")
         run_id = row["run_id"]
         check(isinstance(run_id, int) and run_id > 0, "invalid shard run id")
         check(run_id not in out, f"duplicate shard run id: {run_id}")
         check(row["run_attempt"] == 1, f"selected shard run {run_id} is a rerun")
+        check(row["event"] == "workflow_dispatch", f"selected shard run {run_id} has wrong event")
+        check(row["status"] == "completed" and row["conclusion"] == "success",
+              f"selected shard run {run_id} was not successful")
+        check(row["head_branch"] == "main", f"selected shard run {run_id} was not on main")
+        check(is_hex(row["head_sha"], 40), f"selected shard run {run_id} has malformed head SHA")
         check(row["workflow_path"] == ".github/workflows/selector-s4-shard.yml",
               f"wrong workflow for run {run_id}")
         check(
