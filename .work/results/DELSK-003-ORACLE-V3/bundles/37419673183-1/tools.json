@@ -1,0 +1,116 @@
+{
+  "code": {
+    "manifests.py": "c1b394781b2cf55e347dca5cf25b00cea422b03df695f7aea83b5283a85c30b4",
+    "materialize.py": "853a7516a1b7e8b160bd799bbfc35b578313e0fb54341977a418b89b2b2bfef8",
+    "oracle_build.py": "6fb9ee41bfdb78a664e5253dacdb2fc71107ef0893997723e3227433f7647716",
+    "oracle_eval.py": "601da93e7ecb6e2092ae95e7a54378f0bf9541252c9d4178438603980d3d5bad",
+    "oracle_run.py": "48d0f3c39565a9b675d4ed0ea939f2c180d632fd3a89f41ff2f72f511d335b13"
+  },
+  "codec_lock_sha256": "9823e4c933c27fb4116bfce5add59ef6e926e43d2f0ebae258d7bb869a38f7b1",
+  "codecs": {
+    "delta": {
+      "archive_bytes": 225056,
+      "archive_path": "archives/xdelta3-3.2.1.tar.gz",
+      "archive_root": "xdelta3-3.2.1",
+      "archive_sha256": "936e10fc9f2be9e18c9fd6719895ff2055e67e47a155776badc6aa8c25ba70fa",
+      "archive_url": "https://github.com/jmacd/xdelta/releases/download/v3.2.1/xdelta3-3.2.1.tar.gz",
+      "build_argv": [
+        "cc",
+        "-std=gnu99",
+        "-O3",
+        "-DNDEBUG",
+        "-DXD3_MAIN=1",
+        "-DXD3_DEBUG=0",
+        "-DREGRESSION_TEST=1",
+        "-DSECONDARY_DJW=1",
+        "-DSECONDARY_FGK=0",
+        "-DSECONDARY_LZMA=0",
+        "-DEXTERNAL_COMPRESSION=0",
+        "-DXD3_ARMOR=0",
+        "-DXD3_POSIX=1",
+        "-DXD3_USE_LARGESIZET=1",
+        "-DXD3_USE_LARGEFILE64=1",
+        "-DSIZEOF_SIZE_T=8",
+        "-DSIZEOF_UNSIGNED_INT=4",
+        "-DSIZEOF_UNSIGNED_LONG=8",
+        "-DSIZEOF_UNSIGNED_LONG_LONG=8",
+        "-o",
+        "xdelta3",
+        "xdelta3.c",
+        "-lm"
+      ],
+      "build_cwd": "xdelta3-3.2.1",
+      "build_env": {
+        "LC_ALL": "C",
+        "PATH": "/usr/bin:/bin"
+      },
+      "codec_id": "xdelta3-3.2.1-l9-snone-v1",
+      "executable": "src/xdelta3-3.2.1/xdelta3",
+      "executable_bytes": 220544,
+      "executable_sha256": "d943509041966111cacb70f819942116992f01dab17fb54475cfd73c87f8e885",
+      "extracted_files": 52,
+      "extracted_tree_sha256": "ebf342b8e061cac087490b6ec1535e898704414c6b1afd62e40634bc1fb229d0",
+      "self_report": "Xdelta version 3.2.1, Copyright (C) Joshua MacDonald\nXdelta comes with ABSOLUTELY NO WARRANTY.\nLicensed under the Apache License, Version 2.0\nSee \"LICENSE\" for details.\nEXTERNAL_COMPRESSION=0\nREGRESSION_TEST=1\nSECONDARY_DJW=1\nSECONDARY_FGK=0\nSECONDARY_LZMA=0\nUNALIGNED_OK=1\nVCDIFF_TOOLS=1\nXD3_ALLOCSIZE=16384\nXD3_DEBUG=0\nXD3_ENCODER=1\nXD3_POSIX=1\nXD3_STDIO=0\nXD3_WIN32=0\nXD3_USE_LARGEFILE64=1\nXD3_USE_LARGESIZET=1\nXD3_DEFAULT_LEVEL=3\nXD3_DEFAULT_IOPT_SIZE=32768\nXD3_DEFAULT_SPREVSZ=262144\nXD3_DEFAULT_SRCWINSZ=67108864\nXD3_DEFAULT_WINSIZE=8388608\nXD3_HARDMAXWINSIZE=67108864\nsizeof(void*)=8\nsizeof(int)=4\nsizeof(long)=8\nsizeof(long long)=8\nsizeof(unsigned long long)=8\nsizeof(size_t)=8\nsizeof(uint32_t)=4\nsizeof(uint64_t)=8\nsizeof(usize_t)=8\nsizeof(xoff_t)=8\n",
+      "skipped_members": []
+    },
+    "standalone": {
+      "archive_bytes": 2434947,
+      "archive_path": "archives/zstd-1.5.7.tar.gz",
+      "archive_root": "zstd-1.5.7",
+      "archive_sha256": "eb33e51f49a15e023950cd7825ca74a4a2b43db8354825ac24fc1b7ee09e6fa3",
+      "archive_url": "https://github.com/facebook/zstd/releases/download/v1.5.7/zstd-1.5.7.tar.gz",
+      "build_argv": [
+        "make",
+        "-C",
+        "programs",
+        "zstd-release",
+        "HAVE_THREAD=0",
+        "HAVE_ZLIB=0",
+        "HAVE_LZMA=0",
+        "HAVE_LZ4=0",
+        "ZSTD_LEGACY_SUPPORT=0"
+      ],
+      "build_cwd": "zstd-1.5.7",
+      "build_env": {
+        "LC_ALL": "C",
+        "PATH": "/usr/bin:/bin"
+      },
+      "codec_id": "zstd-1.5.7-l19-v1",
+      "executable": "src/zstd-1.5.7/programs/zstd",
+      "executable_bytes": 1103304,
+      "executable_sha256": "e9b01d813d1b8ada944a036300969690de8381d25a95854edaa46fa87910109a",
+      "extracted_files": 637,
+      "extracted_tree_sha256": "201d4a687b5f91b184b22f5824ad49deb07590ce37b9160b1d3cbee3f2df4ed4",
+      "self_report": "*** Zstandard CLI (64-bit) v1.5.7, by Yann Collet ***\n*** supports: zstd\n",
+      "skipped_members": [
+        {
+          "path": "tests/cli-tests/bin/unzstd",
+          "type": "symlink"
+        },
+        {
+          "path": "tests/cli-tests/bin/zstdcat",
+          "type": "symlink"
+        }
+      ]
+    }
+  },
+  "compiler": {
+    "path": "/usr/bin/cc",
+    "realpath": "/usr/bin/x86_64-linux-gnu-gcc-13",
+    "sha256": "1b99826121ae6682a634e5efe09bd3e3df58ce58e0b28f849114ab5b89139c26",
+    "version": "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  },
+  "make": {
+    "path": "/usr/bin/make",
+    "realpath": "/usr/bin/make",
+    "sha256": "d78b8f1d099fbcfb6f2f49ab87223b9b68fb3956642f92d6ec6de812e8afa965",
+    "version": "GNU Make 4.3"
+  },
+  "schema": "delsk.oracle.tools.v1",
+  "source": {
+    "run_attempt": "1",
+    "run_id": "37419673183",
+    "sha": "6c9de2db832ded84161fc48e0a97d21006ae1539",
+    "workflow_sha": "6c9de2db832ded84161fc48e0a97d21006ae1539"
+  }
+}

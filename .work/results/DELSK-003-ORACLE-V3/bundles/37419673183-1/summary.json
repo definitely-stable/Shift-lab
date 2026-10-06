@@ -1,0 +1,41 @@
+{
+  "cost_projection_sha256": "265debc0c20b3caa9b9181214e4cf15e7711d8c246fcd00c8565091ffd046866",
+  "coverage_sha256": "840a180addf20fd34a68db04862646c93bdff485b9c8b9da27990107c7cdd546",
+  "evaluator_sha256": "601da93e7ecb6e2092ae95e7a54378f0bf9541252c9d4178438603980d3d5bad",
+  "evaluator_source_sha": "6c9de2db832ded84161fc48e0a97d21006ae1539",
+  "invalid_reasons": [],
+  "measurement_identity_sha256": "13d0d5f47a0585b3dfeb9b1d8dc44943ecb425f3a7a86f7b36ad260a28b1251b",
+  "oracle_kind": "exhaustive",
+  "pairs_canonical_sha256": "0c3dfd31e6152d900f9390ecc6056c8b7ac7ebffd52f7fc801b1aabf391c747d",
+  "per_split": [
+    {
+      "near_targets": 43,
+      "near_useful": 37,
+      "oracle_total_bytes_sum": 5828454,
+      "sealed": false,
+      "split": "development",
+      "standalone_total_bytes_sum": 14931548
+    },
+    {
+      "near_targets": 12,
+      "near_useful": 10,
+      "oracle_total_bytes_sum": 2226115,
+      "sealed": false,
+      "split": "calibration",
+      "standalone_total_bytes_sum": 3277655
+    },
+    {
+      "near_targets": 9,
+      "near_useful": null,
+      "oracle_total_bytes_sum": null,
+      "sealed": true,
+      "split": "evaluation",
+      "standalone_total_bytes_sum": null
+    }
+  ],
+  "run_status": "COMPLETE",
+  "schema": "delsk.oracle.summary.v1",
+  "sealed_commitments_sha256": "e65c035ec4ab81b3eeaf75fa222c59ae8b30b811f17bed77c03e5d3035b5175b",
+  "standalone_canonical_sha256": "65d9689e38d794b07fb1e004e873ffc415acaf1ff54962ed2b70f753b2f5717a",
+  "targets_canonical_sha256": "83c325bd3f2ed9b30a14d75648087622948d6ec463e5a692349b3c18914f473d"
+}

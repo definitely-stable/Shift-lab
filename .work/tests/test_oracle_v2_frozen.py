@@ -92,7 +92,6 @@ class FrozenBytes(unittest.TestCase):
 class NotActivated(unittest.TestCase):
     def test_no_registry_genesis_transition_or_v2_v3_evidence(self):
         self.assertFalse((WORK / 'results' / 'DELSK-003-ORACLE-V2').exists())
-        self.assertFalse((WORK / 'results' / 'DELSK-003-ORACLE-V3').exists())
         self.assertFalse((WORK / 'oracle' / 'series-transition.json').exists())
         self.assertFalse(list(WORK.rglob('genesis.json')))
         # contract-v3 5: the code constant names the enable record by the digest of its exact bytes, or nothing
@@ -101,6 +100,26 @@ class NotActivated(unittest.TestCase):
             self.assertFalse(record.exists())
         else:
             self.assertEqual(ev.sha256(record.read_bytes()), g1.ACTIVATION_RECORD)
+
+    def test_v3_evidence_root_only_after_activation_and_well_formed(self):
+        # Contract 8.1 offline: only bundles/<run>-<attempt>/ and bindings/<run>-<attempt>.json, every bundle a verified
+        # v1 bundle with its binding, no v3 run key in the v1 root. Registry membership is checked live by production G1.
+        root = WORK / 'results' / 'DELSK-003-ORACLE-V3'
+        if g1.ACTIVATION_RECORD is None:
+            self.assertFalse(root.exists())
+            return
+        evidence = g1.read_evidence_root(root)
+        self.assertEqual(evidence.foreign_paths, ())
+        bundles = {reg.run_key(b): b for b in evidence.bundles}
+        bindings = {reg.run_key(b): b for b in evidence.bindings}
+        self.assertLessEqual(set(bundles), set(bindings))
+        self.assertFalse(set(bindings) & set(evidence.v1_root_keys))
+        for key, bundle in bundles.items():
+            self.assertTrue(bundle['bundle_verified'], key)
+            self.assertEqual(bundle['measurement_identity_sha256'], bindings[key]['measurement_identity_sha256'], key)
+        for binding in bindings.values():
+            self.assertTrue(reg.valid(binding, 'attempt_binding'))
+            self.assertTrue(reg.self_digest_ok(binding, 'binding_sha256'))
 
     def test_natural_path_needs_a_verified_v3_admission(self):
         # Contract-v3 5 replaced the C0 refusal: without the admission that step initialize writes after verifying

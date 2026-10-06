@@ -1,0 +1,135 @@
+{
+  "checks": {
+    "C01": {
+      "detail": "archives True, xdelta3 flags ok, armor absent True, zstd 1.5.7 zstd-only True",
+      "status": "PASS"
+    },
+    "C02": {
+      "detail": "delta ok, standalone ok",
+      "status": "PASS"
+    },
+    "C03": {
+      "detail": "delta ok, standalone ok",
+      "status": "PASS"
+    },
+    "C04": {
+      "detail": "delta ok, standalone ok",
+      "status": "PASS"
+    },
+    "C05": {
+      "detail": "delta ok, standalone ok",
+      "status": "PASS"
+    },
+    "C06": {
+      "detail": "delta ok, standalone ok",
+      "status": "PASS"
+    },
+    "C07": {
+      "detail": "delta ok, standalone ok",
+      "status": "PASS"
+    },
+    "C08": {
+      "detail": "delta ok, standalone ok",
+      "status": "PASS"
+    },
+    "C09": {
+      "detail": "delta ok, standalone ok",
+      "status": "PASS"
+    },
+    "C10": {
+      "detail": "bad VCDIFF header or indicator: []",
+      "status": "PASS"
+    },
+    "C11": {
+      "detail": "window checksum or printhdrs mismatch: []; zstd frame: {}",
+      "status": "PASS"
+    },
+    "C12": {
+      "detail": "output changed with cwd or file names: []",
+      "status": "PASS"
+    },
+    "C13": {
+      "detail": "forbidden env covered True; outputs unchanged True",
+      "status": "PASS"
+    },
+    "C14": {
+      "detail": "golden digests equal the committed record",
+      "status": "PASS"
+    }
+  },
+  "codec_lock_sha256": "9823e4c933c27fb4116bfce5add59ef6e926e43d2f0ebae258d7bb869a38f7b1",
+  "executables": {
+    "delta": "d943509041966111cacb70f819942116992f01dab17fb54475cfd73c87f8e885",
+    "standalone": "e9b01d813d1b8ada944a036300969690de8381d25a95854edaa46fa87910109a"
+  },
+  "golden": {
+    "C02": {
+      "frame_sha256": "c03513439826bc1c4500a7317396d25a5289ff4ebb9589f3e61d30668d0fdb69",
+      "patch_sha256": "0c9a7716c8b2c36859a5ff2b51cf196123c26a79c409e48ea7163da83932feb5"
+    },
+    "C03": {
+      "frame_sha256": "421b6bce3fc8efee60295f1fd10f36f210d74179c200498fcdb9fc0a31e4e587",
+      "patch_sha256": "cc2d3c5ea2b4af37bcdd0e8f3c1483e868080489285ed5114e48617eee0a4056"
+    },
+    "C04": {
+      "frame_sha256": "6fb8543883dafcc2ed0934866b8b3f775231f5b0933add08bf502e9e84944cbd",
+      "patch_sha256": "fa0a3c855e61ea0f786f31ba5b787b38b4e2785bf56cbe765f0f875e2ea2b172"
+    },
+    "C05": {
+      "frame_sha256": "424a623d9deb2d2b6443d4dc6ba9e632100faa945ba8f36c700af8982591f4dc",
+      "patch_sha256": "0832a138c617d3814fcbc4cee9262f88d6aef2c714227b12a3c39da27e5a799c"
+    },
+    "C06": {
+      "frame_sha256": "6fb8543883dafcc2ed0934866b8b3f775231f5b0933add08bf502e9e84944cbd",
+      "patch_sha256": "fa0a3c855e61ea0f786f31ba5b787b38b4e2785bf56cbe765f0f875e2ea2b172"
+    },
+    "C07": {
+      "frame_sha256": "85f35dfe7658fa5d78aeaa5dce685e6902f5a152f55f04350767d091761c899b",
+      "patch_sha256": "db216c54b5633168909d4fb88ceeefaafc90bb38154432878e1d94ea4393ae6c"
+    },
+    "C08": {
+      "frame_sha256": "61dbef24cf722f50a91898b6757eb1ce2717461fcc5ff3ed94b38db277bedb85",
+      "patch_sha256": "b084bd7f52d51716e3d99761459d2d4947ee05e522e5776cdafaa40c2861a48e"
+    },
+    "C09": {
+      "frame_sha256": "9bad9618aff54c22648ab1484101859c73b2dd08c486ef6a4fb76c86cb6efc89",
+      "patch_sha256": "bef7f646124af4f5555701c406a0c3ddf7cb2654ebe7449b0c18ae51bf50a7a0"
+    }
+  },
+  "inputs_sha256": {
+    "C02": {
+      "base": "b8c66e3be05cd07b0ab8c476140ee38488937ac1681eeb9b59288a1e05be46e1",
+      "target": "047c975a13d2a9501e1d90f6e4355c7ec47b086fef47e2870555deb74e311b08"
+    },
+    "C03": {
+      "base": "da9b9c09d516d3d54c6052e641e1641c935cedb08901f7fb335a81e6050350db",
+      "target": "376ab13925d90938265322fd9ea692a42293191425aaeb0b2e87cd7453652ffc"
+    },
+    "C04": {
+      "base": "b8c66e3be05cd07b0ab8c476140ee38488937ac1681eeb9b59288a1e05be46e1",
+      "target": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "C05": {
+      "base": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "target": "bb4963bf10866acf0191e5ab056a721361674f977d4e8997c31da39be4fc22b5"
+    },
+    "C06": {
+      "base": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "target": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "C07": {
+      "base": "b8c66e3be05cd07b0ab8c476140ee38488937ac1681eeb9b59288a1e05be46e1",
+      "target": "bbeebd879e1dff6918546dc0c179fdde505f2a21591c9a9c96e36b054ec5af83"
+    },
+    "C08": {
+      "base": "b8c66e3be05cd07b0ab8c476140ee38488937ac1681eeb9b59288a1e05be46e1",
+      "target": "b8c66e3be05cd07b0ab8c476140ee38488937ac1681eeb9b59288a1e05be46e1"
+    },
+    "C09": {
+      "base": "b8c66e3be05cd07b0ab8c476140ee38488937ac1681eeb9b59288a1e05be46e1",
+      "target": "865927071db2b9d35a155bfda36b9a499bef65f1a68fedad9593727e1947380a"
+    }
+  },
+  "schema": "delsk.oracle.conformance.v1",
+  "verdict": "PASS"
+}

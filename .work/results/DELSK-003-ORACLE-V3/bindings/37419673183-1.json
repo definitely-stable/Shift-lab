@@ -1,0 +1,16 @@
+{
+  "binding_sha256": "359d541ee58a08cf4668a48b7d84b91474a73ffc16ed192c0a2719250b7903e6",
+  "entry_sequence": 1,
+  "entry_sha256": "8852bc986fad71ed51ea27095b6517711fdab586b11e9af1a9b3226a7d95593d",
+  "g1_contract": "delsk.oracle-contract.v3",
+  "measured_source_sha": "6c9de2db832ded84161fc48e0a97d21006ae1539",
+  "measurement_identity_sha256": "13d0d5f47a0585b3dfeb9b1d8dc44943ecb425f3a7a86f7b36ad260a28b1251b",
+  "observed_head": {
+    "entry_sha256": "8852bc986fad71ed51ea27095b6517711fdab586b11e9af1a9b3226a7d95593d",
+    "sequence": 1
+  },
+  "repository": "definitely-stable/Shift-lab",
+  "run_attempt": 1,
+  "run_id": 37419673183,
+  "schema": "delsk.oracle.attempt-binding.v1"
+}
