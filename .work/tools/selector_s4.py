@@ -47,7 +47,12 @@ def _ranking_map(path):
 
 
 def _delsk_map(items):
-    return {item["target_occurrence_id"]: item["order"] for item in items}
+    out = {}
+    for item in items:
+        tid = item["target_occurrence_id"]
+        check(tid not in out, f"duplicate Delsk order: {tid}")
+        out[tid] = item["order"]
+    return out
 
 
 def _lane_bases(q, delsk_order, previous_order, size_order):
@@ -116,6 +121,11 @@ def _x0_rows():
 
 def build_plan():
     pin = json.loads(CONSUMER_PIN.read_text(encoding="utf-8"))
+    check(pin.get("schema") == "delsk.chunkshift-consumer-pin.v1", "foreign ChunkShift consumer pin")
+    check(pin.get("candidate_unit") == "one prior base object from the frozen Delsk C_t",
+          "S4 consumer pin changed candidate unit")
+    check(pin.get("internal_chunkshift_candidate_policy") == "CspEncoderPolicy.Default",
+          "S4 consumer pin changed the internal ChunkShift policy")
     rows = sorted(_pilot_rows() + _x0_rows(), key=lambda r: r["target_occurrence_id"])
     ids = [r["target_occurrence_id"] for r in rows]
     check(len(ids) == len(set(ids)), "duplicate target occurrence across S4 populations")
@@ -150,6 +160,10 @@ def _measurements(path):
         for field in ("create_wall_ns", "create_cpu_ns", "apply_wall_ns", "apply_cpu_ns"):
             check(isinstance(row.get(field), int) and row[field] >= 0, f"invalid {field}: {key}")
         check(isinstance(row.get("reconstruction_ok"), bool), f"invalid reconstruction flag: {key}")
+        check(isinstance(row.get("target_object_id"), str) and len(row["target_object_id"]) == 64,
+              f"invalid target object id: {key}")
+        check(isinstance(row.get("chunkshift_commit"), str) and len(row["chunkshift_commit"]) == 40,
+              f"invalid ChunkShift commit: {key}")
         out[key] = row
     return out
 
@@ -254,10 +268,19 @@ def evaluate(plan, measurements):
     check(plan.get("schema") == PLAN_SCHEMA, "foreign S4 plan schema")
     check(plan.get("s3_abstention_level") == 0, "S4 plan violates S3 L=0")
     check(tuple(plan.get("lanes", ())) == LANES, "S4 lane set changed")
+    check(plan == build_plan(), "S4 plan differs from the preregistered plan rebuilt from retained inputs")
 
     measured = _measurements(measurements)
     expected = _expected_keys(plan)
     check(set(measured) == expected, "S4 measurements differ from the preregistered target/base universe")
+
+    targets = {t["target_occurrence_id"]: t for t in plan["targets"]}
+    consumer_commit = plan["consumer"]["commit"]
+    for (tid, _), row in measured.items():
+        check(row["target_object_id"] == targets[tid]["target_object_id"],
+              f"measurement binds another target object: {tid}")
+        check(row["chunkshift_commit"] == consumer_commit,
+              f"measurement binds another ChunkShift commit: {tid}")
 
     if not all(row["reconstruction_ok"] for row in measured.values()):
         return {
