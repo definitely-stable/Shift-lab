@@ -15,5 +15,24 @@
   "notes": [
     "Delsk selects outer base objects only. ChunkShift's internal per-chunk dictionary candidate selection is identical in every S4 lane.",
     "No ChunkShift public API, CSP/CSM format, content identity, D15 default, or production selector is changed by S4."
-  ]
+  ],
+  "cli_build": {
+    "configuration": "Release",
+    "target_framework": "net10.0",
+    "sdk_from_consumer_global_json": "10.0.204"
+  },
+  "manifest": {
+    "command": "chunkshift create <content> <manifest> --blake3",
+    "hash_suite": "blake3-256",
+    "block_index": false
+  },
+  "patch_create": {
+    "command": "chunkshift patch create --target-manifest <target.csm> --target <target> -o <patch.csp> [--base-manifest <base.csm> --base <base>]",
+    "policy": "public default"
+  },
+  "patch_apply": {
+    "command": "chunkshift patch apply <patch.csp> -o <output> [--base-manifest <base.csm> --base <base>]",
+    "policy": "public default"
+  },
+  "object_transform": "none"
 }
