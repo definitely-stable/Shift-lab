@@ -152,6 +152,7 @@ class ApiSeparation(unittest.TestCase):
         with self.assertRaises(TypeError):
             g1.g1_production(BY_ID['R17']['expect'][0]['measurement_identity_sha256'], provider=None)
 
+    @patch.object(g1, 'ACTIVATION_RECORD', None)  # pre-activation state (contract-v3 5)
     def test_production_is_not_active_and_reads_nothing(self):
         identity = BY_ID['R17']['expect'][0]['measurement_identity_sha256']
 
@@ -166,6 +167,7 @@ class ApiSeparation(unittest.TestCase):
                 g1.g1_production(bad)
         self.assertEqual(dict(reg.AUTHORITY)['provider_api'], 'https://api.github.com')
 
+    @patch.object(g1, 'ACTIVATION_RECORD', None)  # pre-activation state (contract-v3 5)
     def test_fake_provider_core_never_becomes_production_pass(self):
         case = BY_ID['R17']
         x = V.evaluation(case)  # injected registry/provider/evidence/KAT, all green
@@ -182,6 +184,7 @@ class ApiSeparation(unittest.TestCase):
         self.assertTrue(reg.valid(prod, 'g1_record') and reg.self_digest_ok(prod, 'record_sha256'))
         self.assertTrue(reg.schema_errors({**test_record, 'verdict': 'PASS'}, 'g1_record'))  # schema forbids it
 
+    @patch.object(g1, 'ACTIVATION_RECORD', None)  # pre-activation state (contract-v3 5)
     def test_production_record_before_activation(self):
         seen = set()
         for case in CASES:

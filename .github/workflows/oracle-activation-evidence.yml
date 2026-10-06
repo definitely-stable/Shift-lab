@@ -7,7 +7,8 @@ name: Oracle activation evidence (DELSK-003A)
 # It activates nothing. Standard GitHub-hosted runner only.
 on:
   pull_request:
-    paths: ['.work/oracle/activation/**', '.work/tools/oracle_activation_evidence.py',
+    paths: ['.work/oracle/activation/**', '.work/oracle/activation-v3.json', '.work/tools/oracle_activation_evidence.py',
+            '.work/tools/oracle_activation_v2.py', '.work/tools/oracle_g1_v2.py',
             '.github/workflows/oracle-activation-evidence.yml']
   workflow_dispatch:
 

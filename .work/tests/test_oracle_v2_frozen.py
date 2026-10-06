@@ -95,8 +95,12 @@ class NotActivated(unittest.TestCase):
         self.assertFalse((WORK / 'results' / 'DELSK-003-ORACLE-V3').exists())
         self.assertFalse((WORK / 'oracle' / 'series-transition.json').exists())
         self.assertFalse(list(WORK.rglob('genesis.json')))
-        self.assertIsNone(g1.ACTIVATION_RECORD)
-        self.assertFalse((WORK.parent / activation.ACTIVATION_FILE).exists())
+        # contract-v3 5: the code constant names the enable record by the digest of its exact bytes, or nothing
+        record = WORK.parent / activation.ACTIVATION_FILE
+        if g1.ACTIVATION_RECORD is None:
+            self.assertFalse(record.exists())
+        else:
+            self.assertEqual(ev.sha256(record.read_bytes()), g1.ACTIVATION_RECORD)
 
     def test_c0_natural_path_stays_closed(self):
         with self.assertRaises(oracle_pilot.PilotError) as blocked:
