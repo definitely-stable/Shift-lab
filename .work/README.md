@@ -24,6 +24,8 @@
 | [Proposal oracle-contract.v2](oracle/attempt-v2-proposal.md) | Пояснительный proposal (не нормативен): обоснование registry, bind-before-measure, change matrix |
 | [DELSK-003A contract v2](oracle/contract-v2.md) | Frozen `delsk.oracle-contract.v2` ([freeze](oracle/freeze-v2.json)): provenance/G1 layer над неизменным v1 — registry, bind-before-measure, PRE/BUNDLE/MISSING, `science_identity`, transitions, G1 v2, R01–R24, XC01–XC05, PM01–PM12, activation; PROTOCOL V2 FROZEN, IMPLEMENTATION NOT_ACTIVE, natural oracle/G1 NOT_RUN |
 | [DELSK-003A C1-A](oracle/slice-c1a.md) | Registry/G1 v2 engine на synthetic data: R01–R24 байт в байт, XC01–XC05, PM01–PM12, production/test separation; C1-A IMPLEMENTED / SYNTHETIC CONFORMANCE, V2 NOT_ACTIVE, registry NOT_ACTIVATED, natural oracle/G1 NOT_RUN |
+| [DELSK-003A contract v3](oracle/contract-v3.md) | Frozen `delsk.oracle-contract.v3` ([freeze](oracle/freeze-v3.json)): v2 с заменой §8.3 (provider steps, runner allocation, workflow witness); был active, superseded v4 после одного natural attempt ([журнал](oracle/activation-v3-log.md) §10–11) |
+| [DELSK-003A contract v4](oracle/contract-v4.md) | Frozen `delsk.oracle-contract.v4` ([freeze](oracle/freeze-v4.json)): v3 по hash, results root `.work/results/ORACLE-G1-V4/` вне frozen-проверок v1–v3; **ACTIVE**, natural pilot 2 × COMPLETE, **G1 PASS** ([журнал](oracle/activation-v4-log.md)) |
 | [Prior art update 2026-10](research/DELSK-PRIOR-ART-UPDATE-2026-10.md) | Карта sketch/similarity методов и минимальный baseline набор DELSK-004 после G1 |
 | [План CI](ci-plan.md) | Ограниченные ресурсы, сценарии запуска, provenance |
 | [Гипотезы](hypotheses.md) | Проверяемые утверждения, ablations и stop criteria |
