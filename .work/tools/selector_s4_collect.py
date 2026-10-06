@@ -19,6 +19,7 @@ CONSUMER_SHA = "74bb301b6d8ecc52cf0bc0e00d86fa174093d91b"
 SHARD_SCHEMA = "delsk.chunkshift-s4.shard.v1"
 RUN_SCHEMA = "delsk.chunkshift-s4.run.v1"
 COLLECTION_SCHEMA = "delsk.chunkshift-s4.collection.v1"
+HEX = frozenset("0123456789abcdef")
 
 
 class CollectError(Exception):
@@ -28,6 +29,10 @@ class CollectError(Exception):
 def check(ok, message):
     if not ok:
         raise CollectError(message)
+
+
+def is_hex(value, length):
+    return isinstance(value, str) and len(value) == length and all(ch in HEX for ch in value)
 
 
 def canonical_bytes(value):
@@ -118,7 +123,7 @@ def merge(plan_path, artifact_index_path, shards_root, out_dir):
               f"shard {index}: manifests digest mismatch")
 
         current_impl = shard.get("implementation_sha")
-        check(isinstance(current_impl, str) and len(current_impl) == 40, f"shard {index}: bad implementation SHA")
+        check(is_hex(current_impl, 40), f"shard {index}: bad implementation SHA")
         if implementation_sha is None:
             implementation_sha = current_impl
         check(current_impl == implementation_sha, f"shard {index}: implementation SHA drift")
@@ -129,6 +134,8 @@ def merge(plan_path, artifact_index_path, shards_root, out_dir):
         check(run.get("shard_index") == index and run.get("shard_count") == SHARD_COUNT,
               f"shard {index}: run shard binding mismatch")
         check(run.get("github_sha") == implementation_sha, f"shard {index}: run head drift")
+        check(run.get("github_workflow_sha") == implementation_sha,
+              f"shard {index}: workflow bytes came from another commit")
         check(run.get("github_ref") == "refs/heads/main", f"shard {index}: run was not dispatched from main")
         check(str(run.get("github_run_attempt")) == "1", f"shard {index}: run attempt is not 1")
         run_id_text = str(run.get("github_run_id") or "")
