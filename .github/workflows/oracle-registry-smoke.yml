@@ -1,7 +1,7 @@
 name: Oracle registry smoke (DELSK-003A)
 
-# Contract v3 activation items 8-9: the production register/bind code on the synthetic SMOKE registry
-# (refs/heads/delsk/registry-v3-smoke, own genesis domain). The boundary step is a marker; nothing natural is read,
+# Contract-v3 activation items 8-9 (inherited by v4, contract-v4 2): the production register/bind code on the synthetic
+# SMOKE registry (refs/heads/delsk/registry-v4-smoke, own genesis domain; not created under v4). The boundary step is a marker; nothing natural is read,
 # built or measured anywhere in this workflow. Manual dispatch on main only, after the smoke genesis exists.
 on:
   workflow_dispatch:

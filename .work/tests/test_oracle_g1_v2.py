@@ -1,7 +1,7 @@
-"""DELSK-003A C1-A: G1 engine (oracle_g1_v2.py) against the frozen delsk.oracle-contract.v3, synthetic only.
+"""DELSK-003A C1-A: G1 engine (oracle_g1_v2.py) against the frozen delsk.oracle-contract.v4, synthetic only.
 
 1. exact reproduction of R01-R25: core verdict and the full test record (hence record_sha256) of every identity;
-2. production/test API separation (R17, V3_NOT_ACTIVE);
+2. production/test API separation (R17, V4_NOT_ACTIVE);
 3. classification (PRE / BUNDLE / MISSING / violations), unbound attempts, series state machine;
 4. adversarial paths of the C1-A self-review and deletion monotonicity;
 5. runner-level register/bind decisions (R12, R21), KAT v2 gate, evidence root and bundle projection.
@@ -152,7 +152,7 @@ class ApiSeparation(unittest.TestCase):
         with self.assertRaises(TypeError):
             g1.g1_production(BY_ID['R17']['expect'][0]['measurement_identity_sha256'], provider=None)
 
-    @patch.object(g1, 'ACTIVATION_RECORD', None)  # pre-activation state (contract-v3 5)
+    @patch.object(g1, 'ACTIVATION_RECORD', None)  # pre-activation state (contract-v4 2)
     def test_production_is_not_active_and_reads_nothing(self):
         identity = BY_ID['R17']['expect'][0]['measurement_identity_sha256']
 
@@ -161,13 +161,13 @@ class ApiSeparation(unittest.TestCase):
         with patch('subprocess.run', forbidden), patch('urllib.request.urlopen', forbidden), \
                 patch.object(oa, '_git_show', forbidden), patch.object(g1, 'read_evidence_root', forbidden), \
                 patch.dict(os.environ, {'GITHUB_API_URL': 'https://evil.invalid', 'GITHUB_REPOSITORY': 'evil/x'}):
-            self.assertEqual(g1.g1_production(identity), ('NOT_PASSED', ['V3_NOT_ACTIVE']))
+            self.assertEqual(g1.g1_production(identity), ('NOT_PASSED', ['V4_NOT_ACTIVE']))
         for bad in ('0' * 63, identity.upper(), identity + '\n', None, 1):
             with self.subTest(bad=bad), self.assertRaises(ev.EvalError):
                 g1.g1_production(bad)
         self.assertEqual(dict(reg.AUTHORITY)['provider_api'], 'https://api.github.com')
 
-    @patch.object(g1, 'ACTIVATION_RECORD', None)  # pre-activation state (contract-v3 5)
+    @patch.object(g1, 'ACTIVATION_RECORD', None)  # pre-activation state (contract-v4 2)
     def test_fake_provider_core_never_becomes_production_pass(self):
         case = BY_ID['R17']
         x = V.evaluation(case)  # injected registry/provider/evidence/KAT, all green
@@ -179,12 +179,12 @@ class ApiSeparation(unittest.TestCase):
                          ('TEST_ONLY_PASS', None, None))
         self.assertEqual(test_record, case['expect'][0]['record'])
         prod = g1._production_record(verdict, body, MAIN)
-        self.assertEqual((prod['verdict'], prod['blockers']), ('NOT_PASSED', ['V3_NOT_ACTIVE']))
+        self.assertEqual((prod['verdict'], prod['blockers']), ('NOT_PASSED', ['V4_NOT_ACTIVE']))
         self.assertEqual(prod['authority'], dict(reg.AUTHORITY))
         self.assertTrue(reg.valid(prod, 'g1_record') and reg.self_digest_ok(prod, 'record_sha256'))
         self.assertTrue(reg.schema_errors({**test_record, 'verdict': 'PASS'}, 'g1_record'))  # schema forbids it
 
-    @patch.object(g1, 'ACTIVATION_RECORD', None)  # pre-activation state (contract-v3 5)
+    @patch.object(g1, 'ACTIVATION_RECORD', None)  # pre-activation state (contract-v4 2)
     def test_production_record_before_activation(self):
         seen = set()
         for case in CASES:
@@ -198,8 +198,8 @@ class ApiSeparation(unittest.TestCase):
                     self.assertTrue(reg.valid(prod, 'g1_record'))
                     if verdict in ('SCIENTIFIC_PASS', 'NOT_PASSED'):
                         self.assertEqual(prod['verdict'], 'NOT_PASSED')
-                        self.assertIn('V3_NOT_ACTIVE', prod['blockers'])
-                        self.assertEqual(set(prod['blockers']) - {'V3_NOT_ACTIVE'}, set(body['blockers']))
+                        self.assertIn('V4_NOT_ACTIVE', prod['blockers'])
+                        self.assertEqual(set(prod['blockers']) - {'V4_NOT_ACTIVE'}, set(body['blockers']))
                     else:  # INVALID keeps only INVALID-class codes; NOT_RUN / NO_VERDICT skip the gates
                         self.assertEqual((prod['verdict'], prod['blockers']), (verdict, body['blockers']))
         self.assertEqual(seen, set(g1.CORE_VERDICTS))
@@ -961,7 +961,7 @@ class KatV2(unittest.TestCase):
     def test_not_green(self):
         v1_file = next(iter(ev.parse_doc((ev.ORACLE / 'freeze.json').read_bytes())['files']))
         v2_file = '.work/oracle/registry-vectors.json'
-        v3_file = '.work/oracle/registry-vectors-v3.json'
+        v4_file = '.work/oracle/registry-vectors-v4.json'
         for label, kwargs in (('off pinned main', {'ancestor': False}), ('no run', {'attempts': []}),
                               ('red attempt outvoted', {'attempts': [('completed', 'failure', 'failure'), self.GREEN]}),
                               ('pending', {'attempts': [self.GREEN, ('in_progress', None, None)]}),
@@ -970,8 +970,10 @@ class KatV2(unittest.TestCase):
                               ('v1 frozen file differs', {'changed': v1_file}),
                               ('v2 frozen file differs', {'changed': v2_file}),
                               ('freeze-v2 differs', {'changed': '.work/oracle/freeze-v2.json'}),
-                              ('v3 frozen file differs', {'changed': v3_file}),
+                              ('v3 frozen file differs', {'changed': '.work/oracle/registry-vectors-v3.json'}),
                               ('freeze-v3 differs', {'changed': '.work/oracle/freeze-v3.json'}),
+                              ('v4 frozen file differs', {'changed': v4_file}),
+                              ('freeze-v4 differs', {'changed': '.work/oracle/freeze-v4.json'}),
                               ('activation names no KAT step', {'step': None})):
             with self.subTest(label):
                 self.assertFalse(self.verified(**kwargs))

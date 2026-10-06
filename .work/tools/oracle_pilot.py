@@ -66,15 +66,15 @@ def validate_receipt(env):
             'ATTEMPT_NOT_RETAINED')
 
 
-# Contract-v3 5 replaces the C0 refusal DISPATCH_HISTORY_UNVERIFIED (GitHub list-runs cannot prove the absence of a
-# deleted dispatch) by the registered-attempt model: a natural run is admitted only while delsk.oracle-contract.v3 is
-# active, for an execution of exactly the activated oracle-pilot.yml. The v1 G1 path stays NOT_PASSED
-# DISPATCH_HISTORY_UNVERIFIED for ever (oracle_attempts); this gate never makes it pass.
-ADMISSION_SCHEMA = 'delsk.oracle.v3-pilot-admission.v1'
-ADMISSION_FILE = 'v3-activation.json'   # beside the evidence directory: not part of the exported envelope
+# Contract-v3 5 (contract-v4 2) replaces the C0 refusal DISPATCH_HISTORY_UNVERIFIED (GitHub list-runs cannot prove the
+# absence of a deleted dispatch) by the registered-attempt model: a natural run is admitted only while
+# delsk.oracle-contract.v4 is active, for an execution of exactly the activated oracle-pilot.yml. The v1 G1 path stays
+# NOT_PASSED DISPATCH_HISTORY_UNVERIFIED for ever (oracle_attempts); this gate never makes it pass.
+ADMISSION_SCHEMA = 'delsk.oracle.v4-pilot-admission.v1'
+ADMISSION_FILE = 'v4-activation.json'   # beside the evidence directory: not part of the exported envelope
 
 
-def v3_admission_file(out):
+def v4_admission_file(out):
     return Path(out).resolve().parent / ADMISSION_FILE
 
 
@@ -85,53 +85,52 @@ def _workflow_sha256(sha):
     return runner.sha256(out.stdout) if out.returncode == 0 and re.fullmatch('[0-9a-f]{40}', sha) else None
 
 
-def verify_v3_activation(env):
-    """Live admission in step initialize, before bind and the boundary: v3 is active on the live main exactly as
+def verify_v4_activation(env):
+    """Live admission in step initialize, before bind and the boundary: v4 is active on the live main exactly as
     production G1 verifies it (oracle_registry_git.active_activation: the enable record named by ACTIVATION_RECORD,
-    items 6, 11 and 12 live, the reviewed registry root); the executed oracle-pilot.yml is the activated one (its
-    bytes have the infra record's workflow_sha256); the measured source lies on that main. A refusal here stops the
+    its genesis review live, the reviewed registry root); the executed oracle-pilot.yml is the activated one (its
+    bytes have the enable record's workflow_sha256); the measured source lies on that main. A refusal here stops the
     job before the boundary, so it never leaves a measurement. Any unobtainable fact refuses."""
     import oracle_g1_v2 as g1
     import oracle_registry_git as transport
     sha = env.get('GITHUB_SHA', '')
-    require(g1.ACTIVATION_RECORD is not None, 'V3_NOT_ACTIVE')
+    require(g1.ACTIVATION_RECORD is not None, 'V4_NOT_ACTIVE')
     try:
         active = transport.active_activation(g1.ACTIVATION_RECORD)
     except Exception:  # transport, provider or Git failure: activation not proven
         active = None
-    require(active is not None, 'V3_NOT_ACTIVE')
-    main, (enable, infra) = active
-    require(_workflow_sha256(sha) == infra['workflow_sha256'], 'V3_NOT_ACTIVE')
+    require(active is not None, 'V4_NOT_ACTIVE')
+    main, enable = active
+    require(_workflow_sha256(sha) == enable['workflow_sha256'], 'V4_NOT_ACTIVE')
     on_main = subprocess.run(['git', '-C', str(WORK.parent), 'merge-base', '--is-ancestor', sha, main],
                              capture_output=True, check=False)
-    require(on_main.returncode == 0, 'V3_NOT_ACTIVE')
+    require(on_main.returncode == 0, 'V4_NOT_ACTIVE')
     return {'schema': ADMISSION_SCHEMA, 'repository': REPOSITORY, 'run_id': int(env['GITHUB_RUN_ID']),
             'run_attempt': int(env['GITHUB_RUN_ATTEMPT']), 'measured_source_sha': sha, 'main_head_sha': main,
-            'activation_record': g1.ACTIVATION_RECORD, 'infra_sha256': enable['infra']['sha256'],
-            'workflow_sha256': infra['workflow_sha256']}
+            'activation_record': g1.ACTIVATION_RECORD, 'workflow_sha256': enable['workflow_sha256']}
 
 
-def require_v3_active(env, path):
+def require_v4_active(env, path):
     """Offline admission of the worker and the runner gate, after the boundary: the admission that step initialize
     wrote for exactly this execution, for the activation record of this code and the executed workflow bytes. No
     network: a provider outage after the boundary cannot turn a verified admission into a refusal."""
     import oracle_g1_v2 as g1
-    require(g1.ACTIVATION_RECORD is not None, 'V3_NOT_ACTIVE')
+    require(g1.ACTIVATION_RECORD is not None, 'V4_NOT_ACTIVE')
     path = Path(path)
     try:
-        require(path.is_file() and not path.is_symlink(), 'V3_NOT_ACTIVE')
+        require(path.is_file() and not path.is_symlink(), 'V4_NOT_ACTIVE')
         doc = m.loads_strict(path.read_bytes())
         sha = env.get('GITHUB_SHA', '')
         ok = (type(doc) is dict and set(doc) == {'schema', 'repository', 'run_id', 'run_attempt',
                                                  'measured_source_sha', 'main_head_sha', 'activation_record',
-                                                 'infra_sha256', 'workflow_sha256'}
+                                                 'workflow_sha256'}
               and doc['schema'] == ADMISSION_SCHEMA and doc['repository'] == REPOSITORY
               and (doc['run_id'], doc['run_attempt']) == (int(env['GITHUB_RUN_ID']), int(env['GITHUB_RUN_ATTEMPT']))
               and doc['measured_source_sha'] == sha and doc['activation_record'] == g1.ACTIVATION_RECORD
               and doc['workflow_sha256'] == _workflow_sha256(sha))
     except (PilotError, ValueError, KeyError, TypeError, OSError):
         ok = False
-    require(ok, 'V3_NOT_ACTIVE')
+    require(ok, 'V4_NOT_ACTIVE')
 
 
 def measurement_identity(env, phase='pilot', candidate_data=None, corpus_data=None):
@@ -187,7 +186,7 @@ def initialize(out, env):
     import oracle_materialize as materializer
     materializer.validate_frozen()
     write_attempt(out, env, 'REGISTERED', 'frozen_bindings', identity=m.digest(measurement_identity(env)))
-    atomic_json(v3_admission_file(out), verify_v3_activation(env))  # contract-v3 5, before bind and the boundary
+    atomic_json(v4_admission_file(out), verify_v4_activation(env))  # contract-v4 2, before bind and the boundary
 
 
 def resource_precheck(work, require_tmpfs=True):
@@ -306,7 +305,7 @@ def validate_gate(env, tools_path, conformance_path, store=None):
     validate_dispatch(env)
     validate_receipt(env)
     import oracle_g1_v2 as g1
-    require(g1.ACTIVATION_RECORD is not None, 'V3_NOT_ACTIVE')  # before any gate read
+    require(g1.ACTIVATION_RECORD is not None, 'V4_NOT_ACTIVE')  # before any gate read
     path = Path(env.get('ORACLE_PILOT_GATE', ''))
     require(path.is_absolute() and path.is_file() and not path.is_symlink(), 'PILOT_GATE_MISSING')
     doc = m.loads_strict(path.read_bytes())
@@ -320,7 +319,7 @@ def validate_gate(env, tools_path, conformance_path, store=None):
     attempt_path = Path(doc['attempt'])
     require(attempt_path.is_absolute() and attempt_path.is_file() and not attempt_path.is_symlink(),
             'PILOT_GATE_MISMATCH')
-    require_v3_active(env, v3_admission_file(attempt_path.parent))
+    require_v4_active(env, v4_admission_file(attempt_path.parent))
     attempt = m.loads_strict(attempt_path.read_bytes())
     require(attempt['status'] == 'READY' and attempt['admission'] == 'ADMITTED' and
             attempt['measurement_identity_sha256'] == doc['measurement_identity_sha256'] and
@@ -353,7 +352,7 @@ def worker(out, work, admission_path, env):
     out, work = Path(out).resolve(), Path(work).resolve()
     validate_dispatch(env)
     validate_receipt(env)
-    require_v3_active(env, v3_admission_file(out))
+    require_v4_active(env, v4_admission_file(out))
     admission = json.loads(Path(admission_path).read_bytes())
     require(all(admission.get(k) is True for k in ('admitted', 'within_budget', 'accounting_complete')),
             'BUDGET_REFUSED')

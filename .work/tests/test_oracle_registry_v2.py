@@ -1,4 +1,4 @@
-"""DELSK-003A C1-A: registry mechanics of delsk.oracle-contract.v3 (oracle_registry_v2.py), synthetic only.
+"""DELSK-003A C1-A: registry mechanics of delsk.oracle-contract.v4 (oracle_registry_v2.py), synthetic only.
 
 Canonical parsing, closed schemas, hash chain, sequence, duplicates, head, level-1 witness (rollback), stale primitive,
 physical branch form, science identity (SI01-SI05), transition records and external checkpoints (XC01-XC05).
@@ -97,7 +97,7 @@ class Validate(unittest.TestCase):
                 self.assertInvalid([], {**GENESIS, **change})
         self.assertInvalid([], {k: v for k, v in GENESIS.items() if k != 'repository'})
         self.assertInvalid([], [GENESIS])
-        self.assertInvalid([], GENESIS, g1_freeze_sha256='f' * 64)  # production binds genesis to freeze-v3
+        self.assertInvalid([], GENESIS, g1_freeze_sha256='f' * 64)  # production binds genesis to freeze-v4
         reg.validate(GENESIS, [], GIT, g1_freeze_sha256=GENESIS['g1_freeze_sha256'])
 
     def test_entry_fail_closed(self):

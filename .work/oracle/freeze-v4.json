@@ -1,0 +1,75 @@
+{
+  "adopted_on": "2026-10-06",
+  "base_layer": {
+    "contract_id": "delsk.oracle-contract.v3",
+    "files": {
+      ".work/oracle/contract-v3.md": "469e8f1487cd24a6c23f9431cd766c1cf7c3208251d44488df9ea87527c28366",
+      ".work/oracle/registry-vectors-v3.json": "0b53aa03f46bcb4be43c59dbb8bad65ebdc16a4d5173c811850cc606491111d4",
+      ".work/oracle/schemas-v3.json": "b958f9d26708829c29591c35c353f135ee611059298c4d8badb858360877a751",
+      ".work/tests/test_oracle_contract_v3.py": "1bff11dff24ef6b48eb873c6dba5f5462db9b2569573a0e1a5e7e91fa825a584"
+    },
+    "freeze_path": ".work/oracle/freeze-v3.json",
+    "freeze_sha256": "39dede91e9ed6e12d298f5bd72f9d94fda9e0ac5c92f7a478815d210a0eb1c85"
+  },
+  "contract_id": "delsk.oracle-contract.v4",
+  "decisions": {
+    "accepted": [
+      "D1",
+      "D2",
+      "D3",
+      "D4",
+      "D5"
+    ],
+    "basis": "https://github.com/definitely-stable/Shift-lab/pull/37",
+    "issue": "https://github.com/definitely-stable/Shift-lab/issues/27",
+    "non_normative": [
+      ".work/oracle/activation-v3-log.md"
+    ]
+  },
+  "g1": "NOT_RUN",
+  "governance": "Takes effect when a maintainer merges this record into main. Immutable; any change of registry, classification, population, series, codes or record semantics needs a new G1 contract with a new freeze record. v4 is the v3 text pinned by freeze-v3.json with the substitutions of contract-v4.md section 0.2 and the activation of section 2; the semantics are exactly v3. v3 is superseded; its registry refs stay under ruleset and its one natural attempt stays disclosed. Adoption does not activate v4.",
+  "implementation": "NOT_ACTIVE",
+  "layering": {
+    "base_text": "delsk.oracle-contract.v3",
+    "g1_provenance_contract": "delsk.oracle-contract.v4",
+    "measurement_contract": "delsk.oracle-contract.v1"
+  },
+  "limitations": [
+    "The inheritance of the v3 smoke and write-surface evidence relies on unchanged workflows and classification; a change of oracle-pilot.yml needs a new enable record.",
+    "The single developer merges the enable PR; there is no second reviewer.",
+    "Limitations of contract-v3 section 7 and contract-v2 section 18 hold."
+  ],
+  "measurement_layer": {
+    "bindings": {
+      "candidate_lock_sha256": "cb16d53b164ff393187e0115bdf31c52ac717a5172fb1e91889b5988ac019d2e",
+      "codec_lock_sha256": "9823e4c933c27fb4116bfce5add59ef6e926e43d2f0ebae258d7bb869a38f7b1",
+      "corpus_lock_sha256": "e5c288256bed284572a9f111186411517b4c73d097d13aea4cf48e2fb9f6fffa",
+      "protocol_sha256": "a0c518247d111e8ad1294562d65eb34c28da87c7027c009efb64a39e6f4e0038",
+      "seal_sha256": "0c87fd5c96279c377d6031051d0cf990cb0afc6041212fc973b1ef35a8be73ef"
+    },
+    "contract_id": "delsk.oracle-contract.v1",
+    "files": {
+      ".work/oracle/codec-lock.json": "9823e4c933c27fb4116bfce5add59ef6e926e43d2f0ebae258d7bb869a38f7b1",
+      ".work/oracle/contract.md": "d3bde26f6abf642dacc1ea8b767c0d3262928a9d27547d0e311c682b542c8387",
+      ".work/oracle/known-answer.json": "911eab6897a72fd9bf3cd27bed8ce9733b4da45a2bebc8f974a9a2e3c8fab3d6",
+      ".work/oracle/schemas.json": "bdd46170b426161e7b455cc4b93545de7e46354df1a5fe072c9af46168698124",
+      ".work/tests/oracle_reference.py": "be84b37e66916b1172a575b842b327a018fbac2c24154b06e6ffef8caaed338f",
+      ".work/tests/test_oracle_contract.py": "2b5e60c69829588f502575cf45175e3d13ecc58192ac176cb2e80fb11937d8f1"
+    },
+    "freeze_path": ".work/oracle/freeze.json"
+  },
+  "measurement_layer_sha256": "c56fc053b103cecd38446b3791db104a12b9fafabacdfc6b71f6f23c0bf7f729",
+  "natural_measurements": "NOT_RUN",
+  "provenance_layer": {
+    "files": {
+      ".work/oracle/contract-v4.md": "3c14a9fd14439ddaa2288c95fc7a01d6dc26633c8fadab1406d9e3facd6a456b",
+      ".work/oracle/registry-vectors-v4.json": "74760dfd5cb6b20151b843beaa149f566eef24fc4c234b8edc170f3a38af2cf2",
+      ".work/oracle/schemas-v4.json": "dfd881da9807eb49550449e693dfe3911e14907cfa780baa4019cd5fb70f272b",
+      ".work/tests/test_oracle_contract_v4.py": "85b1c944c00cbba5889ef794d87aa80cf21ea6aca77f706600e8fb90e8888d96"
+    }
+  },
+  "provenance_layer_sha256": "35190632be0d28992c8cd0d818f68787b4f3e233a369cc44d9bb3fafb5bff2b4",
+  "schema": "delsk.oracle-contract.freeze.v4",
+  "scope": "G1/provenance layer: the v3 text with the identifiers, registry ref, results root and transition file of v4 (outside every frozen state check of v1-v3), the derived schemas and vectors (D4, T4; R01-R25, PM01-PM20 with the v3 outcomes) and a lighter activation that inherits the v3 real-GitHub smoke and write-surface evidence. The measurement layer is delsk.oracle-contract.v1 by hash.",
+  "status": "FROZEN_ON_MERGE"
+}

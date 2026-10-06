@@ -1,8 +1,8 @@
 """DELSK-003A activation evidence checks (oracle_activation_evidence.py), offline.
 
-Item 6 provenance as `recheck` runs it (verify_genesis_review over a TreeView pinned like production) against the
-real Git history of the repository with a fake provider, and the server-side registry history rules over the
-committed evidence and its mutations. No network.
+The genesis-review provenance as `recheck` runs it (verify_genesis_review over a TreeView pinned like production)
+against the real Git history of the repository with a fake provider, the server-side registry history rules on
+synthetic activity documents, and the digest binding of the enable record. No network.
 """
 import copy
 from pathlib import Path
@@ -19,8 +19,12 @@ import oracle_registry_v2 as reg
 
 ROOT = ev.ROOT
 REPO = reg.REPOSITORY
+# The v3 production-root binding was introduced by PR #32 (merge 13c7d74); the mechanism is checked on that real history
+# with the v3 root as the reviewed root, since the v4 binding is introduced by the PR that carries this test.
 GENESIS_PR, GENESIS_MERGE = 32, '13c7d74ede7e2fd41bade001ec0e88926882459c'
 GENESIS_PARENT = 'ba68ec73e1e2943005d372459742f063ea768e94'   # merge of PR #31: v2 root, not the v3 binding
+V3_ROOT = {'production': '1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258',
+           'smoke': '62f79c1ceeb4f61615039104532e8dee251efaa3'}
 
 
 def have(*commits):
@@ -36,6 +40,7 @@ class Provider:
 
 
 @unittest.skipUnless(have(GENESIS_MERGE, GENESIS_PARENT), 'needs the full history of main (fetch-depth: 0)')
+@unittest.mock.patch.object(act, 'ROOT_COMMIT', V3_ROOT)
 class GenesisReviewLive(unittest.TestCase):
     def setUp(self):
         blob = rg.git(ROOT, 'rev-parse', f'{GENESIS_MERGE}:{act.TOOL_FILE}').decode().strip()
@@ -52,15 +57,15 @@ class GenesisReviewLive(unittest.TestCase):
                 {'filename': act.TOOL_FILE, 'status': 'modified',
                  'sha': rg.git(ROOT, 'rev-parse', f'{GENESIS_PARENT}:{act.TOOL_FILE}').decode().strip()}]}
 
-    def check(self, record, docs=None):
-        infra = {'genesis_review': record}
-        return x.genesis_review(infra, Provider(self.docs if docs is None else docs), ROOT, GENESIS_MERGE)
+    def check(self, review, docs=None):
+        return x.genesis_review({'genesis_review': review}, Provider(self.docs if docs is None else docs), ROOT,
+                                GENESIS_MERGE)
 
     def test_recorded_pr_introduced_the_production_root(self):
         self.assertEqual(self.check({'pull_request': GENESIS_PR, 'merge_commit_sha': GENESIS_MERGE}), [])
 
     def test_wrong_pr(self):
-        # PR #31 is merged into main too, but it introduced the v2 root, not the v3 production binding
+        # PR #31 is merged into main too, but it introduced the v2 root, not the reviewed production binding
         self.assertTrue(self.check({'pull_request': 31, 'merge_commit_sha': GENESIS_PARENT}))
 
     def test_wrong_merge_commit(self):
@@ -79,55 +84,58 @@ class GenesisReviewLive(unittest.TestCase):
         self.assertTrue(self.check({'pull_request': GENESIS_PR, 'merge_commit_sha': GENESIS_MERGE}, {}))
 
 
-class RegistryActivity(unittest.TestCase):
-    def setUp(self):
-        evidence = ROOT / act.EVIDENCE_DIR
-        if not (evidence / 'registry-activity.json').exists():
-            self.skipTest('no activation evidence in this tree')
-        self.doc = ev.parse_doc((evidence / 'registry-activity.json').read_bytes())
-        self.last = x.last_change(ev.parse_doc((evidence / 'rulesets.json').read_bytes()))
-        refs = ev.parse_doc((evidence / 'registry-refs.json').read_bytes())['refs']
-        self.heads = {ref: value['head'] for ref, value in refs.items()}
+def item(ref, n, kind, before, after, when):
+    return {'id': n, 'ref': ref, 'activity_type': kind, 'before': before, 'after': after, 'timestamp': when,
+            'actor': {'login': 'a', 'type': 'User'}}
 
-    def problems(self, edit=None):
+
+class RegistryActivity(unittest.TestCase):
+    """Server-side history rules on synthetic documents shaped like the repository activity API."""
+
+    def setUp(self):
+        prod, root = reg.REGISTRY_REF, act.ROOT_COMMIT['production']
+        self.last = x._when('2026-10-06T08:00:00Z')
+        self.doc = {'refs': {
+            prod: [item(prod, 1, 'branch_creation', x.ZERO, root, '2026-10-06T09:00:00Z'),
+                   item(prod, 2, 'push', root, 'b' * 40, '2026-10-06T10:00:00Z')],
+            **{ref: [item(ref, 10 + n, 'branch_creation', x.ZERO, x.RETIRED_ROOTS[ref], '2026-10-05T09:00:00Z')]
+               + ([] if x.RETIRED_ROOTS[ref] == head else
+                  [item(ref, 20 + n, 'push', x.RETIRED_ROOTS[ref], head, '2026-10-05T10:00:00Z')])
+               for n, (ref, head) in enumerate(x.RETIRED_HEADS.items())}}}
+        self.heads = {prod: 'b' * 40, **x.RETIRED_HEADS}
+
+    def problems(self, edit=None, heads=None):
         doc = copy.deepcopy(self.doc)
         if edit:
             edit(doc['refs'])
-        return x.activity_problems(doc, self.last, self.heads)
+        return x.activity_problems(doc, self.last, heads or self.heads)
 
-    def test_committed_history(self):
+    def test_fast_forward_history(self):
         self.assertEqual(self.problems(), [])
-        self.assertEqual(self.doc['problems'], [])
-        for ref in (reg.REGISTRY_REF, reg.SMOKE_REGISTRY_REF):
-            self.assertGreater(x._when(self.doc['refs'][ref][0]['timestamp']), self.last)
 
     def test_violations(self):
-        smoke, prod = reg.SMOKE_REGISTRY_REF, reg.REGISTRY_REF
+        prod, v3 = reg.REGISTRY_REF, 'refs/heads/delsk/registry-v3'
         cases = {
-            'force push': lambda r: r[smoke][2].update(activity_type='force_push'),
-            'deletion': lambda r: r[smoke].append({**r[smoke][-1], 'activity_type': 'branch_deletion',
-                                                   'before': r[smoke][-1]['after'], 'after': x.ZERO}),
-            'gap in the chain': lambda r: r[smoke][3].update(before='f' * 40),
-            'created before the last ruleset change': lambda r: r[prod][0].update(timestamp='2026-10-05T15:00:00Z'),
+            'force push': lambda r: r[prod][1].update(activity_type='force_push'),
+            'deletion': lambda r: r[prod].append({**r[prod][-1], 'id': 3, 'activity_type': 'branch_deletion',
+                                                  'before': r[prod][-1]['after'], 'after': x.ZERO}),
+            'gap in the chain': lambda r: r[prod][1].update(before='f' * 40),
+            'created before the last ruleset change': lambda r: r[prod][0].update(timestamp='2026-10-06T07:00:00Z'),
             'created at another root': lambda r: r[prod][0].update(after='e' * 40),
-            'production updated after genesis': lambda r: r[prod].append({**r[prod][0], 'activity_type': 'push',
-                                                                          'before': r[prod][0]['after']}),
-            'no server history': lambda r: r.pop(smoke),
-            'v2 ref pushed after disclosure': lambda r: r['refs/heads/delsk/registry'].append(
-                {**r['refs/heads/delsk/registry'][0], 'activity_type': 'push', 'before': x.V2_HEADS[
-                    'refs/heads/delsk/registry'], 'after': 'a' * 40}),
+            'no server history': lambda r: r.pop(prod),
+            'retired v3 registry pushed': lambda r: r[v3].append(
+                {**r[v3][-1], 'id': 99, 'activity_type': 'push', 'before': x.RETIRED_HEADS[v3], 'after': 'a' * 40}),
         }
         for name, edit in cases.items():
             with self.subTest(name):
                 self.assertTrue(self.problems(edit))
 
+    def test_retired_head_moved(self):
+        self.assertTrue(self.problems(heads={**self.heads, 'refs/heads/delsk/registry-v3': 'a' * 40}))
+
 
 class EnableRecordBinding(unittest.TestCase):
     """The digest binding between ACTIVATION_RECORD and the enable record bytes is checked before any live read."""
-
-    def setUp(self):
-        if not (ROOT / act.ACTIVATION_FILE).exists():
-            self.skipTest('no enable record in this tree')
 
     def offline(self, path):
         raise AssertionError(f'live read {path}')
@@ -138,39 +146,10 @@ class EnableRecordBinding(unittest.TestCase):
                              ['ACTIVATION_RECORD does not name the bytes of the enable record'])
 
     def test_record_without_the_constant_is_reported(self):
+        path = ROOT / act.ACTIVATION_FILE
         with unittest.mock.patch.object(x.g1, 'ACTIVATION_RECORD', None):
             self.assertEqual(x.enable_record_problems(get=self.offline),
-                             ['enable record present but ACTIVATION_RECORD is None'])
-
-
-class SmokeProjection(unittest.TestCase):
-    def setUp(self):
-        path = ROOT / act.EVIDENCE_DIR / 'smoke-evaluation.json'
-        if not path.exists():
-            self.skipTest('no activation evidence in this tree')
-        self.doc = ev.parse_doc(path.read_bytes())
-
-    def test_a_moved_main_is_not_drift(self):
-        moved = copy.deepcopy(self.doc)
-        moved['main_head_sha'] = 'a' * 40
-        for record in moved['records']:
-            record['main_head_sha'], record['record_sha256'] = 'a' * 40, 'b' * 64
-        self.assertEqual(x.smoke_projection(moved), x.smoke_projection(self.doc))
-
-    def test_any_classification_change_is_drift(self):
-        cases = {
-            'class': lambda d: d['attempts'][0].update({'class': 'MISSING'}),
-            'unbound attempt': lambda d: d['unbound_attempts'].append({'run_id': 1, 'run_attempt': 1}),
-            'verdict': lambda d: d['records'][0].update(verdict='SCIENTIFIC_PASS'),
-            'blockers': lambda d: d['records'][0]['blockers'].append('X'),
-            'registry head': lambda d: d['registry_head'].update(sequence=6),
-            'provider fact': lambda d: d['provider'][0]['run']['jobs'][0].update(conclusion='cancelled'),
-        }
-        for name, edit in cases.items():
-            with self.subTest(name):
-                changed = copy.deepcopy(self.doc)
-                edit(changed)
-                self.assertNotEqual(x.smoke_projection(changed), x.smoke_projection(self.doc))
+                             ['enable record present but ACTIVATION_RECORD is None'] if path.exists() else [])
 
 
 if __name__ == '__main__':

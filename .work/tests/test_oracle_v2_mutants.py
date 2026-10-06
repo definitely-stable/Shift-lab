@@ -51,7 +51,7 @@ MUTANTS = {
               "    if False:\n"),                                                                   # gate dropped
              (G1, "def g1_production(measurement_identity_sha256):\n",
               "def g1_production(measurement_identity_sha256, provider=None):\n"),                  # injectable
-             (G1, "    return 'NOT_PASSED', ['V3_NOT_ACTIVE']\n",
+             (G1, "    return 'NOT_PASSED', ['V4_NOT_ACTIVE']\n",
               "    return 'PASS', []\n")],                                                          # production PASS
     'PM08': [(G1, "        if e['measurement_identity_sha256'] == identity or c['class'] == 'PRE':\n",
               "        if True:\n"),                                                                  # no sibling codes
@@ -113,7 +113,7 @@ def load(path=None, old=None, new=None):
             sys.modules['oracle_registry_v2'] = modules.get('oracle_registry_v2', saved)
             exec(compile(sources[p], str(p), 'exec'), module.__dict__)
             if name == 'oracle_g1_v2':
-                # R17 api and PM07 are judged in the pre-activation state (contract-v3 5), whatever main carries
+                # R17 api and PM07 are judged in the pre-activation state (contract-v4 2), whatever main carries
                 module.ACTIVATION_RECORD = None
             modules[name] = module
     finally:
@@ -129,7 +129,7 @@ def api_failures(module):
     if list(inspect.signature(module.g1_production).parameters) != case['api']['production_parameters']:
         out.append('signature')
     try:
-        if module.g1_production(identity) != ('NOT_PASSED', ['V3_NOT_ACTIVE']):
+        if module.g1_production(identity) != ('NOT_PASSED', ['V4_NOT_ACTIVE']):
             out.append('production verdict')
         x = V.evaluation(case, module)
         verdict, body = module._g1_core(identity, x)
