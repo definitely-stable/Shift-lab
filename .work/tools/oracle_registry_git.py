@@ -520,11 +520,13 @@ def registry_root(root=ev.ROOT, profile=reg.PRODUCTION):
     return roots[0] if len(roots) == 1 else None
 
 
-def production_inputs(activation_sha256):
-    """Inputs of g1._production_evaluate, all from the authority constants. None when the activation record named by
-    the code constant is absent or does not verify in the pinned main tree (then v3 is not active)."""
+def active_activation(activation_sha256, root=None, get=None):
+    """(main, (enable record, infra record)) when v3 is active at the live main of the constant remote, else None:
+    the record named by activation_sha256 verifies in the pinned main tree and live (items 6, 11, 12;
+    oracle_activation_v2.activation_in_tree) and the live registry starts at the reviewed genesis root (item 6).
+    Shared by production G1 and the pilot admission (oracle_pilot.verify_v3_activation)."""
     import oracle_activation_v2 as act
-    root = ev.ROOT
+    root = root or ev.ROOT
     main = fetch(root, reg.REGISTRY_REMOTE, MAIN_REF)
     if main is None:
         raise TransportError('main not found')
@@ -535,9 +537,20 @@ def production_inputs(activation_sha256):
                         lambda commit: type(commit) is str and ev.HEX40.match(commit) is not None and git(
                             root, 'merge-base', '--is-ancestor', commit, main, check=False).returncode == 0,
                         first_parent)
-    activation = act.activation_in_tree(view, api_get, activation_sha256)
+    activation = act.activation_in_tree(view, get or api_get, activation_sha256)
     if activation is None or registry_root(root) != act.ROOT_COMMIT['production']:
         return None  # item 6: the live registry must start at the reviewed genesis root commit
+    return main, activation
+
+
+def production_inputs(activation_sha256):
+    """Inputs of g1._production_evaluate, all from the authority constants. None when the activation record named by
+    the code constant is absent or does not verify in the pinned main tree (then v3 is not active)."""
+    root = ev.ROOT
+    active = active_activation(activation_sha256, root, api_get)
+    if active is None:
+        return None
+    activation = active[1]
     steps = activation[1]['steps']
     roles = {steps['bind']: 'bind', steps['boundary']: 'boundary', **{n: 'provider' for n in steps['provider']}}
     return collect(reg.PRODUCTION, root, api_get, roles, lambda pinned: evidence_from_tree(root, pinned),

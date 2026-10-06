@@ -102,13 +102,14 @@ class NotActivated(unittest.TestCase):
         else:
             self.assertEqual(ev.sha256(record.read_bytes()), g1.ACTIVATION_RECORD)
 
-    def test_c0_natural_path_stays_closed(self):
+    def test_natural_path_needs_a_verified_v3_admission(self):
+        # Contract-v3 5 replaced the C0 refusal: without the admission that step initialize writes after verifying
+        # the v3 activation live (before bind and the boundary), the worker and the runner gate refuse.
         with self.assertRaises(oracle_pilot.PilotError) as blocked:
-            oracle_pilot.require_dispatch_history()
-        self.assertEqual(blocked.exception.failure_class, 'DISPATCH_HISTORY_UNVERIFIED')
-        # C1-B: the reviewed register/measure split (contract 12.2) is in place, but the only write-capable job is
-        # `register`, which refuses before activation without any read (test_oracle_registry_git), and the measure
-        # job keeps the C0 guard above. No registry ref or credential is spelled out in the workflow.
+            oracle_pilot.require_v3_active({'GITHUB_SHA': '0' * 40, 'GITHUB_RUN_ID': '1', 'GITHUB_RUN_ATTEMPT': '1'},
+                                           WORK / 'no-such-admission.json')
+        self.assertEqual(blocked.exception.failure_class, 'V3_NOT_ACTIVE')
+        # The only write-capable job is `register`; no registry ref or credential is spelled out in the workflow.
         workflow = (WORK.parent / '.github/workflows/oracle-pilot.yml').read_text(encoding='utf-8')
         self.assertEqual(activation.check_pilot_workflow(workflow), [])
         self.assertNotIn('delsk/registry', workflow)

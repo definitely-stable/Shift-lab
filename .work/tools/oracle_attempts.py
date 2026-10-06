@@ -65,7 +65,7 @@ FAILURES = frozenset(('SOURCE_MISMATCH', 'WORKFLOW_MISMATCH', 'DISPATCH_REJECTED
                       'BUNDLE_VERIFICATION_FAILED', 'PILOT_GATE_MISSING', 'PILOT_GATE_MISMATCH',
                       'CODEC_BUILD_FAILED', 'FROZEN_BINDING', 'SYNTHETIC_INCOMPLETE', 'SOURCE_FETCH_FAILED',
                       'SOURCE_IDENTITY_MISMATCH', 'ARCHIVE_UNSAFE', 'EXPANSION_CAP', 'OBJECT_INTEGRITY',
-                      'OBJECT_SET_MISMATCH', 'DISPATCH_HISTORY_UNVERIFIED'))
+                      'OBJECT_SET_MISMATCH', 'DISPATCH_HISTORY_UNVERIFIED', 'V3_NOT_ACTIVE'))
 FAILURE_CLASSES = FAILURES  # supervisor's public machine vocabulary
 API_STATUSES = frozenset(('queued', 'in_progress', 'completed', 'waiting', 'pending', 'requested'))
 API_CONCLUSIONS = frozenset(('success', 'failure', 'neutral', 'cancelled', 'skipped', 'timed_out',
