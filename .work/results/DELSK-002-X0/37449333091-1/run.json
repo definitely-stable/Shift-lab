@@ -1,0 +1,13 @@
+{
+  "github_ref": "refs/heads/main",
+  "github_run_attempt": "1",
+  "github_run_id": "37449333091",
+  "github_sha": "1a1efaa34b83ea5ee59fd816cdd33b2a96e73f4a",
+  "github_workflow_sha": "1a1efaa34b83ea5ee59fd816cdd33b2a96e73f4a",
+  "imageos": "ubuntu24",
+  "imageversion": "20260927.320.1",
+  "label": "SCREENING",
+  "runner_arch": "X64",
+  "runner_os": "Linux",
+  "schema": "delsk.x0.run.v1"
+}

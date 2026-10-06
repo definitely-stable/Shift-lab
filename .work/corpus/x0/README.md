@@ -1,6 +1,6 @@
 # DELSK-002 X0: screening трудных классов корпуса
 
-Статус: **PROPOSED** до merge; merge в `main` — preregistration (roster, правила построения, метрики и decision rule заданы до acquisition и до любого score). Issue: [DELSK-002](https://github.com/definitely-stable/Shift-lab/issues/3), мотивация — [DELSK-004 Slice A](../../baselines/results-slice-a.md). Параметры — [params.json](params.json), roster — [source-plan.json](source-plan.json).
+Статус: **RUN** — preregistration смержена в PR #45 (до acquisition и до любого score); run 37449333091, [результаты](results.md): verdict `NO_HEADROOM_AT_256`, ни одной `HARD` ячейки. Issue: [DELSK-002](https://github.com/definitely-stable/Shift-lab/issues/3), мотивация — [DELSK-004 Slice A](../../baselines/results-slice-a.md). Параметры — [params.json](params.json), roster — [source-plan.json](source-plan.json).
 
 X0 — **exploratory screening**. Он не закрывает ни одного gate (G1–G5), не является oracle-evidence контракта v4 и не даёт held-out. Его единственный вопрос — на каких классах данных дешёвые baselines **не** насыщают oracle. Ответ определяет состав confirmatory корпуса X1 (§9).
 
