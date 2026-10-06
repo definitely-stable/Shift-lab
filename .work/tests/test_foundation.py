@@ -59,6 +59,8 @@ class FakeAPI:
             key, items = "workflow_runs", getattr(self, 'pilot_runs', [])
         elif url.path == f"/repos/{REPO}/actions/workflows/delsk-baselines.yml/runs":
             key, items = "workflow_runs", getattr(self, 'baseline_runs', [])
+        elif url.path == f"/repos/{REPO}/actions/workflows/delsk-screening.yml/runs":
+            key, items = "workflow_runs", getattr(self, 'screening_runs', [])
         elif url.path == f"/repos/{REPO}/actions/artifacts":
             key, items = "artifacts", self.artifacts
         else:

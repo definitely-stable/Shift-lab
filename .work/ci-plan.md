@@ -43,6 +43,8 @@ Admission выполняется **внутри** экспериментальн
 
 ## Foundation handoff (Slice F)
 
+DELSK-002 X0 добавляет manual `delsk-screening.yml` ([screening](corpus/x0/README.md)) с теми же admission, очередью, cap и artifact cap: acquisition X0 roster, `C_t`, exhaustive oracle закреплённого codec lock и baselines в одном job; payload только в `RUNNER_TEMP`, registry v4 не используется.
+
 DELSK-004 Slice A добавляет manual `delsk-baselines.yml` ([contract](baselines/contract.md)): та же admission, очередь `delsk-experimental`, `timeout-minutes` = cap и artifact cap; workflow входит в `EXPERIMENTAL_WORKFLOWS`, читает только development/calibration objects и не пишет в репозиторий.
 
 Slice C0 добавляет отдельный manual `oracle-pilot.yml` и synthetic supervisor в PR smoke. Budget учитывает foundation и pilot вместе; pilot требует enforce admission. Первичные dispatch/status artifacts создаются до setup, evidence сохраняется reviewed PR без write permissions workflow. API inventory и append-only PR audit не могут обнаружить никогда не наблюдавшийся удалённый последний run, поэтому production pilot и G1 заблокированы до независимого durable dispatch capture. [Slice C0](oracle/slice-c.md) описывает lifecycle, hard caps, failure classes и границу гарантий; natural oracle остаётся NOT_RUN.

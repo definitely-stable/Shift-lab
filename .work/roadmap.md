@@ -21,7 +21,7 @@
 |---|---|---|---|
 | [DELSK-000](https://github.com/definitely-stable/Shift-lab/issues/1) | P0 | Программа Delsk: от prior art до решения о самостоятельной библиотеке | — |
 | [DELSK-001](https://github.com/definitely-stable/Shift-lab/issues/2) | P0 | Проверить claim matrix и воспроизводимость современного prior art | — |
-| [DELSK-002](https://github.com/definitely-stable/Shift-lab/issues/3) | P0 | Заморозить лицензированный corpus и lineage/candidate manifests | — |
+| [DELSK-002](https://github.com/definitely-stable/Shift-lab/issues/3) | P0 | Заморозить лицензированный corpus и lineage/candidate manifests; expansion начинается с [X0 screening](corpus/x0/README.md) трудных классов, затем confirmatory X1 | — |
 | [DELSK-003](https://github.com/definitely-stable/Shift-lab/issues/4) | P0 | Реализовать настоящий multi-base encoder oracle и метрики | DELSK-002, DELSK-005 |
 | [DELSK-003A](https://github.com/definitely-stable/Shift-lab/issues/27) | P0 | Registered-attempt provenance (sub-task DELSK-003): `delsk.oracle-contract.v4` ACTIVE, natural pilot 2 × COMPLETE, **G1 PASS** (`main` `fc463bc`, record `0d1deb73…9e5c`); v2 и v3 superseded | DELSK-003 |
 | [DELSK-004](https://github.com/definitely-stable/Shift-lab/issues/5) | P0 | Воспроизвести дешёвые и современные baselines на общем oracle; Slice A ([contract](baselines/contract.md), [результаты](baselines/results-slice-a.md)): pilot насыщен дешёвыми baselines, G2 INCONCLUSIVE до расширения корпуса | DELSK-001, DELSK-003 |
