@@ -55,6 +55,11 @@ def jsonl(path):
     return rows
 
 
+def expected_shard_targets(plan, index):
+    ordered = sorted(plan["targets"], key=lambda target: target["target_occurrence_id"])
+    return [target for ordinal, target in enumerate(ordered) if ordinal % SHARD_COUNT == index]
+
+
 def load_artifact_index(path):
     rows = jsonl(path)
     check(len(rows) == SHARD_COUNT, f"artifact index must contain {SHARD_COUNT} rows")
@@ -96,6 +101,8 @@ def merge(plan_path, artifact_index_path, shards_root, out_dir):
 
     seen_indices = set()
     implementation_sha = None
+    chunkshift_cli_sha256 = None
+    dotnet_version = None
     rows = []
     row_keys = set()
     shard_records = []
@@ -121,6 +128,24 @@ def merge(plan_path, artifact_index_path, shards_root, out_dir):
               f"shard {index}: measurements digest mismatch")
         check(shard.get("manifest_sha256") == file_sha256(directory / "manifests.jsonl"),
               f"shard {index}: manifests digest mismatch")
+
+        expected_targets = expected_shard_targets(plan, index)
+        expected_ids = sorted(target["target_occurrence_id"] for target in expected_targets)
+        expected_rows = sum(1 + len(target["lanes"]["exhaustive"]) for target in expected_targets)
+        check(shard.get("target_occurrence_ids") == expected_ids,
+              f"shard {index}: target membership differs from deterministic shard")
+        check(shard.get("targets") == len(expected_targets), f"shard {index}: target count mismatch")
+        check(shard.get("expected_rows") == expected_rows, f"shard {index}: planned row count mismatch")
+
+        cli_sha = shard.get("chunkshift_cli_sha256")
+        sdk = shard.get("dotnet_version")
+        check(is_hex(cli_sha, 64), f"shard {index}: invalid ChunkShift CLI digest")
+        check(isinstance(sdk, str) and sdk, f"shard {index}: missing .NET version")
+        if chunkshift_cli_sha256 is None:
+            chunkshift_cli_sha256 = cli_sha
+            dotnet_version = sdk
+        check(cli_sha == chunkshift_cli_sha256, f"shard {index}: ChunkShift CLI binary drift")
+        check(sdk == dotnet_version, f"shard {index}: .NET SDK drift")
 
         current_impl = shard.get("implementation_sha")
         check(is_hex(current_impl, 40), f"shard {index}: bad implementation SHA")
@@ -189,6 +214,8 @@ def merge(plan_path, artifact_index_path, shards_root, out_dir):
         "protocol_authority": PROTOCOL_SHA,
         "implementation_sha": implementation_sha,
         "chunkshift_commit": CONSUMER_SHA,
+        "chunkshift_cli_sha256": chunkshift_cli_sha256,
+        "dotnet_version": dotnet_version,
         "shard_count": SHARD_COUNT,
         "plan_sha256": plan_sha,
         "rows": len(rows),
