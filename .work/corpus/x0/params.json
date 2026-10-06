@@ -1,0 +1,97 @@
+{
+  "acquired_bytes_max": 268435456,
+  "candidate_caps": {
+    "foreign_family_decoy": 24,
+    "same_family_decoy": 21,
+    "same_path_historical": 3
+  },
+  "cdc": {
+    "bits": 14,
+    "max_bytes": 65536,
+    "min_bytes": 4096,
+    "seed": 20261007,
+    "track": "cdc-16k"
+  },
+  "cell_quota": 16,
+  "cells": [
+    "H1-file",
+    "H1-cdc",
+    "H4-file",
+    "H4-cdc"
+  ],
+  "classes": {
+    "H1": "branch-interleaved C source releases",
+    "H4": "compiled release binaries"
+  },
+  "contract": "delsk.x0.screening.v1",
+  "decision": {
+    "budgets_bytes": [
+      64,
+      128,
+      256,
+      512,
+      1024
+    ],
+    "headroom_min": 0.02,
+    "k": 1,
+    "min_families": 3,
+    "min_useful_targets": 8,
+    "secondary_k": 4
+  },
+  "encode_bytes_max": 4294967296,
+  "file_strata": [
+    [
+      16384,
+      65536
+    ],
+    [
+      65536,
+      262144
+    ],
+    [
+      262144,
+      1048576
+    ],
+    [
+      1048576,
+      4194304
+    ],
+    [
+      4194304,
+      16777216
+    ]
+  ],
+  "lanes": {
+    "L-blind": [
+      "random",
+      "size_closest",
+      "minhash_resemblance",
+      "containment"
+    ],
+    "L-meta": [
+      "random",
+      "size_closest",
+      "previous_version",
+      "git_like",
+      "version_previous",
+      "minhash_resemblance",
+      "containment"
+    ]
+  },
+  "materialized_bytes_max": 1073741824,
+  "seed": 20261007,
+  "source_suffixes": [
+    ".c",
+    ".h"
+  ],
+  "target_ordinals": [
+    2,
+    3,
+    4
+  ],
+  "tracks": [
+    "file",
+    "cdc-16k"
+  ],
+  "workload_wall_seconds": 1320
+}

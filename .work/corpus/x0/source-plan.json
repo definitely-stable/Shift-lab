@@ -1,0 +1,982 @@
+{
+  "acquisition_rule": "archives are fetched only in GitHub Actions; acquisition hashes are recorded in the run evidence, never in this plan",
+  "ancestry_notes": [
+    {
+      "families": [
+        "lua",
+        "redis"
+      ],
+      "note": "redis deps/lua is a vendored Lua 5.1 interpreter; excluded by deps/lua/*"
+    },
+    {
+      "families": [
+        "gnutls",
+        "openssl"
+      ],
+      "note": "GnuTLS lib/accelerated assembly derives from CRYPTOGAMS/OpenSSL perlasm; generated assembly directories excluded"
+    },
+    {
+      "families": [
+        "bat",
+        "fd",
+        "hyperfine",
+        "ripgrep"
+      ],
+      "note": "Rust musl binaries share std and common crates (toolchain shared origin); acceptable inside one screening split, needs an audit before any X1 split"
+    },
+    {
+      "families": [
+        "fzf"
+      ],
+      "note": "Go binary: runtime shared with any other Go binary (none other in X0)"
+    }
+  ],
+  "families": [
+    {
+      "class": "H4",
+      "exclude_globs": [],
+      "family_id": "bat",
+      "install_path": "bat",
+      "license": {
+        "evidence_url": "https://raw.githubusercontent.com/sharkdp/bat/v0.25.0/Cargo.toml",
+        "spdx": "MIT OR Apache-2.0"
+      },
+      "name": "bat",
+      "releases": [
+        {
+          "branch": "main",
+          "format": "tar.gz",
+          "member": "bat-v0.22.1-x86_64-unknown-linux-musl/bat",
+          "ordinal": 1,
+          "release_id": "bat-0.22.1",
+          "time": {
+            "evidence_url": "https://github.com/sharkdp/bat/releases/tag/v0.22.1",
+            "value": "2022-09-10"
+          },
+          "url": "https://github.com/sharkdp/bat/releases/download/v0.22.1/bat-v0.22.1-x86_64-unknown-linux-musl.tar.gz",
+          "version": "0.22.1"
+        },
+        {
+          "branch": "main",
+          "format": "tar.gz",
+          "member": "bat-v0.23.0-x86_64-unknown-linux-musl/bat",
+          "ordinal": 2,
+          "release_id": "bat-0.23.0",
+          "time": {
+            "evidence_url": "https://github.com/sharkdp/bat/releases/tag/v0.23.0",
+            "value": "2023-03-25"
+          },
+          "url": "https://github.com/sharkdp/bat/releases/download/v0.23.0/bat-v0.23.0-x86_64-unknown-linux-musl.tar.gz",
+          "version": "0.23.0"
+        },
+        {
+          "branch": "main",
+          "format": "tar.gz",
+          "member": "bat-v0.24.0-x86_64-unknown-linux-musl/bat",
+          "ordinal": 3,
+          "release_id": "bat-0.24.0",
+          "time": {
+            "evidence_url": "https://github.com/sharkdp/bat/releases/tag/v0.24.0",
+            "value": "2023-10-11"
+          },
+          "url": "https://github.com/sharkdp/bat/releases/download/v0.24.0/bat-v0.24.0-x86_64-unknown-linux-musl.tar.gz",
+          "version": "0.24.0"
+        },
+        {
+          "branch": "main",
+          "format": "tar.gz",
+          "member": "bat-v0.25.0-x86_64-unknown-linux-musl/bat",
+          "ordinal": 4,
+          "release_id": "bat-0.25.0",
+          "time": {
+            "evidence_url": "https://github.com/sharkdp/bat/releases/tag/v0.25.0",
+            "value": "2025-01-07"
+          },
+          "url": "https://github.com/sharkdp/bat/releases/download/v0.25.0/bat-v0.25.0-x86_64-unknown-linux-musl.tar.gz",
+          "version": "0.25.0"
+        }
+      ]
+    },
+    {
+      "class": "H4",
+      "exclude_globs": [],
+      "family_id": "fd",
+      "install_path": "fd",
+      "license": {
+        "evidence_url": "https://raw.githubusercontent.com/sharkdp/fd/v10.2.0/Cargo.toml",
+        "spdx": "MIT OR Apache-2.0"
+      },
+      "name": "fd",
+      "releases": [
+        {
+          "branch": "main",
+          "format": "tar.gz",
+          "member": "fd-v8.7.1-x86_64-unknown-linux-musl/fd",
+          "ordinal": 1,
+          "release_id": "fd-8.7.1",
+          "time": {
+            "evidence_url": "https://github.com/sharkdp/fd/releases/tag/v8.7.1",
+            "value": "2023-10-21"
+          },
+          "url": "https://github.com/sharkdp/fd/releases/download/v8.7.1/fd-v8.7.1-x86_64-unknown-linux-musl.tar.gz",
+          "version": "8.7.1"
+        },
+        {
+          "branch": "main",
+          "format": "tar.gz",
+          "member": "fd-v9.0.0-x86_64-unknown-linux-musl/fd",
+          "ordinal": 2,
+          "release_id": "fd-9.0.0",
+          "time": {
+            "evidence_url": "https://github.com/sharkdp/fd/releases/tag/v9.0.0",
+            "value": "2023-12-19"
+          },
+          "url": "https://github.com/sharkdp/fd/releases/download/v9.0.0/fd-v9.0.0-x86_64-unknown-linux-musl.tar.gz",
+          "version": "9.0.0"
+        },
+        {
+          "branch": "main",
+          "format": "tar.gz",
+          "member": "fd-v10.0.0-x86_64-unknown-linux-musl/fd",
+          "ordinal": 3,
+          "release_id": "fd-10.0.0",
+          "time": {
+            "evidence_url": "https://github.com/sharkdp/fd/releases/tag/v10.0.0",
+            "value": "2024-05-06"
+          },
+          "url": "https://github.com/sharkdp/fd/releases/download/v10.0.0/fd-v10.0.0-x86_64-unknown-linux-musl.tar.gz",
+          "version": "10.0.0"
+        },
+        {
+          "branch": "main",
+          "format": "tar.gz",
+          "member": "fd-v10.2.0-x86_64-unknown-linux-musl/fd",
+          "ordinal": 4,
+          "release_id": "fd-10.2.0",
+          "time": {
+            "evidence_url": "https://github.com/sharkdp/fd/releases/tag/v10.2.0",
+            "value": "2024-08-23"
+          },
+          "url": "https://github.com/sharkdp/fd/releases/download/v10.2.0/fd-v10.2.0-x86_64-unknown-linux-musl.tar.gz",
+          "version": "10.2.0"
+        }
+      ]
+    },
+    {
+      "class": "H4",
+      "exclude_globs": [],
+      "family_id": "fzf",
+      "install_path": "fzf",
+      "license": {
+        "evidence_url": "https://raw.githubusercontent.com/junegunn/fzf/v0.58.0/LICENSE",
+        "spdx": "MIT"
+      },
+      "name": "fzf",
+      "releases": [
+        {
+          "branch": "main",
+          "format": "tar.gz",
+          "member": "fzf",
+          "ordinal": 1,
+          "release_id": "fzf-0.55.0",
+          "time": {
+            "evidence_url": "https://github.com/junegunn/fzf/releases/tag/v0.55.0",
+            "value": "2024-08-29"
+          },
+          "url": "https://github.com/junegunn/fzf/releases/download/v0.55.0/fzf-0.55.0-linux_amd64.tar.gz",
+          "version": "0.55.0"
+        },
+        {
+          "branch": "main",
+          "format": "tar.gz",
+          "member": "fzf",
+          "ordinal": 2,
+          "release_id": "fzf-0.56.0",
+          "time": {
+            "evidence_url": "https://github.com/junegunn/fzf/releases/tag/v0.56.0",
+            "value": "2024-10-27"
+          },
+          "url": "https://github.com/junegunn/fzf/releases/download/v0.56.0/fzf-0.56.0-linux_amd64.tar.gz",
+          "version": "0.56.0"
+        },
+        {
+          "branch": "main",
+          "format": "tar.gz",
+          "member": "fzf",
+          "ordinal": 3,
+          "release_id": "fzf-0.57.0",
+          "time": {
+            "evidence_url": "https://github.com/junegunn/fzf/releases/tag/v0.57.0",
+            "value": "2024-12-15"
+          },
+          "url": "https://github.com/junegunn/fzf/releases/download/v0.57.0/fzf-0.57.0-linux_amd64.tar.gz",
+          "version": "0.57.0"
+        },
+        {
+          "branch": "main",
+          "format": "tar.gz",
+          "member": "fzf",
+          "ordinal": 4,
+          "release_id": "fzf-0.58.0",
+          "time": {
+            "evidence_url": "https://github.com/junegunn/fzf/releases/tag/v0.58.0",
+            "value": "2025-01-19"
+          },
+          "url": "https://github.com/junegunn/fzf/releases/download/v0.58.0/fzf-0.58.0-linux_amd64.tar.gz",
+          "version": "0.58.0"
+        }
+      ]
+    },
+    {
+      "class": "H1",
+      "exclude_globs": [
+        {
+          "glob": "build-aux/*",
+          "reason": "autotools/gnulib auxiliary scripts"
+        },
+        {
+          "glob": "cligen/*",
+          "reason": "bundled cligen (separate project: option-parser generator, Python)"
+        },
+        {
+          "glob": "devel/*",
+          "reason": "absent from release tarballs (git-only: fuzzing/ABI tooling and submodules); listed for completeness"
+        },
+        {
+          "glob": "gl/*",
+          "reason": "gnulib (copied portability library)"
+        },
+        {
+          "glob": "lib/accelerated/aarch64/elf/*",
+          "reason": "CRYPTOGAMS-derived generated assembly for aarch64 (header: Copyright Andy Polyakov <appro@openssl.org>); shared origin with openssl"
+        },
+        {
+          "glob": "lib/accelerated/aarch64/macosx/*",
+          "reason": "CRYPTOGAMS-derived generated assembly for aarch64 (header: Copyright Andy Polyakov <appro@openssl.org>); shared origin with openssl"
+        },
+        {
+          "glob": "lib/accelerated/x86/coff/*",
+          "reason": "generated assembly from Andy Polyakov's CRYPTOGAMS/OpenSSL perlasm (and Mike Hamburg's AES-SSSE3); shared origin with the openssl family (see lib/accelerated/x86/README)"
+        },
+        {
+          "glob": "lib/accelerated/x86/elf/*",
+          "reason": "generated assembly from Andy Polyakov's CRYPTOGAMS/OpenSSL perlasm (and Mike Hamburg's AES-SSSE3); shared origin with the openssl family (see lib/accelerated/x86/README)"
+        },
+        {
+          "glob": "lib/accelerated/x86/macosx/*",
+          "reason": "generated assembly from Andy Polyakov's CRYPTOGAMS/OpenSSL perlasm (and Mike Hamburg's AES-SSSE3); shared origin with the openssl family (see lib/accelerated/x86/README)"
+        },
+        {
+          "glob": "lib/inih/*",
+          "reason": "bundled inih INI parser"
+        },
+        {
+          "glob": "lib/minitasn1/*",
+          "reason": "bundled copy of libtasn1"
+        },
+        {
+          "glob": "lib/nettle/backport/*",
+          "reason": "code backported from the nettle library"
+        },
+        {
+          "glob": "lib/unistring/*",
+          "reason": "bundled subset of GNU libunistring"
+        },
+        {
+          "glob": "m4/*",
+          "reason": "autoconf/gnulib m4 macros"
+        },
+        {
+          "glob": "src/gl/*",
+          "reason": "gnulib copy for the command-line tools"
+        }
+      ],
+      "family_id": "gnutls",
+      "license": {
+        "evidence_url": "https://gitlab.com/gnutls/gnutls/-/raw/3.8.2/LICENSE",
+        "spdx": "LGPL-2.1-or-later AND GPL-3.0-or-later"
+      },
+      "name": "gnutls",
+      "releases": [
+        {
+          "branch": "3.7",
+          "format": "tar.xz",
+          "member": null,
+          "ordinal": 1,
+          "release_id": "gnutls-3.7.8",
+          "time": {
+            "evidence_url": "https://www.gnupg.org/ftp/gcrypt/gnutls/v3.7/",
+            "value": "2022-09-27"
+          },
+          "url": "https://www.gnupg.org/ftp/gcrypt/gnutls/v3.7/gnutls-3.7.8.tar.xz",
+          "version": "3.7.8"
+        },
+        {
+          "branch": "3.8",
+          "format": "tar.xz",
+          "member": null,
+          "ordinal": 2,
+          "release_id": "gnutls-3.8.0",
+          "time": {
+            "evidence_url": "https://www.gnupg.org/ftp/gcrypt/gnutls/v3.8/",
+            "value": "2023-02-10"
+          },
+          "url": "https://www.gnupg.org/ftp/gcrypt/gnutls/v3.8/gnutls-3.8.0.tar.xz",
+          "version": "3.8.0"
+        },
+        {
+          "branch": "3.7",
+          "format": "tar.xz",
+          "member": null,
+          "ordinal": 3,
+          "release_id": "gnutls-3.7.10",
+          "time": {
+            "evidence_url": "https://www.gnupg.org/ftp/gcrypt/gnutls/v3.7/",
+            "value": "2023-08-04"
+          },
+          "url": "https://www.gnupg.org/ftp/gcrypt/gnutls/v3.7/gnutls-3.7.10.tar.xz",
+          "version": "3.7.10"
+        },
+        {
+          "branch": "3.8",
+          "format": "tar.xz",
+          "member": null,
+          "ordinal": 4,
+          "release_id": "gnutls-3.8.2",
+          "time": {
+            "evidence_url": "https://www.gnupg.org/ftp/gcrypt/gnutls/v3.8/",
+            "value": "2023-11-15"
+          },
+          "url": "https://www.gnupg.org/ftp/gcrypt/gnutls/v3.8/gnutls-3.8.2.tar.xz",
+          "version": "3.8.2"
+        }
+      ]
+    },
+    {
+      "class": "H4",
+      "exclude_globs": [],
+      "family_id": "hyperfine",
+      "install_path": "hyperfine",
+      "license": {
+        "evidence_url": "https://raw.githubusercontent.com/sharkdp/hyperfine/v1.19.0/Cargo.toml",
+        "spdx": "MIT OR Apache-2.0"
+      },
+      "name": "hyperfine",
+      "releases": [
+        {
+          "branch": "main",
+          "format": "tar.gz",
+          "member": "hyperfine-v1.16.1-x86_64-unknown-linux-musl/hyperfine",
+          "ordinal": 1,
+          "release_id": "hyperfine-1.16.1",
+          "time": {
+            "evidence_url": "https://github.com/sharkdp/hyperfine/releases/tag/v1.16.1",
+            "value": "2023-03-21"
+          },
+          "url": "https://github.com/sharkdp/hyperfine/releases/download/v1.16.1/hyperfine-v1.16.1-x86_64-unknown-linux-musl.tar.gz",
+          "version": "1.16.1"
+        },
+        {
+          "branch": "main",
+          "format": "tar.gz",
+          "member": "hyperfine-v1.17.0-x86_64-unknown-linux-musl/hyperfine",
+          "ordinal": 2,
+          "release_id": "hyperfine-1.17.0",
+          "time": {
+            "evidence_url": "https://github.com/sharkdp/hyperfine/releases/tag/v1.17.0",
+            "value": "2023-06-04"
+          },
+          "url": "https://github.com/sharkdp/hyperfine/releases/download/v1.17.0/hyperfine-v1.17.0-x86_64-unknown-linux-musl.tar.gz",
+          "version": "1.17.0"
+        },
+        {
+          "branch": "main",
+          "format": "tar.gz",
+          "member": "hyperfine-v1.18.0-x86_64-unknown-linux-musl/hyperfine",
+          "ordinal": 3,
+          "release_id": "hyperfine-1.18.0",
+          "time": {
+            "evidence_url": "https://github.com/sharkdp/hyperfine/releases/tag/v1.18.0",
+            "value": "2023-10-05"
+          },
+          "url": "https://github.com/sharkdp/hyperfine/releases/download/v1.18.0/hyperfine-v1.18.0-x86_64-unknown-linux-musl.tar.gz",
+          "version": "1.18.0"
+        },
+        {
+          "branch": "main",
+          "format": "tar.gz",
+          "member": "hyperfine-v1.19.0-x86_64-unknown-linux-musl/hyperfine",
+          "ordinal": 4,
+          "release_id": "hyperfine-1.19.0",
+          "time": {
+            "evidence_url": "https://github.com/sharkdp/hyperfine/releases/tag/v1.19.0",
+            "value": "2024-11-11"
+          },
+          "url": "https://github.com/sharkdp/hyperfine/releases/download/v1.19.0/hyperfine-v1.19.0-x86_64-unknown-linux-musl.tar.gz",
+          "version": "1.19.0"
+        }
+      ]
+    },
+    {
+      "class": "H4",
+      "exclude_globs": [],
+      "family_id": "jq",
+      "install_path": "jq",
+      "license": {
+        "evidence_url": "https://raw.githubusercontent.com/jqlang/jq/jq-1.8.1/COPYING",
+        "spdx": "MIT"
+      },
+      "name": "jq",
+      "releases": [
+        {
+          "branch": "main",
+          "format": "binary",
+          "member": null,
+          "ordinal": 1,
+          "release_id": "jq-1.7",
+          "time": {
+            "evidence_url": "https://github.com/jqlang/jq/releases/tag/jq-1.7",
+            "value": "2023-09-06"
+          },
+          "url": "https://github.com/jqlang/jq/releases/download/jq-1.7/jq-linux-amd64",
+          "version": "1.7"
+        },
+        {
+          "branch": "main",
+          "format": "binary",
+          "member": null,
+          "ordinal": 2,
+          "release_id": "jq-1.7.1",
+          "time": {
+            "evidence_url": "https://github.com/jqlang/jq/releases/tag/jq-1.7.1",
+            "value": "2023-12-13"
+          },
+          "url": "https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-amd64",
+          "version": "1.7.1"
+        },
+        {
+          "branch": "main",
+          "format": "binary",
+          "member": null,
+          "ordinal": 3,
+          "release_id": "jq-1.8.0",
+          "time": {
+            "evidence_url": "https://github.com/jqlang/jq/releases/tag/jq-1.8.0",
+            "value": "2025-06-01"
+          },
+          "url": "https://github.com/jqlang/jq/releases/download/jq-1.8.0/jq-linux-amd64",
+          "version": "1.8.0"
+        },
+        {
+          "branch": "main",
+          "format": "binary",
+          "member": null,
+          "ordinal": 4,
+          "release_id": "jq-1.8.1",
+          "time": {
+            "evidence_url": "https://github.com/jqlang/jq/releases/tag/jq-1.8.1",
+            "value": "2025-07-01"
+          },
+          "url": "https://github.com/jqlang/jq/releases/download/jq-1.8.1/jq-linux-amd64",
+          "version": "1.8.1"
+        }
+      ]
+    },
+    {
+      "class": "H1",
+      "exclude_globs": [
+        {
+          "glob": "python/*",
+          "reason": "Python bindings, largely generated (generator.py); optional, not core C library"
+        },
+        {
+          "glob": "result/*",
+          "reason": "expected-output test data"
+        },
+        {
+          "glob": "test/*",
+          "reason": "test input corpus (XML/HTML/schema documents, partly third-party test material); not library code"
+        },
+        {
+          "glob": "timsort.h",
+          "reason": "third-party single-file timsort implementation"
+        },
+        {
+          "glob": "xstc/*",
+          "reason": "harness for the W3C XML Schema Test Collection (third-party suite)"
+        }
+      ],
+      "family_id": "libxml2",
+      "license": {
+        "evidence_url": "https://gitlab.gnome.org/GNOME/libxml2/-/raw/v2.13.4/Copyright",
+        "spdx": "MIT"
+      },
+      "name": "libxml2",
+      "releases": [
+        {
+          "branch": "2.12",
+          "format": "tar.xz",
+          "member": null,
+          "ordinal": 1,
+          "release_id": "libxml2-2.12.7",
+          "time": {
+            "evidence_url": "https://download.gnome.org/sources/libxml2/2.12/",
+            "value": "2024-05-13"
+          },
+          "url": "https://download.gnome.org/sources/libxml2/2.12/libxml2-2.12.7.tar.xz",
+          "version": "2.12.7"
+        },
+        {
+          "branch": "2.13",
+          "format": "tar.xz",
+          "member": null,
+          "ordinal": 2,
+          "release_id": "libxml2-2.13.0",
+          "time": {
+            "evidence_url": "https://download.gnome.org/sources/libxml2/2.13/",
+            "value": "2024-06-12"
+          },
+          "url": "https://download.gnome.org/sources/libxml2/2.13/libxml2-2.13.0.tar.xz",
+          "version": "2.13.0"
+        },
+        {
+          "branch": "2.12",
+          "format": "tar.xz",
+          "member": null,
+          "ordinal": 3,
+          "release_id": "libxml2-2.12.9",
+          "time": {
+            "evidence_url": "https://download.gnome.org/sources/libxml2/2.12/",
+            "value": "2024-07-24"
+          },
+          "url": "https://download.gnome.org/sources/libxml2/2.12/libxml2-2.12.9.tar.xz",
+          "version": "2.12.9"
+        },
+        {
+          "branch": "2.13",
+          "format": "tar.xz",
+          "member": null,
+          "ordinal": 4,
+          "release_id": "libxml2-2.13.4",
+          "time": {
+            "evidence_url": "https://download.gnome.org/sources/libxml2/2.13/",
+            "value": "2024-09-18"
+          },
+          "url": "https://download.gnome.org/sources/libxml2/2.13/libxml2-2.13.4.tar.xz",
+          "version": "2.13.4"
+        }
+      ]
+    },
+    {
+      "class": "H1",
+      "exclude_globs": [],
+      "family_id": "lua",
+      "license": {
+        "evidence_url": "https://www.lua.org/license.html",
+        "spdx": "MIT"
+      },
+      "name": "lua",
+      "releases": [
+        {
+          "branch": "5.3",
+          "format": "tar.gz",
+          "member": null,
+          "ordinal": 1,
+          "release_id": "lua-5.3.5",
+          "time": {
+            "evidence_url": "https://www.lua.org/ftp/",
+            "value": "2018-06-26"
+          },
+          "url": "https://www.lua.org/ftp/lua-5.3.5.tar.gz",
+          "version": "5.3.5"
+        },
+        {
+          "branch": "5.4",
+          "format": "tar.gz",
+          "member": null,
+          "ordinal": 2,
+          "release_id": "lua-5.4.0",
+          "time": {
+            "evidence_url": "https://www.lua.org/ftp/",
+            "value": "2020-06-18"
+          },
+          "url": "https://www.lua.org/ftp/lua-5.4.0.tar.gz",
+          "version": "5.4.0"
+        },
+        {
+          "branch": "5.3",
+          "format": "tar.gz",
+          "member": null,
+          "ordinal": 3,
+          "release_id": "lua-5.3.6",
+          "time": {
+            "evidence_url": "https://www.lua.org/ftp/",
+            "value": "2020-09-14"
+          },
+          "url": "https://www.lua.org/ftp/lua-5.3.6.tar.gz",
+          "version": "5.3.6"
+        },
+        {
+          "branch": "5.4",
+          "format": "tar.gz",
+          "member": null,
+          "ordinal": 4,
+          "release_id": "lua-5.4.1",
+          "time": {
+            "evidence_url": "https://www.lua.org/ftp/",
+            "value": "2020-09-30"
+          },
+          "url": "https://www.lua.org/ftp/lua-5.4.1.tar.gz",
+          "version": "5.4.1"
+        }
+      ]
+    },
+    {
+      "class": "H1",
+      "exclude_globs": [
+        {
+          "glob": "contrib/*",
+          "reason": "third-party contributed scripts (geo2nginx.pl by A. Nigmatulin, vim syntax by Evan Miller, unicode2nginx maps); not nginx C core, per contrib/README"
+        }
+      ],
+      "family_id": "nginx",
+      "license": {
+        "evidence_url": "https://nginx.org/LICENSE",
+        "spdx": "BSD-2-Clause"
+      },
+      "name": "nginx",
+      "releases": [
+        {
+          "branch": "1.26",
+          "format": "tar.gz",
+          "member": null,
+          "ordinal": 1,
+          "release_id": "nginx-1.26.0",
+          "time": {
+            "evidence_url": "https://nginx.org/en/CHANGES-1.26",
+            "value": "2024-04-23"
+          },
+          "url": "https://nginx.org/download/nginx-1.26.0.tar.gz",
+          "version": "1.26.0"
+        },
+        {
+          "branch": "1.27",
+          "format": "tar.gz",
+          "member": null,
+          "ordinal": 2,
+          "release_id": "nginx-1.27.0",
+          "time": {
+            "evidence_url": "https://nginx.org/en/CHANGES",
+            "value": "2024-05-29"
+          },
+          "url": "https://nginx.org/download/nginx-1.27.0.tar.gz",
+          "version": "1.27.0"
+        },
+        {
+          "branch": "1.26",
+          "format": "tar.gz",
+          "member": null,
+          "ordinal": 3,
+          "release_id": "nginx-1.26.2",
+          "time": {
+            "evidence_url": "https://nginx.org/en/CHANGES-1.26",
+            "value": "2024-08-14"
+          },
+          "url": "https://nginx.org/download/nginx-1.26.2.tar.gz",
+          "version": "1.26.2"
+        },
+        {
+          "branch": "1.27",
+          "format": "tar.gz",
+          "member": null,
+          "ordinal": 4,
+          "release_id": "nginx-1.27.2",
+          "time": {
+            "evidence_url": "https://nginx.org/en/CHANGES",
+            "value": "2024-10-02"
+          },
+          "url": "https://nginx.org/download/nginx-1.27.2.tar.gz",
+          "version": "1.27.2"
+        }
+      ]
+    },
+    {
+      "class": "H1",
+      "exclude_globs": [
+        {
+          "glob": "external/*",
+          "reason": "vendored third-party Perl module (external/perl/Text-Template-1.56) used by the build system"
+        },
+        {
+          "glob": "oqs-provider/*",
+          "reason": "git-submodule placeholder (3.1.x tarball only); empty"
+        },
+        {
+          "glob": "python-ecdsa/*",
+          "reason": "git-submodule placeholder (3.1.x tarball only); empty"
+        },
+        {
+          "glob": "tlsfuzzer/*",
+          "reason": "git-submodule placeholder (3.1.x tarball only); empty"
+        },
+        {
+          "glob": "tlslite-ng/*",
+          "reason": "git-submodule placeholder (3.1.x tarball only); empty"
+        },
+        {
+          "glob": "wycheproof/*",
+          "reason": "git-submodule placeholder (Google Wycheproof test vectors); empty in release tarball"
+        }
+      ],
+      "family_id": "openssl",
+      "license": {
+        "evidence_url": "https://raw.githubusercontent.com/openssl/openssl/openssl-3.1.2/LICENSE.txt",
+        "spdx": "Apache-2.0"
+      },
+      "name": "openssl",
+      "releases": [
+        {
+          "branch": "3.0",
+          "format": "tar.gz",
+          "member": null,
+          "ordinal": 1,
+          "release_id": "openssl-3.0.8",
+          "time": {
+            "evidence_url": "https://openssl-library.org/news/timeline/",
+            "value": "2023-02-07"
+          },
+          "url": "https://github.com/openssl/openssl/releases/download/openssl-3.0.8/openssl-3.0.8.tar.gz",
+          "version": "3.0.8"
+        },
+        {
+          "branch": "3.1",
+          "format": "tar.gz",
+          "member": null,
+          "ordinal": 2,
+          "release_id": "openssl-3.1.0",
+          "time": {
+            "evidence_url": "https://openssl-library.org/news/timeline/",
+            "value": "2023-03-14"
+          },
+          "url": "https://github.com/openssl/openssl/releases/download/openssl-3.1.0/openssl-3.1.0.tar.gz",
+          "version": "3.1.0"
+        },
+        {
+          "branch": "3.0",
+          "format": "tar.gz",
+          "member": null,
+          "ordinal": 3,
+          "release_id": "openssl-3.0.9",
+          "time": {
+            "evidence_url": "https://openssl-library.org/news/timeline/",
+            "value": "2023-05-30"
+          },
+          "url": "https://github.com/openssl/openssl/releases/download/openssl-3.0.9/openssl-3.0.9.tar.gz",
+          "version": "3.0.9"
+        },
+        {
+          "branch": "3.1",
+          "format": "tar.gz",
+          "member": null,
+          "ordinal": 4,
+          "release_id": "openssl-3.1.2",
+          "time": {
+            "evidence_url": "https://openssl-library.org/news/timeline/",
+            "value": "2023-08-01"
+          },
+          "url": "https://github.com/openssl/openssl/releases/download/openssl-3.1.2/openssl-3.1.2.tar.gz",
+          "version": "3.1.2"
+        }
+      ]
+    },
+    {
+      "class": "H1",
+      "exclude_globs": [
+        {
+          "glob": "deps/fpconv/*",
+          "reason": "vendored fpconv (float-to-string) — present in 7.2.x tarballs only, not in 7.0.12"
+        },
+        {
+          "glob": "deps/hdr_histogram/*",
+          "reason": "vendored HdrHistogram_c"
+        },
+        {
+          "glob": "deps/hiredis/*",
+          "reason": "vendored hiredis client library"
+        },
+        {
+          "glob": "deps/jemalloc/*",
+          "reason": "vendored jemalloc allocator"
+        },
+        {
+          "glob": "deps/linenoise/*",
+          "reason": "vendored linenoise line-editing library"
+        },
+        {
+          "glob": "deps/lua/*",
+          "reason": "vendored Lua 5.1 interpreter (+ cjson/cmsgpack/struct/bit libs); shared origin with the lua family"
+        },
+        {
+          "glob": "src/crc16.c",
+          "reason": "third-party file inside src/ reported by upstream headers (lzf, sha1/sha256, siphash, pqsort, mt19937-64, setproctitle, crc16); excluded as shared-origin code, not verified per file"
+        },
+        {
+          "glob": "src/lzf*",
+          "reason": "third-party file inside src/ reported by upstream headers (lzf, sha1/sha256, siphash, pqsort, mt19937-64, setproctitle, crc16); excluded as shared-origin code, not verified per file"
+        },
+        {
+          "glob": "src/mt19937-64.*",
+          "reason": "third-party file inside src/ reported by upstream headers (lzf, sha1/sha256, siphash, pqsort, mt19937-64, setproctitle, crc16); excluded as shared-origin code, not verified per file"
+        },
+        {
+          "glob": "src/pqsort.*",
+          "reason": "third-party file inside src/ reported by upstream headers (lzf, sha1/sha256, siphash, pqsort, mt19937-64, setproctitle, crc16); excluded as shared-origin code, not verified per file"
+        },
+        {
+          "glob": "src/setproctitle.c",
+          "reason": "third-party file inside src/ reported by upstream headers (lzf, sha1/sha256, siphash, pqsort, mt19937-64, setproctitle, crc16); excluded as shared-origin code, not verified per file"
+        },
+        {
+          "glob": "src/sha1.*",
+          "reason": "third-party file inside src/ reported by upstream headers (lzf, sha1/sha256, siphash, pqsort, mt19937-64, setproctitle, crc16); excluded as shared-origin code, not verified per file"
+        },
+        {
+          "glob": "src/sha256.*",
+          "reason": "third-party file inside src/ reported by upstream headers (lzf, sha1/sha256, siphash, pqsort, mt19937-64, setproctitle, crc16); excluded as shared-origin code, not verified per file"
+        },
+        {
+          "glob": "src/siphash.c",
+          "reason": "third-party file inside src/ reported by upstream headers (lzf, sha1/sha256, siphash, pqsort, mt19937-64, setproctitle, crc16); excluded as shared-origin code, not verified per file"
+        }
+      ],
+      "family_id": "redis",
+      "license": {
+        "evidence_url": "https://raw.githubusercontent.com/redis/redis/7.2.2/COPYING",
+        "spdx": "BSD-3-Clause"
+      },
+      "name": "redis",
+      "releases": [
+        {
+          "branch": "7.0",
+          "format": "tar.gz",
+          "member": null,
+          "ordinal": 1,
+          "release_id": "redis-7.0.12",
+          "time": {
+            "evidence_url": "https://raw.githubusercontent.com/redis/redis/7.0.12/00-RELEASENOTES",
+            "value": "2023-07-10"
+          },
+          "url": "https://download.redis.io/releases/redis-7.0.12.tar.gz",
+          "version": "7.0.12"
+        },
+        {
+          "branch": "7.2",
+          "format": "tar.gz",
+          "member": null,
+          "ordinal": 2,
+          "release_id": "redis-7.2.0",
+          "time": {
+            "evidence_url": "https://raw.githubusercontent.com/redis/redis/7.2.0/00-RELEASENOTES",
+            "value": "2023-08-15"
+          },
+          "url": "https://download.redis.io/releases/redis-7.2.0.tar.gz",
+          "version": "7.2.0"
+        },
+        {
+          "branch": "7.0",
+          "format": "tar.gz",
+          "member": null,
+          "ordinal": 3,
+          "release_id": "redis-7.0.13",
+          "time": {
+            "evidence_url": "https://raw.githubusercontent.com/redis/redis/7.0.13/00-RELEASENOTES",
+            "value": "2023-09-06"
+          },
+          "url": "https://download.redis.io/releases/redis-7.0.13.tar.gz",
+          "version": "7.0.13"
+        },
+        {
+          "branch": "7.2",
+          "format": "tar.gz",
+          "member": null,
+          "ordinal": 4,
+          "release_id": "redis-7.2.2",
+          "time": {
+            "evidence_url": "https://raw.githubusercontent.com/redis/redis/7.2.2/00-RELEASENOTES",
+            "value": "2023-10-18"
+          },
+          "url": "https://download.redis.io/releases/redis-7.2.2.tar.gz",
+          "version": "7.2.2"
+        }
+      ]
+    },
+    {
+      "class": "H4",
+      "exclude_globs": [],
+      "family_id": "ripgrep",
+      "install_path": "rg",
+      "license": {
+        "evidence_url": "https://raw.githubusercontent.com/BurntSushi/ripgrep/15.0.0/Cargo.toml",
+        "spdx": "Unlicense OR MIT"
+      },
+      "name": "ripgrep",
+      "releases": [
+        {
+          "branch": "main",
+          "format": "tar.gz",
+          "member": "ripgrep-14.0.3-x86_64-unknown-linux-musl/rg",
+          "ordinal": 1,
+          "release_id": "ripgrep-14.0.3",
+          "time": {
+            "evidence_url": "https://github.com/BurntSushi/ripgrep/releases/tag/14.0.3",
+            "value": "2023-11-28"
+          },
+          "url": "https://github.com/BurntSushi/ripgrep/releases/download/14.0.3/ripgrep-14.0.3-x86_64-unknown-linux-musl.tar.gz",
+          "version": "14.0.3"
+        },
+        {
+          "branch": "main",
+          "format": "tar.gz",
+          "member": "ripgrep-14.1.0-x86_64-unknown-linux-musl/rg",
+          "ordinal": 2,
+          "release_id": "ripgrep-14.1.0",
+          "time": {
+            "evidence_url": "https://github.com/BurntSushi/ripgrep/releases/tag/14.1.0",
+            "value": "2024-01-06"
+          },
+          "url": "https://github.com/BurntSushi/ripgrep/releases/download/14.1.0/ripgrep-14.1.0-x86_64-unknown-linux-musl.tar.gz",
+          "version": "14.1.0"
+        },
+        {
+          "branch": "main",
+          "format": "tar.gz",
+          "member": "ripgrep-14.1.1-x86_64-unknown-linux-musl/rg",
+          "ordinal": 3,
+          "release_id": "ripgrep-14.1.1",
+          "time": {
+            "evidence_url": "https://github.com/BurntSushi/ripgrep/releases/tag/14.1.1",
+            "value": "2024-09-09"
+          },
+          "url": "https://github.com/BurntSushi/ripgrep/releases/download/14.1.1/ripgrep-14.1.1-x86_64-unknown-linux-musl.tar.gz",
+          "version": "14.1.1"
+        },
+        {
+          "branch": "main",
+          "format": "tar.gz",
+          "member": "ripgrep-15.0.0-x86_64-unknown-linux-musl/rg",
+          "ordinal": 4,
+          "release_id": "ripgrep-15.0.0",
+          "time": {
+            "evidence_url": "https://github.com/BurntSushi/ripgrep/releases/tag/15.0.0",
+            "value": "2025-10-16"
+          },
+          "url": "https://github.com/BurntSushi/ripgrep/releases/download/15.0.0/ripgrep-15.0.0-x86_64-unknown-linux-musl.tar.gz",
+          "version": "15.0.0"
+        }
+      ]
+    }
+  ],
+  "metadata_checked_on": "2026-10-06",
+  "metadata_method": "release dates and asset paths read from upstream pages and tar listings on 2026-10-06; every URL answered HTTP 200; see each evidence_url",
+  "schema": "delsk.x0.source-plan.v1"
+}
