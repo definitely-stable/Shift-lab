@@ -124,55 +124,6 @@ def verify_object(path, object_id):
     check(file_sha256(path) == object_id, f"object integrity failure: {object_id}")
 
 
-def all_object_paths(plan, pilot_store, x0_store):
-    out = {}
-    for target in plan["targets"]:
-        store = store_for(target, pilot_store, x0_store)
-        ids = [target["target_object_id"], *target["lanes"]["exhaustive"]]
-        for object_id in ids:
-            path = store / object_id
-            verify_object(path, object_id)
-            if object_id in out:
-                check(file_sha256(out[object_id]) == file_sha256(path),
-                      f"same object id has inconsistent materialization: {object_id}")
-            else:
-                out[object_id] = path
-    return out
-
-
-def descriptor_cost(protocol_dir, plan, pilot_store, x0_store):
-    protocol_dir = Path(protocol_dir)
-    check(protocol_dir.is_dir(), "protocol checkout missing")
-    objects = all_object_paths(plan, pilot_store, x0_store)
-    tools = str(protocol_dir / ".work" / "tools")
-    old_path = list(sys.path)
-    sys.path.insert(0, tools)
-    try:
-        import simple_selector as ss
-        started_wall = time.monotonic_ns()
-        started_cpu = time.process_time_ns()
-        descriptor_bytes = 0
-        object_bytes = 0
-        for object_id, object_path in sorted(objects.items()):
-            data = object_path.read_bytes()
-            object_bytes += len(data)
-            descriptor_bytes += len(ss.descriptor(data)) * 8
-        return {
-            "schema": "delsk.chunkshift-s4.selector-cost.v1",
-            "protocol_authority": PROTOCOL_SHA,
-            "objects": len(objects),
-            "object_bytes": object_bytes,
-            "descriptor_bytes": descriptor_bytes,
-            "wall_ns": time.monotonic_ns() - started_wall,
-            "cpu_ns": time.process_time_ns() - started_cpu,
-            "index_kind": "object-id-to-64-byte-descriptor-table",
-        }
-    finally:
-        sys.path[:] = old_path
-        sys.modules.pop("simple_selector", None)
-        sys.modules.pop("baselines", None)
-
-
 def create_manifest(cli, content_path, object_id, manifest_dir):
     manifest_dir.mkdir(parents=True, exist_ok=True)
     manifest = manifest_dir / f"{object_id}.csm"
@@ -332,10 +283,6 @@ def measure_shard(args):
     manifests = {}
     manifest_rows = []
     rows = []
-    selector_cost = None
-    if args.shard_index == 0:
-        selector_cost = descriptor_cost(args.protocol_dir, plan, args.pilot_store, args.x0_store)
-        (out / "selector-cost.json").write_bytes(canonical_bytes(selector_cost))
     try:
         objects = {}
         for target in targets:
@@ -393,7 +340,6 @@ def measure_shard(args):
         "manifest_sha256": file_sha256(manifest_path),
         "chunkshift_cli_sha256": cli_sha256,
         "dotnet_version": dotnet_version,
-        "selector_cost_sha256": file_sha256(out / "selector-cost.json") if selector_cost is not None else None,
         "runner": {
             "github_run_id": os.environ.get("GITHUB_RUN_ID"),
             "github_run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT"),
@@ -420,7 +366,6 @@ def parser():
     m.add_argument("chunkshift_dll")
     m.add_argument("shard_index", type=int)
     m.add_argument("out_dir")
-    m.add_argument("--protocol-dir", required=True)
     m.add_argument("--protocol-authority", required=True)
     m.add_argument("--implementation-sha", required=True)
     return p
