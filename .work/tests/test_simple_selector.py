@@ -76,6 +76,40 @@ class Vectors(unittest.TestCase):
         self.assertGreater(len(descs), 10)  # related objects must not share one descriptor
 
 
+class Abstention(unittest.TestCase):
+    def row(self, pop, useful, has_meta, shared, s=1000, o=100, n=10):
+        return {'population': pop, 'useful_delta': useful, 'has_meta': has_meta, 'best_shared': shared,
+                'standalone_bytes': s, 'oracle_bytes': o if useful else s, 'candidates': n}
+
+    def test_levels_and_preregistered_choice(self):
+        rows = [self.row('p', True, True, 0) for _ in range(150)]          # metadata: never abstained
+        rows += [self.row('p', True, False, 8) for _ in range(50)]          # strong content signal
+        rows += [self.row('p', False, False, 0) for _ in range(40)]         # nothing to gain
+        rows += [self.row('p', True, False, 1, s=1000, o=999)]              # weak and nearly useless
+        rows += [self.row('adv', None, False, 0)]                           # adversarial: no oracle
+        r = ss.abstention(rows)
+        by = {l['level']: l for l in r['levels']}
+        self.assertEqual(by[0]['saved_calls'], 0)
+        self.assertEqual(by[1]['saved_calls'], 80)                           # 40 targets x min(2, 10)
+        self.assertEqual(by[2]['useful_abstained'], 1)
+        self.assertLessEqual(by[2]['lost_savings_share'], 0.005)
+        self.assertEqual(r['chosen_level'], 2)       # FN 1/201 <= 1 %, 82 calls; levels 3-4 tie, smaller wins
+        self.assertEqual(by[1]['populations']['adv']['abstained'], 1)
+        rows += [self.row('p', True, False, 1, s=1000, o=999) for _ in range(2)]   # FN 3/203 > 1 %
+        self.assertEqual(ss.abstention(rows)['chosen_level'], 1)
+
+    def test_no_level_qualifies_keeps_always_encode(self):
+        rows = [self.row('p', True, False, 0) for _ in range(10)]
+        self.assertEqual(ss.abstention(rows)['chosen_level'], 0)
+
+    def test_feature_row(self):
+        d = {'t': [1, 2, 3, 4, 5, 6, 7, 8], 'a': [1, 2, 3, 4, 9, 10, 11, 12], 'b': [20, 21]}
+        t = obj('t', 100, 'x', '1', 2)
+        bases = [obj('a', 100, 'y', '1', 1), obj('b', 50, None, None, 0)]
+        r = ss._feature_row('p', 't', t, bases, d, None)
+        self.assertEqual((r['has_meta'], r['best_shared'], r['per_base']['a']), (False, 4, [4, 8]))
+
+
 @unittest.skipUnless(DEV_EVAL.is_file() and ss.X0_RUN.is_dir(), 'retained inputs missing')
 class InSample(unittest.TestCase):
     def test_committed_evaluation_is_reproduced(self):

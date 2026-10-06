@@ -6,10 +6,13 @@ verifies the decode and keeps the cheapest of them and the standalone representa
 
     simple_selector.py evaluate <out.json>   in-sample evaluation on retained development data (pilot-v1 dev/cal, X0)
     simple_selector.py vectors <out.txt>     parity vectors for other implementations (.work/selector/rust)
+    simple_selector.py features <pilot-store> <x0-store> <out.jsonl>   S3 descriptor resemblance per pair (Actions)
+    simple_selector.py abstention <features.jsonl> <out.json>          S3 abstention analysis and decision (offline)
 """
 
 import json
 import sys
+from fractions import Fraction
 from pathlib import Path
 
 TOOLS = Path(__file__).resolve().parent
@@ -210,6 +213,112 @@ def vector_lines():
     return lines
 
 
+# --- S3: abstention (.work/selector/s3.md) ------------------------------------------------------------------
+
+S3_LEVELS = (0, 1, 2, 3, 4)       # abstain if no metadata candidate and best shared hashes < level; 0 = never
+S3_K = 2
+S3_LOST_MAX = 0.005               # pooled lost oracle savings / total oracle savings
+S3_FN_MAX = 0.01                  # abstained useful-delta targets / useful-delta targets
+
+
+def _feature_row(population, target_id, t, bases, desc, oracle):
+    has_meta = bool(metadata_order(t, bases))
+    per_base = {b['object_id']: list(_shared_union(desc[t['object_id']], desc[b['object_id']])) for b in bases}
+    best = max(per_base.values(), key=lambda su: (Fraction(su[0], max(su[1], 1)), su[0]), default=[0, 0])
+    return {'population': population, 'target_occurrence_id': target_id, 'candidates': len(bases),
+            'has_meta': has_meta, 'best_shared': max((su[0] for su in per_base.values()), default=0),
+            'best_pair': best, 'useful_delta': oracle['useful_delta'] if oracle else None,
+            'standalone_bytes': oracle['standalone_total_bytes'] if oracle else None,
+            'oracle_bytes': oracle['oracle_total_bytes'] if oracle else None, 'per_base': per_base}
+
+
+def _shared_union(a, b):
+    da, db = set(a[:SKETCH_HASHES]), set(b[:SKETCH_HASHES])
+    union = sorted(da | db)[:SKETCH_HASHES]
+    return sum(1 for x in union if x in da and x in db), len(union)
+
+
+def features(pilot_store, x0_store):
+    """Descriptor resemblance of every (target, base) of the evaluated populations, from natural bytes."""
+    import x0_screen as xs
+    rows, cache = [], {}
+
+    def desc_of(store, m):
+        key = (str(store), m['object_id'])
+        if key not in cache:
+            cache[key] = descriptor(bl.read_object(store, m['object_id'], m['bytes']))
+        return cache[key]
+    targets, _ = bl.load_oracle(PILOT_ORACLE)
+    for q in bl.natural_universe():
+        meta = lambda m: {**m, 'line': q['family_id'], 'version_rank': m['ordinal']}
+        t, bases = meta(q['target']), [meta(b) for b in q['bases']]
+        desc = {m['object_id']: desc_of(pilot_store, m) for m in (t, *bases)}
+        rows.append(_feature_row(f"pilot-{q['split']}", q['target_occurrence_id'], t, bases, desc,
+                                 targets[q['target_occurrence_id']]))
+    corpus, candidates = xs.load(X0_RUN)
+    x0_targets = {r['target_occurrence_id']: r for r in bl.jsonl(X0_RUN / 'targets.jsonl')}
+    for q in xs.queries_for_ranking(corpus, candidates):
+        meta = lambda m: {**m, 'line': m['branch'], 'version_rank': m['ordinal']}
+        t, bases = meta(q['target']), [meta(b) for b in q['bases']]
+        desc = {m['object_id']: desc_of(x0_store, m) for m in (t, *bases)}
+        rows.append(_feature_row(f"x0-{q['cell']}", q['target_occurrence_id'], t, bases, desc,
+                                 x0_targets[q['target_occurrence_id']]))
+    # Adversarial negatives without metadata: random bytes and zlib streams of real targets against the pilot
+    # development bases of the file track. Delta from real bases cannot help them; only the signal is recorded.
+    import zlib
+    pool = {}
+    for q in bl.natural_universe():
+        if q['split'] == 'development' and q['track'] == 'file':
+            for b in q['bases']:
+                pool[b['object_id']] = b
+    pool_bases = [{**b, 'path': None, 'line': None, 'version_rank': 0} for _, b in sorted(pool.items())]
+    for i in range(8):
+        data = xorshift_bytes(500 + i, 65536)
+        t = {'object_id': f'random-{i}', 'bytes': len(data), 'path': None, 'line': None, 'version_rank': 0,
+             'offset': None}
+        desc = {t['object_id']: descriptor(data), **{b['object_id']: desc_of(pilot_store, b) for b in pool_bases}}
+        rows.append(_feature_row('adversarial-random', t['object_id'], t, pool_bases, desc, None))
+    for i, (oid, b) in enumerate(sorted(pool.items())[:8]):
+        data = zlib.compress(bl.read_object(pilot_store, oid, b['bytes']), 9)
+        t = {'object_id': f'zlib-{i}', 'bytes': len(data), 'path': None, 'line': None, 'version_rank': 0,
+             'offset': None}
+        others = [x for x in pool_bases if x['object_id'] != oid]
+        desc = {t['object_id']: descriptor(data), **{x['object_id']: desc_of(pilot_store, x) for x in others}}
+        rows.append(_feature_row('adversarial-zlib', t['object_id'], t, others, desc, None))
+    return rows
+
+
+def abstention(rows):
+    """README s3.md section 3: per level, saved encoder calls and lost savings; the preregistered choice."""
+    levels = []
+    natural = [r for r in rows if r['useful_delta'] is not None]
+    total_savings = sum(r['standalone_bytes'] - r['oracle_bytes'] for r in natural)
+    useful = [r for r in natural if r['useful_delta']]
+    calls = sum(min(S3_K, r['candidates']) for r in natural)
+    for level in S3_LEVELS:
+        skip = lambda r: level > 0 and not r['has_meta'] and r['best_shared'] < level
+        lost = sum(r['standalone_bytes'] - r['oracle_bytes'] for r in useful if skip(r))
+        fn = sum(1 for r in useful if skip(r))
+        by_pop = {}
+        for r in rows:
+            p = by_pop.setdefault(r['population'], {'targets': 0, 'abstained': 0, 'useful': 0, 'useful_abstained': 0})
+            p['targets'] += 1
+            p['abstained'] += skip(r)
+            p['useful'] += bool(r['useful_delta'])
+            p['useful_abstained'] += bool(r['useful_delta']) and skip(r)
+        levels.append({'level': level,
+                       'saved_calls': sum(min(S3_K, r['candidates']) for r in natural if skip(r)),
+                       'saved_call_share': sum(min(S3_K, r['candidates']) for r in natural if skip(r)) / calls,
+                       'useful_abstained': fn, 'useful_abstained_share': fn / len(useful),
+                       'lost_savings_bytes': lost, 'lost_savings_share': lost / total_savings,
+                       'populations': by_pop})
+    ok = [l for l in levels if l['lost_savings_share'] <= S3_LOST_MAX and l['useful_abstained_share'] <= S3_FN_MAX]
+    chosen = max(ok, key=lambda l: (l['saved_calls'], -l['level']))['level'] if ok else 0
+    return {'schema': 'delsk.simple-selector.s3-abstention.v1', 'in_sample': True, 'k': S3_K,
+            'lost_max': S3_LOST_MAX, 'fn_max': S3_FN_MAX, 'natural_targets': len(natural),
+            'useful_targets': len(useful), 'encoder_calls_k2': calls, 'levels': levels, 'chosen_level': chosen}
+
+
 def main(argv):
     if argv[:1] == ['evaluate'] and len(argv) == 2:
         result = evaluate()
@@ -217,6 +326,19 @@ def main(argv):
         for s in result['summary']:
             print(f"{s['population']:18} K={s['k']:<2} SC={s['savings_capture']:.4f} UR={s['useful_recall']:.3f} "
                   f"nrp95={s['normalized_regret_p95']:.3f} calls÷{s['encoder_call_reduction']:.1f}")
+        return 0
+    if argv[:1] == ['features'] and len(argv) == 4:
+        rows = features(argv[1], argv[2])
+        bl.write_jsonl(argv[3], rows)
+        print(f'{len(rows)} feature rows')
+        return 0
+    if argv[:1] == ['abstention'] and len(argv) == 3:
+        result = abstention(bl.jsonl(argv[1]))
+        Path(argv[2]).write_text(json.dumps(result, indent=2, sort_keys=True) + '\n')
+        for l in result['levels']:
+            print(f"level {l['level']}: calls saved {l['saved_call_share']:.3f}, useful abstained "
+                  f"{l['useful_abstained']} ({l['useful_abstained_share']:.3f}), lost {l['lost_savings_share']:.4f}")
+        print('chosen level', result['chosen_level'])
         return 0
     if argv[:1] == ['vectors'] and len(argv) == 2:
         Path(argv[1]).write_text('\n'.join(vector_lines()) + '\n')
