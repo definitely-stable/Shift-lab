@@ -1,0 +1,87 @@
+name: Simple selector S3 features (experimental)
+
+# S3 (.work/selector/s3.md): 64-byte descriptor resemblance of every (target, base) pair of the evaluated pilot-v1
+# development/calibration and X0 populations, plus adversarial random and zlib targets. Natural bytes are
+# re-materialized from the pinned locks and never leave RUNNER_TEMP; the oracle is not re-run. Admission before
+# compute, one bounded job, artifact cap before upload. Standard GitHub-hosted runner.
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Full commit SHA that must equal the dispatched ref head
+        type: string
+        required: true
+
+permissions:
+  contents: read
+  actions: read
+
+# One experimental run at a time across all experimental workflows (budget.EXPERIMENTAL_WORKFLOWS).
+concurrency:
+  group: delsk-experimental
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  features:
+    runs-on: ubuntu-24.04
+    # Must not exceed budget.RUN_RESERVATION_MINUTES: the admission reserves that cap for every experimental run.
+    timeout-minutes: 30
+    env:
+      SOURCE_SHA: ${{ inputs.source_sha }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Source must be the dispatched head
+        run: test "$SOURCE_SHA" = "$GITHUB_SHA"
+      - name: Admission (runner-minute ledger, artifact cap)
+        id: admit
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          BUDGET_MODE: ${{ vars.DELSK_BUDGET_MODE }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/evidence"
+          python3 .work/tools/budget.py admit "$RUNNER_TEMP/evidence/admission.json"
+      - name: Admission must pass
+        run: test "${{ steps.admit.outcome }}" = success
+      - name: Materialize the pinned pilot-v1 store
+        run: python3 .work/tools/baselines.py materialize "$RUNNER_TEMP/pilot"
+      - name: Rebuild the X0 store; C_t must equal the retained run
+        run: |
+          python3 .work/tools/x0_corpus.py build "$RUNNER_TEMP/x0" "$RUNNER_TEMP/x0-out"
+          # Queries only: the corpus digest also covers per-run redirect URLs of release assets.
+          python3 - "$RUNNER_TEMP/x0-out/candidates.json" .work/results/DELSK-002-X0/37449333091-1/candidates.json <<'PY'
+          import json, sys
+          a, b = (json.load(open(p))["queries"] for p in sys.argv[1:])
+          assert a == b, "rebuilt X0 C_t differs from the retained run"
+          print(len(a), "queries equal")
+          PY
+      - name: Descriptor resemblance per pair
+        run: python3 .work/tools/simple_selector.py features "$RUNNER_TEMP/pilot" "$RUNNER_TEMP/x0" "$RUNNER_TEMP/evidence/features.jsonl"
+      - name: Abstention analysis (preregistered rule)
+        run: python3 .work/tools/simple_selector.py abstention "$RUNNER_TEMP/evidence/features.jsonl" "$RUNNER_TEMP/evidence/abstention.json"
+      - name: Run record
+        if: always()
+        run: |
+          python3 - "$RUNNER_TEMP/evidence/run.json" <<'PY'
+          import json, os, sys
+          keys = ("GITHUB_SHA", "GITHUB_WORKFLOW_SHA", "GITHUB_RUN_ID", "GITHUB_RUN_ATTEMPT", "GITHUB_REF",
+                  "RUNNER_OS", "RUNNER_ARCH", "ImageOS", "ImageVersion")
+          json.dump({"schema": "delsk.selector.s3-run.v1", **{k.lower(): os.environ.get(k) for k in keys}},
+                    open(sys.argv[1], "w"), indent=2, sort_keys=True)
+          PY
+      - name: Artifact cap before upload
+        id: artifact_cap
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 .work/tools/budget.py artifact-check "$RUNNER_TEMP/evidence"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always() && steps.artifact_cap.outcome == 'success'
+        with:
+          name: selector-s3-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/evidence
+          retention-days: 30
+          if-no-files-found: error

@@ -41,7 +41,7 @@ WINDOW = dt.timedelta(days=7)
 # (one extra day covers a re-run started on day 30 that finishes later).
 RERUN_HORIZON = dt.timedelta(days=31)
 EXPERIMENTAL_WORKFLOWS = ("foundation.yml", "oracle-pilot.yml", "delsk-baselines.yml", "delsk-screening.yml",
-                          "selector-bench.yml")
+                          "selector-bench.yml", "selector-s3.yml")
 # Full cap of one experimental run: the single job's timeout-minutes in
 # foundation.yml (test_foundation checks they match).
 RUN_RESERVATION_MINUTES = 30
