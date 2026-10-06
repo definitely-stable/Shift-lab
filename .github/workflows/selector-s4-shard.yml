@@ -36,6 +36,7 @@ jobs:
       DOTNET_CLI_TELEMETRY_OPTOUT: "1"
       DOTNET_NOLOGO: "1"
       NUGET_XMLDOC_MODE: skip
+      PYTHONDONTWRITEBYTECODE: "1"
 
     steps:
       - name: Checkout S4 implementation
@@ -49,6 +50,7 @@ jobs:
           set -euo pipefail
           test "$GITHUB_REF" = "refs/heads/main"
           test "$SOURCE_SHA" = "$GITHUB_SHA"
+          test "$GITHUB_WORKFLOW_SHA" = "$GITHUB_SHA"
           test "$SHARD_INDEX" -ge 0
           test "$SHARD_INDEX" -lt 16
 
@@ -126,7 +128,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python3 .work/tools/selector_s4_runner.py measure-shard             "$RUNNER_TEMP/s4-plan.json"             "$RUNNER_TEMP/pilot-store"             "$RUNNER_TEMP/x0-store"             "$GITHUB_WORKSPACE/consumer/src/ChunkShift.Cli/bin/Release/net10.0/ChunkShift.Cli.dll"             "$SHARD_INDEX"             "$RUNNER_TEMP/evidence"             --protocol-authority "$PROTOCOL_SHA"             --implementation-sha "$SOURCE_SHA"
+          python3 .work/tools/selector_s4_runner.py measure-shard             "$RUNNER_TEMP/s4-plan.json"             "$RUNNER_TEMP/pilot-store"             "$RUNNER_TEMP/x0-store"             "$GITHUB_WORKSPACE/consumer/src/ChunkShift.Cli/bin/Release/net10.0/ChunkShift.Cli.dll"             "$SHARD_INDEX"             "$RUNNER_TEMP/evidence"             --protocol-dir "$GITHUB_WORKSPACE/protocol"             --protocol-authority "$PROTOCOL_SHA"             --implementation-sha "$SOURCE_SHA"
+
+      - name: Verify external tracked sources remained unchanged
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git -C protocol diff --quiet HEAD --
+          git -C consumer diff --quiet HEAD --
 
       - name: Retain run provenance
         if: always()
