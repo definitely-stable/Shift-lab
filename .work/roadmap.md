@@ -24,7 +24,7 @@
 | [DELSK-002](https://github.com/definitely-stable/Shift-lab/issues/3) | P0 | Заморозить лицензированный corpus и lineage/candidate manifests | — |
 | [DELSK-003](https://github.com/definitely-stable/Shift-lab/issues/4) | P0 | Реализовать настоящий multi-base encoder oracle и метрики | DELSK-002, DELSK-005 |
 | [DELSK-003A](https://github.com/definitely-stable/Shift-lab/issues/27) | P0 | Registered-attempt provenance (sub-task DELSK-003): `delsk.oracle-contract.v4` ACTIVE, natural pilot 2 × COMPLETE, **G1 PASS** (`main` `fc463bc`, record `0d1deb73…9e5c`); v2 и v3 superseded | DELSK-003 |
-| [DELSK-004](https://github.com/definitely-stable/Shift-lab/issues/5) | P0 | Воспроизвести дешёвые и современные baselines на общем oracle | DELSK-001, DELSK-003 |
+| [DELSK-004](https://github.com/definitely-stable/Shift-lab/issues/5) | P0 | Воспроизвести дешёвые и современные baselines на общем oracle; Slice A ([contract](baselines/contract.md)): дешёвые и MinHash/containment baselines IMPLEMENTED, NOT_RUN | DELSK-001, DELSK-003 |
 | [DELSK-005](https://github.com/definitely-stable/Shift-lab/issues/6) | P0 | Построить ограниченный CI harness и долговечную evidence | DELSK-002 |
 | [DELSK-006](https://github.com/definitely-stable/Shift-lab/issues/7) | P1 | H1/H4/H10: проверить размер sketches, features и CDC dependence | DELSK-003, DELSK-004 |
 | [DELSK-007](https://github.com/definitely-stable/Shift-lab/issues/8) | P1 | H2/H3: проверить направленность и codec-conditioned scoring | DELSK-006 |
