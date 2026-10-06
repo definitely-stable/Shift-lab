@@ -2,6 +2,7 @@ import json
 import sys
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 
 TOOLS = Path(__file__).resolve().parents[1] / "tools"
@@ -62,7 +63,7 @@ class Evaluate(unittest.TestCase):
                 "family_id": "f",
                 "track": "file",
                 "target_occurrence_id": "t",
-                "target_object_id": "target",
+                "target_object_id": "a" * 64,
                 "target_bytes": 1000,
                 "lanes": {
                     "previous1": ["b00"],
@@ -88,6 +89,8 @@ class Evaluate(unittest.TestCase):
                 "apply_wall_ns": 4,
                 "apply_cpu_ns": 3,
                 "reconstruction_ok": base != bad,
+                "target_object_id": "a" * 64,
+                "chunkshift_commit": "x" * 40,
             })
         if extra:
             rows.append({
@@ -100,6 +103,8 @@ class Evaluate(unittest.TestCase):
                 "apply_wall_ns": 1,
                 "apply_cpu_ns": 1,
                 "reconstruction_ok": True,
+                "target_object_id": "a" * 64,
+                "chunkshift_commit": "x" * 40,
             })
         tmp = tempfile.NamedTemporaryFile("w", encoding="utf-8", delete=False)
         with tmp:
@@ -116,7 +121,9 @@ class Evaluate(unittest.TestCase):
 
     def test_k2_opens_confirmation_only_when_preregistered_gates_pass(self):
         path = self.write_measurements(self.complete_bytes())
-        result = s4.evaluate(self.synthetic_plan(), path)
+        plan = self.synthetic_plan()
+        with unittest.mock.patch.object(s4, "build_plan", return_value=plan):
+            result = s4.evaluate(plan, path)
         self.assertEqual(result["verdict"], "OPEN_CONFIRMATION_K2")
         self.assertTrue(result["eligibility"]["delsk2"]["eligible"])
         self.assertEqual(result["best_one_base_control"], "previous1")
@@ -129,24 +136,53 @@ class Evaluate(unittest.TestCase):
     def test_no_signal_when_delsk_does_not_beat_the_cheap_control(self):
         values = self.complete_bytes(b02=899, b03=910, b14=860)
         path = self.write_measurements(values)
-        result = s4.evaluate(self.synthetic_plan(), path)
+        plan = self.synthetic_plan()
+        with unittest.mock.patch.object(s4, "build_plan", return_value=plan):
+            result = s4.evaluate(plan, path)
         self.assertEqual(result["verdict"], "NO_SYSTEM_SIGNAL")
         self.assertFalse(result["eligibility"]["delsk2"]["eligible"])
 
     def test_reconstruction_failure_is_invalid(self):
         path = self.write_measurements(self.complete_bytes(), bad="b02")
-        self.assertEqual(s4.evaluate(self.synthetic_plan(), path)["verdict"], "INVALID")
+        plan = self.synthetic_plan()
+        with unittest.mock.patch.object(s4, "build_plan", return_value=plan):
+            self.assertEqual(s4.evaluate(plan, path)["verdict"], "INVALID")
 
     def test_missing_or_extra_measurement_fails_closed(self):
         values = self.complete_bytes()
         values.pop("b14")
-        with self.assertRaises(s4.S4Error):
-            s4.evaluate(self.synthetic_plan(), self.write_measurements(values))
-        with self.assertRaises(s4.S4Error):
-            s4.evaluate(
-                self.synthetic_plan(),
-                self.write_measurements(self.complete_bytes(), extra=True),
-            )
+        plan = self.synthetic_plan()
+        with unittest.mock.patch.object(s4, "build_plan", return_value=plan):
+            with self.assertRaises(s4.S4Error):
+                s4.evaluate(plan, self.write_measurements(values))
+            with self.assertRaises(s4.S4Error):
+                s4.evaluate(
+                    plan,
+                    self.write_measurements(self.complete_bytes(), extra=True),
+                )
+
+    def test_modified_plan_is_rejected(self):
+        plan = self.synthetic_plan()
+        path = self.write_measurements(self.complete_bytes())
+        frozen = json.loads(json.dumps(plan))
+        frozen["targets"][0]["lanes"]["delsk2"] = ["b14", "b13"]
+        with unittest.mock.patch.object(s4, "build_plan", return_value=frozen):
+            with self.assertRaises(s4.S4Error):
+                s4.evaluate(plan, path)
+
+    def test_measurement_must_bind_target_and_consumer(self):
+        plan = self.synthetic_plan()
+        path = self.write_measurements(self.complete_bytes())
+        rows = [json.loads(line) for line in Path(path).read_text(encoding="utf-8").splitlines()]
+        rows[0]["chunkshift_commit"] = "y" * 40
+        bad = tempfile.NamedTemporaryFile("w", encoding="utf-8", delete=False)
+        with bad:
+            for row in rows:
+                bad.write(json.dumps(row, sort_keys=True) + "\n")
+        self.addCleanup(lambda: Path(bad.name).unlink(missing_ok=True))
+        with unittest.mock.patch.object(s4, "build_plan", return_value=plan):
+            with self.assertRaises(s4.S4Error):
+                s4.evaluate(plan, bad.name)
 
 
 if __name__ == "__main__":
