@@ -1,0 +1,19 @@
+{
+  "schema": "delsk.chunkshift-consumer-pin.v1",
+  "repository": "https://github.com/definitely-stable/ChunkShift",
+  "commit": "74bb301b6d8ecc52cf0bc0e00d86fa174093d91b",
+  "commit_subject": "docs(research): retain PATCH-GAP G1 evaluation verdict (#256)",
+  "cli_project": "src/ChunkShift.Cli/ChunkShift.Cli.csproj",
+  "patch_create_command": "chunkshift patch create",
+  "patch_apply_command": "chunkshift patch apply",
+  "manifest_create_command": "chunkshift create",
+  "consumer_unit": "whole content object",
+  "candidate_unit": "one prior base object from the frozen Delsk C_t",
+  "internal_chunkshift_candidate_policy": "CspEncoderPolicy.Default",
+  "internal_chunkshift_research_selector": null,
+  "patch_format": "CSP v1",
+  "notes": [
+    "Delsk selects outer base objects only. ChunkShift's internal per-chunk dictionary candidate selection is identical in every S4 lane.",
+    "No ChunkShift public API, CSP/CSM format, content identity, D15 default, or production selector is changed by S4."
+  ]
+}
