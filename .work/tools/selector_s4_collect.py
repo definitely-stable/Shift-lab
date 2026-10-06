@@ -78,7 +78,7 @@ def load_artifact_index(path):
         check(
             isinstance(row["artifact_digest"], str)
             and row["artifact_digest"].startswith("sha256:")
-            and len(row["artifact_digest"]) == 71,
+            and is_hex(row["artifact_digest"][7:], 64),
             f"missing GitHub artifact digest for run {run_id}",
         )
         check(isinstance(row["artifact_size"], int) and row["artifact_size"] > 0,
@@ -105,6 +105,7 @@ def merge(plan_path, artifact_index_path, shards_root, out_dir):
     dotnet_version = None
     rows = []
     row_keys = set()
+    manifest_identity = {}
     shard_records = []
 
     for directory in dirs:
@@ -175,6 +176,36 @@ def merge(plan_path, artifact_index_path, shards_root, out_dir):
         check(admission.get("schema") == "delsk.ci.admission.v1", f"shard {index}: foreign admission")
         check(admission.get("admitted") is True, f"shard {index}: compute was not admitted")
 
+        local_manifests = {}
+        for manifest in jsonl(directory / "manifests.jsonl"):
+            check(set(manifest) == {
+                "schema", "object_id", "manifest_id", "manifest_sha256",
+                "physical_bytes", "wall_ns", "cpu_ns",
+            }, f"shard {index}: manifest row shape changed")
+            check(manifest.get("schema") == "delsk.chunkshift-s4.manifest.v1",
+                  f"shard {index}: foreign manifest schema")
+            object_id = manifest.get("object_id")
+            check(is_hex(object_id, 64), f"shard {index}: invalid manifest object id")
+            check(object_id not in local_manifests, f"shard {index}: duplicate manifest object")
+            check(isinstance(manifest.get("manifest_id"), str) and manifest["manifest_id"],
+                  f"shard {index}: missing manifest id")
+            check(is_hex(manifest.get("manifest_sha256"), 64),
+                  f"shard {index}: invalid manifest SHA-256")
+            check(isinstance(manifest.get("physical_bytes"), int) and manifest["physical_bytes"] > 0,
+                  f"shard {index}: invalid manifest size")
+            check(isinstance(manifest.get("wall_ns"), int) and manifest["wall_ns"] >= 0,
+                  f"shard {index}: invalid manifest wall time")
+            check(isinstance(manifest.get("cpu_ns"), int) and manifest["cpu_ns"] >= 0,
+                  f"shard {index}: invalid manifest CPU time")
+            identity = (
+                manifest["manifest_id"],
+                manifest["manifest_sha256"],
+                manifest["physical_bytes"],
+            )
+            previous = manifest_identity.setdefault(object_id, identity)
+            check(previous == identity, f"shard {index}: manifest identity drift for {object_id}")
+            local_manifests[object_id] = manifest
+
         shard_rows = jsonl(directory / "measurements.jsonl")
         check(len(shard_rows) == shard.get("actual_rows") == shard.get("expected_rows"),
               f"shard {index}: row count mismatch")
@@ -183,9 +214,25 @@ def merge(plan_path, artifact_index_path, shards_root, out_dir):
         check(sum(row.get("status") != "ok" for row in shard_rows) == shard.get("failed_rows"),
               f"shard {index}: failed-row count mismatch")
 
+        actual_target_ids = sorted({row.get("target_occurrence_id") for row in shard_rows})
+        check(actual_target_ids == expected_ids, f"shard {index}: measurement targets differ from shard plan")
         for row in shard_rows:
             key = (row.get("target_occurrence_id"), row.get("base_object_id"))
             check(key not in row_keys, f"duplicate measurement across shards: {key}")
+            target_object_id = row.get("target_object_id")
+            base_object_id = row.get("base_object_id")
+            check(target_object_id in local_manifests,
+                  f"shard {index}: target manifest evidence missing for {key}")
+            check(row.get("target_manifest_id") == local_manifests[target_object_id]["manifest_id"],
+                  f"shard {index}: target manifest id mismatch for {key}")
+            if base_object_id is None:
+                check(row.get("base_manifest_id") is None,
+                      f"shard {index}: standalone row unexpectedly binds a base manifest")
+            else:
+                check(base_object_id in local_manifests,
+                      f"shard {index}: base manifest evidence missing for {key}")
+                check(row.get("base_manifest_id") == local_manifests[base_object_id]["manifest_id"],
+                      f"shard {index}: base manifest id mismatch for {key}")
             row_keys.add(key)
             rows.append(row)
 
@@ -200,6 +247,12 @@ def merge(plan_path, artifact_index_path, shards_root, out_dir):
         })
 
     check(seen_indices == set(range(SHARD_COUNT)), "shard index set is incomplete")
+    expected_pairs = set()
+    for target in plan["targets"]:
+        tid = target["target_occurrence_id"]
+        expected_pairs.add((tid, None))
+        expected_pairs.update((tid, base) for base in target["lanes"]["exhaustive"])
+    check(row_keys == expected_pairs, "combined shard rows differ from the exact S4 pair universe")
 
     rows.sort(key=lambda row: (row["target_occurrence_id"], row["base_object_id"] or ""))
     out = Path(out_dir)
@@ -220,6 +273,7 @@ def merge(plan_path, artifact_index_path, shards_root, out_dir):
         "plan_sha256": plan_sha,
         "rows": len(rows),
         "failed_rows": sum(row.get("status") != "ok" for row in rows),
+        "unique_manifest_objects": len(manifest_identity),
         "measurements_sha256": file_sha256(measurements),
         "shards": sorted(shard_records, key=lambda row: row["shard_index"]),
     }
