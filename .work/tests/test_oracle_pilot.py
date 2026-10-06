@@ -25,6 +25,15 @@ ENV = {'GITHUB_EVENT_NAME': 'workflow_dispatch', 'GITHUB_REPOSITORY': 'definitel
        'GITHUB_RUN_ID': '71', 'GITHUB_RUN_ATTEMPT': '1', 'RUNNER_ARCH': 'X64', 'RUNNER_OS': 'Linux'}
 
 
+@contextlib.contextmanager
+def admitted(directory):
+    """initialize with the live v3 admission stubbed (no network) and its file kept inside the test directory."""
+    doc = {'schema': pilot.ADMISSION_SCHEMA, 'stub': True}
+    with patch.object(pilot, 'verify_v3_activation', return_value=doc), \
+            patch.object(pilot, 'v3_admission_file', lambda out: Path(directory) / pilot.ADMISSION_FILE):
+        yield
+
+
 class Dispatch(unittest.TestCase):
     def setUp(self):
         self.assertIsNotNone(pilot, 'production pilot gate is missing')
@@ -53,7 +62,8 @@ class Dispatch(unittest.TestCase):
         with tempfile.TemporaryDirectory() as t:
             out, work = Path(t) / 'out', Path(t) / 'work'
             out.mkdir(); work.mkdir()
-            pilot.initialize(out, ENV)
+            with admitted(t):
+                pilot.initialize(out, ENV)
             admission = Path(t) / 'admission.json'
             admission.write_text(json.dumps({'admitted': False}))
             with patch.object(pilot, 'run_bounded', side_effect=AssertionError('compute before admission')):
@@ -74,10 +84,11 @@ class Dispatch(unittest.TestCase):
         with tempfile.TemporaryDirectory() as t:
             out, work = Path(t) / 'out', Path(t) / 'work'
             out.mkdir(); work.mkdir()
-            pilot.initialize(out, ENV)
+            with admitted(t):
+                pilot.initialize(out, ENV)
             admission = Path(t) / 'admission'
             admission.write_text(json.dumps({'admitted': True, 'within_budget': True, 'accounting_complete': True}))
-            with patch.object(pilot, 'require_dispatch_history'), patch.object(pilot, 'resource_precheck'), \
+            with patch.object(pilot, 'require_v3_active'), patch.object(pilot, 'resource_precheck'), \
                     patch.object(pilot.build, 'main', return_value=1), \
                     patch.object(materializer, 'load_natural', side_effect=AssertionError('natural fetch')):
                 self.assertEqual(pilot.worker(out, work, admission,
@@ -90,10 +101,11 @@ class Dispatch(unittest.TestCase):
         with tempfile.TemporaryDirectory() as t:
             out, work = Path(t) / 'out', Path(t) / 'work'
             out.mkdir(); work.mkdir()
-            pilot.initialize(out, ENV)
+            with admitted(t):
+                pilot.initialize(out, ENV)
             admission = Path(t) / 'admission'
             admission.write_text(json.dumps({'admitted': True, 'within_budget': True, 'accounting_complete': True}))
-            with patch.object(pilot, 'require_dispatch_history'), patch.object(pilot, 'resource_precheck'), \
+            with patch.object(pilot, 'require_v3_active'), patch.object(pilot, 'resource_precheck'), \
                     patch.object(pilot.build, 'main', return_value=0), \
                     patch.object(pilot.runner, 'conformance_record', return_value=({'verdict': 'FAIL'}, {})), \
                     patch.object(materializer, 'materialize_store', side_effect=AssertionError('natural fetch')):
@@ -101,16 +113,118 @@ class Dispatch(unittest.TestCase):
                                             {**ENV, 'ATTEMPT_ARTIFACT_ID': '123'}), 1)
             self.assertEqual(json.loads((out / 'attempt.json').read_bytes())['failure_class'], 'CONFORMANCE_FAILED')
 
-    def test_natural_path_refuses_unprovable_all_dispatch_history(self):
-        with self.assertRaises(pilot.PilotError) as blocked:
-            pilot.require_dispatch_history()
-        self.assertEqual(blocked.exception.failure_class, 'DISPATCH_HISTORY_UNVERIFIED')
-
-    def test_direct_runner_gate_cannot_bypass_history_blocker(self):
-        with patch.object(pilot, 'measurement_identity', side_effect=AssertionError('gate reached')):
+    def test_direct_runner_gate_refuses_without_v3_activation(self):
+        import oracle_g1_v2 as g1
+        with patch.object(g1, 'ACTIVATION_RECORD', None), \
+                patch.object(pilot, 'measurement_identity', side_effect=AssertionError('gate reached')):
             with self.assertRaises(pilot.PilotError) as blocked:
                 pilot.validate_gate({**ENV, 'ATTEMPT_ARTIFACT_ID': '123'}, 'unused', 'unused')
-        self.assertEqual(blocked.exception.failure_class, 'DISPATCH_HISTORY_UNVERIFIED')
+        self.assertEqual(blocked.exception.failure_class, 'V3_NOT_ACTIVE')
+
+    def test_worker_without_v3_admission_never_builds_or_fetches(self):
+        import oracle_materialize as materializer
+        with tempfile.TemporaryDirectory() as t:
+            out, work = Path(t) / 'out', Path(t) / 'work'
+            out.mkdir(); work.mkdir()
+            admission = Path(t) / 'admission'
+            admission.write_text(json.dumps({'admitted': True, 'within_budget': True, 'accounting_complete': True}))
+            with patch.object(pilot, 'v3_admission_file', lambda out: Path(t) / pilot.ADMISSION_FILE), \
+                    patch.object(pilot.build, 'main', side_effect=AssertionError('codec build')), \
+                    patch.object(materializer, 'load_natural', side_effect=AssertionError('natural fetch')):
+                self.assertEqual(pilot.main(['worker', str(out), str(work), str(admission)],
+                                            {**ENV, 'ATTEMPT_ARTIFACT_ID': '123'}), 1)
+            self.assertEqual(json.loads((out / 'attempt.json').read_bytes())['failure_class'], 'V3_NOT_ACTIVE')
+
+
+@unittest.skipUnless(pilot is not None, 'production pilot gate is missing')
+class V3Admission(unittest.TestCase):
+    """Contract-v3 5 replaces the C0 refusal: live admission before the boundary (initialize), offline re-check of
+    that admission after it (worker, runner gate). Exercised on the real Git history of this checkout with the live
+    activation stubbed; every unprovable fact refuses with V3_NOT_ACTIVE."""
+
+    def setUp(self):
+        import oracle_g1_v2 as g1
+        self.g1 = g1
+        git = lambda *a: subprocess.run(['git', '-C', str(WORK.parent), *a], capture_output=True, text=True)
+        self.head = git('rev-parse', 'HEAD').stdout.strip()
+        self.parent = git('rev-parse', '--verify', '--quiet', 'HEAD^1').stdout.strip() or None
+        self.workflow = pilot._workflow_sha256(self.head)
+        self.assertRegex(self.workflow or '', '^[0-9a-f]{64}$')
+        self.env = {**ENV, 'GITHUB_SHA': self.head, 'SOURCE_SHA': self.head, 'GITHUB_WORKFLOW_SHA': self.head}
+        self.record = 'd' * 64
+
+    def active(self, main=None, workflow=None):
+        return (main or self.head, ({'infra': {'path': 'x', 'sha256': 'e' * 64}},
+                                    {'workflow_sha256': workflow or self.workflow}))
+
+    def verify(self, active=None, raises=None, record='default'):
+        import oracle_registry_git as transport
+        side = {'side_effect': raises} if raises else {'return_value': active}
+        with patch.object(self.g1, 'ACTIVATION_RECORD', self.record if record == 'default' else record), \
+                patch.object(transport, 'active_activation', **side) as call:
+            return pilot.verify_v3_activation(self.env), call
+
+    def refused(self, fn):
+        with self.assertRaises(pilot.PilotError) as blocked:
+            fn()
+        self.assertEqual(blocked.exception.failure_class, 'V3_NOT_ACTIVE')
+
+    def test_live_admission_of_an_active_v3(self):
+        doc, call = self.verify(self.active())
+        call.assert_called_once_with(self.record)
+        self.assertEqual(doc, {'schema': pilot.ADMISSION_SCHEMA, 'repository': pilot.REPOSITORY, 'run_id': 71,
+                               'run_attempt': 1, 'measured_source_sha': self.head, 'main_head_sha': self.head,
+                               'activation_record': self.record, 'infra_sha256': 'e' * 64,
+                               'workflow_sha256': self.workflow})
+
+    def test_live_admission_refusals(self):
+        self.refused(lambda: self.verify(None))                                      # activation does not verify
+        self.refused(lambda: self.verify(raises=RuntimeError('provider down')))      # unobtainable facts
+        self.refused(lambda: self.verify(self.active(workflow='0' * 64)))            # other oracle-pilot.yml bytes
+        if self.parent:
+            self.refused(lambda: self.verify(self.active(main=self.parent)))         # source not on the main
+        import oracle_registry_git as transport
+        with patch.object(transport, 'active_activation', side_effect=AssertionError('read without a record')):
+            self.refused(lambda: self.verify(record=None))                           # no activation record
+
+    def test_initialize_refuses_before_bind_without_activation(self):
+        import oracle_registry_git as transport
+        with tempfile.TemporaryDirectory() as t:
+            out = Path(t) / 'out'
+            with patch.object(self.g1, 'ACTIVATION_RECORD', self.record), \
+                    patch.object(transport, 'active_activation', return_value=None), \
+                    patch.object(pilot, 'v3_admission_file', lambda out: Path(t) / pilot.ADMISSION_FILE):
+                self.assertEqual(pilot.main(['initialize', str(out)], self.env), 1)
+            self.assertEqual(json.loads((out / 'attempt.json').read_bytes())['failure_class'], 'V3_NOT_ACTIVE')
+            self.assertFalse((Path(t) / pilot.ADMISSION_FILE).exists())
+
+    def test_offline_admission_after_the_boundary(self):
+        with tempfile.TemporaryDirectory() as t:
+            path = Path(t) / pilot.ADMISSION_FILE
+            doc, _ = self.verify(self.active())
+            pilot.atomic_json(path, doc)
+            with patch.object(self.g1, 'ACTIVATION_RECORD', self.record), \
+                    patch('urllib.request.urlopen', side_effect=AssertionError('network after the boundary')):
+                pilot.require_v3_active(self.env, path)
+                for env in ({**self.env, 'GITHUB_RUN_ATTEMPT': '2'}, {**self.env, 'GITHUB_RUN_ID': '72'},
+                            {**self.env, 'GITHUB_SHA': self.parent or '0' * 40}):
+                    with self.subTest(env=env):
+                        self.refused(lambda: pilot.require_v3_active(env, path))
+                with patch.object(pilot, '_workflow_sha256', return_value='0' * 64):
+                    self.refused(lambda: pilot.require_v3_active(self.env, path))   # executed workflow changed
+                self.refused(lambda: pilot.require_v3_active(self.env, Path(t) / 'absent.json'))
+                link = Path(t) / 'link.json'
+                link.symlink_to(path)
+                self.refused(lambda: pilot.require_v3_active(self.env, link))
+                pilot.atomic_json(path, {**doc, 'extra': 1})
+                self.refused(lambda: pilot.require_v3_active(self.env, path))
+                path.write_bytes(path.read_bytes() + b' ')
+                self.refused(lambda: pilot.require_v3_active(self.env, path))          # non-canonical bytes
+            pilot.atomic_json(path, doc)
+            with patch.object(self.g1, 'ACTIVATION_RECORD', 'f' * 64):
+                self.refused(lambda: pilot.require_v3_active(self.env, path))       # another activation record
+            with patch.object(self.g1, 'ACTIVATION_RECORD', None):
+                self.refused(lambda: pilot.require_v3_active(self.env, path))
 
 
 class Safety(unittest.TestCase):
@@ -180,8 +294,9 @@ class Safety(unittest.TestCase):
 
     def test_upload_failure_has_bounded_machine_evidence(self):
         with tempfile.TemporaryDirectory() as t:
-            out = Path(t)
-            pilot.initialize(out, ENV)
+            out = Path(t) / 'out'
+            with admitted(t):
+                pilot.initialize(out, ENV)
             self.assertEqual(pilot.main(['finish', str(out), 'failure'], ENV), 0)
             doc = json.loads((out / 'attempt.json').read_bytes())
             self.assertEqual((doc['status'], doc['failure_class']), ('FAILED', 'ARTIFACT_UPLOAD_FAILED'))
