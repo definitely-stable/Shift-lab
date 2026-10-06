@@ -49,6 +49,7 @@ jobs:
           set -euo pipefail
           test "$GITHUB_REF" = "refs/heads/main"
           test "$SOURCE_SHA" = "$GITHUB_SHA"
+          test "$GITHUB_WORKFLOW_SHA" = "$GITHUB_SHA"
 
       - name: Checkout immutable S4 protocol authority
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
