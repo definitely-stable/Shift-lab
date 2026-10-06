@@ -50,7 +50,7 @@ class Plan(unittest.TestCase):
 
 class Evaluate(unittest.TestCase):
     def synthetic_plan(self):
-        bases = [f"b{i:02d}" for i in range(15)]
+        bases = [f"{i + 1:064x}" for i in range(15)]
         return {
             "schema": s4.PLAN_SCHEMA,
             "status": "PREREGISTERED_NOT_RUN",
@@ -66,10 +66,10 @@ class Evaluate(unittest.TestCase):
                 "target_object_id": "a" * 64,
                 "target_bytes": 1000,
                 "lanes": {
-                    "previous1": ["b00"],
-                    "size1": ["b01"],
-                    "delsk2": ["b02", "b03"],
-                    "delsk4": ["b02", "b03", "b04", "b05"],
+                    "previous1": [bases[0]],
+                    "size1": [bases[1]],
+                    "delsk2": [bases[2], bases[3]],
+                    "delsk4": [bases[2], bases[3], bases[4], bases[5]],
                     "exhaustive": bases,
                 },
             }],
@@ -129,8 +129,9 @@ class Evaluate(unittest.TestCase):
         return tmp.name
 
     def complete_bytes(self, **changes):
-        values = {f"b{i:02d}": 940 + i for i in range(15)}
-        values.update({"b00": 900, "b01": 920, "b02": 862, "b03": 870, "b14": 860})
+        bases = [f"{i + 1:064x}" for i in range(15)]
+        values = {base: 940 + i for i, base in enumerate(bases)}
+        values.update({bases[0]: 900, bases[1]: 920, bases[2]: 862, bases[3]: 870, bases[14]: 860})
         values.update(changes)
         return values
 
@@ -149,7 +150,8 @@ class Evaluate(unittest.TestCase):
         )
 
     def test_no_signal_when_delsk_does_not_beat_the_cheap_control(self):
-        values = self.complete_bytes(b02=899, b03=910, b14=860)
+        bases = [f"{i + 1:064x}" for i in range(15)]
+        values = self.complete_bytes(**{bases[2]: 899, bases[3]: 910, bases[14]: 860})
         path = self.write_measurements(values)
         plan = self.synthetic_plan()
         with unittest.mock.patch.object(s4, "build_plan", return_value=plan):
@@ -158,14 +160,15 @@ class Evaluate(unittest.TestCase):
         self.assertFalse(result["eligibility"]["delsk2"]["eligible"])
 
     def test_reconstruction_failure_is_invalid(self):
-        path = self.write_measurements(self.complete_bytes(), bad="b02")
+        bases = [f"{i + 1:064x}" for i in range(15)]
+        path = self.write_measurements(self.complete_bytes(), bad=bases[2])
         plan = self.synthetic_plan()
         with unittest.mock.patch.object(s4, "build_plan", return_value=plan):
             self.assertEqual(s4.evaluate(plan, path)["verdict"], "INVALID")
 
     def test_missing_or_extra_measurement_fails_closed(self):
         values = self.complete_bytes()
-        values.pop("b14")
+        values.pop(f"{15:064x}")
         plan = self.synthetic_plan()
         with unittest.mock.patch.object(s4, "build_plan", return_value=plan):
             with self.assertRaises(s4.S4Error):
@@ -180,7 +183,7 @@ class Evaluate(unittest.TestCase):
         plan = self.synthetic_plan()
         path = self.write_measurements(self.complete_bytes())
         frozen = json.loads(json.dumps(plan))
-        frozen["targets"][0]["lanes"]["delsk2"] = ["b14", "b13"]
+        frozen["targets"][0]["lanes"]["delsk2"] = [f"{15:064x}", f"{14:064x}"]
         with unittest.mock.patch.object(s4, "build_plan", return_value=frozen):
             with self.assertRaises(s4.S4Error):
                 s4.evaluate(plan, path)
