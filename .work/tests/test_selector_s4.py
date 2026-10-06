@@ -25,6 +25,14 @@ class Plan(unittest.TestCase):
         # Same natural population retained by S3: 119 targets.
         self.assertEqual(len(plan["targets"]), 119)
         self.assertEqual(
+            sum(len(t["lanes"]["exhaustive"]) for t in plan["targets"]),
+            3696,
+        )
+        self.assertEqual(
+            119 + sum(len(t["lanes"]["exhaustive"]) for t in plan["targets"]),
+            3815,
+        )
+        self.assertEqual(
             {t["population"] for t in plan["targets"]},
             {
                 "pilot-development",
