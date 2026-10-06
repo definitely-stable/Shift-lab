@@ -1,0 +1,68 @@
+name: DELSK-004 baselines (experimental)
+
+# DELSK-004 Slice A (.work/baselines/contract.md): cheap baselines ranked on the frozen C_t of the development and
+# calibration splits and scored against the retained oracle bundle of contract v4 (G1 PASS). The evaluation split is
+# never read. Admission before compute, one bounded job, artifact cap before upload. Standard GitHub-hosted runner.
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Full commit SHA that must equal the dispatched ref head
+        type: string
+        required: true
+
+permissions:
+  contents: read
+  actions: read
+
+# One experimental run at a time across all experimental workflows (budget.EXPERIMENTAL_WORKFLOWS).
+concurrency:
+  group: delsk-experimental
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  baselines:
+    runs-on: ubuntu-24.04
+    # Must not exceed budget.RUN_RESERVATION_MINUTES: the admission reserves that cap for every experimental run.
+    timeout-minutes: 30
+    env:
+      SOURCE_SHA: ${{ inputs.source_sha }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Source must be the dispatched head
+        run: test "$SOURCE_SHA" = "$GITHUB_SHA"
+      - name: Admission (runner-minute ledger, artifact cap)
+        id: admit
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          BUDGET_MODE: ${{ vars.DELSK_BUDGET_MODE }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/evidence"
+          python3 .work/tools/budget.py admit "$RUNNER_TEMP/evidence/admission.json"
+      - name: Admission must pass
+        run: test "${{ steps.admit.outcome }}" = success
+      - name: Materialize the pinned natural store
+        run: python3 .work/tools/baselines.py materialize "$RUNNER_TEMP/store"
+      - name: Rank (development and calibration only)
+        run: python3 .work/tools/baselines.py rank "$RUNNER_TEMP/store" "$RUNNER_TEMP/evidence"
+      - name: Evaluate against the retained oracle bundle
+        run: |
+          python3 .work/tools/baselines.py evaluate "$RUNNER_TEMP/evidence/rankings.jsonl" \
+            .work/results/ORACLE-G1-V4/bundles/37434946174-1 "$RUNNER_TEMP/evidence"
+      - name: Artifact cap before upload
+        id: artifact_cap
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 .work/tools/budget.py artifact-check "$RUNNER_TEMP/evidence"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always() && steps.artifact_cap.outcome == 'success'
+        with:
+          name: delsk-baselines-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/evidence
+          retention-days: 30
+          if-no-files-found: error

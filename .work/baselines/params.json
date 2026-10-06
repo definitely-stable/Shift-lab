@@ -1,0 +1,15 @@
+{
+  "budgets_bytes": [64, 128, 256, 512, 1024],
+  "contract": "delsk.baselines.slice-a.v1",
+  "epsilons": [0.01, 0.02, 0.05],
+  "epsilon_floor_bytes": 64,
+  "evaluated_splits": ["development", "calibration"],
+  "bootstrap": {"draws": 10000, "seed": 20261004, "quantile": "type7"},
+  "hash_bytes": 8,
+  "k_grid": [1, 4, 8, 16],
+  "methods": ["random", "size_closest", "previous_version", "git_like", "minhash_resemblance", "containment"],
+  "normalized_regret_floor_bytes": 64,
+  "random_seed": 20261006,
+  "shingle_bytes": 8,
+  "sketch_seed": 20261006
+}
