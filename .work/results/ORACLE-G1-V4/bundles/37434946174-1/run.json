@@ -1,0 +1,88 @@
+{
+  "cache": "none",
+  "codec_builds": [
+    {
+      "archive_sha256": "936e10fc9f2be9e18c9fd6719895ff2055e67e47a155776badc6aa8c25ba70fa",
+      "build_argv_sha256": "7b925b343cab18a7664b2e6f5694fcec2613d8e0bb2e5bc2743dd96371d25cfa",
+      "codec_id": "xdelta3-3.2.1-l9-snone-v1",
+      "conformance": "PASS",
+      "executable_sha256": "d943509041966111cacb70f819942116992f01dab17fb54475cfd73c87f8e885",
+      "self_report_sha256": "70a4e63d1fe12d1390bfbc7258c7f680e0b4745e5dd658a22c9d52e81315ccde"
+    },
+    {
+      "archive_sha256": "eb33e51f49a15e023950cd7825ca74a4a2b43db8354825ac24fc1b7ee09e6fa3",
+      "build_argv_sha256": "d2c903d89e945214dd98152a66ad71a3d92e469b020af0fb7ea3a33efafcf4a6",
+      "codec_id": "zstd-1.5.7-l19-v1",
+      "conformance": "PASS",
+      "executable_sha256": "e9b01d813d1b8ada944a036300969690de8381d25a95854edaa46fa87910109a",
+      "self_report_sha256": "85d85f406f6d09bdb82d2ec21f02d1f13781d15a9196fe195209cfd020a81f47"
+    }
+  ],
+  "completed_at": "2026-10-06T08:19:35.893837+00:00",
+  "environment": {
+    "compiler": "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+    "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+    "image_os": "ubuntu24",
+    "image_version": "20260927.320.1",
+    "kernel": "6.17.0-1022-azure",
+    "logical_cpus": 4,
+    "python": "3.12.3"
+  },
+  "evidence": [
+    {
+      "bytes": 6176,
+      "path": "codec-lock.json",
+      "sha256": "9823e4c933c27fb4116bfce5add59ef6e926e43d2f0ebae258d7bb869a38f7b1"
+    },
+    {
+      "bytes": 4847,
+      "path": "conformance.json",
+      "sha256": "cb5c0e5176a2b1e32f35de6f1d7dd01cff87918030e4fe76ac589b738aa170c7"
+    },
+    {
+      "bytes": 4900,
+      "path": "tools.json",
+      "sha256": "154001dae654e05f600666fee9f5608cabef11944470b91c9f0f6d4fdfe3890a"
+    }
+  ],
+  "github": {
+    "repository": "definitely-stable/Shift-lab",
+    "run_attempt": 1,
+    "run_id": 37434946174,
+    "sha": "8d76774c23433a3a48e76c3fd61dbfcf1d57d99c",
+    "workflow_ref": "definitely-stable/Shift-lab/.github/workflows/oracle-pilot.yml@refs/heads/main",
+    "workflow_sha": "8d76774c23433a3a48e76c3fd61dbfcf1d57d99c"
+  },
+  "limits": {
+    "work_dir_bytes": 1342177280,
+    "workload_address_space_bytes": 8589934592,
+    "workload_wall_seconds": 1320
+  },
+  "measurement_identity": {
+    "candidate_lock_sha256": "cb16d53b164ff393187e0115bdf31c52ac717a5172fb1e91889b5988ac019d2e",
+    "codec_lock_sha256": "9823e4c933c27fb4116bfce5add59ef6e926e43d2f0ebae258d7bb869a38f7b1",
+    "contract_freeze_sha256": "c56fc053b103cecd38446b3791db104a12b9fafabacdfc6b71f6f23c0bf7f729",
+    "contract_id": "delsk.oracle-contract.v1",
+    "corpus_lock_sha256": "e5c288256bed284572a9f111186411517b4c73d097d13aea4cf48e2fb9f6fffa",
+    "delta": {
+      "codec_id": "xdelta3-3.2.1-l9-snone-v1",
+      "options_sha256": "90f3a41324301de60f1acda061fbe101fb2c11b14029de341aa21fbd58ee4d5a"
+    },
+    "measured_source_sha": "8d76774c23433a3a48e76c3fd61dbfcf1d57d99c",
+    "oracle_code_sha256": "0a8b5af5982ab14c87cc2e3ac45a0ce273c16afcfe02d209a487235833a70df8",
+    "phase": "pilot",
+    "sealed_splits": [
+      "evaluation"
+    ],
+    "standalone": {
+      "codec_id": "zstd-1.5.7-l19-v1",
+      "options_sha256": "e50e7710e1f91ed9b5046cd3e7607c0008f675061fc8e51af5263e9c6a77d9bb"
+    }
+  },
+  "measurement_identity_sha256": "14c0a54eb916e10df92af7ab29a4ae2240449281c90ea72a49868cc3c7468314",
+  "schema": "delsk.oracle.run.v1",
+  "started_at": "2026-10-06T08:17:18.549609+00:00",
+  "timing_scope": "descriptive",
+  "wall_seconds": 137,
+  "workload_status": "ok"
+}
