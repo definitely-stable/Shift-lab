@@ -121,5 +121,33 @@ class Parsing(unittest.TestCase):
                 runner.load_plan(path)
 
 
+class WorkflowBoundary(unittest.TestCase):
+    ROOT = Path(__file__).resolve().parents[2]
+    SHARD = ROOT / ".github/workflows/selector-s4-shard.yml"
+    COST = ROOT / ".github/workflows/selector-s4-cost.yml"
+    EVALUATE = ROOT / ".github/workflows/selector-s4-evaluate.yml"
+
+    def test_measurement_workflows_are_main_and_workflow_sha_bound(self):
+        for path in (self.SHARD, self.COST):
+            text = path.read_text(encoding="utf-8")
+            self.assertIn('runs-on: ubuntu-24.04', text)
+            self.assertNotIn("self-hosted", text)
+            self.assertIn('test "$GITHUB_REF" = "refs/heads/main"', text)
+            self.assertIn('test "$SOURCE_SHA" = "$GITHUB_SHA"', text)
+            self.assertIn('test "$GITHUB_WORKFLOW_SHA" = "$GITHUB_SHA"', text)
+            self.assertIn(runner.PROTOCOL_SHA, text)
+
+    def test_evaluator_is_authority_and_workflow_sha_bound(self):
+        text = self.EVALUATE.read_text(encoding="utf-8")
+        self.assertIn('runs-on: ubuntu-24.04', text)
+        self.assertNotIn("self-hosted", text)
+        self.assertIn('test "$GITHUB_REF" = "refs/heads/main"', text)
+        self.assertIn('test "$SOURCE_SHA" = "$GITHUB_SHA"', text)
+        self.assertIn('test "$GITHUB_WORKFLOW_SHA" = "$GITHUB_SHA"', text)
+        self.assertIn(runner.PROTOCOL_SHA, text)
+        self.assertIn(".work/tools/selector_s4.py evaluate", text)
+
+
+
 if __name__ == "__main__":
     unittest.main()
