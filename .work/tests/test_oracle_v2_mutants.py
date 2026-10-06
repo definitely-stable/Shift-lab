@@ -112,6 +112,9 @@ def load(path=None, old=None, new=None):
             module.__file__ = str(p)
             sys.modules['oracle_registry_v2'] = modules.get('oracle_registry_v2', saved)
             exec(compile(sources[p], str(p), 'exec'), module.__dict__)
+            if name == 'oracle_g1_v2':
+                # R17 api and PM07 are judged in the pre-activation state (contract-v3 5), whatever main carries
+                module.ACTIVATION_RECORD = None
             modules[name] = module
     finally:
         sys.modules['oracle_registry_v2'] = saved

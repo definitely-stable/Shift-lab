@@ -40,7 +40,7 @@ V1_RESULTS = Path(ev.RESULTS)
 # Activation record (contract-v3 5): SHA-256 of the bytes of the reviewed activation record file (bind/boundary step
 # names, provider step names, KAT step name, evidence of items 6-10; oracle_activation_v2.py). Set only by the reviewed
 # activation PR after every activation item holds; until then production performs no read and can never return PASS.
-ACTIVATION_RECORD = None
+ACTIVATION_RECORD = 'd374fa1ea9a11ab8317273bbcbb392eb5e0960b8586a5618419c0fa41fc82020'
 
 
 # --- inputs -----------------------------------------------------------------------------------------------------------

@@ -558,14 +558,28 @@ INFRA_EVIDENCE = {'infra.json', 'rulesets.json', 'rulesets-pre-genesis.json', 'g
 
 
 class NotActivatedHere(unittest.TestCase):
-    """The infra record (items 6-10) may be present; the enable record and ACTIVATION_RECORD may not (items 11-12 are
-    a separate review and maintainer decision)."""
+    """Repository state: the infra record (items 6-10) and, once enabled, the enable record (items 11-12) named by
+    oracle_g1_v2.ACTIVATION_RECORD through the digest of its exact bytes. Items 6, 11 and 12 are live provider facts;
+    production re-verifies them on every evaluation (activation_in_tree), this offline test checks the bytes."""
 
-    def test_repository_carries_no_activation(self):
-        self.assertIsNone(g1.ACTIVATION_RECORD)
-        self.assertFalse((ROOT / act.ACTIVATION_FILE).exists())
+    def test_activation_record_is_bound_by_digest(self):
         self.assertFalse(list((ROOT / '.work').rglob('genesis.json')))
         self.assertFalse(list((ROOT / '.work').rglob('entries.jsonl')))
+        path = ROOT / act.ACTIVATION_FILE
+        if g1.ACTIVATION_RECORD is None:
+            self.assertFalse(path.exists())
+            return
+        data = path.read_bytes()
+        self.assertEqual(ev.sha256(data), g1.ACTIVATION_RECORD)
+        doc = ev.parse_doc(data)
+        self.assertEqual(set(doc), {'schema', 'g1_contract', 'g1_freeze_sha256', 'infra', 'infra_pr', 'decision'})
+        self.assertEqual((doc['schema'], doc['g1_contract'], doc['g1_freeze_sha256']),
+                         (act.SCHEMA, reg.G1_CONTRACT, reg.G1_FREEZE_SHA256))
+        self.assertEqual(doc['infra'], {'path': act.INFRA_FILE,
+                                        'sha256': ev.sha256((ROOT / act.INFRA_FILE).read_bytes())})
+        self.assertTrue(act._pull(doc['infra_pr']))
+        self.assertEqual(doc['decision']['issue'], act.DECISION_ISSUE)
+        self.assertEqual(act.validate_infra(ev.parse_doc((ROOT / act.INFRA_FILE).read_bytes()), act.local_view()), [])
 
     def test_infra_record_verifies_against_the_tree(self):
         evidence = ROOT / act.EVIDENCE_DIR

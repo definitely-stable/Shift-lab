@@ -2,7 +2,7 @@
 
 Основание: [contract-v3.md](contract-v3.md) §5, процедура [slice-c1c.md](slice-c1c.md), `main` = `13c7d74ede7e2fd41bade001ec0e88926882459c` (merge PR [#32](https://github.com/definitely-stable/Shift-lab/pull/32)), [issue #27](https://github.com/definitely-stable/Shift-lab/issues/27). Журнал пояснительный, **не нормативный**; нормативны contract v3 и проверяемые файлы [activation/](activation/).
 
-**Verdict: `V3 ACTIVATION INFRA EVIDENCE COLLECTED` / `V3 NOT_ACTIVE`.** Пункты §5 п. 6–10 выполнены на реальном GitHub, расхождений с frozen v3 не найдено. `ACTIVATION_RECORD = None`, `.work/oracle/activation-v3.json` (enable record) отсутствует. Natural oracle — **NOT_RUN**, G1 — **NOT_RUN**: ни одного run `oracle-pilot.yml`, ни одного natural byte.
+**Verdict: §5 п. 1–12 выполнены; v3 активируется merge enable PR (§9).** Пункты 6–10 выполнены на реальном GitHub, расхождений с frozen v3 не найдено. Enable record `.work/oracle/activation-v3.json` и `oracle_g1_v2.ACTIVATION_RECORD` добавляет отдельный enable PR; до его merge в `main` v3 **NOT_ACTIVE**. Natural oracle — **NOT_RUN**, G1 — **NOT_RUN**: ни одного run `oracle-pilot.yml`, ни одного natural byte. Natural pilot закрыт C0 guard до отдельного reviewed change (§9).
 
 | §5 | Пункт | Статус | Evidence |
 |---|---|---|---|
@@ -11,8 +11,8 @@
 | 7 | rulesets, проверенные read-only API | **DONE**: `verify-rulesets` PASS | [rulesets.json](activation/rulesets.json), [rulesets-pre-genesis.json](activation/rulesets-pre-genesis.json) |
 | 8–9 | synthetic smoke, 7 сценариев, live observations | **DONE**: `verify-smoke` PASS | [smoke-scenarios.json](activation/smoke-scenarios.json), [smoke-evaluation.json](activation/smoke-evaluation.json), [smoke-semantics.json](activation/smoke-semantics.json) |
 | 10 | write-surface на `refs/heads/delsk/registry-v3` | **DONE**: три операции отклонены сервером | [write-surface.json](activation/write-surface.json), [write-surface-supplementary.json](activation/write-surface-supplementary.json) |
-| 11 | review | **NOT_DONE**: merge этого infra PR в `main` (решение maintainer 2026-10-05: в проекте один разработчик, approve другого пользователя не требуется) | — |
-| 12 | maintainer decision | **NOT_DONE** | — |
+| 11 | review | **DONE**: infra PR #33 смержен в `main` как `3e69105` (решение maintainer 2026-10-05: в проекте один разработчик, approve другого пользователя не требуется) | PR #33 |
+| 12 | maintainer decision | **DONE**: комментарий [6008353196](https://github.com/definitely-stable/Shift-lab/issues/27#issuecomment-6008353196) на #27, 2026-10-06T02:52:30Z | `activation-v3.json` |
 
 ## 1. Preconditions
 
@@ -99,3 +99,13 @@ Frozen bytes v1/v2/v3 не менялись. Ни один ref не переза
   Новый code manifest: `oracle_code_sha256` = `0a8b5af5982ab14c87cc2e3ac45a0ce273c16afcfe02d209a487235833a70df8` (было `b5ca0c6b…3505`, это значение во frozen vectors — синтетические данные, с живым кодом они не сверяются). Production `registry-v3` пока только genesis, поэтому первая production entry откроет серию с новой identity без transition. Activation-bound bytes не затронуты: `oracle-pilot.yml` (`workflow_sha256`), smoke и write-surface workflows, infra record. Smoke entries несут identity своего источника `13c7d74`, их классификация от кода runner не зависит. Infra evidence пересобирать не нужно, `recheck` PASS.
 - Дальше — только по решению maintainer: merge этого infra PR (п. 11), maintainer decision на issue #27 с `infra_sha256` (п. 12), отдельный enable PR (`activation-v3.json`, `ACTIVATION_RECORD`). Natural pilot, production oracle и DELSK-004 — не начаты.
 - П. 11 (решение maintainer 2026-10-05): в проекте один разработчик, поэтому approve другого пользователя не требуется. Enable record (`delsk.oracle.v3-activation.v2`) называет infra PR полем `infra_pr` (`pull_request`, `merge_commit_sha`) без `review_id`. Проверка провенанса остаётся: PR смержен в `main` ровно этим commit и сам ввёл ровно эти bytes `infra.json`.
+
+## 9. П. 11–12 и enable
+
+- **BUG_FIX перед п. 12.** PR #34 (SIGTERM atomicity в `oracle_run.py`) смержен как `c1cd959da88eebf10a9442a7f66dfe79dacee4d0`. KAT зелёный на этом commit: push `oracle-smoke.yml` run 37360154348, attempt 1; `kat_actions_green` и `kat_verified_v2` (pinned main = `c1cd959`) — true. Новая `oracle_code_sha256` = `0a8b5af5982ab14c87cc2e3ac45a0ce273c16afcfe02d209a487235833a70df8`.
+- **П. 11.** Infra PR #33 смержен как `3e69105b57ebe47ef520bc758fb54093d2db14c5` и сам ввёл `infra.json` с SHA-256 `8c70fd27…ddaf` (`_verify_review` live PASS).
+- **П. 12.** Комментарий `6008353196` на issue #27, автор MEMBER, создан 2026-10-06T02:52:30Z — позже merge PR #33. Не редактировался (`created_at` = `updated_at`). Содержит фразу `DELSK-003A NATURAL MEASUREMENT AUTHORIZED infra_sha256=8c70fd27d3013c4016bda62ae1e815ace129147014ab05e93e6e6f94693fddaf`. Сервер дописал к телу footer; verifier проверяет вхождение фразы и SHA-256 точных bytes тела: `ab11ff7107711882fc07ad5f1a5e15c8c6e6a938aa3e7608bfafd2c1da4815bb`.
+- **Enable record** [activation-v3.json](activation-v3.json) (`delsk.oracle.v3-activation.v2`): infra record, `infra_pr` = #33 / `3e69105`, decision. `oracle_g1_v2.ACTIVATION_RECORD` = SHA-256 его bytes = `d374fa1ea9a11ab8317273bbcbb392eb5e0960b8586a5618419c0fa41fc82020`. `validate_activation` (п. 6, 11, 12 live) — `[]`, `activation_in_tree` принимает record. CI `oracle-activation-evidence.yml` перепроверяет это live на каждом изменении.
+- Production перепроверяет п. 6, 11 и 12 live при каждой оценке. Отредактированный комментарий, не смерженный PR или другой merge commit снова делают v3 неактивным (fail closed).
+
+**Natural pilot после enable по-прежнему закрыт, и dispatch `oracle-pilot.yml` запрещён до отдельного reviewed change.** C0 guard `DISPATCH_HISTORY_UNVERIFIED` (`oracle_pilot.require_dispatch_history`) срабатывает в `validate_gate` и `worker`, то есть в workload **после** step `boundary`. После enable production `register` больше не отказывает. Dispatch pilot до замены guard: (1) допишет постоянную production entry; (2) пересечёт `B`; (3) упадёт на C0. Entry станет `MISSING`, серия этой science identity — необратимо `NOT_PASSED`. Это fail-closed, ложного PASS нет, но production registry append-only, и это не исправить. Порядок: отдельный reviewed change, который заменяет C0 guard проверкой v3 activation; затем отдельное разрешение на первый natural pilot.

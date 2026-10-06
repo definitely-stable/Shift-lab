@@ -541,6 +541,22 @@ def recheck():
     problems += [f'activity live: {p}' for p in activity_problems(history, last_change(committed), heads)]
     if history['refs'] != ev.parse_doc((EVIDENCE / 'registry-activity.json').read_bytes())['refs']:
         problems.append('server-side registry history changed since the evidence was collected')
+    problems += enable_record_problems()
+    return problems
+
+
+def enable_record_problems(get=rg.api_get, view=None):
+    """Enable record (items 11-12), when the tree carries one: ACTIVATION_RECORD names its exact bytes, and the record
+    with items 6, 11 and 12 verifies live (validate_activation), exactly as production checks it (activation_in_tree)."""
+    path = ev.ROOT / act.ACTIVATION_FILE
+    if g1.ACTIVATION_RECORD is None:
+        return ['enable record present but ACTIVATION_RECORD is None'] if path.exists() else []
+    if not path.is_file() or ev.sha256(path.read_bytes()) != g1.ACTIVATION_RECORD:
+        return ['ACTIVATION_RECORD does not name the bytes of the enable record']
+    view = view or act.local_view()
+    problems = [f'enable record live: {p}' for p in act.validate_activation(ev.parse_doc(path.read_bytes()), view, get)]
+    if not problems and act.activation_in_tree(view, get, g1.ACTIVATION_RECORD) is None:
+        problems.append('activation_in_tree rejects the enable record')
     return problems
 
 

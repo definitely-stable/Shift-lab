@@ -441,6 +441,7 @@ class Register(Base):
         self.w.publish_main(docs)
         self.refused('TRANSITION_REQUIRED', self.register, 12, sha=docs)  # still the new apparatus series
 
+    @patch.object(g1, 'ACTIVATION_RECORD', None)  # pre-activation state (contract-v3 5)
     def test_production_register_refuses_before_activation_without_any_read(self):
         self.w.genesis(reg.PRODUCTION)
         head = self.w.remote_ref(reg.REGISTRY_REF)
@@ -458,7 +459,8 @@ class Register(Base):
         self.assertEqual(entries, [entry])
         reg.authoritative_registry(commits, rg.snapshot(self.w.root, self.w.main, {self.w.main}), reg.PRODUCTION)
         self.assertEqual(entry['workflow_path'], reg.WORKFLOW_PATH)
-        self.assertEqual(rg.main(['register'], {**self.w.env_of(12, profile=reg.PRODUCTION)}), 3)
+        with patch.object(g1, 'ACTIVATION_RECORD', None):  # without an activation record it refuses again
+            self.assertEqual(rg.main(['register'], {**self.w.env_of(12, profile=reg.PRODUCTION)}), 3)
 
 
 class Bind(Base):
@@ -621,6 +623,7 @@ class Evaluation(Base):
 
 
 class Production(Base):
+    @patch.object(g1, 'ACTIVATION_RECORD', None)  # pre-activation state (contract-v3 5)
     def test_no_read_before_activation(self):
         identity = '0' * 64
         with patch.object(rg, 'fetch', side_effect=AssertionError('read')), \

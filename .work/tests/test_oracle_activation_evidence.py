@@ -8,6 +8,7 @@ import copy
 from pathlib import Path
 import sys
 import unittest
+import unittest.mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
 import oracle_activation_evidence as x
@@ -119,6 +120,27 @@ class RegistryActivity(unittest.TestCase):
         for name, edit in cases.items():
             with self.subTest(name):
                 self.assertTrue(self.problems(edit))
+
+
+class EnableRecordBinding(unittest.TestCase):
+    """The digest binding between ACTIVATION_RECORD and the enable record bytes is checked before any live read."""
+
+    def setUp(self):
+        if not (ROOT / act.ACTIVATION_FILE).exists():
+            self.skipTest('no enable record in this tree')
+
+    def offline(self, path):
+        raise AssertionError(f'live read {path}')
+
+    def test_constant_must_name_the_exact_bytes(self):
+        with unittest.mock.patch.object(x.g1, 'ACTIVATION_RECORD', '0' * 64):
+            self.assertEqual(x.enable_record_problems(get=self.offline),
+                             ['ACTIVATION_RECORD does not name the bytes of the enable record'])
+
+    def test_record_without_the_constant_is_reported(self):
+        with unittest.mock.patch.object(x.g1, 'ACTIVATION_RECORD', None):
+            self.assertEqual(x.enable_record_problems(get=self.offline),
+                             ['enable record present but ACTIVATION_RECORD is None'])
 
 
 class SmokeProjection(unittest.TestCase):
