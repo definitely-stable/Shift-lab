@@ -20,7 +20,13 @@ class Collector(unittest.TestCase):
         plan = {
             "schema": "delsk.chunkshift-s4.plan.v1",
             "consumer": {"commit": collect.CONSUMER_SHA},
-            "targets": [],
+            "targets": [
+                {
+                    "target_occurrence_id": f"t{i:02d}",
+                    "lanes": {"exhaustive": []},
+                }
+                for i in range(collect.SHARD_COUNT)
+            ],
         }
         plan_path = root / "plan.json"
         plan_path.write_bytes(canonical(plan))
@@ -49,12 +55,16 @@ class Collector(unittest.TestCase):
                 "shard_index": actual_index,
                 "shard_count": collect.SHARD_COUNT,
                 "plan_sha256": plan_sha,
+                "targets": 1,
+                "target_occurrence_ids": [f"t{actual_index:02d}"],
                 "expected_rows": 1,
                 "actual_rows": 1,
                 "ok_rows": 1,
                 "failed_rows": 0,
                 "measurement_sha256": collect.file_sha256(measurements),
                 "manifest_sha256": collect.file_sha256(manifests),
+                "chunkshift_cli_sha256": "c" * 64,
+                "dotnet_version": "10.0.204",
             }
             (directory / "shard.json").write_bytes(canonical(shard))
             run = {
@@ -103,6 +113,18 @@ class Collector(unittest.TestCase):
             self.assertEqual([s["shard_index"] for s in record["shards"]], list(range(16)))
             self.assertEqual(len((out / "measurements.jsonl").read_text().splitlines()), 16)
 
+
+
+    def test_toolchain_drift_is_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            plan, artifacts, shards = self.build_fixture(root)
+            second = sorted(shards.iterdir())[1] / "shard.json"
+            shard = json.loads(second.read_text(encoding="utf-8"))
+            shard["chunkshift_cli_sha256"] = "d" * 64
+            second.write_bytes(canonical(shard))
+            with self.assertRaises(collect.CollectError):
+                collect.merge(plan, artifacts, shards, root / "out")
 
     def test_workflow_sha_drift_is_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:
