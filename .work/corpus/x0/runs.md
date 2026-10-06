@@ -4,4 +4,4 @@
 
 | # | Run, attempt | Source | Итог | Evidence |
 |---|---|---|---|---|
-| — | ещё не запускался | — | — | — |
+| 1 | [37449333091](https://github.com/definitely-stable/Shift-lab/actions/runs/37449333091), 1 | `1a1efaa` | `success`: 1 841 пар `ok`, conformance PASS, verdict `NO_HEADROOM_AT_256` | [results](results.md), `.work/results/DELSK-002-X0/37449333091-1/` |

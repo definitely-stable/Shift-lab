@@ -263,5 +263,38 @@ class Decision(unittest.TestCase):
         self.assertEqual(d['verdict'], 'HEADROOM_FOUND')
 
 
+RETAINED = Path(__file__).resolve().parents[1] / 'results' / 'DELSK-002-X0' / '37449333091-1'
+
+
+@unittest.skipUnless(RETAINED.is_dir(), 'no retained X0 run')
+class Retained(unittest.TestCase):
+    """Run 37449333091: checksums and byte-identical re-evaluation from retained pairs, targets and rankings."""
+
+    def test_checksums(self):
+        lines = (RETAINED.parent / '37449333091-1.sha256').read_text().split('\n')
+        listed = dict(reversed(l.split('  ', 1)) for l in lines if l)
+        self.assertEqual(set(listed), {p.name for p in RETAINED.iterdir()})
+        for name, digest in listed.items():
+            self.assertEqual(hashlib.sha256((RETAINED / name).read_bytes()).hexdigest(), digest, name)
+
+    def test_reevaluation_is_byte_identical(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            for name in ('corpus.json.gz', 'candidates.json', 'pairs.jsonl', 'targets.jsonl', 'rankings.jsonl'):
+                (Path(tmp) / name).write_bytes((RETAINED / name).read_bytes())
+            decision = xs.evaluate(tmp)
+            self.assertEqual(decision['verdict'], 'NO_HEADROOM_AT_256')
+            names = ['rows.jsonl', 'decision.json']
+            if sys.version_info >= (3, 12):  # summary macro means use sum(), compensated for floats since 3.12
+                names.append('summary.jsonl')
+            for name in names:
+                self.assertEqual((Path(tmp) / name).read_bytes(), (RETAINED / name).read_bytes(), name)
+
+    def test_candidates_bind_the_retained_corpus_and_params(self):
+        corpus, candidates = xs.load(RETAINED)
+        self.assertEqual(corpus['params_sha256'], xc.file_sha256(xc.PARAMS_PATH))
+        self.assertEqual(corpus['plan_sha256'], xc.file_sha256(xc.PLAN_PATH))
+        self.assertEqual(candidates['planned_pairs'], sum(1 for _ in open(RETAINED / 'pairs.jsonl')))
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -1,0 +1,730 @@
+{
+  "cells": [
+    {
+      "best_budget_bytes": null,
+      "best_method": "size_closest",
+      "best_savings_capture": 0.9992936657379996,
+      "best_savings_capture_ci95": [
+        0.9981519626633812,
+        1.0
+      ],
+      "best_useful_recall": 0.9375,
+      "budget_bytes": 64,
+      "cell": "H1-file",
+      "families_with_useful": 6,
+      "hard": false,
+      "headroom": 0.0007063342620003965,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-blind",
+      "useful_targets": 16
+    },
+    {
+      "best_budget_bytes": null,
+      "best_method": "size_closest",
+      "best_savings_capture": 0.9992936657379996,
+      "best_savings_capture_ci95": [
+        0.9981519626633812,
+        1.0
+      ],
+      "best_useful_recall": 0.9375,
+      "budget_bytes": 128,
+      "cell": "H1-file",
+      "families_with_useful": 6,
+      "hard": false,
+      "headroom": 0.0007063342620003965,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-blind",
+      "useful_targets": 16
+    },
+    {
+      "best_budget_bytes": null,
+      "best_method": "size_closest",
+      "best_savings_capture": 0.9992936657379996,
+      "best_savings_capture_ci95": [
+        0.9981519626633812,
+        1.0
+      ],
+      "best_useful_recall": 0.9375,
+      "budget_bytes": 256,
+      "cell": "H1-file",
+      "families_with_useful": 6,
+      "hard": false,
+      "headroom": 0.0007063342620003965,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-blind",
+      "useful_targets": 16
+    },
+    {
+      "best_budget_bytes": null,
+      "best_method": "size_closest",
+      "best_savings_capture": 0.9992936657379996,
+      "best_savings_capture_ci95": [
+        0.9981519626633812,
+        1.0
+      ],
+      "best_useful_recall": 0.9375,
+      "budget_bytes": 512,
+      "cell": "H1-file",
+      "families_with_useful": 6,
+      "hard": false,
+      "headroom": 0.0007063342620003965,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-blind",
+      "useful_targets": 16
+    },
+    {
+      "best_budget_bytes": null,
+      "best_method": "size_closest",
+      "best_savings_capture": 0.9992936657379996,
+      "best_savings_capture_ci95": [
+        0.9981519626633812,
+        1.0
+      ],
+      "best_useful_recall": 0.9375,
+      "budget_bytes": 1024,
+      "cell": "H1-file",
+      "families_with_useful": 6,
+      "hard": false,
+      "headroom": 0.0007063342620003965,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-blind",
+      "useful_targets": 16
+    },
+    {
+      "best_budget_bytes": null,
+      "best_method": "git_like",
+      "best_savings_capture": 0.9992936657379996,
+      "best_savings_capture_ci95": [
+        0.9981519626633812,
+        1.0
+      ],
+      "best_useful_recall": 0.9375,
+      "budget_bytes": 64,
+      "cell": "H1-file",
+      "families_with_useful": 6,
+      "hard": false,
+      "headroom": 0.0007063342620003965,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-meta",
+      "useful_targets": 16
+    },
+    {
+      "best_budget_bytes": null,
+      "best_method": "git_like",
+      "best_savings_capture": 0.9992936657379996,
+      "best_savings_capture_ci95": [
+        0.9981519626633812,
+        1.0
+      ],
+      "best_useful_recall": 0.9375,
+      "budget_bytes": 128,
+      "cell": "H1-file",
+      "families_with_useful": 6,
+      "hard": false,
+      "headroom": 0.0007063342620003965,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-meta",
+      "useful_targets": 16
+    },
+    {
+      "best_budget_bytes": null,
+      "best_method": "git_like",
+      "best_savings_capture": 0.9992936657379996,
+      "best_savings_capture_ci95": [
+        0.9981519626633812,
+        1.0
+      ],
+      "best_useful_recall": 0.9375,
+      "budget_bytes": 256,
+      "cell": "H1-file",
+      "families_with_useful": 6,
+      "hard": false,
+      "headroom": 0.0007063342620003965,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-meta",
+      "useful_targets": 16
+    },
+    {
+      "best_budget_bytes": null,
+      "best_method": "git_like",
+      "best_savings_capture": 0.9992936657379996,
+      "best_savings_capture_ci95": [
+        0.9981519626633812,
+        1.0
+      ],
+      "best_useful_recall": 0.9375,
+      "budget_bytes": 512,
+      "cell": "H1-file",
+      "families_with_useful": 6,
+      "hard": false,
+      "headroom": 0.0007063342620003965,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-meta",
+      "useful_targets": 16
+    },
+    {
+      "best_budget_bytes": null,
+      "best_method": "git_like",
+      "best_savings_capture": 0.9992936657379996,
+      "best_savings_capture_ci95": [
+        0.9981519626633812,
+        1.0
+      ],
+      "best_useful_recall": 0.9375,
+      "budget_bytes": 1024,
+      "cell": "H1-file",
+      "families_with_useful": 6,
+      "hard": false,
+      "headroom": 0.0007063342620003965,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-meta",
+      "useful_targets": 16
+    },
+    {
+      "best_budget_bytes": 64,
+      "best_method": "minhash_resemblance",
+      "best_savings_capture": 1.0,
+      "best_savings_capture_ci95": [
+        1.0,
+        1.0
+      ],
+      "best_useful_recall": 1.0,
+      "budget_bytes": 64,
+      "cell": "H1-cdc",
+      "families_with_useful": 6,
+      "hard": false,
+      "headroom": 0.0,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-blind",
+      "useful_targets": 15
+    },
+    {
+      "best_budget_bytes": 64,
+      "best_method": "minhash_resemblance",
+      "best_savings_capture": 1.0,
+      "best_savings_capture_ci95": [
+        1.0,
+        1.0
+      ],
+      "best_useful_recall": 1.0,
+      "budget_bytes": 128,
+      "cell": "H1-cdc",
+      "families_with_useful": 6,
+      "hard": false,
+      "headroom": 0.0,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-blind",
+      "useful_targets": 15
+    },
+    {
+      "best_budget_bytes": 64,
+      "best_method": "minhash_resemblance",
+      "best_savings_capture": 1.0,
+      "best_savings_capture_ci95": [
+        1.0,
+        1.0
+      ],
+      "best_useful_recall": 1.0,
+      "budget_bytes": 256,
+      "cell": "H1-cdc",
+      "families_with_useful": 6,
+      "hard": false,
+      "headroom": 0.0,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-blind",
+      "useful_targets": 15
+    },
+    {
+      "best_budget_bytes": 64,
+      "best_method": "minhash_resemblance",
+      "best_savings_capture": 1.0,
+      "best_savings_capture_ci95": [
+        1.0,
+        1.0
+      ],
+      "best_useful_recall": 1.0,
+      "budget_bytes": 512,
+      "cell": "H1-cdc",
+      "families_with_useful": 6,
+      "hard": false,
+      "headroom": 0.0,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-blind",
+      "useful_targets": 15
+    },
+    {
+      "best_budget_bytes": 64,
+      "best_method": "minhash_resemblance",
+      "best_savings_capture": 1.0,
+      "best_savings_capture_ci95": [
+        1.0,
+        1.0
+      ],
+      "best_useful_recall": 1.0,
+      "budget_bytes": 1024,
+      "cell": "H1-cdc",
+      "families_with_useful": 6,
+      "hard": false,
+      "headroom": 0.0,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-blind",
+      "useful_targets": 15
+    },
+    {
+      "best_budget_bytes": 64,
+      "best_method": "minhash_resemblance",
+      "best_savings_capture": 1.0,
+      "best_savings_capture_ci95": [
+        1.0,
+        1.0
+      ],
+      "best_useful_recall": 1.0,
+      "budget_bytes": 64,
+      "cell": "H1-cdc",
+      "families_with_useful": 6,
+      "hard": false,
+      "headroom": 0.0,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-meta",
+      "useful_targets": 15
+    },
+    {
+      "best_budget_bytes": 64,
+      "best_method": "minhash_resemblance",
+      "best_savings_capture": 1.0,
+      "best_savings_capture_ci95": [
+        1.0,
+        1.0
+      ],
+      "best_useful_recall": 1.0,
+      "budget_bytes": 128,
+      "cell": "H1-cdc",
+      "families_with_useful": 6,
+      "hard": false,
+      "headroom": 0.0,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-meta",
+      "useful_targets": 15
+    },
+    {
+      "best_budget_bytes": 64,
+      "best_method": "minhash_resemblance",
+      "best_savings_capture": 1.0,
+      "best_savings_capture_ci95": [
+        1.0,
+        1.0
+      ],
+      "best_useful_recall": 1.0,
+      "budget_bytes": 256,
+      "cell": "H1-cdc",
+      "families_with_useful": 6,
+      "hard": false,
+      "headroom": 0.0,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-meta",
+      "useful_targets": 15
+    },
+    {
+      "best_budget_bytes": 64,
+      "best_method": "minhash_resemblance",
+      "best_savings_capture": 1.0,
+      "best_savings_capture_ci95": [
+        1.0,
+        1.0
+      ],
+      "best_useful_recall": 1.0,
+      "budget_bytes": 512,
+      "cell": "H1-cdc",
+      "families_with_useful": 6,
+      "hard": false,
+      "headroom": 0.0,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-meta",
+      "useful_targets": 15
+    },
+    {
+      "best_budget_bytes": 64,
+      "best_method": "minhash_resemblance",
+      "best_savings_capture": 1.0,
+      "best_savings_capture_ci95": [
+        1.0,
+        1.0
+      ],
+      "best_useful_recall": 1.0,
+      "budget_bytes": 1024,
+      "cell": "H1-cdc",
+      "families_with_useful": 6,
+      "hard": false,
+      "headroom": 0.0,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-meta",
+      "useful_targets": 15
+    },
+    {
+      "best_budget_bytes": 64,
+      "best_method": "minhash_resemblance",
+      "best_savings_capture": 0.9999805942491404,
+      "best_savings_capture_ci95": [
+        0.9999328461682593,
+        1.0
+      ],
+      "best_useful_recall": 0.9,
+      "budget_bytes": 64,
+      "cell": "H4-file",
+      "families_with_useful": 4,
+      "hard": false,
+      "headroom": 1.9405750859569082e-05,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-blind",
+      "useful_targets": 10
+    },
+    {
+      "best_budget_bytes": 64,
+      "best_method": "minhash_resemblance",
+      "best_savings_capture": 0.9999805942491404,
+      "best_savings_capture_ci95": [
+        0.9999328461682593,
+        1.0
+      ],
+      "best_useful_recall": 0.9,
+      "budget_bytes": 128,
+      "cell": "H4-file",
+      "families_with_useful": 4,
+      "hard": false,
+      "headroom": 1.9405750859569082e-05,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-blind",
+      "useful_targets": 10
+    },
+    {
+      "best_budget_bytes": 64,
+      "best_method": "minhash_resemblance",
+      "best_savings_capture": 0.9999805942491404,
+      "best_savings_capture_ci95": [
+        0.9999328461682593,
+        1.0
+      ],
+      "best_useful_recall": 0.9,
+      "budget_bytes": 256,
+      "cell": "H4-file",
+      "families_with_useful": 4,
+      "hard": false,
+      "headroom": 1.9405750859569082e-05,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-blind",
+      "useful_targets": 10
+    },
+    {
+      "best_budget_bytes": 64,
+      "best_method": "minhash_resemblance",
+      "best_savings_capture": 0.9999805942491404,
+      "best_savings_capture_ci95": [
+        0.9999328461682593,
+        1.0
+      ],
+      "best_useful_recall": 0.9,
+      "budget_bytes": 512,
+      "cell": "H4-file",
+      "families_with_useful": 4,
+      "hard": false,
+      "headroom": 1.9405750859569082e-05,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-blind",
+      "useful_targets": 10
+    },
+    {
+      "best_budget_bytes": 64,
+      "best_method": "minhash_resemblance",
+      "best_savings_capture": 0.9999805942491404,
+      "best_savings_capture_ci95": [
+        0.9999328461682593,
+        1.0
+      ],
+      "best_useful_recall": 0.9,
+      "budget_bytes": 1024,
+      "cell": "H4-file",
+      "families_with_useful": 4,
+      "hard": false,
+      "headroom": 1.9405750859569082e-05,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-blind",
+      "useful_targets": 10
+    },
+    {
+      "best_budget_bytes": null,
+      "best_method": "previous_version",
+      "best_savings_capture": 1.0,
+      "best_savings_capture_ci95": [
+        1.0,
+        1.0
+      ],
+      "best_useful_recall": 1.0,
+      "budget_bytes": 64,
+      "cell": "H4-file",
+      "families_with_useful": 4,
+      "hard": false,
+      "headroom": 0.0,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-meta",
+      "useful_targets": 10
+    },
+    {
+      "best_budget_bytes": null,
+      "best_method": "previous_version",
+      "best_savings_capture": 1.0,
+      "best_savings_capture_ci95": [
+        1.0,
+        1.0
+      ],
+      "best_useful_recall": 1.0,
+      "budget_bytes": 128,
+      "cell": "H4-file",
+      "families_with_useful": 4,
+      "hard": false,
+      "headroom": 0.0,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-meta",
+      "useful_targets": 10
+    },
+    {
+      "best_budget_bytes": null,
+      "best_method": "previous_version",
+      "best_savings_capture": 1.0,
+      "best_savings_capture_ci95": [
+        1.0,
+        1.0
+      ],
+      "best_useful_recall": 1.0,
+      "budget_bytes": 256,
+      "cell": "H4-file",
+      "families_with_useful": 4,
+      "hard": false,
+      "headroom": 0.0,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-meta",
+      "useful_targets": 10
+    },
+    {
+      "best_budget_bytes": null,
+      "best_method": "previous_version",
+      "best_savings_capture": 1.0,
+      "best_savings_capture_ci95": [
+        1.0,
+        1.0
+      ],
+      "best_useful_recall": 1.0,
+      "budget_bytes": 512,
+      "cell": "H4-file",
+      "families_with_useful": 4,
+      "hard": false,
+      "headroom": 0.0,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-meta",
+      "useful_targets": 10
+    },
+    {
+      "best_budget_bytes": null,
+      "best_method": "previous_version",
+      "best_savings_capture": 1.0,
+      "best_savings_capture_ci95": [
+        1.0,
+        1.0
+      ],
+      "best_useful_recall": 1.0,
+      "budget_bytes": 1024,
+      "cell": "H4-file",
+      "families_with_useful": 4,
+      "hard": false,
+      "headroom": 0.0,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-meta",
+      "useful_targets": 10
+    },
+    {
+      "best_budget_bytes": 64,
+      "best_method": "containment",
+      "best_savings_capture": 0.9575953575530436,
+      "best_savings_capture_ci95": [
+        0.8086992091628034,
+        1.0
+      ],
+      "best_useful_recall": 0.8,
+      "budget_bytes": 64,
+      "cell": "H4-cdc",
+      "families_with_useful": 3,
+      "hard": false,
+      "headroom": 0.04240464244695641,
+      "headroom_secondary_k": 0.04240464244695641,
+      "lane": "L-blind",
+      "useful_targets": 5
+    },
+    {
+      "best_budget_bytes": 64,
+      "best_method": "containment",
+      "best_savings_capture": 0.9575953575530436,
+      "best_savings_capture_ci95": [
+        0.8086992091628034,
+        1.0
+      ],
+      "best_useful_recall": 0.8,
+      "budget_bytes": 128,
+      "cell": "H4-cdc",
+      "families_with_useful": 3,
+      "hard": false,
+      "headroom": 0.04240464244695641,
+      "headroom_secondary_k": 0.04240464244695641,
+      "lane": "L-blind",
+      "useful_targets": 5
+    },
+    {
+      "best_budget_bytes": 64,
+      "best_method": "containment",
+      "best_savings_capture": 0.9575953575530436,
+      "best_savings_capture_ci95": [
+        0.8086992091628034,
+        1.0
+      ],
+      "best_useful_recall": 0.8,
+      "budget_bytes": 256,
+      "cell": "H4-cdc",
+      "families_with_useful": 3,
+      "hard": false,
+      "headroom": 0.04240464244695641,
+      "headroom_secondary_k": 0.04240464244695641,
+      "lane": "L-blind",
+      "useful_targets": 5
+    },
+    {
+      "best_budget_bytes": 512,
+      "best_method": "containment",
+      "best_savings_capture": 1.0,
+      "best_savings_capture_ci95": [
+        1.0,
+        1.0
+      ],
+      "best_useful_recall": 1.0,
+      "budget_bytes": 512,
+      "cell": "H4-cdc",
+      "families_with_useful": 3,
+      "hard": false,
+      "headroom": 0.0,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-blind",
+      "useful_targets": 5
+    },
+    {
+      "best_budget_bytes": 512,
+      "best_method": "containment",
+      "best_savings_capture": 1.0,
+      "best_savings_capture_ci95": [
+        1.0,
+        1.0
+      ],
+      "best_useful_recall": 1.0,
+      "budget_bytes": 1024,
+      "cell": "H4-cdc",
+      "families_with_useful": 3,
+      "hard": false,
+      "headroom": 0.0,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-blind",
+      "useful_targets": 5
+    },
+    {
+      "best_budget_bytes": null,
+      "best_method": "git_like",
+      "best_savings_capture": 0.9575953575530436,
+      "best_savings_capture_ci95": [
+        0.8086992091628034,
+        1.0
+      ],
+      "best_useful_recall": 0.8,
+      "budget_bytes": 64,
+      "cell": "H4-cdc",
+      "families_with_useful": 3,
+      "hard": false,
+      "headroom": 0.04240464244695641,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-meta",
+      "useful_targets": 5
+    },
+    {
+      "best_budget_bytes": null,
+      "best_method": "git_like",
+      "best_savings_capture": 0.9575953575530436,
+      "best_savings_capture_ci95": [
+        0.8086992091628034,
+        1.0
+      ],
+      "best_useful_recall": 0.8,
+      "budget_bytes": 128,
+      "cell": "H4-cdc",
+      "families_with_useful": 3,
+      "hard": false,
+      "headroom": 0.04240464244695641,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-meta",
+      "useful_targets": 5
+    },
+    {
+      "best_budget_bytes": null,
+      "best_method": "git_like",
+      "best_savings_capture": 0.9575953575530436,
+      "best_savings_capture_ci95": [
+        0.8086992091628034,
+        1.0
+      ],
+      "best_useful_recall": 0.8,
+      "budget_bytes": 256,
+      "cell": "H4-cdc",
+      "families_with_useful": 3,
+      "hard": false,
+      "headroom": 0.04240464244695641,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-meta",
+      "useful_targets": 5
+    },
+    {
+      "best_budget_bytes": 512,
+      "best_method": "containment",
+      "best_savings_capture": 1.0,
+      "best_savings_capture_ci95": [
+        1.0,
+        1.0
+      ],
+      "best_useful_recall": 1.0,
+      "budget_bytes": 512,
+      "cell": "H4-cdc",
+      "families_with_useful": 3,
+      "hard": false,
+      "headroom": 0.0,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-meta",
+      "useful_targets": 5
+    },
+    {
+      "best_budget_bytes": 512,
+      "best_method": "containment",
+      "best_savings_capture": 1.0,
+      "best_savings_capture_ci95": [
+        1.0,
+        1.0
+      ],
+      "best_useful_recall": 1.0,
+      "budget_bytes": 1024,
+      "cell": "H4-cdc",
+      "families_with_useful": 3,
+      "hard": false,
+      "headroom": 0.0,
+      "headroom_secondary_k": 0.0,
+      "lane": "L-meta",
+      "useful_targets": 5
+    }
+  ],
+  "hard_at_1024": [],
+  "hard_at_256": [],
+  "label": "SCREENING",
+  "params_sha256": "8be46bcb450c70425dc62baf061bffa619e3728a0660f6d3bf4cff7e46eae226",
+  "schema": "delsk.x0.decision.v1",
+  "verdict": "NO_HEADROOM_AT_256"
+}
