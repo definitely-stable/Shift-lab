@@ -105,6 +105,10 @@ class Collector(unittest.TestCase):
             artifacts.append({
                 "run_id": run_id,
                 "run_attempt": attempt,
+                "event": "workflow_dispatch",
+                "status": "completed",
+                "conclusion": "success",
+                "head_branch": "main",
                 "head_sha": implementation,
                 "workflow_path": ".github/workflows/selector-s4-shard.yml",
                 "artifact_id": 2000 + i,
