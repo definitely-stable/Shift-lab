@@ -1,0 +1,14 @@
+{
+  "cpu": "AMD EPYC 7763 64-Core Processor",
+  "github_ref": "refs/heads/main",
+  "github_run_attempt": "1",
+  "github_run_id": "37455719130",
+  "github_sha": "799d50c8968f3d1d0290ef3c6cbe66d559eaddab",
+  "github_workflow_sha": "799d50c8968f3d1d0290ef3c6cbe66d559eaddab",
+  "imageos": "ubuntu24",
+  "imageversion": "20260927.320.1",
+  "nproc": 4,
+  "runner_arch": "X64",
+  "runner_os": "Linux",
+  "schema": "delsk.selector.s2-run.v1"
+}
