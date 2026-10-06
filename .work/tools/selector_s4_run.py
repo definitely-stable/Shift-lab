@@ -282,6 +282,13 @@ def measure(plan_path, protocol_dir, pilot_store, x0_store, x0_evidence,
         "implementation_sha": os.environ.get("GITHUB_SHA"),
         "github_run_id": os.environ.get("GITHUB_RUN_ID"),
         "github_run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT"),
+        "github_ref": os.environ.get("GITHUB_REF"),
+        "github_workflow_sha": os.environ.get("GITHUB_WORKFLOW_SHA"),
+        "runner_os": os.environ.get("RUNNER_OS"),
+        "runner_arch": os.environ.get("RUNNER_ARCH"),
+        "image_os": os.environ.get("ImageOS"),
+        "image_version": os.environ.get("ImageVersion"),
+        "kernel": invoke(["uname", "-srmo"], timeout=20)["stdout"].strip(),
     }
     canonical_write(run_path, run)
 
@@ -373,7 +380,7 @@ def measure(plan_path, protocol_dir, pilot_store, x0_store, x0_evidence,
 
 
 def main(argv):
-    if argv[:1] == ["measure"] and len(argv) == 10:
+    if argv[:1] == ["measure"] and len(argv) == 9:
         return measure(*argv[1:])
     print(__doc__, file=sys.stderr)
     return 2
