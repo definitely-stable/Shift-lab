@@ -64,6 +64,7 @@ class Collector(unittest.TestCase):
                 "shard_index": actual_index,
                 "shard_count": collect.SHARD_COUNT,
                 "github_sha": implementation,
+                "github_workflow_sha": implementation,
                 "github_ref": "refs/heads/main",
                 "github_run_attempt": str(attempt),
                 "github_run_id": str(run_id),
@@ -101,6 +102,18 @@ class Collector(unittest.TestCase):
             self.assertEqual(record["failed_rows"], 0)
             self.assertEqual([s["shard_index"] for s in record["shards"]], list(range(16)))
             self.assertEqual(len((out / "measurements.jsonl").read_text().splitlines()), 16)
+
+
+    def test_workflow_sha_drift_is_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            plan, artifacts, shards = self.build_fixture(root)
+            first = sorted(shards.iterdir())[0] / "run.json"
+            run = json.loads(first.read_text(encoding="utf-8"))
+            run["github_workflow_sha"] = "b" * 40
+            first.write_bytes(canonical(run))
+            with self.assertRaises(collect.CollectError):
+                collect.merge(plan, artifacts, shards, root / "out")
 
     def test_rerun_is_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:
