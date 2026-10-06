@@ -1,19 +1,18 @@
-"""DELSK-003A C1-B: activation tooling of delsk.oracle-contract.v3 (contract-v3 5, items 6-11). Activates nothing.
+"""DELSK-003A: activation tooling of delsk.oracle-contract.v4 (contract-v4 2). Activates nothing.
 
     oracle_activation_v2.py check-workflows                 static witness of contract 4.1 / 12.2 on the reviewed files
-    oracle_activation_v2.py write-surface OUT.json          activation item 10, inside oracle-registry-write-surface.yml
-    oracle_activation_v2.py verify-rulesets RULESETS.json   activation item 7 over admin-collected API responses
-    oracle_activation_v2.py verify-smoke SMOKE.json SCENARIOS.json   activation items 8-9
-    oracle_activation_v2.py verify-infra INFRA.json         infra record (items 6-10) against the working tree
-    oracle_activation_v2.py verify-record ACTIVATION.json   enable record: infra record + items 6, 11, 12 live
+    oracle_activation_v2.py write-surface OUT.json          write-surface probe, inside oracle-registry-write-surface.yml
+    oracle_activation_v2.py verify-rulesets RULESETS.json   activation item 3 over admin-collected API responses
+    oracle_activation_v2.py verify-smoke SMOKE.json SCENARIOS.json   smoke scenarios (contract-v3 5 items 8-9)
+    oracle_activation_v2.py verify-record ACTIVATION.json   enable record against the working tree, genesis review live
 
-Activation takes two records (see "activation records" below): the infra record fixes the bind/boundary/KAT step
-names and the closed provider-step set (contract-v3 1.1) and binds the evidence of items 6-10; the enable record
-(ACTIVATION_FILE) binds the infra record, the merged infra PR and the maintainer decision. It takes effect only
-when the enable PR also sets oracle_g1_v2.ACTIVATION_RECORD to the SHA-256 of its exact bytes; production re-verifies both in the pinned main tree,
-and items 6, 11 and 12 live, on every evaluation (activation_in_tree). Before that, production G1 is NOT_PASSED
-V3_NOT_ACTIVE without reads and the production `register` refuses. Nothing here creates the registry branch,
-configures rulesets or dispatches a workflow.
+One enable record (ACTIVATION_FILE, contract-v4 2 item 5) fixes the register/bind/boundary/KAT step names, the closed
+provider-step set (contract-v3 1.1), the reviewed oracle-pilot.yml digest (contract-v3 1.5), the registry genesis and
+its review, and binds the rulesets evidence and the v3 infra record whose real-GitHub smoke and write-surface evidence
+v4 inherits. It takes effect only when the same PR sets oracle_g1_v2.ACTIVATION_RECORD to the SHA-256 of its exact
+bytes; production re-verifies it in the pinned main tree, and the genesis review live, on every evaluation
+(activation_in_tree). Before that, production G1 is NOT_PASSED V4_NOT_ACTIVE without reads and the production
+`register` refuses. Nothing here creates the registry branch, configures rulesets or dispatches a workflow.
 """
 from dataclasses import dataclass
 import hashlib
@@ -29,9 +28,9 @@ import oracle_eval as ev
 import oracle_registry_git as rg
 import oracle_registry_v2 as reg
 
-ACTIVATION_FILE = '.work/oracle/activation-v3.json'
-EVIDENCE_DIR = '.work/oracle/activation/'
-SCHEMA = 'delsk.oracle.v3-activation.v2'
+ACTIVATION_FILE = '.work/oracle/activation-v4.json'
+EVIDENCE_DIR = '.work/oracle/activation-v4/'
+SCHEMA = 'delsk.oracle.v4-activation.v1'
 RULESETS_SCHEMA = 'delsk.oracle.rulesets-evidence.v1'
 SMOKE_EVALUATION_SCHEMA = 'delsk.oracle.registry-smoke-evaluation.v1'
 SCENARIOS_SCHEMA = 'delsk.oracle.registry-smoke-scenarios.v1'
@@ -65,17 +64,19 @@ RESERVED_STEP_NAMES = ('Set up job', PROVIDER_COMPLETE)
 ROLES = {BIND_STEP: 'bind', BOUNDARY_STEP: 'boundary', **{n: 'provider' for n in PILOT_PROVIDER_STEPS}}
 SMOKE_ROLES = {BIND_STEP: 'bind', BOUNDARY_STEP: 'boundary', **{n: 'provider' for n in SMOKE_PROVIDER_STEPS}}
 KAT_MODULES = ('test_oracle_contract', 'test_oracle_eval', 'test_oracle_v2_frozen', 'test_oracle_contract_v3',
-               'test_oracle_registry_v2', 'test_oracle_g1_v2', 'test_oracle_v2_mutants')
+               'test_oracle_contract_v4', 'test_oracle_registry_v2', 'test_oracle_g1_v2', 'test_oracle_v2_mutants')
 
 # Deterministic registry root commits (oracle_registry_git.genesis_commit; reproduced by the tests).
 GENESIS_SHA256 = {p.name: ev.hc(reg.make_genesis(p.g1_freeze_sha256, p)) for p in reg.PROFILES}
-ROOT_COMMIT = {'production': '1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258',
-               'smoke': '62f79c1ceeb4f61615039104532e8dee251efaa3'}
+ROOT_COMMIT = {'production': 'c0b64888fb0c1db02724ad255c9ccc0fa1ed524d',
+               'smoke': 'f0b0ea1782e9d22f685bdad14dc0a03c82641e10'}
 
 GITHUB_ACTIONS_APP_ID = 15368   # the GitHub Actions integration: the workflow token's ruleset actor
-# Retired v2 registry refs (contract-v3 3): never evaluated, but they disclose the v2 activation attempt and stay
-# protected against deletion and rewrite.
-RETIRED_REGISTRY_REFS = ('refs/heads/delsk/registry', 'refs/heads/delsk/registry-smoke')
+# Retired v2 and v3 registry refs (contract-v3 3, contract-v4 0): never evaluated by v4, but they disclose the v2
+# activation attempt and the v3 activation with its one natural attempt, and stay protected against deletion and
+# rewrite.
+RETIRED_REGISTRY_REFS = ('refs/heads/delsk/registry', 'refs/heads/delsk/registry-smoke', 'refs/heads/delsk/registry-v3',
+                         'refs/heads/delsk/registry-v3-smoke')
 REQUIRED_RULES = {'refs/heads/main': {'deletion', 'non_fast_forward', 'pull_request'},
                   reg.REGISTRY_REF: {'deletion', 'non_fast_forward'},
                   reg.SMOKE_REGISTRY_REF: {'deletion', 'non_fast_forward'},
@@ -602,26 +603,20 @@ def verify_write_surface(doc):
     return problems
 
 
-# --- activation records (contract 16 items 6-12) ---------------------------------------------------------------------
+# --- enable record (contract-v4 2) -------------------------------------------------------------------------------
 #
-# Two records, in this order, so that every item is evidence that exists before the step that relies on it:
-#   1. infra record (INFRA_FILE, items 6-10): step names, registry genesis, the reviewed genesis PR and the retained
-#      evidence of items 7-10, merged into main by an "infra PR";
-#   2. after that infra PR is merged (item 11) and a maintainer decision comment on issue DELSK-003A names the infra
-#      record digest (item 12), an "enable PR" adds ACTIVATION_FILE, which binds the infra record, the merged infra PR
-#      and the decision comment, and sets oracle_g1_v2.ACTIVATION_RECORD to its SHA-256.
-# Item 11, maintainer decision of 2026-10-05: the project has one developer, so no approving GitHub review by another
-# person is required (record schema v2 drops review_id). The provenance of the infra PR stays mandatory: it is merged
-# into main by exactly the recorded commit and itself introduced exactly these infra bytes.
-# Items 6, 11 and 12 are verified live against the constant provider API on every production evaluation; anything that
-# cannot be confirmed (edited comment, unmerged PR, other merge commit, other infra bytes) keeps v3 not active.
+# One record (ACTIVATION_FILE), added by the enable PR together with oracle_g1_v2.ACTIVATION_RECORD = SHA-256 of its
+# bytes, after the v4 freeze is merged, the ruleset covers the v4 registry ref and genesis exists. The merge of that PR
+# by the maintainer is the decision (one developer). Production re-verifies the record in the pinned main tree and the
+# genesis review live on every evaluation; anything that cannot be confirmed keeps v4 not active.
 
-INFRA_FILE = EVIDENCE_DIR + 'infra.json'
-INFRA_SCHEMA = 'delsk.oracle.v3-activation-infra.v1'
-DECISION_ISSUE = 27  # DELSK-003A
-DECISION_PHRASE = 'DELSK-003A NATURAL MEASUREMENT AUTHORIZED infra_sha256={}'
-MAINTAINER_ASSOCIATIONS = ('OWNER', 'MEMBER')
+# contract-v4 2: v4 inherits the real-GitHub smoke and write-surface evidence of the v3 activation, bound by the exact
+# bytes of the merged v3 infra record (PR #33); it is history and is not re-verified with v4 constants.
+V3_INFRA = {'path': '.work/oracle/activation/infra.json',
+            'sha256': '8c70fd27d3013c4016bda62ae1e815ace129147014ab05e93e6e6f94693fddaf'}
 TOOL_FILE = '.work/tools/oracle_activation_v2.py'
+RECORD_KEYS = {'schema', 'g1_contract', 'g1_freeze_sha256', 'steps', 'workflow_sha256', 'registry', 'genesis_review',
+               'rulesets', 'v3_infra'}
 
 
 @dataclass(frozen=True)
@@ -647,35 +642,31 @@ def _pull(entry):
         ev.HEX40.match(entry['merge_commit_sha']) is not None
 
 
-def validate_infra(doc, view):
-    """Problems of the infra record (items 6-10) that need no provider: closed document, constants, evidence bytes and
-    their verifiers, and the workflow witnesses of the pinned tree."""
-    keys = {'schema', 'g1_contract', 'g1_freeze_sha256', 'steps', 'workflow_sha256', 'registry', 'genesis_review',
-            'evidence'}
-    if not (type(doc) is dict and set(doc) == keys and doc['schema'] == INFRA_SCHEMA
+def validate_record(doc, view):
+    """Problems of the enable record that need no provider: closed document, constants, the witnessed workflow bytes
+    and the reviewed workflows of the pinned tree, the rulesets evidence and the inherited v3 infra bytes."""
+    if not (type(doc) is dict and set(doc) == RECORD_KEYS and doc['schema'] == SCHEMA
             and doc['g1_contract'] == reg.G1_CONTRACT and doc['g1_freeze_sha256'] == reg.G1_FREEZE_SHA256):
-        return ['infra record: closed document of this contract']
+        return ['activation record: closed document of this contract']
     problems = []
     if doc['steps'] != {'register': REGISTER_STEP, 'bind': BIND_STEP, 'boundary': BOUNDARY_STEP, 'kat': KAT_STEP,
                         'provider': list(PILOT_PROVIDER_STEPS)}:
-        problems.append('infra record: step names')
+        problems.append('activation record: step names')
     pilot = view.read(PILOT_WORKFLOW)
     if pilot is None or doc['workflow_sha256'] != ev.sha256(pilot):  # contract-v3 1.5: the witnessed bytes
-        problems.append('infra record: workflow_sha256 is not the reviewed oracle-pilot.yml')
+        problems.append('activation record: workflow_sha256 is not the reviewed oracle-pilot.yml')
     if doc['registry'] != {'ref': reg.REGISTRY_REF, 'genesis_sha256': GENESIS_SHA256['production'],
                            'root_commit': ROOT_COMMIT['production']}:
-        problems.append('infra record: registry genesis')
+        problems.append('activation record: registry genesis')
     if not _pull(doc['genesis_review']):
-        problems.append('infra record: genesis review (item 6)')
-    ev_doc = doc['evidence']
-    if not (type(ev_doc) is dict and set(ev_doc) == {'rulesets', 'smoke', 'scenarios', 'write_surface'}):
-        return problems + ['infra record: evidence']
+        problems.append('activation record: genesis review')
+    infra = view.read(V3_INFRA['path'])
+    if doc['v3_infra'] != V3_INFRA or infra is None or ev.sha256(infra) != V3_INFRA['sha256']:
+        problems.append('activation record: inherited v3 infra record')
     try:
-        problems += verify_rulesets(_evidence(ev_doc['rulesets'], view.read))
-        problems += verify_smoke(_evidence(ev_doc['smoke'], view.read), _evidence(ev_doc['scenarios'], view.read))
-        problems += verify_write_surface(_evidence(ev_doc['write_surface'], view.read))
+        problems += verify_rulesets(_evidence(doc['rulesets'], view.read))
     except (ev.EvalError, ValueError, UnicodeDecodeError) as error:
-        problems.append(f'infra record: {error}')
+        problems.append(f'activation record: {error}')
     for path, checker in ((PILOT_WORKFLOW, check_pilot_workflow), (SMOKE_WORKFLOW, check_smoke_workflow),
                           (WRITE_SURFACE_WORKFLOW, check_write_surface_workflow), (KAT_WORKFLOW, check_kat_workflow)):
         data = view.read(path)
@@ -738,82 +729,33 @@ def _introduced(get, view, pr, path, *, expected_sha256=None, marker=None):
 
 
 def verify_genesis_review(doc, get, view):
-    """Item 6: the recorded PR itself introduced the deterministic production-root binding."""
-    pr, problems = _merged(get, view, doc['genesis_review'], 'genesis review (item 6)')
+    """Genesis review: the recorded PR itself introduced the deterministic production-root binding."""
+    pr, problems = _merged(get, view, doc['genesis_review'], 'genesis review')
     if pr is None:
         return problems
     marker = f"'production': '{ROOT_COMMIT['production']}'".encode()
     if not _introduced(get, view, pr, TOOL_FILE, marker=marker):
-        problems.append('genesis review (item 6): recorded PR did not introduce the reviewed genesis binding')
+        problems.append('genesis review: recorded PR did not introduce the reviewed genesis binding')
     return problems
 
 
 def validate_activation(doc, view, get):
-    """All problems of the enable record (ACTIVATION_FILE): the infra record it binds, then items 6, 11 and 12 live."""
-    keys = {'schema', 'g1_contract', 'g1_freeze_sha256', 'infra', 'infra_pr', 'decision'}
-    if not (type(doc) is dict and set(doc) == keys and doc['schema'] == SCHEMA
-            and doc['g1_contract'] == reg.G1_CONTRACT and doc['g1_freeze_sha256'] == reg.G1_FREEZE_SHA256
-            and type(doc['infra']) is dict and doc['infra'].get('path') == INFRA_FILE):
-        return ['activation record: closed document of this contract']
-    try:
-        infra = _evidence(doc['infra'], view.read)
-    except (ev.EvalError, ValueError, UnicodeDecodeError):
-        return ['activation record: infra record bytes']
-    problems = validate_infra(infra, view)
+    """All problems of the enable record (ACTIVATION_FILE): the record in the pinned tree, then the genesis review live.
+    The merge of the enable PR into main is the maintainer decision (contract-v4 2 item 5): one developer, no second
+    reviewer and no separate authorization comment."""
+    problems = validate_record(doc, view)
     if problems:
         return problems
     try:
-        problems += verify_genesis_review(infra, get, view)
-        problems += _verify_review(doc, get, view)
-        problems += _verify_decision(doc, get, view)
+        problems += verify_genesis_review(doc, get, view)
     except (TypeError, KeyError, AttributeError, ev.EvalError, rg.TransportError):
         problems.append('activation record: provider evidence unavailable')
     return problems
 
 
-def _verify_review(doc, get, view):
-    """Item 11 (one developer, see above): the infra PR is merged into main by the recorded commit and itself
-    introduced exactly these infra bytes. No approving GitHub review by a second person is required."""
-    merge = doc['infra_pr']
-    if not _pull(merge):
-        return ['infra PR (item 11): record']
-    pr, problems = _merged(get, view, merge, 'infra PR (item 11)')
-    if pr is None:
-        return problems
-    merged = view.read_at(merge['merge_commit_sha'], INFRA_FILE)
-    if merged is None or ev.sha256(merged) != doc['infra']['sha256']:
-        problems.append('infra PR (item 11): infra PR did not merge these infra bytes')
-    if not _introduced(get, view, pr, INFRA_FILE, expected_sha256=doc['infra']['sha256']):
-        problems.append('infra PR (item 11): merged PR did not introduce the exact infra artifact')
-    return problems
-
-
-def _verify_decision(doc, get, view):
-    """Item 12: an unedited maintainer comment on issue DELSK-003A, made after the infra PR merged, that authorizes
-    natural measurement for exactly this infra record."""
-    decision = doc['decision']
-    if not (type(decision) is dict and set(decision) == {'issue', 'comment_id', 'body_sha256'}
-            and decision['issue'] == DECISION_ISSUE and oa.positive(decision['comment_id'])
-            and type(decision['body_sha256']) is str and ev.HEX64.match(decision['body_sha256'])):
-        return ['maintainer decision (item 12): record']
-    comment = get(f"/repos/{reg.REPOSITORY}/issues/comments/{decision['comment_id']}")
-    pr = get(f"/repos/{reg.REPOSITORY}/pulls/{doc['infra_pr']['pull_request']}")
-    try:
-        body = comment['body']
-        ok = (comment['issue_url'] == f'{reg.PROVIDER_API}/repos/{reg.REPOSITORY}/issues/{DECISION_ISSUE}'
-              and comment['author_association'] in MAINTAINER_ASSOCIATIONS and comment['user']['type'] == 'User'
-              and ev.sha256(body.encode('utf-8')) == decision['body_sha256']
-              and DECISION_PHRASE.format(doc['infra']['sha256']) in body
-              and oa.timestamp(comment['created_at']) > oa.timestamp(pr['merged_at']))
-    except (KeyError, TypeError, AttributeError, ev.EvalError):
-        ok = False
-    return [] if ok else ['maintainer decision (item 12): no unedited maintainer authorization for this infra record '
-                          'after the infra PR merged']
-
-
 def activation_in_tree(view, get, activation_sha256):
-    """(enable record, infra record) named by the code constant and verified in the pinned tree and live, or None
-    (v3 not active)."""
+    """The enable record named by the code constant and verified in the pinned tree and live, or None (v4 not
+    active)."""
     if not (type(activation_sha256) is str and ev.HEX64.match(activation_sha256)):
         return None
     data = view.read(ACTIVATION_FILE)
@@ -821,9 +763,7 @@ def activation_in_tree(view, get, activation_sha256):
         return None
     try:
         doc = ev.parse_doc(data)
-        if validate_activation(doc, view, get):
-            return None
-        return doc, ev.parse_doc(view.read(INFRA_FILE))
+        return None if validate_activation(doc, view, get) else doc
     except (ev.EvalError, ValueError, UnicodeDecodeError, TypeError):
         return None
 
@@ -864,8 +804,6 @@ def main(argv, env=os.environ):
             problems = verify_rulesets(ev.parse_doc(Path(args[0]).read_bytes()))
         elif command == 'verify-smoke' and len(args) == 2:
             problems = verify_smoke(*(ev.parse_doc(Path(a).read_bytes()) for a in args))
-        elif command == 'verify-infra' and len(args) == 1:
-            problems = validate_infra(ev.parse_doc(Path(args[0]).read_bytes()), local_view())
         elif command == 'verify-record' and len(args) == 1:
             problems = validate_activation(ev.parse_doc(Path(args[0]).read_bytes()), local_view(), rg.api_get)
         else:

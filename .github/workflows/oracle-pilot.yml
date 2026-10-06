@@ -1,10 +1,11 @@
 name: Oracle pilot (DELSK-003)
 
-# Slice C0 infrastructure with the DELSK-003A register/measure split of contract v3 (v2 sections 4.1, 5.7, 5.8, 12.2).
-# Dispatches are a separate post-activation task: before activation the register job refuses (V3_NOT_ACTIVE) and the
-# measure job keeps the C0 guard DISPATCH_HISTORY_UNVERIFIED. Nothing before the boundary step reads natural bytes;
-# steps after it start only if the boundary step itself started, so a stop before B stays provable as PRE (contract-v3
-# 1.3; the provider steps Post <step> of the actions before the boundary and Complete job are exempt by name).
+# Slice C0 infrastructure with the DELSK-003A register/measure split of contract v4 (v3 text; v2 sections 4.1, 5.7,
+# 5.8, 12.2). Before activation the register job refuses and step initialize refuses before bind (V4_NOT_ACTIVE). The
+# step names keep their v3 wording: the enable record fixes them as they are. Nothing before the boundary step reads
+# natural bytes; steps after it start only if the boundary step itself started, so a stop before B stays provable as PRE
+# (contract-v3 1.3; the provider steps Post <step> of the actions before the boundary and Complete job are exempt by
+# name).
 on:
   workflow_dispatch:
     inputs:

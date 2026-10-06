@@ -370,118 +370,89 @@ class FakeGitHub:
 
 
 AUTHOR = 'author-login'
-GENESIS_PR, INFRA_PR = 31, 40
-GENESIS_MERGE, INFRA_MERGE, INFRA_HEAD = 'a' * 40, 'b' * 40, 'c' * 40
-GENESIS_PARENT, INFRA_PARENT = '1' * 40, '2' * 40
+GENESIS_PR = 38
+GENESIS_MERGE, GENESIS_PARENT = 'a' * 40, '1' * 40
 
 
 class Record(unittest.TestCase):
-    """Complete synthetic activation (infra record, enable record, live items 6/11/12) in a temporary tree: proves the
-    records are checkable end to end, not that any item holds on GitHub. Nothing of this is committed."""
+    """Complete synthetic v4 activation (enable record, genesis review live) in a temporary tree: proves the record is
+    checkable end to end, not that any item holds on GitHub. Nothing of this is committed."""
 
     def setUp(self):
         self.files = {p: (ROOT / p).read_bytes() for p in (act.PILOT_WORKFLOW, act.SMOKE_WORKFLOW,
-                                                            act.WRITE_SURFACE_WORKFLOW, act.KAT_WORKFLOW)}
-        smoke, scenarios = smoke_docs()
-        write = {'schema': act.WRITE_SURFACE_SCHEMA, 'repository': REPO,
-                 'workflow_ref': f'{REPO}/{act.WRITE_SURFACE_WORKFLOW}@refs/heads/main', 'run_id': 7, 'run_attempt': 1,
-                 'credential': 'GITHUB_TOKEN contents: write', 'collected_at': '2026-10-05T12:00:00Z',
-                 'preflight': 'PASSED',
-                 'attempts': [{'operation': o, 'ref': 'r', 'exit_code': 1, 'server_rejected': True,
-                               'ref_before': 'a' * 40, 'ref_after': 'a' * 40} for o in act.OPERATIONS]}
-        evidence = {}
-        for name, doc in (('rulesets', rulesets_doc()), ('smoke', smoke), ('scenarios', scenarios),
-                          ('write_surface', write)):
-            path = f'{act.EVIDENCE_DIR}{name}.json'
-            self.files[path] = ev.canonical(doc)
-            evidence[name] = {'path': path, 'sha256': ev.sha256(self.files[path])}
-        self.infra = {'schema': act.INFRA_SCHEMA, 'g1_contract': reg.G1_CONTRACT,
-                      'g1_freeze_sha256': reg.G1_FREEZE_SHA256,
-                      'steps': {'register': act.REGISTER_STEP, 'bind': act.BIND_STEP, 'boundary': act.BOUNDARY_STEP,
-                                'kat': act.KAT_STEP, 'provider': list(act.PILOT_PROVIDER_STEPS)},
-                      'workflow_sha256': ev.sha256(PILOT.encode('utf-8')),
-                      'registry': {'ref': reg.REGISTRY_REF, 'genesis_sha256': act.GENESIS_SHA256['production'],
-                                   'root_commit': act.ROOT_COMMIT['production']},
-                      'genesis_review': {'pull_request': GENESIS_PR, 'merge_commit_sha': GENESIS_MERGE},
-                      'evidence': evidence}
-        self.files[act.INFRA_FILE] = ev.canonical(self.infra)
-        infra_sha = ev.sha256(self.files[act.INFRA_FILE])
-        body = f'Independent review done.\n{act.DECISION_PHRASE.format(infra_sha)}\n'
+                                                            act.WRITE_SURFACE_WORKFLOW, act.KAT_WORKFLOW,
+                                                            act.V3_INFRA['path'])}
+        path = f'{act.EVIDENCE_DIR}rulesets.json'
+        self.files[path] = ev.canonical(rulesets_doc())
         self.record = {'schema': act.SCHEMA, 'g1_contract': reg.G1_CONTRACT, 'g1_freeze_sha256': reg.G1_FREEZE_SHA256,
-                       'infra': {'path': act.INFRA_FILE, 'sha256': infra_sha},
-                       'infra_pr': {'pull_request': INFRA_PR, 'merge_commit_sha': INFRA_MERGE},
-                       'decision': {'issue': act.DECISION_ISSUE, 'comment_id': 9001,
-                                    'body_sha256': ev.sha256(body.encode())}}
+                       'steps': {'register': act.REGISTER_STEP, 'bind': act.BIND_STEP, 'boundary': act.BOUNDARY_STEP,
+                                 'kat': act.KAT_STEP, 'provider': list(act.PILOT_PROVIDER_STEPS)},
+                       'workflow_sha256': ev.sha256(PILOT.encode('utf-8')),
+                       'registry': {'ref': reg.REGISTRY_REF, 'genesis_sha256': act.GENESIS_SHA256['production'],
+                                    'root_commit': act.ROOT_COMMIT['production']},
+                       'genesis_review': {'pull_request': GENESIS_PR, 'merge_commit_sha': GENESIS_MERGE},
+                       'rulesets': {'path': path, 'sha256': ev.sha256(self.files[path])},
+                       'v3_infra': dict(act.V3_INFRA)}
         tool_bytes = (ROOT / act.TOOL_FILE).read_bytes()
-        self.at = {(GENESIS_MERGE, act.TOOL_FILE): tool_bytes,
-                   (INFRA_MERGE, act.INFRA_FILE): self.files[act.INFRA_FILE]}
-        self.parents = {GENESIS_MERGE: GENESIS_PARENT, INFRA_MERGE: INFRA_PARENT}
-        self.main = {GENESIS_PARENT, GENESIS_MERGE, INFRA_PARENT, INFRA_MERGE}
+        self.at = {(GENESIS_MERGE, act.TOOL_FILE): tool_bytes}
+        self.parents = {GENESIS_MERGE: GENESIS_PARENT}
+        self.main = {GENESIS_PARENT, GENESIS_MERGE}
         self.gh = FakeGitHub()
         api = f'/repos/{REPO}'
-        for number, merge, head, merged_at in ((GENESIS_PR, GENESIS_MERGE, 'd' * 40, '2026-10-05T10:00:00Z'),
-                                               (INFRA_PR, INFRA_MERGE, INFRA_HEAD, '2026-10-06T10:00:00Z')):
-            self.gh.docs[f'{api}/pulls/{number}'] = {
-                'number': number, 'merged': True, 'merge_commit_sha': merge, 'merged_at': merged_at,
-                'base': {'ref': 'main', 'repo': {'full_name': REPO}}, 'head': {'sha': head},
-                'user': {'login': AUTHOR, 'type': 'User'}}
+        self.gh.docs[f'{api}/pulls/{GENESIS_PR}'] = {
+            'number': GENESIS_PR, 'merged': True, 'merge_commit_sha': GENESIS_MERGE,
+            'merged_at': '2026-10-06T10:00:00Z',
+            'base': {'ref': 'main', 'repo': {'full_name': REPO}}, 'head': {'sha': 'd' * 40},
+            'user': {'login': AUTHOR, 'type': 'User'}}
         self.gh.docs[f'{api}/pulls/{GENESIS_PR}/files?per_page=100&page=1'] = [
-            {'filename': act.TOOL_FILE, 'status': 'added', 'sha': act._git_blob_sha(tool_bytes),
+            {'filename': act.TOOL_FILE, 'status': 'modified', 'sha': act._git_blob_sha(tool_bytes),
              'patch': f"+reviewed genesis root {act.ROOT_COMMIT['production']}"}]
-        self.gh.docs[f'{api}/pulls/{INFRA_PR}/files?per_page=100&page=1'] = [
-            {'filename': act.INFRA_FILE, 'status': 'added', 'sha': act._git_blob_sha(self.files[act.INFRA_FILE]),
-             'patch': '+infra record'}]
-        self.gh.docs[f'{api}/issues/comments/9001'] = {
-            'id': 9001, 'issue_url': f'{reg.PROVIDER_API}{api}/issues/{act.DECISION_ISSUE}', 'body': body,
-            'author_association': 'OWNER', 'user': {'login': AUTHOR, 'type': 'User'},
-            'created_at': '2026-10-06T12:00:00Z'}
 
-    def view(self, files=None, at=None, main=None, parents=None):
-        files, at, main, parents = files or self.files, at or self.at, main or self.main, parents or self.parents
-        return act.TreeView(files.get, lambda c, p: at.get((c, p)), lambda c: c in main, parents.get)
+    def view(self, files=None):
+        return act.TreeView((files or self.files).get, lambda c, p: self.at.get((c, p)), lambda c: c in self.main,
+                            self.parents.get)
 
-    def test_complete_records_verify_and_bind_by_digest(self):
-        self.assertEqual(act.validate_infra(self.infra, self.view()), [])
+    def test_complete_record_verifies_and_binds_by_digest(self):
+        self.assertEqual(act.validate_record(self.record, self.view()), [])
         self.assertEqual(act.validate_activation(self.record, self.view(), self.gh), [])
         self.files[act.ACTIVATION_FILE] = ev.canonical(self.record)
         digest = ev.sha256(self.files[act.ACTIVATION_FILE])
-        self.assertEqual(act.activation_in_tree(self.view(), self.gh, digest), (self.record, self.infra))
+        self.assertEqual(act.activation_in_tree(self.view(), self.gh, digest), self.record)
         self.assertIsNone(act.activation_in_tree(self.view(), self.gh, '0' * 64))
         self.assertIsNone(act.activation_in_tree(self.view(), self.gh, None))
 
-    def test_one_developer_merge_is_item_11(self):
-        # the PR author also merges and decides; no approving review exists or is read
-        self.assertEqual(self.gh.docs[f'/repos/{REPO}/pulls/{INFRA_PR}']['user']['login'], AUTHOR)
-        self.assertEqual(self.gh.docs[f'/repos/{REPO}/issues/comments/9001']['user']['login'], AUTHOR)
-        self.assertNotIn(f'/repos/{REPO}/pulls/{INFRA_PR}/reviews?per_page=100', self.gh.docs)
-        self.assertEqual(act.validate_activation(self.record, self.view(), self.gh), [])
+    def test_one_developer_merge_is_the_decision(self):
+        # contract-v4 2 item 5: no review, no authorization comment is read; only the genesis PR and its files
+        read = []
+        self.assertEqual(act.validate_activation(self.record, self.view(), lambda path: read.append(path) or
+                                                 self.gh(path)), [])
+        self.assertTrue(read)
+        self.assertFalse([path for path in read if '/issues/' in path or '/reviews' in path])
 
-    def test_infra_diff_on_a_later_files_page(self):
-        api = f'/repos/{REPO}/pulls/{INFRA_PR}/files?per_page=100&page='
-        real = self.gh.docs[f'{api}1']
-        self.gh.docs[f'{api}1'] = [{'filename': f'docs/{n}.md', 'status': 'added', 'sha': '9' * 40}
-                                   for n in range(100)]
-        self.gh.docs[f'{api}2'] = real
-        self.assertEqual(act.validate_activation(self.record, self.view(), self.gh), [])
-
-    def test_any_gap_keeps_v3_inactive(self):
+    def test_any_gap_keeps_v4_inactive(self):
         api = f'/repos/{REPO}'
-        comment = f'{api}/issues/comments/9001'
+
         def doc(path):
             return self.gh.docs[path]
         cases = {  # (record edit, tree edit, provider edit)
-            'step names': lambda r, f, g: self.infra_edit(f, r, steps={**self.infra['steps'], 'boundary': 'x'}),
-            'provider steps widened': lambda r, f, g: self.infra_edit(f, r, steps={
-                **self.infra['steps'],
-                'provider': [*act.PILOT_PROVIDER_STEPS, 'Post Retain binding sidecar before the boundary']}),
-            'other workflow bytes': lambda r, f, g: self.infra_edit(f, r, workflow_sha256='0' * 64),
-            'genesis root': lambda r, f, g: self.infra_edit(f, r, registry={**self.infra['registry'],
-                                                                            'root_commit': '0' * 40}),
-            'evidence bytes': lambda r, f, g: f.update({self.infra['evidence']['rulesets']['path']: b'{}'}),
+            'step names': lambda r, f, g: r['steps'].update(boundary='x'),
+            'provider steps widened': lambda r, f, g: r['steps'].update(
+                provider=[*act.PILOT_PROVIDER_STEPS, 'Post Retain binding sidecar before the boundary']),
+            'other workflow bytes': lambda r, f, g: r.update(workflow_sha256='0' * 64),
+            'genesis root': lambda r, f, g: r['registry'].update(root_commit='0' * 40),
+            'v3 registry ref': lambda r, f, g: r['registry'].update(ref='refs/heads/delsk/registry-v3'),
+            'other contract': lambda r, f, g: r.update(g1_contract='delsk.oracle-contract.v3'),
+            'extra field': lambda r, f, g: r.update(decision={}),
+            'rulesets evidence bytes': lambda r, f, g: f.update({r['rulesets']['path']: b'{}'}),
+            'rulesets evidence outside the v4 evidence directory': lambda r, f, g: r['rulesets'].update(
+                path='.work/oracle/activation/rulesets.json'),
+            'registry ruleset missing': lambda r, f, g: self.rulesets_edit(f, r, drop=reg.REGISTRY_REF),
+            'retired v3 registry unprotected': lambda r, f, g: self.rulesets_edit(f, r,
+                                                                                  drop='refs/heads/delsk/registry-v3'),
+            'v3 infra digest': lambda r, f, g: r['v3_infra'].update(sha256='0' * 64),
+            'v3 infra bytes': lambda r, f, g: f.update({act.V3_INFRA['path']: b'{}'}),
             'pilot workflow regressed': lambda r, f, g: f.update({act.PILOT_WORKFLOW: PILOT.replace(
                 act.BIND_STEP, 'bind').encode()}),
-            'infra bytes swapped': lambda r, f, g: f.update({act.INFRA_FILE: f[act.INFRA_FILE] + b' '}),
-            # item 6
             'genesis PR not merged': lambda r, f, g: doc(f'{api}/pulls/{GENESIS_PR}').update(merged=False),
             'genesis PR other merge commit': lambda r, f, g: doc(f'{api}/pulls/{GENESIS_PR}').update(
                 merge_commit_sha='e' * 40),
@@ -496,36 +467,9 @@ class Record(unittest.TestCase):
                 f'{api}/pulls/{GENESIS_PR}/files?per_page=100&page=1':
                     [{'filename': act.TOOL_FILE, 'status': 'modified', 'sha': '9' * 40,
                       'patch': f"+reviewed genesis root {act.ROOT_COMMIT['production']}"}]}),
-            # item 11
-            'infra PR not merged': lambda r, f, g: doc(f'{api}/pulls/{INFRA_PR}').update(merged=False),
-            'infra PR other merge commit': lambda r, f, g: r['infra_pr'].update(merge_commit_sha='e' * 40),
-            'infra PR record with an extra field': lambda r, f, g: r['infra_pr'].update(review_id=501),
-            'infra PR merged other bytes': lambda r, f, g: self.at.update({(INFRA_MERGE, act.INFRA_FILE): b'{}'}),
-            'late unrelated approved PR cannot claim infra review': lambda r, f, g: (
-                self.at.update({(INFRA_PARENT, act.INFRA_FILE): self.files[act.INFRA_FILE]}),
-                g.docs.update({f'{api}/pulls/{INFRA_PR}/files?per_page=100&page=1':
-                    [{'filename': 'README.md', 'status': 'modified', 'sha': '8' * 40, 'patch': '+unrelated'}]})),
-            'infra PR file blob differs from merged bytes': lambda r, f, g: g.docs.update({
-                f'{api}/pulls/{INFRA_PR}/files?per_page=100&page=1':
-                    [{'filename': act.INFRA_FILE, 'status': 'modified', 'sha': '8' * 40, 'patch': '+wrong'}]}),
-            'infra merge not on main': lambda r, f, g: self.main.discard(INFRA_MERGE),
-            'infra file only renamed into place': lambda r, f, g: doc(
-                f'{api}/pulls/{INFRA_PR}/files?per_page=100&page=1')[0].update(status='renamed'),
-            'infra merge without a parent': lambda r, f, g: self.parents.pop(INFRA_MERGE),
-            'infra merge parent off main': lambda r, f, g: self.main.discard(INFRA_PARENT),
-            'files API unavailable': lambda r, f, g: g.docs.pop(f'{api}/pulls/{INFRA_PR}/files?per_page=100&page=1'),
-            'infra diff hidden behind a full first page': lambda r, f, g: g.docs.update(
-                {f'{api}/pulls/{INFRA_PR}/files?per_page=100&page=1':
-                    [{'filename': f'docs/{n}.md', 'status': 'added', 'sha': '9' * 40} for n in range(100)]}),
-            # item 12
-            'decision edited': lambda r, f, g: doc(comment).update(body=doc(comment)['body'] + 'edit'),
-            'decision for another infra record': lambda r, f, g: self.redecide(r, act.DECISION_PHRASE.format('0' * 64)),
-            'decision by a non-maintainer': lambda r, f, g: doc(comment).update(author_association='CONTRIBUTOR'),
-            'decision before the infra merge': lambda r, f, g: doc(comment).update(created_at='2026-10-06T09:00:00Z'),
-            'decision on another issue': lambda r, f, g: doc(comment).update(
-                issue_url=f'{reg.PROVIDER_API}{api}/issues/1'),
-            'decision on the wrong issue in the record': lambda r, f, g: r['decision'].update(issue=1),
-            'decision comment deleted': lambda r, f, g: g.docs.pop(comment),
+            'genesis merge not on main': lambda r, f, g: self.main.discard(GENESIS_MERGE),
+            'genesis merge without a parent': lambda r, f, g: self.parents.pop(GENESIS_MERGE),
+            'files API unavailable': lambda r, f, g: g.docs.pop(f'{api}/pulls/{GENESIS_PR}/files?per_page=100&page=1'),
             'provider down': None,
         }
         for name, fn in cases.items():
@@ -539,28 +483,21 @@ class Record(unittest.TestCase):
                     fn(record, files, gh)
                 self.assertTrue(act.validate_activation(record, self.view(files), gh), name)
 
-    def infra_edit(self, files, record, **changes):
-        infra = {**self.infra, **changes}
-        files[act.INFRA_FILE] = ev.canonical(infra)
-        record['infra']['sha256'] = ev.sha256(files[act.INFRA_FILE])
-
-    def redecide(self, record, phrase):
-        body = f'{phrase}\n'
-        self.gh.docs[f'/repos/{REPO}/issues/comments/9001']['body'] = body
-        record['decision']['body_sha256'] = ev.sha256(body.encode())
-
-
-INFRA_EVIDENCE = {'infra.json', 'rulesets.json', 'rulesets-pre-genesis.json', 'genesis-readback.json',
-                  'registry-refs.json', 'registry-activity.json', 'smoke-scenarios.json', 'smoke-evaluation.json',
-                  'smoke-evaluation-before-deletion.json', 'smoke-provider-raw.json',
-                  'smoke-provider-raw-before-deletion.json', 'smoke-semantics.json', 'write-surface.json',
-                  'write-surface-supplementary.json'}
+    def rulesets_edit(self, files, record, drop):
+        doc = rulesets_doc()
+        for r in doc['rulesets']:
+            include = r['conditions']['ref_name']['include']
+            if drop in include:
+                include.remove(drop)
+        doc['effective'].pop(drop, None)
+        files[record['rulesets']['path']] = ev.canonical(doc)
+        record['rulesets']['sha256'] = ev.sha256(files[record['rulesets']['path']])
 
 
 class NotActivatedHere(unittest.TestCase):
-    """Repository state: the infra record (items 6-10) and, once enabled, the enable record (items 11-12) named by
-    oracle_g1_v2.ACTIVATION_RECORD through the digest of its exact bytes. Items 6, 11 and 12 are live provider facts;
-    production re-verifies them on every evaluation (activation_in_tree), this offline test checks the bytes."""
+    """Repository state: the enable record named by oracle_g1_v2.ACTIVATION_RECORD through the digest of its exact
+    bytes, once enabled. The genesis review is a live provider fact; production re-verifies it on every evaluation
+    (activation_in_tree), this offline test checks the bytes against the tree."""
 
     def test_activation_record_is_bound_by_digest(self):
         self.assertFalse(list((ROOT / '.work').rglob('genesis.json')))
@@ -571,40 +508,11 @@ class NotActivatedHere(unittest.TestCase):
             return
         data = path.read_bytes()
         self.assertEqual(ev.sha256(data), g1.ACTIVATION_RECORD)
-        doc = ev.parse_doc(data)
-        self.assertEqual(set(doc), {'schema', 'g1_contract', 'g1_freeze_sha256', 'infra', 'infra_pr', 'decision'})
-        self.assertEqual((doc['schema'], doc['g1_contract'], doc['g1_freeze_sha256']),
-                         (act.SCHEMA, reg.G1_CONTRACT, reg.G1_FREEZE_SHA256))
-        self.assertEqual(doc['infra'], {'path': act.INFRA_FILE,
-                                        'sha256': ev.sha256((ROOT / act.INFRA_FILE).read_bytes())})
-        self.assertTrue(act._pull(doc['infra_pr']))
-        self.assertEqual(doc['decision']['issue'], act.DECISION_ISSUE)
-        self.assertEqual(act.validate_infra(ev.parse_doc((ROOT / act.INFRA_FILE).read_bytes()), act.local_view()), [])
+        self.assertEqual(act.validate_record(ev.parse_doc(data), act.local_view()), [])
 
-    def test_infra_record_verifies_against_the_tree(self):
-        evidence = ROOT / act.EVIDENCE_DIR
-        if not evidence.exists():
-            self.skipTest('no infra record in this tree')
-        self.assertEqual({p.name for p in evidence.iterdir()}, INFRA_EVIDENCE)
-        self.assertTrue(all(p.is_file() and not p.is_symlink() for p in evidence.iterdir()))
-        infra = ev.parse_doc((ROOT / act.INFRA_FILE).read_bytes())
-        self.assertEqual(act.validate_infra(infra, act.local_view()), [])
-        self.assertEqual(infra['registry']['root_commit'], act.ROOT_COMMIT['production'])
-        self.assertEqual(infra['g1_freeze_sha256'], ev.sha256((ROOT / '.work/oracle/freeze-v3.json').read_bytes()))
-        docs = {name: ev.parse_doc((evidence / name).read_bytes()) for name in INFRA_EVIDENCE}
-        self.assertEqual(docs['genesis-readback.json']['problems'], [])
-        self.assertEqual(docs['registry-refs.json']['problems'], [])
-        self.assertEqual(docs['registry-refs.json']['production_registry_entries'], 0)
-        self.assertTrue(all(docs['smoke-semantics.json']['checks'].values()))
-        self.assertEqual(act.verify_rulesets(docs['rulesets-pre-genesis.json']), [])
-        # evidence of items 7-10 was collected after the last ruleset change it relies on
-        def when(value):
-            parsed = datetime.datetime.fromisoformat(value.replace('Z', '+00:00'))
-            self.assertIsNotNone(parsed.utcoffset())
-            return parsed
-        last_change = max(when(r['updated_at']) for r in docs['rulesets.json']['rulesets'])
-        for name in ('rulesets.json', 'rulesets-pre-genesis.json', 'write-surface.json'):
-            self.assertGreater(when(docs[name]['collected_at']), last_change)
+    def test_inherited_v3_infra_record_is_unchanged(self):
+        # contract-v4 2: the v3 smoke and write-surface evidence is inherited by the exact bytes of the v3 infra record
+        self.assertEqual(ev.sha256((ROOT / act.V3_INFRA['path']).read_bytes()), act.V3_INFRA['sha256'])
 
 
 if __name__ == '__main__':

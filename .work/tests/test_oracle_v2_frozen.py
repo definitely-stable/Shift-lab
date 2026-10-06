@@ -1,7 +1,8 @@
-"""DELSK-003A C1-A/C1-B gate 1: frozen v1/v2/v3 bytes are unchanged and nothing is activated.
+"""DELSK-003A gate 1: frozen v1/v2/v3/v4 bytes are unchanged and nothing is activated beyond the enable record.
 
-Runs before the v3 implementation tests (module names keep the _v2 suffix of the registered-attempt model). Hashes are spelled out here (not read from the freeze records) so that an
-edit of a freeze record together with the file it pins is caught as well. Offline; reads no natural byte.
+Runs before the v4 implementation tests (module names keep the _v2 suffix of the registered-attempt model). Hashes are
+spelled out here (not read from the freeze records) so that an edit of a freeze record together with the file it pins
+is caught as well. Offline; reads no natural byte.
 """
 import gzip
 import hashlib
@@ -39,6 +40,12 @@ FROZEN = {
     'oracle/schemas-v3.json': 'b958f9d26708829c29591c35c353f135ee611059298c4d8badb858360877a751',
     'oracle/registry-vectors-v3.json': '0b53aa03f46bcb4be43c59dbb8bad65ebdc16a4d5173c811850cc606491111d4',
     'tests/test_oracle_contract_v3.py': '1bff11dff24ef6b48eb873c6dba5f5462db9b2569573a0e1a5e7e91fa825a584',
+    # provenance layer delsk.oracle-contract.v4 (freeze-v4.json and the files it pins; v3 above is its base text)
+    'oracle/freeze-v4.json': '9507f045abd13155a20d938381ea0391e9e094f713d18a143c0a136445cbbb61',
+    'oracle/contract-v4.md': '3c14a9fd14439ddaa2288c95fc7a01d6dc26633c8fadab1406d9e3facd6a456b',
+    'oracle/schemas-v4.json': 'dfd881da9807eb49550449e693dfe3911e14907cfa780baa4019cd5fb70f272b',
+    'oracle/registry-vectors-v4.json': '74760dfd5cb6b20151b843beaa149f566eef24fc4c234b8edc170f3a38af2cf2',
+    'tests/test_oracle_contract_v4.py': '85b1c944c00cbba5889ef794d87aa80cf21ea6aca77f706600e8fb90e8888d96',
     # corpus / candidate / source / protocol / seal locks bound by the v1 freeze
     'corpus/e1/candidate-lock.json': 'cb16d53b164ff393187e0115bdf31c52ac717a5172fb1e91889b5988ac019d2e',
     'corpus/pilot-v1/corpus-lock.json.gz': '86009552183230ab13f9366684eedb4fcfcea746b25cbbed10ab2aabceb8f56b',
@@ -63,8 +70,10 @@ class FrozenBytes(unittest.TestCase):
         v1 = ev.parse_doc((WORK / 'oracle/freeze.json').read_bytes())
         v2 = ev.parse_doc((WORK / 'oracle/freeze-v2.json').read_bytes())
         v3 = ev.parse_doc((WORK / 'oracle/freeze-v3.json').read_bytes())
+        v4 = ev.parse_doc((WORK / 'oracle/freeze-v4.json').read_bytes())
         for files in (v1['files'], v2['measurement_layer']['files'], v2['provenance_layer']['files'],
-                      v3['measurement_layer']['files'], v3['base_layer']['files'], v3['provenance_layer']['files']):
+                      v3['measurement_layer']['files'], v3['base_layer']['files'], v3['provenance_layer']['files'],
+                      v4['measurement_layer']['files'], v4['base_layer']['files'], v4['provenance_layer']['files']):
             for name, digest in files.items():
                 self.assertEqual(FROZEN[name.removeprefix('.work/')], digest, name)
         self.assertEqual(v2['measurement_layer_sha256'], FROZEN['oracle/freeze.json'])
@@ -72,15 +81,18 @@ class FrozenBytes(unittest.TestCase):
         self.assertEqual(v3['measurement_layer_sha256'], FROZEN['oracle/freeze.json'])
         self.assertEqual(v3['base_layer']['freeze_sha256'], FROZEN['oracle/freeze-v2.json'])
         self.assertEqual(v3['provenance_layer_sha256'], ev.hc(v3['provenance_layer']['files']))
-        self.assertEqual(reg.G1_FREEZE_SHA256, FROZEN['oracle/freeze-v3.json'])
-        self.assertEqual(reg.G1_CONTRACT, v3['contract_id'])
+        self.assertEqual(v4['measurement_layer_sha256'], FROZEN['oracle/freeze.json'])
+        self.assertEqual(v4['base_layer']['freeze_sha256'], FROZEN['oracle/freeze-v3.json'])
+        self.assertEqual(v4['provenance_layer_sha256'], ev.hc(v4['provenance_layer']['files']))
+        self.assertEqual(reg.G1_FREEZE_SHA256, FROZEN['oracle/freeze-v4.json'])
+        self.assertEqual(reg.G1_CONTRACT, v4['contract_id'])
         self.assertEqual(v1['bindings']['corpus_lock_sha256'], ev.sha256(gzip.decompress(
             (WORK / 'corpus/pilot-v1/corpus-lock.json.gz').read_bytes())))
         for key, name in (('candidate_lock_sha256', 'corpus/e1/candidate-lock.json'),
                           ('seal_sha256', 'corpus/e1/seal.json'), ('protocol_sha256', 'protocol.md'),
                           ('codec_lock_sha256', 'oracle/codec-lock.json')):
             self.assertEqual(v1['bindings'][key], FROZEN[name], key)
-        for freeze in (v2, v3):
+        for freeze in (v2, v3, v4):
             self.assertEqual((freeze['status'], freeze['implementation'], freeze['g1'], freeze['natural_measurements']),
                              ('FROZEN_ON_MERGE', 'NOT_ACTIVE', 'NOT_RUN', 'NOT_RUN'))
 
@@ -90,25 +102,47 @@ class FrozenBytes(unittest.TestCase):
 
 
 class NotActivated(unittest.TestCase):
-    def test_no_registry_genesis_transition_or_v2_v3_evidence(self):
+    def test_no_retired_evidence_and_v4_evidence_only_when_active(self):
+        # v2 and v3 never retain evidence or a transition record (their frozen tests forbid it, contract-v4 0.1)
         self.assertFalse((WORK / 'results' / 'DELSK-003-ORACLE-V2').exists())
         self.assertFalse((WORK / 'results' / 'DELSK-003-ORACLE-V3').exists())
         self.assertFalse((WORK / 'oracle' / 'series-transition.json').exists())
         self.assertFalse(list(WORK.rglob('genesis.json')))
-        # contract-v3 5: the code constant names the enable record by the digest of its exact bytes, or nothing
+        # contract-v4 2: the code constant names the enable record by the digest of its exact bytes, or nothing
         record = WORK.parent / activation.ACTIVATION_FILE
         if g1.ACTIVATION_RECORD is None:
             self.assertFalse(record.exists())
+            self.assertFalse((WORK.parent / reg.RESULTS_ROOT).exists())
+            self.assertFalse((WORK.parent / reg.TRANSITION_FILE).exists())
         else:
             self.assertEqual(ev.sha256(record.read_bytes()), g1.ACTIVATION_RECORD)
 
-    def test_natural_path_needs_a_verified_v3_admission(self):
-        # Contract-v3 5 replaced the C0 refusal: without the admission that step initialize writes after verifying
-        # the v3 activation live (before bind and the boundary), the worker and the runner gate refuse.
+    def test_v4_evidence_root_is_well_formed(self):
+        # Contract 8.1 offline: only bundles/<run>-<attempt>/ and bindings/<run>-<attempt>.json, every bundle a verified
+        # v1 bundle with its binding, no v4 run key in the v1 root. Registry membership is checked live by production.
+        root = WORK.parent / reg.RESULTS_ROOT
+        if not root.exists():
+            self.skipTest('no v4 evidence retained yet')
+        evidence = g1.read_evidence_root(root)
+        self.assertEqual(evidence.foreign_paths, ())
+        bundles = {reg.run_key(b): b for b in evidence.bundles}
+        bindings = {reg.run_key(b): b for b in evidence.bindings}
+        self.assertLessEqual(set(bundles), set(bindings))
+        self.assertFalse(set(bindings) & set(evidence.v1_root_keys))
+        for key, bundle in bundles.items():
+            self.assertTrue(bundle['bundle_verified'], key)
+            self.assertEqual(bundle['measurement_identity_sha256'], bindings[key]['measurement_identity_sha256'], key)
+        for binding in bindings.values():
+            self.assertTrue(reg.valid(binding, 'attempt_binding'))
+            self.assertTrue(reg.self_digest_ok(binding, 'binding_sha256'))
+
+    def test_natural_path_needs_a_verified_v4_admission(self):
+        # Contract-v4 2 (contract-v3 5) replaced the C0 refusal: without the admission that step initialize writes after
+        # verifying the v4 activation live (before bind and the boundary), the worker and the runner gate refuse.
         with self.assertRaises(oracle_pilot.PilotError) as blocked:
-            oracle_pilot.require_v3_active({'GITHUB_SHA': '0' * 40, 'GITHUB_RUN_ID': '1', 'GITHUB_RUN_ATTEMPT': '1'},
+            oracle_pilot.require_v4_active({'GITHUB_SHA': '0' * 40, 'GITHUB_RUN_ID': '1', 'GITHUB_RUN_ATTEMPT': '1'},
                                            WORK / 'no-such-admission.json')
-        self.assertEqual(blocked.exception.failure_class, 'V3_NOT_ACTIVE')
+        self.assertEqual(blocked.exception.failure_class, 'V4_NOT_ACTIVE')
         # The only write-capable job is `register`; no registry ref or credential is spelled out in the workflow.
         workflow = (WORK.parent / '.github/workflows/oracle-pilot.yml').read_text(encoding='utf-8')
         self.assertEqual(activation.check_pilot_workflow(workflow), [])

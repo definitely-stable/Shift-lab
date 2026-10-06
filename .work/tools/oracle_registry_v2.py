@@ -1,9 +1,9 @@
-"""DELSK-003A C1-A: registry mechanics of the frozen provenance/G1 contract delsk.oracle-contract.v3.
+"""DELSK-003A C1-A: registry mechanics of the frozen provenance/G1 contract delsk.oracle-contract.v4.
 
-v3 (.work/oracle/contract-v3.md) is the v2 text with substitutions; the registered-attempt model and the module names
-(_v2) are those of v2, which was superseded before activation. Implements sections 3, 5 and 6 over immutable data:
-canonical genesis and entries, closed schemas (.work/oracle/schemas-v3.json), hash chain, sequence, run-key
-uniqueness, registry head,
+v4 (.work/oracle/contract-v4.md) is the v3 text (itself the v2 text) with substitutions; the registered-attempt model
+and the module names (_v2) are those of v2, which was superseded before activation. Implements sections 3, 5 and 6 over
+immutable data: canonical genesis and entries, closed schemas (.work/oracle/schemas-v4.json), hash chain, sequence,
+run-key uniqueness, registry head,
 level-1 witness prefix (rollback), stale-head primitive, physical branch form, science_identity and transition records,
 and the external-checkpoint prefix rule (section 13.2). Stdlib only, no network, no Git writes, no natural bytes.
 
@@ -21,18 +21,18 @@ from types import MappingProxyType
 
 import oracle_eval as ev
 
-G1_CONTRACT = 'delsk.oracle-contract.v3'
+G1_CONTRACT = 'delsk.oracle-contract.v4'
 MEASUREMENT_CONTRACT = 'delsk.oracle-contract.v1'
 # Authority constants (contract 5.1): normative, never parameters, environment or CLI.
 REPOSITORY = 'definitely-stable/Shift-lab'
 REGISTRY_REMOTE = 'https://github.com/definitely-stable/Shift-lab.git'
-REGISTRY_REF = 'refs/heads/delsk/registry-v3'
+REGISTRY_REF = 'refs/heads/delsk/registry-v4'
 PROVIDER_API = 'https://api.github.com'
 WORKFLOW_PATH = '.github/workflows/oracle-pilot.yml'
 JOBS = ('register', 'measure')
 SOURCE_REF = 'refs/heads/main'
-RESULTS_ROOT = '.work/results/DELSK-003-ORACLE-V3/'
-TRANSITION_FILE = '.work/oracle/series-transition.json'
+RESULTS_ROOT = '.work/results/ORACLE-G1-V4/'
+TRANSITION_FILE = '.work/oracle/series-transition-v4.json'
 AUTHORITY = MappingProxyType({'repository': REPOSITORY, 'registry_remote': REGISTRY_REMOTE,
                               'registry_ref': REGISTRY_REF, 'provider_api': PROVIDER_API,
                               'results_root': RESULTS_ROOT})
@@ -40,19 +40,19 @@ AUTHORITY = MappingProxyType({'repository': REPOSITORY, 'registry_remote': REGIS
 GENESIS_FILE, ENTRIES_FILE = 'genesis.json', 'entries.jsonl'
 ENTRY_SCHEMA = 'delsk.oracle.registry-entry.v1'
 SCIENCE_SCHEMA = 'delsk.oracle.science-identity.v1'
-_SCHEMAS = ev.parse_doc((ev.ORACLE / 'schemas-v3.json').read_bytes())
-# SHA-256 of the frozen contracts. The v3 digest (freeze-v3.json) is an authority constant of this contract generation;
-# a future provenance contract gets a new constant rather than making this caller-selectable. The v2 freeze stays pinned
-# as the base text of v3 (KAT gate) and is never a genesis binding.
+_SCHEMAS = ev.parse_doc((ev.ORACLE / 'schemas-v4.json').read_bytes())
+# SHA-256 of the frozen contracts. The v4 digest (freeze-v4.json) is an authority constant of this contract generation;
+# a future provenance contract gets a new constant rather than making this caller-selectable. The v2 and v3 freezes stay
+# pinned as base texts (KAT gate) and are never a genesis binding.
 MEASUREMENT_FREEZE_SHA256 = _SCHEMAS['$defs']['registry_genesis']['properties']['measurement_freeze_sha256']['const']
-G1_FREEZE_SHA256 = '39dede91e9ed6e12d298f5bd72f9d94fda9e0ac5c92f7a478815d210a0eb1c85'
+G1_FREEZE_SHA256 = '9507f045abd13155a20d938381ea0391e9e094f713d18a143c0a136445cbbb61'
 
 
 @dataclass(frozen=True)
 class Profile:
     """Registry authority profile. Only the two module constants below exist; neither is caller-configurable.
 
-    schemas: schemas-v3 with this profile's genesis registry_ref, entry workflow_path and entry workflow_ref pattern.
+    schemas: schemas-v4 with this profile's genesis registry_ref, entry workflow_path and entry workflow_ref pattern.
     g1_freeze_sha256: the genesis binding that authoritative validation requires (contract 5.3)."""
     name: str
     registry_remote: str
@@ -63,7 +63,7 @@ class Profile:
 
 
 def _profile_schemas(registry_ref, workflow_path):
-    """schemas-v3 with exactly three values replaced. Applied to the production values it reproduces the frozen
+    """schemas-v4 with exactly three values replaced. Applied to the production values it reproduces the frozen
     schemas byte for byte (tested), so the derivation cannot weaken any other rule."""
     s = copy.deepcopy(_SCHEMAS)
     defs = s['$defs']
@@ -76,7 +76,7 @@ def _profile_schemas(registry_ref, workflow_path):
 
 
 PRODUCTION = Profile('production', REGISTRY_REMOTE, REGISTRY_REF, WORKFLOW_PATH, G1_FREEZE_SHA256, _SCHEMAS)
-SMOKE_REGISTRY_REF = 'refs/heads/delsk/registry-v3-smoke'
+SMOKE_REGISTRY_REF = 'refs/heads/delsk/registry-v4-smoke'
 SMOKE_WORKFLOW_PATH = '.github/workflows/oracle-registry-smoke.yml'
 SMOKE = Profile('smoke', REGISTRY_REMOTE, SMOKE_REGISTRY_REF, SMOKE_WORKFLOW_PATH,
                 ev.hc({'schema': 'delsk.oracle.registry-smoke-domain.v1', 'g1_freeze_sha256': G1_FREEZE_SHA256}),
@@ -85,7 +85,7 @@ PROFILES = (PRODUCTION, SMOKE)
 
 
 class RegistryInvalid(ev.EvalError):
-    """Contract 5.6 item 1: the registry is permanently REGISTRY_INVALID. No repair inside v3."""
+    """Contract 5.6 item 1: the registry is permanently REGISTRY_INVALID. No repair inside v4."""
 
 
 _PHYSICAL_PROOF = object()
@@ -96,7 +96,7 @@ class PhysicalRegistry:
     """Opaque authoritative registry snapshot.
 
     Only authoritative_registry() can construct a usable instance: it first verifies the complete Git history shape
-    (contract 5.2), parses canonical bytes and binds genesis to this contract's exact freeze-v3 digest. The snapshot
+    (contract 5.2), parses canonical bytes and binds genesis to this contract's exact freeze-v4 digest. The snapshot
     stores immutable bytes so later callers cannot mutate the already-validated registry objects in place.
     """
     genesis_bytes: bytes
@@ -239,7 +239,7 @@ def authoritative_registry(commits, git, profile=PRODUCTION):
     """Composition boundary for production/runner code.
 
     The returned object cannot be obtained from a logically-valid final tree alone: the full registry branch history
-    must first satisfy section 5.2, and genesis must bind to the exact frozen v3 contract (SMOKE: to its own
+    must first satisfy section 5.2, and genesis must bind to the exact frozen v4 contract (SMOKE: to its own
     domain-separated digest). Duplicate run keys remain section 5.6 item 2 and are intentionally checked by the caller
     so it can preserve REGISTRY_DUPLICATE semantics.
     """
@@ -258,13 +258,13 @@ def physical_objects(snapshot):
 
 def validate(genesis, entries, git, g1_freeze_sha256=None, profile=None):
     """Contract 5.6 item 1 on parsed objects. Raises RegistryInvalid; returns the registry head. Production passes the
-    SHA-256 of freeze-v3.json in the pinned main tree as g1_freeze_sha256; the test core passes None (contract 14).
+    SHA-256 of freeze-v4.json in the pinned main tree as g1_freeze_sha256; the test core passes None (contract 14).
     profile None = the frozen production schemas."""
     schemas = None if profile is None else profile.schemas
     require(type(entries) is list, 'entries must be a list')
     require(valid(genesis, 'registry_genesis', schemas), 'genesis not canonical or not by schema')
     require(g1_freeze_sha256 is None or genesis['g1_freeze_sha256'] == g1_freeze_sha256,
-            'genesis g1_freeze_sha256 differs from freeze-v3')
+            'genesis g1_freeze_sha256 differs from freeze-v4')
     previous = ev.hc(genesis)
     for number, e in enumerate(entries, 1):
         where = f'line {number}'

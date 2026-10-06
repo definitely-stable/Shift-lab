@@ -1,4 +1,4 @@
-"""Test-only adapter: frozen registry-vectors-v3.json cases -> immutable inputs of the v3 G1 core.
+"""Test-only adapter: frozen registry-vectors-v4.json cases -> immutable inputs of the v4 G1 core.
 
 Feeds the vector *inputs* (registry, provider observations, evidence, environment) to the implementation; expected
 records are only ever compared against, never returned. The vectors' generator was never committed and is not used.
@@ -12,7 +12,7 @@ sys.path.insert(0, str(WORK / 'tools'))
 import oracle_eval as ev
 import oracle_g1_v2 as g1
 
-VECTORS = ev.parse_doc((WORK / 'oracle' / 'registry-vectors-v3.json').read_bytes())
+VECTORS = ev.parse_doc((WORK / 'oracle' / 'registry-vectors-v4.json').read_bytes())
 CASES = [c for v in VECTORS['vectors'] for c in v['cases']]
 BY_ID = {c['id']: c for c in CASES}
 

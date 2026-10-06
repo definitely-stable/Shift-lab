@@ -441,7 +441,7 @@ class Register(Base):
         self.w.publish_main(docs)
         self.refused('TRANSITION_REQUIRED', self.register, 12, sha=docs)  # still the new apparatus series
 
-    @patch.object(g1, 'ACTIVATION_RECORD', None)  # pre-activation state (contract-v3 5)
+    @patch.object(g1, 'ACTIVATION_RECORD', None)  # pre-activation state (contract-v4 2)
     def test_production_register_refuses_before_activation_without_any_read(self):
         self.w.genesis(reg.PRODUCTION)
         head = self.w.remote_ref(reg.REGISTRY_REF)
@@ -451,7 +451,7 @@ class Register(Base):
         self.assertEqual(rg.main(['register'], self.w.env_of(11, profile=reg.PRODUCTION)), 3)
 
     def test_production_profile_path_with_a_stand_in_activation(self):
-        """The production code path itself (frozen schemas, real freeze-v3 digest) on a local remote."""
+        """The production code path itself (frozen schemas, real freeze-v4 digest) on a local remote."""
         self.w.genesis(reg.PRODUCTION)
         with patch.object(g1, 'ACTIVATION_RECORD', '1' * 64):
             entry = self.register(11, profile=reg.PRODUCTION)
@@ -623,27 +623,26 @@ class Evaluation(Base):
 
 
 class Production(Base):
-    @patch.object(g1, 'ACTIVATION_RECORD', None)  # pre-activation state (contract-v3 5)
+    @patch.object(g1, 'ACTIVATION_RECORD', None)  # pre-activation state (contract-v4 2)
     def test_no_read_before_activation(self):
         identity = '0' * 64
         with patch.object(rg, 'fetch', side_effect=AssertionError('read')), \
                 patch.object(rg, 'api_get', side_effect=AssertionError('read')):
-            self.assertEqual(g1.g1_production(identity), ('NOT_PASSED', ['V3_NOT_ACTIVE']))
+            self.assertEqual(g1.g1_production(identity), ('NOT_PASSED', ['V4_NOT_ACTIVE']))
             self.assertIsNone(g1._production_evaluate(identity))
             self.assertEqual(rg.main(['g1', identity, str(self.w.tmp / 'r.json')]), 1)
         self.assertFalse((self.w.tmp / 'r.json').exists())
 
     def test_live_registry_root_gates_activation(self):
         """Review 2 of PR 31: valid genesis bytes under another root commit cannot satisfy item 6."""
-        enable, infra = {}, {'steps': {'bind': act.BIND_STEP, 'boundary': act.BOUNDARY_STEP, 'kat': act.KAT_STEP,
-                                       'provider': list(act.PILOT_PROVIDER_STEPS)}, 'workflow_sha256': '0' * 64}
+        enable = {'steps': {'bind': act.BIND_STEP, 'boundary': act.BOUNDARY_STEP, 'kat': act.KAT_STEP,
+                            'provider': list(act.PILOT_PROVIDER_STEPS)}, 'workflow_sha256': '0' * 64}
         with tempfile.TemporaryDirectory() as t:
             gitdir = rg.init_bare(Path(t) / 'g.git')
             forged = rg.make_commit(gitdir, {'genesis.json': rg.genesis_bytes(reg.PRODUCTION), 'entries.jsonl': b''},
                                     None, 'look-alike genesis')
             sh(gitdir, 'push', '--quiet', str(self.w.remote), f'{forged}:{reg.REGISTRY_REF}')
-        with patch.object(ev, 'ROOT', self.w.root), patch.object(act, 'activation_in_tree',
-                                                                 return_value=(enable, infra)), \
+        with patch.object(ev, 'ROOT', self.w.root), patch.object(act, 'activation_in_tree', return_value=enable), \
                 patch.object(rg, 'collect', return_value='collected') as collect:
             self.assertIsNone(rg.production_inputs('4' * 64))
             collect.assert_not_called()
@@ -669,12 +668,12 @@ class Production(Base):
         self.assertIsNone(view.read_at(side, 'pr.txt'))
         self.assertEqual(view.read_at(merge, 'pr.txt'), b'1')
 
-    def test_unverified_activation_record_keeps_v3_inactive(self):
+    def test_unverified_activation_record_keeps_v4_inactive(self):
         self.w.genesis(reg.PRODUCTION)
         with patch.object(ev, 'ROOT', self.w.root), patch.object(g1, 'ACTIVATION_RECORD', '2' * 64), \
                 patch.object(rg, 'api_get', side_effect=AssertionError('provider read without activation')):
             self.assertIsNone(rg.production_inputs('2' * 64))
-            self.assertEqual(g1.g1_production('3' * 64), ('NOT_PASSED', ['V3_NOT_ACTIVE']))
+            self.assertEqual(g1.g1_production('3' * 64), ('NOT_PASSED', ['V4_NOT_ACTIVE']))
             self.w.publish_main(self.w.commit('record', {act.ACTIVATION_FILE: b'{}\n'}))
             self.assertIsNone(rg.production_inputs(ev.sha256(b'{}\n')))  # bytes match, record invalid
 

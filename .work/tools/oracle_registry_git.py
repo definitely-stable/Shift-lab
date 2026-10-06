@@ -1,4 +1,4 @@
-"""DELSK-003A C1-B: Git and provider transport of delsk.oracle-contract.v3 (registry runner and production reads).
+"""DELSK-003A C1-B: Git and provider transport of delsk.oracle-contract.v4 (registry runner and production reads).
 
     oracle_registry_git.py genesis {production|smoke} OUT_GIT_DIR   deterministic registry root commit, local only
     oracle_registry_git.py register                                 contract 5.7, job `register` of oracle-pilot.yml
@@ -44,7 +44,7 @@ COMMITTER = {'GIT_AUTHOR_NAME': 'delsk-registry', 'GIT_AUTHOR_EMAIL': 'delsk-reg
              'GIT_COMMITTER_NAME': 'delsk-registry', 'GIT_COMMITTER_EMAIL': 'delsk-registry@users.noreply.github.com'}
 V2_ROOT = reg.RESULTS_ROOT
 V1_ROOT = ev.RESULTS.relative_to(ev.ROOT).as_posix() + '/'
-FREEZE_V3 = '.work/oracle/freeze-v3.json'
+FREEZE_V4 = '.work/oracle/freeze-v4.json'
 EVALUATOR_FILES = ('oracle_g1_v2.py', 'oracle_registry_v2.py', 'oracle_registry_git.py', 'oracle_activation_v2.py',
                    'oracle_eval.py', 'oracle_attempts.py', 'budget.py')
 
@@ -347,7 +347,7 @@ def register(profile, env, root=ev.ROOT, get=api_get, token=None):
     the entry. Refusal(code) means nothing was written; TransportError means the write could not be completed (the
     job fails, `measure` never starts, and a retry of this attempt is idempotent)."""
     if profile is reg.PRODUCTION and g1.ACTIVATION_RECORD is None:
-        raise Refusal('DISPATCH_REJECTED')  # V3_NOT_ACTIVE: production registry stays untouched before activation
+        raise Refusal('DISPATCH_REJECTED')  # V4_NOT_ACTIVE: production registry stays untouched before activation
     x = execution(env, profile)
     transition_data = _transition_bytes(root, x['sha'])
     transition = _parsed(transition_data)
@@ -425,7 +425,7 @@ def write_new(path, data):
 # --- evaluation inputs (contract 9.0, 9.1) ---------------------------------------------------------------------------
 
 def evidence_from_tree(root, commit):
-    """Retained v3 and v1 results roots exactly as in the pinned main tree (contract 8.1), not the working tree."""
+    """Retained v4 and v1 results roots exactly as in the pinned main tree (contract 8.1), not the working tree."""
     with tempfile.TemporaryDirectory() as tmp:
         tmp, foreign = Path(tmp), []
         for prefix in (V2_ROOT, V1_ROOT):
@@ -498,7 +498,7 @@ def collect(profile, root, get, roles, evidence, kat_step, evaluator, workflow_s
                      and (data := show(root, c, profile.workflow_path)) is not None and ev.sha256(data) == reference}
         kat = {c for c in sources | ({evaluator} if evaluator else set())
                if kat_step is not None and g1.kat_verified_v2(get, c, main, kat_step, root)}
-        freeze = show(root, main, FREEZE_V3)
+        freeze = show(root, main, FREEZE_V4)
         evaluated_head = reg.head(genesis, entries) if genesis else None
         reread = registry_reread(gitdir, profile, head, evaluated_head)
     main_again = ls_remote(root, remote, MAIN_REF)
@@ -521,10 +521,10 @@ def registry_root(root=ev.ROOT, profile=reg.PRODUCTION):
 
 
 def active_activation(activation_sha256, root=None, get=None):
-    """(main, (enable record, infra record)) when v3 is active at the live main of the constant remote, else None:
-    the record named by activation_sha256 verifies in the pinned main tree and live (items 6, 11, 12;
-    oracle_activation_v2.activation_in_tree) and the live registry starts at the reviewed genesis root (item 6).
-    Shared by production G1 and the pilot admission (oracle_pilot.verify_v3_activation)."""
+    """(main, enable record) when v4 is active at the live main of the constant remote, else None: the record named
+    by activation_sha256 verifies in the pinned main tree and live (oracle_activation_v2.activation_in_tree) and the
+    live registry starts at the reviewed genesis root. Shared by production G1 and the pilot admission
+    (oracle_pilot.verify_v4_activation)."""
     import oracle_activation_v2 as act
     root = root or ev.ROOT
     main = fetch(root, reg.REGISTRY_REMOTE, MAIN_REF)
@@ -539,22 +539,22 @@ def active_activation(activation_sha256, root=None, get=None):
                         first_parent)
     activation = act.activation_in_tree(view, get or api_get, activation_sha256)
     if activation is None or registry_root(root) != act.ROOT_COMMIT['production']:
-        return None  # item 6: the live registry must start at the reviewed genesis root commit
+        return None  # the live registry must start at the reviewed genesis root commit
     return main, activation
 
 
 def production_inputs(activation_sha256):
     """Inputs of g1._production_evaluate, all from the authority constants. None when the activation record named by
-    the code constant is absent or does not verify in the pinned main tree (then v3 is not active)."""
+    the code constant is absent or does not verify in the pinned main tree (then v4 is not active)."""
     root = ev.ROOT
     active = active_activation(activation_sha256, root, api_get)
     if active is None:
         return None
     activation = active[1]
-    steps = activation[1]['steps']
+    steps = activation['steps']
     roles = {steps['bind']: 'bind', steps['boundary']: 'boundary', **{n: 'provider' for n in steps['provider']}}
     return collect(reg.PRODUCTION, root, api_get, roles, lambda pinned: evidence_from_tree(root, pinned),
-                   steps['kat'], evaluator_source_sha(root), activation[1]['workflow_sha256'])
+                   steps['kat'], evaluator_source_sha(root), activation['workflow_sha256'])
 
 
 def smoke_evaluation(root=ev.ROOT, get=api_get, scenarios=None):
@@ -627,7 +627,7 @@ def main(argv, env=os.environ):
         elif command == 'g1' and len(args) == 2:
             record = g1._production_evaluate(args[0]) if ev.HEX64.match(args[0]) else None
             if record is None:
-                print('G1: NOT_PASSED V3_NOT_ACTIVE')
+                print('G1: NOT_PASSED V4_NOT_ACTIVE')
                 return 1
             write_new(args[1], ev.canonical(record))
             print(f"G1: {record['verdict']} {' '.join(record['blockers'])}".rstrip())

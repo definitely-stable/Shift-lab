@@ -1,0 +1,1814 @@
+{
+  "$defs": {
+    "api_expectation": {
+      "additionalProperties": false,
+      "properties": {
+        "core_never_returns": {
+          "const": "PASS"
+        },
+        "forbidden_production_parameters": {
+          "items": {
+            "pattern": "^[a-z_]{1,40}(?![\\s\\S])",
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "production_entry_point": {
+          "const": "g1_production"
+        },
+        "production_parameters": {
+          "items": {
+            "const": "measurement_identity_sha256"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "test_pass_vocabulary": {
+          "const": "TEST_ONLY_PASS"
+        }
+      },
+      "required": [
+        "core_never_returns",
+        "forbidden_production_parameters",
+        "production_entry_point",
+        "production_parameters",
+        "test_pass_vocabulary"
+      ],
+      "type": "object"
+    },
+    "attempt_binding": {
+      "additionalProperties": false,
+      "properties": {
+        "binding_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "entry_sequence": {
+          "$ref": "#/$defs/pos"
+        },
+        "entry_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "g1_contract": {
+          "const": "delsk.oracle-contract.v4"
+        },
+        "measured_source_sha": {
+          "$ref": "#/$defs/hex40"
+        },
+        "measurement_identity_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "observed_head": {
+          "$ref": "#/$defs/registry_head"
+        },
+        "repository": {
+          "const": "definitely-stable/Shift-lab"
+        },
+        "run_attempt": {
+          "$ref": "#/$defs/pos"
+        },
+        "run_id": {
+          "$ref": "#/$defs/pos"
+        },
+        "schema": {
+          "const": "delsk.oracle.attempt-binding.v1"
+        }
+      },
+      "required": [
+        "binding_sha256",
+        "entry_sequence",
+        "entry_sha256",
+        "g1_contract",
+        "measured_source_sha",
+        "measurement_identity_sha256",
+        "observed_head",
+        "repository",
+        "run_attempt",
+        "run_id",
+        "schema"
+      ],
+      "type": "object"
+    },
+    "attempt_disclosure": {
+      "additionalProperties": false,
+      "properties": {
+        "class": {
+          "enum": [
+            "PRE",
+            "BUNDLE",
+            "MISSING"
+          ]
+        },
+        "conformance": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "boolean"
+            }
+          ]
+        },
+        "entry_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "measurement_identity_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "outcome": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "enum": [
+                "COMPLETE",
+                "COMPLETE_WITH_FAILURES",
+                "INCOMPLETE",
+                "INVALID"
+              ]
+            }
+          ]
+        },
+        "phase": {
+          "$ref": "#/$defs/phase"
+        },
+        "run_attempt": {
+          "$ref": "#/$defs/pos"
+        },
+        "run_id": {
+          "$ref": "#/$defs/pos"
+        },
+        "science_identity_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "sequence": {
+          "$ref": "#/$defs/pos"
+        },
+        "violations": {
+          "items": {
+            "enum": [
+              "BINDING_MISMATCH",
+              "DUPLICATE_EXECUTION",
+              "UNBOUND_MEASUREMENT"
+            ]
+          },
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "class",
+        "conformance",
+        "entry_sha256",
+        "measurement_identity_sha256",
+        "outcome",
+        "phase",
+        "run_attempt",
+        "run_id",
+        "science_identity_sha256",
+        "sequence",
+        "violations"
+      ],
+      "type": "object"
+    },
+    "authority": {
+      "additionalProperties": false,
+      "properties": {
+        "provider_api": {
+          "const": "https://api.github.com"
+        },
+        "registry_ref": {
+          "const": "refs/heads/delsk/registry-v4"
+        },
+        "registry_remote": {
+          "const": "https://github.com/definitely-stable/Shift-lab.git"
+        },
+        "repository": {
+          "const": "definitely-stable/Shift-lab"
+        },
+        "results_root": {
+          "const": ".work/results/ORACLE-G1-V4/"
+        }
+      },
+      "required": [
+        "provider_api",
+        "registry_ref",
+        "registry_remote",
+        "repository",
+        "results_root"
+      ],
+      "type": "object"
+    },
+    "bundle_projection": {
+      "additionalProperties": false,
+      "else": {
+        "properties": {
+          "conformance": {
+            "type": "null"
+          },
+          "cost_projection_sha256": {
+            "type": "null"
+          },
+          "measurement_identity_sha256": {
+            "type": "null"
+          },
+          "run": {
+            "type": "null"
+          },
+          "run_status": {
+            "type": "null"
+          },
+          "sealed_commitments_sha256": {
+            "type": "null"
+          },
+          "series_projection_sha256": {
+            "type": "null"
+          },
+          "targets_sha256": {
+            "type": "null"
+          }
+        }
+      },
+      "if": {
+        "properties": {
+          "bundle_verified": {
+            "const": true
+          }
+        }
+      },
+      "properties": {
+        "bundle_verified": {
+          "type": "boolean"
+        },
+        "conformance": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "boolean"
+            }
+          ]
+        },
+        "cost_projection_sha256": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/hex64"
+            }
+          ]
+        },
+        "measurement_identity_sha256": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/hex64"
+            }
+          ]
+        },
+        "run": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/bundle_run"
+            }
+          ]
+        },
+        "run_attempt": {
+          "$ref": "#/$defs/pos"
+        },
+        "run_id": {
+          "$ref": "#/$defs/pos"
+        },
+        "run_status": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "enum": [
+                "COMPLETE",
+                "COMPLETE_WITH_FAILURES",
+                "INCOMPLETE",
+                "INVALID"
+              ]
+            }
+          ]
+        },
+        "sealed_commitments_sha256": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/hex64"
+            }
+          ]
+        },
+        "series_projection_sha256": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/hex64"
+            }
+          ]
+        },
+        "targets_sha256": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/hex64"
+            }
+          ]
+        }
+      },
+      "required": [
+        "bundle_verified",
+        "conformance",
+        "cost_projection_sha256",
+        "measurement_identity_sha256",
+        "run",
+        "run_attempt",
+        "run_id",
+        "run_status",
+        "sealed_commitments_sha256",
+        "series_projection_sha256",
+        "targets_sha256"
+      ],
+      "then": {
+        "if": {
+          "properties": {
+            "run_status": {
+              "const": "COMPLETE"
+            }
+          }
+        },
+        "properties": {
+          "conformance": {
+            "type": "boolean"
+          },
+          "measurement_identity_sha256": {
+            "$ref": "#/$defs/hex64"
+          },
+          "run": {
+            "$ref": "#/$defs/bundle_run"
+          },
+          "run_status": {
+            "enum": [
+              "COMPLETE",
+              "COMPLETE_WITH_FAILURES",
+              "INCOMPLETE",
+              "INVALID"
+            ]
+          }
+        },
+        "then": {
+          "properties": {
+            "cost_projection_sha256": {
+              "$ref": "#/$defs/hex64"
+            },
+            "sealed_commitments_sha256": {
+              "$ref": "#/$defs/hex64"
+            },
+            "series_projection_sha256": {
+              "$ref": "#/$defs/hex64"
+            },
+            "targets_sha256": {
+              "$ref": "#/$defs/hex64"
+            }
+          }
+        }
+      },
+      "type": "object"
+    },
+    "bundle_run": {
+      "additionalProperties": false,
+      "properties": {
+        "repository": {
+          "const": "definitely-stable/Shift-lab"
+        },
+        "run_attempt": {
+          "$ref": "#/$defs/pos"
+        },
+        "run_id": {
+          "$ref": "#/$defs/pos"
+        },
+        "sha": {
+          "$ref": "#/$defs/hex40"
+        },
+        "workflow_ref": {
+          "pattern": "^definitely-stable/Shift-lab/\\.github/workflows/oracle-pilot\\.yml@refs/heads/[A-Za-z0-9][A-Za-z0-9._/-]{0,199}(?![\\s\\S])",
+          "type": "string"
+        },
+        "workflow_sha": {
+          "$ref": "#/$defs/hex40"
+        }
+      },
+      "required": [
+        "repository",
+        "run_attempt",
+        "run_id",
+        "sha",
+        "workflow_ref",
+        "workflow_sha"
+      ],
+      "type": "object"
+    },
+    "change_review": {
+      "additionalProperties": false,
+      "properties": {
+        "merge_commit_sha": {
+          "$ref": "#/$defs/hex40"
+        },
+        "pull_request": {
+          "$ref": "#/$defs/pos"
+        }
+      },
+      "required": [
+        "merge_commit_sha",
+        "pull_request"
+      ],
+      "type": "object"
+    },
+    "checkpoint_vector": {
+      "additionalProperties": false,
+      "properties": {
+        "checkpoint": {
+          "$ref": "#/$defs/external_checkpoint"
+        },
+        "checkpoint_history": {
+          "items": {
+            "$ref": "#/$defs/hex64"
+          },
+          "type": "array"
+        },
+        "description": {
+          "pattern": "^[^\\x00-\\x1f\\x7f]{1,600}(?![\\s\\S])",
+          "type": "string"
+        },
+        "expected": {
+          "enum": [
+            "ADMISSIBLE",
+            "INADMISSIBLE"
+          ]
+        },
+        "genesis_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "id": {
+          "pattern": "^XC0[1-9](?![\\s\\S])",
+          "type": "string"
+        },
+        "record_head": {
+          "$ref": "#/$defs/registry_head"
+        }
+      },
+      "required": [
+        "checkpoint",
+        "checkpoint_history",
+        "description",
+        "expected",
+        "genesis_sha256",
+        "id",
+        "record_head"
+      ],
+      "type": "object"
+    },
+    "code": {
+      "enum": [
+        "REGISTRY_INVALID",
+        "REGISTRY_DUPLICATE",
+        "REGISTRY_STALE",
+        "MAIN_STALE",
+        "REGISTRY_ROLLBACK",
+        "EVIDENCE_ROOT_INVALID",
+        "RUN_INVALID",
+        "REPEAT_MISMATCH",
+        "BINDING_MISMATCH",
+        "UNBOUND_MEASUREMENT",
+        "DUPLICATE_EXECUTION",
+        "SERIES_INVALID",
+        "SERIES_REPEAT_MISMATCH",
+        "SERIES_TRANSITION_MISMATCH",
+        "SERIES_FORK",
+        "SERIES_REENTRY",
+        "RUN_INCOMPLETE",
+        "RUN_COMPLETE_WITH_FAILURES",
+        "CONFORMANCE_OR_BUNDLE",
+        "REPEAT_MISSING",
+        "RESULT_MISSING",
+        "SERIES_FAILURE",
+        "SERIES_TRANSITION_MISSING",
+        "SERIES_SUPERSEDED",
+        "KAT_NOT_VERIFIED",
+        "V4_NOT_ACTIVE"
+      ]
+    },
+    "codec_ref": {
+      "additionalProperties": false,
+      "properties": {
+        "codec_id": {
+          "pattern": "^[a-z0-9][a-z0-9._-]*(?![\\s\\S])",
+          "type": "string"
+        },
+        "options_sha256": {
+          "$ref": "#/$defs/hex64"
+        }
+      },
+      "required": [
+        "codec_id",
+        "options_sha256"
+      ],
+      "type": "object"
+    },
+    "commit": {
+      "additionalProperties": false,
+      "properties": {
+        "ancestors": {
+          "items": {
+            "$ref": "#/$defs/hex40"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "sha": {
+          "$ref": "#/$defs/hex40"
+        }
+      },
+      "required": [
+        "ancestors",
+        "sha"
+      ],
+      "type": "object"
+    },
+    "environment": {
+      "additionalProperties": false,
+      "properties": {
+        "commits": {
+          "items": {
+            "$ref": "#/$defs/commit"
+          },
+          "type": "array"
+        },
+        "evaluator_source_sha": {
+          "$ref": "#/$defs/hex40"
+        },
+        "kat_green": {
+          "items": {
+            "$ref": "#/$defs/hex40"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "main_head": {
+          "$ref": "#/$defs/hex40"
+        },
+        "pull_requests": {
+          "items": {
+            "$ref": "#/$defs/pull_request"
+          },
+          "type": "array"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/source"
+          },
+          "type": "array"
+        },
+        "workflow_witnessed": {
+          "items": {
+            "$ref": "#/$defs/hex40"
+          },
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "commits",
+        "evaluator_source_sha",
+        "kat_green",
+        "main_head",
+        "pull_requests",
+        "sources",
+        "workflow_witnessed"
+      ],
+      "type": "object"
+    },
+    "environment_override": {
+      "additionalProperties": false,
+      "properties": {
+        "evaluator_source_sha": {
+          "$ref": "#/$defs/hex40"
+        },
+        "kat_green": {
+          "items": {
+            "$ref": "#/$defs/hex40"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "pull_requests": {
+          "items": {
+            "$ref": "#/$defs/pull_request"
+          },
+          "type": "array"
+        },
+        "workflow_witnessed": {
+          "items": {
+            "$ref": "#/$defs/hex40"
+          },
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "evaluator": {
+      "additionalProperties": false,
+      "properties": {
+        "evaluator_source_sha": {
+          "$ref": "#/$defs/hex40"
+        },
+        "g1_code_sha256": {
+          "$ref": "#/$defs/hex64"
+        }
+      },
+      "required": [
+        "evaluator_source_sha",
+        "g1_code_sha256"
+      ],
+      "type": "object"
+    },
+    "evidence": {
+      "additionalProperties": false,
+      "properties": {
+        "bindings": {
+          "items": {
+            "$ref": "#/$defs/attempt_binding"
+          },
+          "type": "array"
+        },
+        "bundles": {
+          "items": {
+            "$ref": "#/$defs/bundle_projection"
+          },
+          "type": "array"
+        },
+        "foreign_paths": {
+          "items": {
+            "pattern": "^[^\\x00-\\x1f\\x7f]{1,600}(?![\\s\\S])",
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "v1_root_keys": {
+          "items": {
+            "$ref": "#/$defs/run_key"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "bindings",
+        "bundles",
+        "foreign_paths",
+        "v1_root_keys"
+      ],
+      "type": "object"
+    },
+    "expectation": {
+      "additionalProperties": false,
+      "properties": {
+        "core_verdict": {
+          "enum": [
+            "SCIENTIFIC_PASS",
+            "NOT_PASSED",
+            "INVALID",
+            "NOT_RUN",
+            "NO_VERDICT"
+          ]
+        },
+        "measurement_identity_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "record": {
+          "$ref": "#/$defs/g1_record"
+        }
+      },
+      "required": [
+        "core_verdict",
+        "measurement_identity_sha256",
+        "record"
+      ],
+      "type": "object"
+    },
+    "external_checkpoint": {
+      "additionalProperties": false,
+      "properties": {
+        "checkpoint_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "head": {
+          "$ref": "#/$defs/registry_head"
+        },
+        "locator": {
+          "pattern": "^https://[!-~]{1,2000}(?![\\s\\S])",
+          "type": "string"
+        }
+      },
+      "required": [
+        "checkpoint_sha256",
+        "head",
+        "locator"
+      ],
+      "type": "object"
+    },
+    "g1_record": {
+      "additionalProperties": false,
+      "else": {
+        "properties": {
+          "evaluator": {
+            "$ref": "#/$defs/evaluator"
+          },
+          "verdict": {
+            "enum": [
+              "PASS",
+              "NOT_PASSED",
+              "INVALID",
+              "NOT_RUN",
+              "NO_VERDICT"
+            ]
+          }
+        }
+      },
+      "if": {
+        "properties": {
+          "authority": {
+            "type": "null"
+          }
+        }
+      },
+      "properties": {
+        "attempts": {
+          "items": {
+            "$ref": "#/$defs/attempt_disclosure"
+          },
+          "type": "array"
+        },
+        "authority": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/authority"
+            }
+          ]
+        },
+        "blockers": {
+          "items": {
+            "$ref": "#/$defs/code"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "evaluator": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/evaluator"
+            }
+          ]
+        },
+        "external_checkpoint": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/external_checkpoint"
+            }
+          ]
+        },
+        "g1_contract": {
+          "const": "delsk.oracle-contract.v4"
+        },
+        "genesis_sha256": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/hex64"
+            }
+          ]
+        },
+        "main_head_sha": {
+          "$ref": "#/$defs/hex40"
+        },
+        "measurement_contract": {
+          "const": "delsk.oracle-contract.v1"
+        },
+        "measurement_identity_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "record_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "registry_head": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/registry_head"
+            }
+          ]
+        },
+        "schema": {
+          "const": "delsk.oracle.g1-record.v1"
+        },
+        "science_identity_sha256": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/hex64"
+            }
+          ]
+        },
+        "series": {
+          "items": {
+            "$ref": "#/$defs/series_state"
+          },
+          "type": "array"
+        },
+        "transitions": {
+          "items": {
+            "$ref": "#/$defs/transition_disclosure"
+          },
+          "type": "array"
+        },
+        "unbound_attempts": {
+          "items": {
+            "$ref": "#/$defs/unbound_attempt"
+          },
+          "type": "array"
+        },
+        "verdict": {
+          "enum": [
+            "PASS",
+            "TEST_ONLY_PASS",
+            "NOT_PASSED",
+            "INVALID",
+            "NOT_RUN",
+            "NO_VERDICT"
+          ]
+        }
+      },
+      "required": [
+        "attempts",
+        "authority",
+        "blockers",
+        "evaluator",
+        "external_checkpoint",
+        "g1_contract",
+        "genesis_sha256",
+        "main_head_sha",
+        "measurement_contract",
+        "measurement_identity_sha256",
+        "record_sha256",
+        "registry_head",
+        "schema",
+        "science_identity_sha256",
+        "series",
+        "transitions",
+        "unbound_attempts",
+        "verdict"
+      ],
+      "then": {
+        "properties": {
+          "evaluator": {
+            "type": "null"
+          },
+          "verdict": {
+            "enum": [
+              "TEST_ONLY_PASS",
+              "NOT_PASSED",
+              "INVALID",
+              "NOT_RUN",
+              "NO_VERDICT"
+            ]
+          }
+        }
+      },
+      "type": "object"
+    },
+    "hex40": {
+      "pattern": "^[0-9a-f]{40}(?![\\s\\S])",
+      "type": "string"
+    },
+    "hex64": {
+      "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
+      "type": "string"
+    },
+    "measurement_identity_v1": {
+      "description": "validated against v1 schemas.json $defs.run.properties.measurement_identity (closed there)",
+      "type": "object"
+    },
+    "mutant": {
+      "additionalProperties": false,
+      "properties": {
+        "defect": {
+          "pattern": "^[^\\x00-\\x1f\\x7f]{1,600}(?![\\s\\S])",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^PM(0[1-9]|1[0-9]|20)(?![\\s\\S])",
+          "type": "string"
+        },
+        "killed_by": {
+          "items": {
+            "pattern": "^R(0[1-9]|1[0-9]|2[0-5])(\\.[a-l])?(?![\\s\\S])",
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "survives_as": {
+          "pattern": "^[^\\x00-\\x1f\\x7f]{1,600}(?![\\s\\S])",
+          "type": "string"
+        }
+      },
+      "required": [
+        "defect",
+        "id",
+        "killed_by",
+        "survives_as"
+      ],
+      "type": "object"
+    },
+    "phase": {
+      "enum": [
+        "pilot",
+        "reveal"
+      ]
+    },
+    "pos": {
+      "minimum": 1,
+      "type": "integer"
+    },
+    "provider_job": {
+      "additionalProperties": false,
+      "properties": {
+        "conclusion": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "enum": [
+                "success",
+                "failure",
+                "cancelled",
+                "skipped",
+                "timed_out"
+              ]
+            }
+          ]
+        },
+        "name": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9 ._()/-]{0,99}(?![\\s\\S])",
+          "type": "string"
+        },
+        "runner_assigned": {
+          "type": "boolean"
+        },
+        "started": {
+          "type": "boolean"
+        },
+        "steps": {
+          "items": {
+            "$ref": "#/$defs/provider_step"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "conclusion",
+        "name",
+        "runner_assigned",
+        "started",
+        "steps"
+      ],
+      "type": "object"
+    },
+    "provider_observation": {
+      "additionalProperties": false,
+      "properties": {
+        "run": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/provider_run"
+            }
+          ]
+        },
+        "run_attempt": {
+          "$ref": "#/$defs/pos"
+        },
+        "run_id": {
+          "$ref": "#/$defs/pos"
+        },
+        "schema": {
+          "const": "delsk.oracle.provider-observation.v2"
+        }
+      },
+      "required": [
+        "run",
+        "run_attempt",
+        "run_id",
+        "schema"
+      ],
+      "type": "object"
+    },
+    "provider_run": {
+      "additionalProperties": false,
+      "properties": {
+        "event": {
+          "pattern": "^[a-z_]{1,64}(?![\\s\\S])",
+          "type": "string"
+        },
+        "head_branch": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]{0,199}(?![\\s\\S])",
+          "type": "string"
+        },
+        "head_sha": {
+          "$ref": "#/$defs/hex40"
+        },
+        "jobs": {
+          "items": {
+            "$ref": "#/$defs/provider_job"
+          },
+          "type": "array"
+        },
+        "latest_run_attempt": {
+          "$ref": "#/$defs/pos"
+        },
+        "status": {
+          "enum": [
+            "queued",
+            "in_progress",
+            "completed",
+            "waiting",
+            "pending",
+            "requested"
+          ]
+        },
+        "workflow_path": {
+          "pattern": "^\\.github/workflows/[A-Za-z0-9._-]{1,100}(?![\\s\\S])",
+          "type": "string"
+        }
+      },
+      "required": [
+        "event",
+        "head_branch",
+        "head_sha",
+        "jobs",
+        "latest_run_attempt",
+        "status",
+        "workflow_path"
+      ],
+      "type": "object"
+    },
+    "provider_step": {
+      "additionalProperties": false,
+      "properties": {
+        "conclusion": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "enum": [
+                "success",
+                "failure",
+                "cancelled",
+                "skipped"
+              ]
+            }
+          ]
+        },
+        "number": {
+          "$ref": "#/$defs/pos"
+        },
+        "role": {
+          "enum": [
+            "bind",
+            "boundary",
+            "provider",
+            "other"
+          ]
+        },
+        "started": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "conclusion",
+        "number",
+        "role",
+        "started"
+      ],
+      "type": "object"
+    },
+    "pull_request": {
+      "additionalProperties": false,
+      "properties": {
+        "base_ref": {
+          "pattern": "^refs/heads/[A-Za-z0-9][A-Za-z0-9._/-]{0,199}(?![\\s\\S])",
+          "type": "string"
+        },
+        "merge_commit_sha": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/hex40"
+            }
+          ]
+        },
+        "merged": {
+          "type": "boolean"
+        },
+        "number": {
+          "$ref": "#/$defs/pos"
+        }
+      },
+      "required": [
+        "base_ref",
+        "merge_commit_sha",
+        "merged",
+        "number"
+      ],
+      "type": "object"
+    },
+    "registry_entry": {
+      "additionalProperties": false,
+      "properties": {
+        "entry_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "g1_contract": {
+          "const": "delsk.oracle-contract.v4"
+        },
+        "measured_source_sha": {
+          "$ref": "#/$defs/hex40"
+        },
+        "measurement_identity_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "phase": {
+          "$ref": "#/$defs/phase"
+        },
+        "previous_entry_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "repository": {
+          "const": "definitely-stable/Shift-lab"
+        },
+        "run_attempt": {
+          "$ref": "#/$defs/pos"
+        },
+        "run_id": {
+          "$ref": "#/$defs/pos"
+        },
+        "schema": {
+          "const": "delsk.oracle.registry-entry.v1"
+        },
+        "science_identity_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "sequence": {
+          "$ref": "#/$defs/pos"
+        },
+        "transition": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/series_transition"
+            }
+          ]
+        },
+        "workflow_path": {
+          "const": ".github/workflows/oracle-pilot.yml"
+        },
+        "workflow_ref": {
+          "pattern": "^definitely-stable/Shift-lab/\\.github/workflows/oracle-pilot\\.yml@refs/heads/[A-Za-z0-9][A-Za-z0-9._/-]{0,199}(?![\\s\\S])",
+          "type": "string"
+        },
+        "workflow_sha": {
+          "$ref": "#/$defs/hex40"
+        }
+      },
+      "required": [
+        "entry_sha256",
+        "g1_contract",
+        "measured_source_sha",
+        "measurement_identity_sha256",
+        "phase",
+        "previous_entry_sha256",
+        "repository",
+        "run_attempt",
+        "run_id",
+        "schema",
+        "science_identity_sha256",
+        "sequence",
+        "transition",
+        "workflow_path",
+        "workflow_ref",
+        "workflow_sha"
+      ],
+      "type": "object"
+    },
+    "registry_genesis": {
+      "additionalProperties": false,
+      "properties": {
+        "g1_contract": {
+          "const": "delsk.oracle-contract.v4"
+        },
+        "g1_freeze_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "measurement_contract": {
+          "const": "delsk.oracle-contract.v1"
+        },
+        "measurement_freeze_sha256": {
+          "const": "c56fc053b103cecd38446b3791db104a12b9fafabacdfc6b71f6f23c0bf7f729"
+        },
+        "registry_ref": {
+          "const": "refs/heads/delsk/registry-v4"
+        },
+        "repository": {
+          "const": "definitely-stable/Shift-lab"
+        },
+        "schema": {
+          "const": "delsk.oracle.registry-genesis.v1"
+        }
+      },
+      "required": [
+        "g1_contract",
+        "g1_freeze_sha256",
+        "measurement_contract",
+        "measurement_freeze_sha256",
+        "registry_ref",
+        "repository",
+        "schema"
+      ],
+      "type": "object"
+    },
+    "registry_head": {
+      "additionalProperties": false,
+      "properties": {
+        "entry_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "sequence": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "entry_sha256",
+        "sequence"
+      ],
+      "type": "object"
+    },
+    "registry_vectors": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "pattern": "^[^\\x00-\\x1f\\x7f]{1,600}(?![\\s\\S])",
+          "type": "string"
+        },
+        "environment": {
+          "$ref": "#/$defs/environment"
+        },
+        "external_checkpoint_vectors": {
+          "items": {
+            "$ref": "#/$defs/checkpoint_vector"
+          },
+          "type": "array"
+        },
+        "g1_contract": {
+          "const": "delsk.oracle-contract.v4"
+        },
+        "mutants": {
+          "items": {
+            "$ref": "#/$defs/mutant"
+          },
+          "type": "array"
+        },
+        "schema": {
+          "const": "delsk.oracle.registry-vectors.v1"
+        },
+        "science_identity_vectors": {
+          "items": {
+            "$ref": "#/$defs/science_identity_vector"
+          },
+          "type": "array"
+        },
+        "vectors": {
+          "items": {
+            "$ref": "#/$defs/vector"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "description",
+        "environment",
+        "external_checkpoint_vectors",
+        "g1_contract",
+        "mutants",
+        "schema",
+        "science_identity_vectors",
+        "vectors"
+      ],
+      "type": "object"
+    },
+    "run_key": {
+      "additionalProperties": false,
+      "properties": {
+        "run_attempt": {
+          "$ref": "#/$defs/pos"
+        },
+        "run_id": {
+          "$ref": "#/$defs/pos"
+        }
+      },
+      "required": [
+        "run_attempt",
+        "run_id"
+      ],
+      "type": "object"
+    },
+    "runner_expectation": {
+      "additionalProperties": false,
+      "properties": {
+        "bind": {
+          "enum": [
+            "NOT_RUN",
+            "BOUND",
+            "REGISTRY_UNBOUND"
+          ]
+        },
+        "crosses_boundary": {
+          "type": "boolean"
+        },
+        "register": {
+          "enum": [
+            "NOT_RUN",
+            "APPENDED",
+            "DISPATCH_REJECTED",
+            "SOURCE_NOT_ON_MAIN",
+            "REGISTRY_INVALID",
+            "REGISTRY_DUPLICATE",
+            "TRANSITION_REQUIRED",
+            "TRANSITION_INVALID"
+          ]
+        },
+        "run_attempt": {
+          "$ref": "#/$defs/pos"
+        },
+        "run_id": {
+          "$ref": "#/$defs/pos"
+        }
+      },
+      "required": [
+        "bind",
+        "crosses_boundary",
+        "register",
+        "run_attempt",
+        "run_id"
+      ],
+      "type": "object"
+    },
+    "science_identity": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_lock_sha256": {
+          "const": "cb16d53b164ff393187e0115bdf31c52ac717a5172fb1e91889b5988ac019d2e"
+        },
+        "codec_lock_sha256": {
+          "const": "9823e4c933c27fb4116bfce5add59ef6e926e43d2f0ebae258d7bb869a38f7b1"
+        },
+        "contract_freeze_sha256": {
+          "const": "c56fc053b103cecd38446b3791db104a12b9fafabacdfc6b71f6f23c0bf7f729"
+        },
+        "contract_id": {
+          "const": "delsk.oracle-contract.v1"
+        },
+        "corpus_lock_sha256": {
+          "const": "e5c288256bed284572a9f111186411517b4c73d097d13aea4cf48e2fb9f6fffa"
+        },
+        "delta": {
+          "$ref": "#/$defs/codec_ref"
+        },
+        "oracle_code_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "phase": {
+          "$ref": "#/$defs/phase"
+        },
+        "schema": {
+          "const": "delsk.oracle.science-identity.v1"
+        },
+        "sealed_splits": {
+          "items": {
+            "enum": [
+              "development",
+              "calibration",
+              "evaluation"
+            ]
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "standalone": {
+          "$ref": "#/$defs/codec_ref"
+        }
+      },
+      "required": [
+        "candidate_lock_sha256",
+        "codec_lock_sha256",
+        "contract_freeze_sha256",
+        "contract_id",
+        "corpus_lock_sha256",
+        "delta",
+        "oracle_code_sha256",
+        "phase",
+        "schema",
+        "sealed_splits",
+        "standalone"
+      ],
+      "type": "object"
+    },
+    "science_identity_vector": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "pattern": "^[^\\x00-\\x1f\\x7f]{1,600}(?![\\s\\S])",
+          "type": "string"
+        },
+        "git_source_commit": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/hex40"
+            }
+          ]
+        },
+        "id": {
+          "pattern": "^SI0[1-9](?![\\s\\S])",
+          "type": "string"
+        },
+        "measurement_identity": {
+          "$ref": "#/$defs/measurement_identity_v1"
+        },
+        "measurement_identity_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "science_identity": {
+          "$ref": "#/$defs/science_identity"
+        },
+        "science_identity_sha256": {
+          "$ref": "#/$defs/hex64"
+        }
+      },
+      "required": [
+        "description",
+        "git_source_commit",
+        "id",
+        "measurement_identity",
+        "measurement_identity_sha256",
+        "science_identity",
+        "science_identity_sha256"
+      ],
+      "type": "object"
+    },
+    "series_state": {
+      "additionalProperties": false,
+      "properties": {
+        "codes": {
+          "items": {
+            "enum": [
+              "SERIES_TRANSITION_MISSING",
+              "SERIES_TRANSITION_MISMATCH",
+              "SERIES_FORK",
+              "SERIES_REENTRY"
+            ]
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "first_sequence": {
+          "$ref": "#/$defs/pos"
+        },
+        "phase": {
+          "$ref": "#/$defs/phase"
+        },
+        "science_identity_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "state": {
+          "enum": [
+            "CURRENT",
+            "RETIRED",
+            "ORPHAN"
+          ]
+        }
+      },
+      "required": [
+        "codes",
+        "first_sequence",
+        "phase",
+        "science_identity_sha256",
+        "state"
+      ],
+      "type": "object"
+    },
+    "series_transition": {
+      "additionalProperties": false,
+      "properties": {
+        "change_review": {
+          "$ref": "#/$defs/change_review"
+        },
+        "g1_contract": {
+          "const": "delsk.oracle-contract.v4"
+        },
+        "new_science_identity_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "phase": {
+          "$ref": "#/$defs/phase"
+        },
+        "previous_science_identity_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "reason": {
+          "enum": [
+            "BUG_FIX",
+            "SEMANTIC_CHANGE",
+            "IMPLEMENTATION_CHANGE"
+          ]
+        },
+        "schema": {
+          "const": "delsk.oracle.series-transition.v1"
+        },
+        "transition_sha256": {
+          "$ref": "#/$defs/hex64"
+        }
+      },
+      "required": [
+        "change_review",
+        "g1_contract",
+        "new_science_identity_sha256",
+        "phase",
+        "previous_science_identity_sha256",
+        "reason",
+        "schema",
+        "transition_sha256"
+      ],
+      "type": "object"
+    },
+    "source": {
+      "additionalProperties": false,
+      "properties": {
+        "measurement_identity": {
+          "$ref": "#/$defs/measurement_identity_v1"
+        },
+        "sha": {
+          "$ref": "#/$defs/hex40"
+        }
+      },
+      "required": [
+        "measurement_identity",
+        "sha"
+      ],
+      "type": "object"
+    },
+    "transition_disclosure": {
+      "additionalProperties": false,
+      "properties": {
+        "sequence": {
+          "$ref": "#/$defs/pos"
+        },
+        "status": {
+          "enum": [
+            "VALID",
+            "MISMATCH",
+            "FORK",
+            "REENTRY"
+          ]
+        },
+        "transition": {
+          "$ref": "#/$defs/series_transition"
+        }
+      },
+      "required": [
+        "sequence",
+        "status",
+        "transition"
+      ],
+      "type": "object"
+    },
+    "unbound_attempt": {
+      "additionalProperties": false,
+      "properties": {
+        "measurement_identity_sha256": {
+          "$ref": "#/$defs/hex64"
+        },
+        "run_attempt": {
+          "$ref": "#/$defs/pos"
+        },
+        "run_id": {
+          "$ref": "#/$defs/pos"
+        }
+      },
+      "required": [
+        "measurement_identity_sha256",
+        "run_attempt",
+        "run_id"
+      ],
+      "type": "object"
+    },
+    "vector": {
+      "additionalProperties": false,
+      "properties": {
+        "cases": {
+          "items": {
+            "$ref": "#/$defs/vector_case"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "id": {
+          "pattern": "^R(0[1-9]|1[0-9]|2[0-5])(?![\\s\\S])",
+          "type": "string"
+        },
+        "title": {
+          "pattern": "^[^\\x00-\\x1f\\x7f]{1,600}(?![\\s\\S])",
+          "type": "string"
+        }
+      },
+      "required": [
+        "cases",
+        "id",
+        "title"
+      ],
+      "type": "object"
+    },
+    "vector_case": {
+      "additionalProperties": false,
+      "properties": {
+        "api": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/api_expectation"
+            }
+          ]
+        },
+        "description": {
+          "pattern": "^[^\\x00-\\x1f\\x7f]{1,600}(?![\\s\\S])",
+          "type": "string"
+        },
+        "environment_override": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/environment_override"
+            }
+          ]
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        },
+        "expect": {
+          "items": {
+            "$ref": "#/$defs/expectation"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "id": {
+          "pattern": "^R(0[1-9]|1[0-9]|2[0-5])(\\.[a-l])?(?![\\s\\S])",
+          "type": "string"
+        },
+        "main_remote_head": {
+          "$ref": "#/$defs/hex40"
+        },
+        "provider": {
+          "items": {
+            "$ref": "#/$defs/provider_observation"
+          },
+          "type": "array"
+        },
+        "registry": {
+          "additionalProperties": false,
+          "properties": {
+            "entries": {
+              "items": {
+                "$ref": "#/$defs/registry_entry"
+              },
+              "type": "array"
+            },
+            "genesis": {
+              "$ref": "#/$defs/registry_genesis"
+            }
+          },
+          "required": [
+            "entries",
+            "genesis"
+          ],
+          "type": "object"
+        },
+        "registry_fault": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "enum": [
+                "CHAIN_BREAK",
+                "ENTRY_DIGEST",
+                "SEQUENCE_GAP",
+                "SEQUENCE_REPEAT"
+              ]
+            }
+          ]
+        },
+        "registry_remote_head": {
+          "$ref": "#/$defs/registry_head"
+        },
+        "runner": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/runner_expectation"
+            }
+          ]
+        }
+      },
+      "required": [
+        "api",
+        "description",
+        "environment_override",
+        "evidence",
+        "expect",
+        "id",
+        "main_remote_head",
+        "provider",
+        "registry",
+        "registry_fault",
+        "registry_remote_head",
+        "runner"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "delsk.oracle.schemas.v4",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "delsk.oracle-contract.v4 provenance/G1 layer: closed schemas (contract-v4.md; D4(schemas-v3.json), test_oracle_contract_v4.py). Keywords are the subset of the v1 validator oracle_eval.schema_errors; patterns end with (?![\\s\\S]) = end of string in ECMA-262 and Python."
+}
