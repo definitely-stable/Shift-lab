@@ -1,6 +1,6 @@
 # DELSK-004 Slice A: дешёвые baselines на общем oracle
 
-Статус: **IMPLEMENTED, NOT_RUN**. Контракт `delsk.baselines.slice-a.v1`; параметры — [params.json](params.json) (SHA-256 параметров записывается в каждый результат). Issue: [DELSK-004](https://github.com/definitely-stable/Shift-lab/issues/5). Основа: [протокол DELSK-P1](../protocol.md) §2–§4, [corpus и baselines](../corpus-and-baselines.md), [prior art update](../research/DELSK-PRIOR-ART-UPDATE-2026-10.md) §3. Oracle: retained bundles `delsk.oracle-contract.v4` с G1 PASS (`.work/results/ORACLE-G1-V4/`, [журнал](../oracle/activation-v4-log.md)).
+Статус: **RUN** (run 37443926816, [результаты](results-slice-a.md): exploratory, на pilot нет headroom, G2 `INCONCLUSIVE`). Контракт `delsk.baselines.slice-a.v1`; параметры — [params.json](params.json) (SHA-256 параметров записывается в каждый результат). Issue: [DELSK-004](https://github.com/definitely-stable/Shift-lab/issues/5). Основа: [протокол DELSK-P1](../protocol.md) §2–§4, [corpus и baselines](../corpus-and-baselines.md), [prior art update](../research/DELSK-PRIOR-ART-UPDATE-2026-10.md) §3. Oracle: retained bundles `delsk.oracle-contract.v4` с G1 PASS (`.work/results/ORACLE-G1-V4/`, [журнал](../oracle/activation-v4-log.md)).
 
 ## 1. Что измеряется
 

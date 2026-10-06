@@ -1,0 +1,4718 @@
+{
+  "best_on_calibration": {
+    "budget_bytes": null,
+    "k": 8,
+    "method": "git_like",
+    "savings_capture": 1.0
+  },
+  "contract": "delsk.baselines.slice-a.v1",
+  "oracle_bundle": "37434946174-1",
+  "params_sha256": "2e58c0609879d0a3b9f0840f84ae3bf2feff556c7a79946228973e4bbccc8873",
+  "schema": "delsk.baselines.summary.v1",
+  "summary": [
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            0.999657644977842,
+            0.999657644977842
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.9,
+            0.9
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 64,
+      "encoder_call_reduction": 19.333333333333332,
+      "epsilon_recall": {
+        "0.01": 0.9166666666666666,
+        "0.02": 0.9166666666666666,
+        "0.05": 0.9166666666666666
+      },
+      "finite_delta_targets": 12,
+      "k": 1,
+      "macro_savings_capture": 0.999657644977842,
+      "macro_useful_recall": 0.9,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.2275280898876401,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 161.99999999999974,
+      "savings_capture": 0.999657644977842,
+      "split": "calibration",
+      "strict_recall": 0.8333333333333334,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 0.9
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            0.9869446185294243,
+            0.9999718202167401
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.7333333333333333,
+            0.9772727272727273
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 64,
+      "encoder_call_reduction": 37.74418604651163,
+      "epsilon_recall": {
+        "0.01": 0.8604651162790697,
+        "0.02": 0.8604651162790697,
+        "0.05": 0.8837209302325582
+      },
+      "finite_delta_targets": 43,
+      "k": 1,
+      "macro_savings_capture": 0.9963409235878367,
+      "macro_useful_recall": 0.8472222222222222,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.5685076312847355,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 608.3999999999992,
+      "savings_capture": 0.9889446379439781,
+      "split": "development",
+      "strict_recall": 0.8372093023255814,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 0.8648648648648649
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 64,
+      "encoder_call_reduction": 5.8,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 4,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 0.9166666666666666,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 64,
+      "encoder_call_reduction": 9.491228070175438,
+      "epsilon_recall": {
+        "0.01": 0.9534883720930233,
+        "0.02": 0.9534883720930233,
+        "0.05": 0.9767441860465116
+      },
+      "finite_delta_targets": 43,
+      "k": 4,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9534883720930233,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 64,
+      "encoder_call_reduction": 3.411764705882353,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 8,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 0.9166666666666666,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 64,
+      "encoder_call_reduction": 5.024767801857585,
+      "epsilon_recall": {
+        "0.01": 0.9534883720930233,
+        "0.02": 0.9534883720930233,
+        "0.05": 0.9767441860465116
+      },
+      "finite_delta_targets": 43,
+      "k": 8,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9534883720930233,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 64,
+      "encoder_call_reduction": 1.8709677419354838,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 16,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 64,
+      "encoder_call_reduction": 2.9296028880866425,
+      "epsilon_recall": {
+        "0.01": 0.9534883720930233,
+        "0.02": 0.9534883720930233,
+        "0.05": 0.9767441860465116
+      },
+      "finite_delta_targets": 43,
+      "k": 16,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9534883720930233,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 128,
+      "encoder_call_reduction": 19.333333333333332,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 1,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 0.9166666666666666,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            0.9869446185294243,
+            0.9999718202167401
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.7333333333333333,
+            0.9772727272727273
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 128,
+      "encoder_call_reduction": 37.74418604651163,
+      "epsilon_recall": {
+        "0.01": 0.8372093023255814,
+        "0.02": 0.8372093023255814,
+        "0.05": 0.8837209302325582
+      },
+      "finite_delta_targets": 43,
+      "k": 1,
+      "macro_savings_capture": 0.9963409235878367,
+      "macro_useful_recall": 0.8472222222222222,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.5685076312847355,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 608.3999999999992,
+      "savings_capture": 0.9889446379439781,
+      "split": "development",
+      "strict_recall": 0.813953488372093,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 0.8648648648648649
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 128,
+      "encoder_call_reduction": 5.8,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 4,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 128,
+      "encoder_call_reduction": 9.491228070175438,
+      "epsilon_recall": {
+        "0.01": 0.9534883720930233,
+        "0.02": 0.9534883720930233,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 43,
+      "k": 4,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9534883720930233,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 128,
+      "encoder_call_reduction": 3.411764705882353,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 8,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 128,
+      "encoder_call_reduction": 5.024767801857585,
+      "epsilon_recall": {
+        "0.01": 0.9534883720930233,
+        "0.02": 0.9534883720930233,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 43,
+      "k": 8,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9534883720930233,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 128,
+      "encoder_call_reduction": 1.8709677419354838,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 16,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 128,
+      "encoder_call_reduction": 2.9296028880866425,
+      "epsilon_recall": {
+        "0.01": 0.9534883720930233,
+        "0.02": 0.9534883720930233,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 43,
+      "k": 16,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9534883720930233,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 256,
+      "encoder_call_reduction": 19.333333333333332,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 1,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 0.9166666666666666,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            0.9869734231068756,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.7435897435897436,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 256,
+      "encoder_call_reduction": 37.74418604651163,
+      "epsilon_recall": {
+        "0.01": 0.8604651162790697,
+        "0.02": 0.8604651162790697,
+        "0.05": 0.9069767441860465
+      },
+      "finite_delta_targets": 43,
+      "k": 1,
+      "macro_savings_capture": 0.9966427459942581,
+      "macro_useful_recall": 0.8972222222222221,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.34454244411895785,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 108.29999999999987,
+      "savings_capture": 0.9890174703238261,
+      "split": "development",
+      "strict_recall": 0.8372093023255814,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 0.8918918918918919
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 256,
+      "encoder_call_reduction": 5.8,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 4,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 256,
+      "encoder_call_reduction": 9.491228070175438,
+      "epsilon_recall": {
+        "0.01": 0.9534883720930233,
+        "0.02": 0.9534883720930233,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 43,
+      "k": 4,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9534883720930233,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 256,
+      "encoder_call_reduction": 3.411764705882353,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 8,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 256,
+      "encoder_call_reduction": 5.024767801857585,
+      "epsilon_recall": {
+        "0.01": 0.9767441860465116,
+        "0.02": 0.9767441860465116,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 43,
+      "k": 8,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9534883720930233,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 256,
+      "encoder_call_reduction": 1.8709677419354838,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 16,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 256,
+      "encoder_call_reduction": 2.9296028880866425,
+      "epsilon_recall": {
+        "0.01": 0.9767441860465116,
+        "0.02": 0.9767441860465116,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 43,
+      "k": 16,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9534883720930233,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            0.9996119976415543,
+            0.9996119976415543
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.8,
+            0.8
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 512,
+      "encoder_call_reduction": 19.333333333333332,
+      "epsilon_recall": {
+        "0.01": 0.9166666666666666,
+        "0.02": 0.9166666666666666,
+        "0.05": 0.9166666666666666
+      },
+      "finite_delta_targets": 12,
+      "k": 1,
+      "macro_savings_capture": 0.9996119976415543,
+      "macro_useful_recall": 0.8,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.3608614232209736,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 188.39999999999978,
+      "savings_capture": 0.9996119976415543,
+      "split": "calibration",
+      "strict_recall": 0.8333333333333334,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 0.8
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            0.9869886725890558,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.8285714285714286,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 512,
+      "encoder_call_reduction": 37.74418604651163,
+      "epsilon_recall": {
+        "0.01": 0.8604651162790697,
+        "0.02": 0.8604651162790697,
+        "0.05": 0.9302325581395349
+      },
+      "finite_delta_targets": 43,
+      "k": 1,
+      "macro_savings_capture": 0.9966466515469125,
+      "macro_useful_recall": 0.9222222222222223,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.3292682926829263,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 26.999999999999957,
+      "savings_capture": 0.9890303230967405,
+      "split": "development",
+      "strict_recall": 0.8372093023255814,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 0.918918918918919
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 512,
+      "encoder_call_reduction": 5.8,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 4,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 512,
+      "encoder_call_reduction": 9.491228070175438,
+      "epsilon_recall": {
+        "0.01": 0.9767441860465116,
+        "0.02": 0.9767441860465116,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 43,
+      "k": 4,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9534883720930233,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 512,
+      "encoder_call_reduction": 3.411764705882353,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 8,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 512,
+      "encoder_call_reduction": 5.024767801857585,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 43,
+      "k": 8,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9767441860465116,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 512,
+      "encoder_call_reduction": 1.8709677419354838,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 16,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 512,
+      "encoder_call_reduction": 2.9296028880866425,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 43,
+      "k": 16,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 1.0,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            0.9999543526637122,
+            0.9999543526637122
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.9,
+            0.9
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 1024,
+      "encoder_call_reduction": 19.333333333333332,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 1,
+      "macro_savings_capture": 0.9999543526637122,
+      "macro_useful_recall": 0.9,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.10909090909090892,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 21.599999999999966,
+      "savings_capture": 0.9999543526637122,
+      "split": "calibration",
+      "strict_recall": 0.9166666666666666,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 0.9
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            0.9999493959279465,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.918918918918919,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 1024,
+      "encoder_call_reduction": 37.74418604651163,
+      "epsilon_recall": {
+        "0.01": 0.9767441860465116,
+        "0.02": 0.9767441860465116,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 43,
+      "k": 1,
+      "macro_savings_capture": 0.9999789892424922,
+      "macro_useful_recall": 0.9722222222222222,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 0.9999967044172015,
+      "split": "development",
+      "strict_recall": 0.9302325581395349,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 0.972972972972973
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 1024,
+      "encoder_call_reduction": 5.8,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 4,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 1024,
+      "encoder_call_reduction": 9.491228070175438,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 43,
+      "k": 4,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9767441860465116,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 1024,
+      "encoder_call_reduction": 3.411764705882353,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 8,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 1024,
+      "encoder_call_reduction": 5.024767801857585,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 43,
+      "k": 8,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9767441860465116,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 1024,
+      "encoder_call_reduction": 1.8709677419354838,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 16,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 1024,
+      "encoder_call_reduction": 2.9296028880866425,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 43,
+      "k": 16,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "containment",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9767441860465116,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            0.9940563364208684,
+            0.9940563364208684
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.7,
+            0.7
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 19.333333333333332,
+      "epsilon_recall": {
+        "0.01": 0.75,
+        "0.02": 0.75,
+        "0.05": 0.75
+      },
+      "finite_delta_targets": 12,
+      "k": 1,
+      "macro_savings_capture": 0.9940563364208684,
+      "macro_useful_recall": 0.7,
+      "method": "git_like",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 13.168083003952562,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 2871.3999999999987,
+      "savings_capture": 0.9940563364208684,
+      "split": "calibration",
+      "strict_recall": 0.6666666666666666,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 0.7
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            0.9653172620898315,
+            0.999082496096052
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.6428571428571429,
+            0.7692307692307693
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 37.74418604651163,
+      "epsilon_recall": {
+        "0.01": 0.6744186046511628,
+        "0.02": 0.6744186046511628,
+        "0.05": 0.6744186046511628
+      },
+      "finite_delta_targets": 43,
+      "k": 1,
+      "macro_savings_capture": 0.9780952934713718,
+      "macro_useful_recall": 0.6897435897435897,
+      "method": "git_like",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 16.677248528011845,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 8217.799999999996,
+      "savings_capture": 0.9946612657191061,
+      "split": "development",
+      "strict_recall": 0.627906976744186,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 0.7027027027027027
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 5.8,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 4,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "git_like",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 0.9166666666666666,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            0.9998703142327414,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.8461538461538461,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 9.491228070175438,
+      "epsilon_recall": {
+        "0.01": 0.8604651162790697,
+        "0.02": 0.8604651162790697,
+        "0.05": 0.8837209302325582
+      },
+      "finite_delta_targets": 43,
+      "k": 4,
+      "macro_savings_capture": 0.9999667861120417,
+      "macro_useful_recall": 0.95,
+      "method": "git_like",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 0.999890696503848,
+      "split": "development",
+      "strict_recall": 0.8372093023255814,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 0.9459459459459459
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 3.411764705882353,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 8,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "git_like",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 0.9166666666666666,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            0.9998855637149215,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.9230769230769231,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 5.024767801857585,
+      "epsilon_recall": {
+        "0.01": 0.9069767441860465,
+        "0.02": 0.9069767441860465,
+        "0.05": 0.9302325581395349
+      },
+      "finite_delta_targets": 43,
+      "k": 8,
+      "macro_savings_capture": 0.9999706916646961,
+      "macro_useful_recall": 0.975,
+      "method": "git_like",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 0.9999035492767624,
+      "split": "development",
+      "strict_recall": 0.8837209302325582,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 0.972972972972973
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 1.8709677419354838,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 16,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "git_like",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 2.9296028880866425,
+      "epsilon_recall": {
+        "0.01": 0.9767441860465116,
+        "0.02": 0.9767441860465116,
+        "0.05": 0.9767441860465116
+      },
+      "finite_delta_targets": 43,
+      "k": 16,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "git_like",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9302325581395349,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            0.999657644977842,
+            0.999657644977842
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.9,
+            0.9
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 64,
+      "encoder_call_reduction": 19.333333333333332,
+      "epsilon_recall": {
+        "0.01": 0.9166666666666666,
+        "0.02": 0.9166666666666666,
+        "0.05": 0.9166666666666666
+      },
+      "finite_delta_targets": 12,
+      "k": 1,
+      "macro_savings_capture": 0.999657644977842,
+      "macro_useful_recall": 0.9,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.2275280898876401,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 161.99999999999974,
+      "savings_capture": 0.999657644977842,
+      "split": "calibration",
+      "strict_recall": 0.8333333333333334,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 0.9
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            0.9869446185294243,
+            0.9999718202167401
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.7333333333333333,
+            0.9772727272727273
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 64,
+      "encoder_call_reduction": 37.74418604651163,
+      "epsilon_recall": {
+        "0.01": 0.8604651162790697,
+        "0.02": 0.8604651162790697,
+        "0.05": 0.8837209302325582
+      },
+      "finite_delta_targets": 43,
+      "k": 1,
+      "macro_savings_capture": 0.9963409235878367,
+      "macro_useful_recall": 0.8472222222222222,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.5685076312847355,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 608.3999999999992,
+      "savings_capture": 0.9889446379439781,
+      "split": "development",
+      "strict_recall": 0.8372093023255814,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 0.8648648648648649
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 64,
+      "encoder_call_reduction": 5.8,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 4,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 0.9166666666666666,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 64,
+      "encoder_call_reduction": 9.491228070175438,
+      "epsilon_recall": {
+        "0.01": 0.9534883720930233,
+        "0.02": 0.9534883720930233,
+        "0.05": 0.9767441860465116
+      },
+      "finite_delta_targets": 43,
+      "k": 4,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9534883720930233,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 64,
+      "encoder_call_reduction": 3.411764705882353,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 8,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 0.9166666666666666,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 64,
+      "encoder_call_reduction": 5.024767801857585,
+      "epsilon_recall": {
+        "0.01": 0.9534883720930233,
+        "0.02": 0.9534883720930233,
+        "0.05": 0.9767441860465116
+      },
+      "finite_delta_targets": 43,
+      "k": 8,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9534883720930233,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 64,
+      "encoder_call_reduction": 1.8709677419354838,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 16,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 64,
+      "encoder_call_reduction": 2.9296028880866425,
+      "epsilon_recall": {
+        "0.01": 0.9534883720930233,
+        "0.02": 0.9534883720930233,
+        "0.05": 0.9767441860465116
+      },
+      "finite_delta_targets": 43,
+      "k": 16,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9534883720930233,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 128,
+      "encoder_call_reduction": 19.333333333333332,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 1,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            0.9869446185294243,
+            0.9999718202167401
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.7333333333333333,
+            0.9772727272727273
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 128,
+      "encoder_call_reduction": 37.74418604651163,
+      "epsilon_recall": {
+        "0.01": 0.8372093023255814,
+        "0.02": 0.8372093023255814,
+        "0.05": 0.8837209302325582
+      },
+      "finite_delta_targets": 43,
+      "k": 1,
+      "macro_savings_capture": 0.9963409235878367,
+      "macro_useful_recall": 0.8472222222222222,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.5685076312847355,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 608.3999999999992,
+      "savings_capture": 0.9889446379439781,
+      "split": "development",
+      "strict_recall": 0.813953488372093,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 0.8648648648648649
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 128,
+      "encoder_call_reduction": 5.8,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 4,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 128,
+      "encoder_call_reduction": 9.491228070175438,
+      "epsilon_recall": {
+        "0.01": 0.9534883720930233,
+        "0.02": 0.9534883720930233,
+        "0.05": 0.9767441860465116
+      },
+      "finite_delta_targets": 43,
+      "k": 4,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9534883720930233,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 128,
+      "encoder_call_reduction": 3.411764705882353,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 8,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 128,
+      "encoder_call_reduction": 5.024767801857585,
+      "epsilon_recall": {
+        "0.01": 0.9534883720930233,
+        "0.02": 0.9534883720930233,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 43,
+      "k": 8,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9534883720930233,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 128,
+      "encoder_call_reduction": 1.8709677419354838,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 16,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 128,
+      "encoder_call_reduction": 2.9296028880866425,
+      "epsilon_recall": {
+        "0.01": 0.9534883720930233,
+        "0.02": 0.9534883720930233,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 43,
+      "k": 16,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9534883720930233,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 256,
+      "encoder_call_reduction": 19.333333333333332,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 1,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            0.9869734231068756,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.7435897435897436,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 256,
+      "encoder_call_reduction": 37.74418604651163,
+      "epsilon_recall": {
+        "0.01": 0.8837209302325582,
+        "0.02": 0.8837209302325582,
+        "0.05": 0.9069767441860465
+      },
+      "finite_delta_targets": 43,
+      "k": 1,
+      "macro_savings_capture": 0.9966427459942581,
+      "macro_useful_recall": 0.8972222222222221,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.34454244411895785,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 108.29999999999987,
+      "savings_capture": 0.9890174703238261,
+      "split": "development",
+      "strict_recall": 0.8604651162790697,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 0.8918918918918919
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 256,
+      "encoder_call_reduction": 5.8,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 4,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 256,
+      "encoder_call_reduction": 9.491228070175438,
+      "epsilon_recall": {
+        "0.01": 0.9767441860465116,
+        "0.02": 0.9767441860465116,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 43,
+      "k": 4,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9534883720930233,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 256,
+      "encoder_call_reduction": 3.411764705882353,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 8,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 256,
+      "encoder_call_reduction": 5.024767801857585,
+      "epsilon_recall": {
+        "0.01": 0.9767441860465116,
+        "0.02": 0.9767441860465116,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 43,
+      "k": 8,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9534883720930233,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 256,
+      "encoder_call_reduction": 1.8709677419354838,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 16,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 256,
+      "encoder_call_reduction": 2.9296028880866425,
+      "epsilon_recall": {
+        "0.01": 0.9767441860465116,
+        "0.02": 0.9767441860465116,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 43,
+      "k": 16,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9534883720930233,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 512,
+      "encoder_call_reduction": 19.333333333333332,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 1,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            0.9869886725890558,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.8461538461538461,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 512,
+      "encoder_call_reduction": 37.74418604651163,
+      "epsilon_recall": {
+        "0.01": 0.8837209302325582,
+        "0.02": 0.8837209302325582,
+        "0.05": 0.9302325581395349
+      },
+      "finite_delta_targets": 43,
+      "k": 1,
+      "macro_savings_capture": 0.9966676623044203,
+      "macro_useful_recall": 0.95,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 0.9890336186795391,
+      "split": "development",
+      "strict_recall": 0.8837209302325582,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 0.9459459459459459
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 512,
+      "encoder_call_reduction": 5.8,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 4,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 512,
+      "encoder_call_reduction": 9.491228070175438,
+      "epsilon_recall": {
+        "0.01": 0.9767441860465116,
+        "0.02": 0.9767441860465116,
+        "0.05": 0.9767441860465116
+      },
+      "finite_delta_targets": 43,
+      "k": 4,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9534883720930233,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 512,
+      "encoder_call_reduction": 3.411764705882353,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 8,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 512,
+      "encoder_call_reduction": 5.024767801857585,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 43,
+      "k": 8,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9767441860465116,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 512,
+      "encoder_call_reduction": 1.8709677419354838,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 16,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 512,
+      "encoder_call_reduction": 2.9296028880866425,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 43,
+      "k": 16,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9767441860465116,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 1024,
+      "encoder_call_reduction": 19.333333333333332,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 1,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 1024,
+      "encoder_call_reduction": 37.74418604651163,
+      "epsilon_recall": {
+        "0.01": 0.9767441860465116,
+        "0.02": 0.9767441860465116,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 43,
+      "k": 1,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9534883720930233,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 1024,
+      "encoder_call_reduction": 5.8,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 4,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 1024,
+      "encoder_call_reduction": 9.491228070175438,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 43,
+      "k": 4,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9767441860465116,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 1024,
+      "encoder_call_reduction": 3.411764705882353,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 8,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 1024,
+      "encoder_call_reduction": 5.024767801857585,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 43,
+      "k": 8,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9767441860465116,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 1024,
+      "encoder_call_reduction": 1.8709677419354838,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 16,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": 1024,
+      "encoder_call_reduction": 2.9296028880866425,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 43,
+      "k": 16,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "minhash_resemblance",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9767441860465116,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 19.333333333333332,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 1,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "previous_version",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 0.9166666666666666,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 37.74418604651163,
+      "epsilon_recall": {
+        "0.01": 0.9302325581395349,
+        "0.02": 0.9302325581395349,
+        "0.05": 0.9534883720930233
+      },
+      "finite_delta_targets": 43,
+      "k": 1,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "previous_version",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9069767441860465,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 5.8,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 4,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "previous_version",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 0.9166666666666666,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 9.491228070175438,
+      "epsilon_recall": {
+        "0.01": 0.9767441860465116,
+        "0.02": 0.9767441860465116,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 43,
+      "k": 4,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "previous_version",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 0.9767441860465116,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 3.411764705882353,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 8,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "previous_version",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 0.9166666666666666,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 5.024767801857585,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 43,
+      "k": 8,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "previous_version",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 1.0,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 1.8709677419354838,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 12,
+      "k": 16,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "previous_version",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "calibration",
+      "strict_recall": 1.0,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 2.9296028880866425,
+      "epsilon_recall": {
+        "0.01": 1.0,
+        "0.02": 1.0,
+        "0.05": 1.0
+      },
+      "finite_delta_targets": 43,
+      "k": 16,
+      "macro_savings_capture": 1.0,
+      "macro_useful_recall": 1.0,
+      "method": "previous_version",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 0.0,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 0.0,
+      "savings_capture": 1.0,
+      "split": "development",
+      "strict_recall": 1.0,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 1.0
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            0.9617180516195295,
+            0.9617180516195295
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.4,
+            0.4
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 19.333333333333332,
+      "epsilon_recall": {
+        "0.01": 0.5,
+        "0.02": 0.5,
+        "0.05": 0.5
+      },
+      "finite_delta_targets": 12,
+      "k": 1,
+      "macro_savings_capture": 0.9617180516195295,
+      "macro_useful_recall": 0.4,
+      "method": "random",
+      "normalized_regret_p50": 1.3700472555434386,
+      "normalized_regret_p95": 14.76429392236976,
+      "regret_bytes_p50": 1170.5,
+      "regret_bytes_p95": 11316.449999999995,
+      "savings_capture": 0.9617180516195295,
+      "split": "calibration",
+      "strict_recall": 0.4166666666666667,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 0.4
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            0.002447670141618143,
+            0.3241995576764328
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.046511627906976744,
+            0.2857142857142857
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 37.74418604651163,
+      "epsilon_recall": {
+        "0.01": 0.11627906976744186,
+        "0.02": 0.13953488372093023,
+        "0.05": 0.18604651162790697
+      },
+      "finite_delta_targets": 43,
+      "k": 1,
+      "macro_savings_capture": 0.15466475747231603,
+      "macro_useful_recall": 0.16623931623931626,
+      "method": "random",
+      "normalized_regret_p50": 12.04053086981979,
+      "normalized_regret_p95": 116.96554993678888,
+      "regret_bytes_p50": 7915.0,
+      "regret_bytes_p95": 1640685.8,
+      "savings_capture": 0.03452133966758994,
+      "split": "development",
+      "strict_recall": 0.11627906976744186,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 0.13513513513513514
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            0.9618435817943207,
+            0.9618435817943207
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.4,
+            0.4
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 5.8,
+      "epsilon_recall": {
+        "0.01": 0.5,
+        "0.02": 0.5,
+        "0.05": 0.5
+      },
+      "finite_delta_targets": 12,
+      "k": 4,
+      "macro_savings_capture": 0.9618435817943207,
+      "macro_useful_recall": 0.4,
+      "method": "random",
+      "normalized_regret_p50": 1.3700472555434386,
+      "normalized_regret_p95": 14.76429392236976,
+      "regret_bytes_p50": 1104.5,
+      "regret_bytes_p95": 11316.449999999995,
+      "savings_capture": 0.9618435817943207,
+      "split": "calibration",
+      "strict_recall": 0.4166666666666667,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 0.4
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            0.795250710780397,
+            0.9532376057382709
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.20408163265306123,
+            0.625
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 9.491228070175438,
+      "epsilon_recall": {
+        "0.01": 0.3023255813953488,
+        "0.02": 0.32558139534883723,
+        "0.05": 0.37209302325581395
+      },
+      "finite_delta_targets": 43,
+      "k": 4,
+      "macro_savings_capture": 0.8947320609891369,
+      "macro_useful_recall": 0.4217948717948718,
+      "method": "random",
+      "normalized_regret_p50": 0.07615578107381386,
+      "normalized_regret_p95": 94.24176829268286,
+      "regret_bytes_p50": 1667.0,
+      "regret_bytes_p95": 47634.39999999998,
+      "savings_capture": 0.9313478472264485,
+      "split": "development",
+      "strict_recall": 0.3023255813953488,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 0.35135135135135137
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            0.9693782452403142,
+            0.9693782452403142
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.4,
+            0.4
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 3.411764705882353,
+      "epsilon_recall": {
+        "0.01": 0.5,
+        "0.02": 0.5,
+        "0.05": 0.5
+      },
+      "finite_delta_targets": 12,
+      "k": 8,
+      "macro_savings_capture": 0.9693782452403142,
+      "macro_useful_recall": 0.4,
+      "method": "random",
+      "normalized_regret_p50": 0.25280898876404495,
+      "normalized_regret_p95": 13.168083003952562,
+      "regret_bytes_p50": 180.0,
+      "regret_bytes_p95": 10906.699999999995,
+      "savings_capture": 0.9693782452403142,
+      "split": "calibration",
+      "strict_recall": 0.4166666666666667,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 0.4
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            0.8535111540278774,
+            0.9743342695360739
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.3469387755102041,
+            0.6666666666666666
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 5.024767801857585,
+      "epsilon_recall": {
+        "0.01": 0.4186046511627907,
+        "0.02": 0.4186046511627907,
+        "0.05": 0.46511627906976744
+      },
+      "finite_delta_targets": 43,
+      "k": 8,
+      "macro_savings_capture": 0.9238012526245337,
+      "macro_useful_recall": 0.513034188034188,
+      "method": "random",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 91.25059523809513,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 27831.39999999998,
+      "savings_capture": 0.9602041899160879,
+      "split": "development",
+      "strict_recall": 0.3953488372093023,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 0.4594594594594595
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            0.9840082165205318,
+            0.9840082165205318
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.6,
+            0.6
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 1.8709677419354838,
+      "epsilon_recall": {
+        "0.01": 0.6666666666666666,
+        "0.02": 0.6666666666666666,
+        "0.05": 0.6666666666666666
+      },
+      "finite_delta_targets": 12,
+      "k": 16,
+      "macro_savings_capture": 0.9840082165205318,
+      "macro_useful_recall": 0.6,
+      "method": "random",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 13.168083003952562,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 5416.649999999998,
+      "savings_capture": 0.9840082165205318,
+      "split": "calibration",
+      "strict_recall": 0.5833333333333334,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 0.6
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            0.9379837831565069,
+            0.997559992839461
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.5,
+            0.7333333333333333
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 2.9296028880866425,
+      "epsilon_recall": {
+        "0.01": 0.5581395348837209,
+        "0.02": 0.5581395348837209,
+        "0.05": 0.5581395348837209
+      },
+      "finite_delta_targets": 43,
+      "k": 16,
+      "macro_savings_capture": 0.964612458477589,
+      "macro_useful_recall": 0.6399572649572649,
+      "method": "random",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 23.556658047834514,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 8624.4,
+      "savings_capture": 0.9914657587848703,
+      "split": "development",
+      "strict_recall": 0.5581395348837209,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 0.6216216216216216
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            0.9617180516195295,
+            0.9617180516195295
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.4,
+            0.4
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 19.333333333333332,
+      "epsilon_recall": {
+        "0.01": 0.5,
+        "0.02": 0.5,
+        "0.05": 0.5
+      },
+      "finite_delta_targets": 12,
+      "k": 1,
+      "macro_savings_capture": 0.9617180516195295,
+      "macro_useful_recall": 0.4,
+      "method": "size_closest",
+      "normalized_regret_p50": 1.3700472555434386,
+      "normalized_regret_p95": 14.76429392236976,
+      "regret_bytes_p50": 1170.5,
+      "regret_bytes_p95": 11316.449999999995,
+      "savings_capture": 0.9617180516195295,
+      "split": "calibration",
+      "strict_recall": 0.4166666666666667,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 0.4
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            0.9065323555574759,
+            0.9969981999100896
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.36363636363636365,
+            0.6666666666666666
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 37.74418604651163,
+      "epsilon_recall": {
+        "0.01": 0.4418604651162791,
+        "0.02": 0.4418604651162791,
+        "0.05": 0.4418604651162791
+      },
+      "finite_delta_targets": 43,
+      "k": 1,
+      "macro_savings_capture": 0.9404066915060156,
+      "macro_useful_recall": 0.5044871794871795,
+      "method": "size_closest",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 94.24176829268286,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 14122.8,
+      "savings_capture": 0.9849748887576026,
+      "split": "development",
+      "strict_recall": 0.4418604651162791,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 0.4864864864864865
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            0.9793531392053559,
+            0.9793531392053559
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.6,
+            0.6
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 5.8,
+      "epsilon_recall": {
+        "0.01": 0.6666666666666666,
+        "0.02": 0.6666666666666666,
+        "0.05": 0.6666666666666666
+      },
+      "finite_delta_targets": 12,
+      "k": 4,
+      "macro_savings_capture": 0.9793531392053559,
+      "macro_useful_recall": 0.6,
+      "method": "size_closest",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 14.76429392236976,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 7873.249999999999,
+      "savings_capture": 0.9793531392053559,
+      "split": "calibration",
+      "strict_recall": 0.5833333333333334,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 0.6
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            0.9246453809108269,
+            0.997559992839461
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.45454545454545453,
+            0.7333333333333333
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 9.491228070175438,
+      "epsilon_recall": {
+        "0.01": 0.5348837209302325,
+        "0.02": 0.5348837209302325,
+        "0.05": 0.5348837209302325
+      },
+      "finite_delta_targets": 43,
+      "k": 4,
+      "macro_savings_capture": 0.9559530821997277,
+      "macro_useful_recall": 0.6014957264957265,
+      "method": "size_closest",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 94.24176829268286,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 11121.799999999996,
+      "savings_capture": 0.9890327398574594,
+      "split": "development",
+      "strict_recall": 0.5116279069767442,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 0.5675675675675675
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            0.9793531392053559,
+            0.9793531392053559
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.6,
+            0.6
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 3.411764705882353,
+      "epsilon_recall": {
+        "0.01": 0.6666666666666666,
+        "0.02": 0.6666666666666666,
+        "0.05": 0.6666666666666666
+      },
+      "finite_delta_targets": 12,
+      "k": 8,
+      "macro_savings_capture": 0.9793531392053559,
+      "macro_useful_recall": 0.6,
+      "method": "size_closest",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 14.76429392236976,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 7873.249999999999,
+      "savings_capture": 0.9793531392053559,
+      "split": "calibration",
+      "strict_recall": 0.5833333333333334,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 0.6
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            0.9335302004143098,
+            0.997688521622096
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.5135135135135135,
+            0.75
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 5.024767801857585,
+      "epsilon_recall": {
+        "0.01": 0.6046511627906976,
+        "0.02": 0.6046511627906976,
+        "0.05": 0.627906976744186
+      },
+      "finite_delta_targets": 43,
+      "k": 8,
+      "macro_savings_capture": 0.9654982843030779,
+      "macro_useful_recall": 0.6591880341880342,
+      "method": "size_closest",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 50.47721553912366,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 8587.7,
+      "savings_capture": 0.9920007417258352,
+      "split": "development",
+      "strict_recall": 0.5813953488372093,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 0.6486486486486487
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 1,
+        "savings_capture": {
+          "ci95": [
+            0.9900222530764403,
+            0.9900222530764403
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.8,
+            0.8
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 1.8709677419354838,
+      "epsilon_recall": {
+        "0.01": 0.8333333333333334,
+        "0.02": 0.8333333333333334,
+        "0.05": 0.8333333333333334
+      },
+      "finite_delta_targets": 12,
+      "k": 16,
+      "macro_savings_capture": 0.9900222530764403,
+      "macro_useful_recall": 0.8,
+      "method": "size_closest",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 10.037216047874937,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 4942.299999999996,
+      "savings_capture": 0.9900222530764403,
+      "split": "calibration",
+      "strict_recall": 0.8333333333333334,
+      "targets": 12,
+      "useful_delta_targets": 10,
+      "useful_recall": 0.8
+    },
+    {
+      "bootstrap": {
+        "exploratory": true,
+        "lineages": 4,
+        "savings_capture": {
+          "ci95": [
+            0.9421410776497429,
+            0.997688521622096
+          ],
+          "defined_draws": 10000
+        },
+        "useful_recall": {
+          "ci95": [
+            0.5945945945945946,
+            0.75
+          ],
+          "defined_draws": 10000
+        }
+      },
+      "budget_bytes": null,
+      "encoder_call_reduction": 2.9296028880866425,
+      "epsilon_recall": {
+        "0.01": 0.6744186046511628,
+        "0.02": 0.6744186046511628,
+        "0.05": 0.6976744186046512
+      },
+      "finite_delta_targets": 43,
+      "k": 16,
+      "macro_savings_capture": 0.9687549517167937,
+      "macro_useful_recall": 0.686965811965812,
+      "method": "size_closest",
+      "normalized_regret_p50": 0.0,
+      "normalized_regret_p95": 50.47721553912366,
+      "regret_bytes_p50": 0.0,
+      "regret_bytes_p95": 8587.7,
+      "savings_capture": 0.9925115570596107,
+      "split": "development",
+      "strict_recall": 0.6511627906976745,
+      "targets": 43,
+      "useful_delta_targets": 37,
+      "useful_recall": 0.6756756756756757
+    }
+  ]
+}
