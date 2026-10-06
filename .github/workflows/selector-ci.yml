@@ -1,0 +1,41 @@
+name: Simple selector parity
+
+# delsk.simple-selector.v1 (.work/selector/README.md): the Rust prototype must order bases exactly like the Python
+# reference (.work/selector/vectors.txt). PR and push check, outside the experimental budget.
+on:
+  pull_request:
+    paths:
+      - ".work/selector/**"
+      - ".work/tools/simple_selector.py"
+      - ".github/workflows/selector-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - ".work/selector/**"
+      - ".work/tools/simple_selector.py"
+      - ".github/workflows/selector-ci.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: selector-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  parity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Vectors are reproduced by the Python reference
+        run: |
+          python3 .work/tools/simple_selector.py vectors "$RUNNER_TEMP/vectors.txt"
+          cmp "$RUNNER_TEMP/vectors.txt" .work/selector/vectors.txt
+      - name: Rust tests (parity, streaming, top-K)
+        working-directory: .work/selector/rust
+        run: |
+          cargo --version
+          cargo test --release --locked

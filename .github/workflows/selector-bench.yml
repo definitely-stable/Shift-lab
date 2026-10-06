@@ -1,0 +1,80 @@
+name: Simple selector S2 bench (experimental)
+
+# S2 (.work/selector/s2.md): cost of delsk.simple-selector.v1 on synthetic catalogs of 10^4-10^6 objects (descriptor
+# throughput, exact scan vs capped inverted index). No natural data. Admission before compute, one bounded job,
+# artifact cap before upload. Standard GitHub-hosted runner.
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Full commit SHA that must equal the dispatched ref head
+        type: string
+        required: true
+
+permissions:
+  contents: read
+  actions: read
+
+# One experimental run at a time across all experimental workflows (budget.EXPERIMENTAL_WORKFLOWS).
+concurrency:
+  group: delsk-experimental
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  bench:
+    runs-on: ubuntu-24.04
+    # Must not exceed budget.RUN_RESERVATION_MINUTES: the admission reserves that cap for every experimental run.
+    timeout-minutes: 30
+    env:
+      SOURCE_SHA: ${{ inputs.source_sha }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Source must be the dispatched head
+        run: test "$SOURCE_SHA" = "$GITHUB_SHA"
+      - name: Admission (runner-minute ledger, artifact cap)
+        id: admit
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          BUDGET_MODE: ${{ vars.DELSK_BUDGET_MODE }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/evidence"
+          python3 .work/tools/budget.py admit "$RUNNER_TEMP/evidence/admission.json"
+      - name: Admission must pass
+        run: test "${{ steps.admit.outcome }}" = success
+      - name: Build and test
+        working-directory: .work/selector/rust
+        run: |
+          cargo --version | tee "$RUNNER_TEMP/evidence/toolchain.txt"
+          rustc --version | tee -a "$RUNNER_TEMP/evidence/toolchain.txt"
+          cargo test --release --locked
+      - name: Bench (10^4, 10^5, 10^6 objects; 200 queries)
+        working-directory: .work/selector/rust
+        run: ./target/release/delsk-bench 10000,100000,1000000 200 > "$RUNNER_TEMP/evidence/bench.json"
+      - name: Run record
+        if: always()
+        run: |
+          python3 - "$RUNNER_TEMP/evidence/run.json" <<'PY'
+          import json, os, sys
+          keys = ("GITHUB_SHA", "GITHUB_WORKFLOW_SHA", "GITHUB_RUN_ID", "GITHUB_RUN_ATTEMPT", "GITHUB_REF",
+                  "RUNNER_OS", "RUNNER_ARCH", "ImageOS", "ImageVersion")
+          cpu = next((l.split(":", 1)[1].strip() for l in open("/proc/cpuinfo") if l.startswith("model name")), None)
+          json.dump({"schema": "delsk.selector.s2-run.v1", "cpu": cpu, "nproc": os.cpu_count(),
+                     **{k.lower(): os.environ.get(k) for k in keys}}, open(sys.argv[1], "w"), indent=2, sort_keys=True)
+          PY
+      - name: Artifact cap before upload
+        id: artifact_cap
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 .work/tools/budget.py artifact-check "$RUNNER_TEMP/evidence"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always() && steps.artifact_cap.outcome == 'success'
+        with:
+          name: selector-bench-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/evidence
+          retention-days: 30
+          if-no-files-found: error

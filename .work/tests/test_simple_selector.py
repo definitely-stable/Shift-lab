@@ -10,6 +10,7 @@ import baselines as bl
 import simple_selector as ss
 
 DEV_EVAL = Path(__file__).resolve().parents[1] / 'selector' / 'dev-eval.json'
+VECTORS = Path(__file__).resolve().parents[1] / 'selector' / 'vectors.txt'
 
 
 def obj(oid, size, path=None, line=None, version=0, offset=None):
@@ -63,6 +64,16 @@ class Order(unittest.TestCase):
     def test_interleave(self):
         self.assertEqual(ss.interleave(['a', 'b'], ['b', 'c', 'a', 'd']), ['a', 'b', 'c', 'd'])
         self.assertEqual(ss.interleave([], ['x', 'y']), ['x', 'y'])
+
+
+class Vectors(unittest.TestCase):
+    def test_committed_parity_vectors_are_reproduced(self):
+        self.assertEqual(VECTORS.read_text(), '\n'.join(ss.vector_lines()) + '\n')
+
+    def test_vectors_discriminate(self):
+        lines = ss.vector_lines()
+        descs = {l.split()[-1] for l in lines if l.startswith('O ')}
+        self.assertGreater(len(descs), 10)  # related objects must not share one descriptor
 
 
 @unittest.skipUnless(DEV_EVAL.is_file() and ss.X0_RUN.is_dir(), 'retained inputs missing')

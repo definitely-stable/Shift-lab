@@ -5,6 +5,7 @@ earlier version) and a 64-byte bottom-k MinHash of 8-byte shingles. It proposes 
 verifies the decode and keeps the cheapest of them and the standalone representation.
 
     simple_selector.py evaluate <out.json>   in-sample evaluation on retained development data (pilot-v1 dev/cal, X0)
+    simple_selector.py vectors <out.txt>     parity vectors for other implementations (.work/selector/rust)
 """
 
 import json
@@ -155,6 +156,60 @@ def evaluate():
             'summary': summary}
 
 
+# --- parity vectors ------------------------------------------------------------------------------------------
+
+def xorshift_bytes(seed, n):
+    """Deterministic test bytes shared with the Rust tests: xorshift64 state, low byte of each step."""
+    x, out = seed or 1, bytearray()
+    for _ in range(n):
+        x ^= (x << 13) & bl.M64
+        x ^= x >> 7
+        x ^= (x << 17) & bl.M64
+        out.append(x & 0xff)
+    return bytes(out)
+
+
+def mutate(data, seed, edits):
+    """Deterministic edits for related objects: each edit replaces 16 bytes at a position from xorshift."""
+    data, noise = bytearray(data), xorshift_bytes(seed, 18 * edits)
+    for i in range(edits):
+        chunk = noise[18 * i:18 * i + 18]
+        at = int.from_bytes(chunk[:2], 'big') % max(1, len(data) - 16)
+        data[at:at + 16] = chunk[2:]
+    return bytes(data)
+
+
+def vector_lines():
+    """D: descriptor of xorshift bytes (seed, length); R: resemblance as shared/union; C: select cases."""
+    lines = []
+    for seed, n in [(1, 0), (2, 1), (3, 7), (4, 8), (5, 9), (6, 64), (7, 4096), (8, 65537), (9, 300000)]:
+        d = descriptor(xorshift_bytes(seed, n))
+        lines.append(f"D {seed} {n} {','.join(f'{h:016x}' for h in d) or '-'}")
+    base = xorshift_bytes(11, 20000)
+    family = {f'o{i:02d}': mutate(base, 100 + i, 60 * i)[:20000 - 97 * i] for i in range(12)}
+    family['far'] = xorshift_bytes(12, 20000)
+    family['tiny'] = xorshift_bytes(13, 5)
+    desc = {k: descriptor(v) for k, v in family.items()}
+    for a, b in [('o00', 'o01'), ('o00', 'o11'), ('o00', 'far'), ('tiny', 'tiny'), ('o03', 'tiny')]:
+        da, db = set(desc[a][:SKETCH_HASHES]), set(desc[b][:SKETCH_HASHES])
+        union = sorted(da | db)[:SKETCH_HASHES]
+        lines.append(f"R {a} {b} {sum(1 for x in union if x in da and x in db)} {len(union)}")
+    meta = {}
+    for i, k in enumerate(sorted(family)):
+        meta[k] = {'object_id': k, 'bytes': len(family[k]), 'path': ['src/a.c', 'src/a.c', 'src/b.c', None][i % 4],
+                   'line': ['1', '2', '1', None][i % 4], 'version_rank': i, 'offset': [None, 0, 4096, 8192][i % 3]}
+    for k_name, t_name, ks in [('c1', 'o11', 1), ('c2', 'o11', 3), ('c3', 'far', 2), ('c4', 'o06', 14), ('c5', 'tiny', 4)]:
+        t = meta[t_name]
+        bases = [meta[k] for k in sorted(meta) if k != t_name]
+        order = select(t, bases, desc, ks)
+        lines.append(f"C {k_name} {t_name} {ks} {','.join(order)}")
+    for k in sorted(meta):
+        m = meta[k]
+        lines.append(f"O {k} {m['bytes']} {m['path'] or '-'} {m['line'] or '-'} {m['version_rank']} "
+                     f"{'-' if m['offset'] is None else m['offset']} {','.join(f'{h:016x}' for h in desc[k]) or '-'}")
+    return lines
+
+
 def main(argv):
     if argv[:1] == ['evaluate'] and len(argv) == 2:
         result = evaluate()
@@ -162,6 +217,9 @@ def main(argv):
         for s in result['summary']:
             print(f"{s['population']:18} K={s['k']:<2} SC={s['savings_capture']:.4f} UR={s['useful_recall']:.3f} "
                   f"nrp95={s['normalized_regret_p95']:.3f} calls÷{s['encoder_call_reduction']:.1f}")
+        return 0
+    if argv[:1] == ['vectors'] and len(argv) == 2:
+        Path(argv[1]).write_text('\n'.join(vector_lines()) + '\n')
         return 0
     print(__doc__, file=sys.stderr)
     return 2
