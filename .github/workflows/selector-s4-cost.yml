@@ -1,0 +1,102 @@
+name: DELSK-012 S4 selector cost (experimental)
+
+# One descriptive cold-construction measurement on the exact S4-D object
+# population. It is not an S4-D decision endpoint.
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Full main commit SHA containing this S4 implementation
+        type: string
+        required: true
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: delsk-experimental
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  cost:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      PROTOCOL_SHA: ea35f16a0f52cd7c41df2763f0bd2794fbbdb476
+
+    steps:
+      - name: Checkout S4 implementation
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Bind dispatch to exact main implementation
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "$SOURCE_SHA" = "$GITHUB_SHA"
+
+      - name: Admission (runner-minute ledger, artifact cap)
+        id: admit
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          BUDGET_MODE: ${{ vars.DELSK_BUDGET_MODE }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/evidence"
+          python3 .work/tools/budget.py admit "$RUNNER_TEMP/evidence/admission.json"
+
+      - name: Admission must pass
+        run: test "${{ steps.admit.outcome }}" = success
+
+      - name: Checkout immutable S4 protocol authority
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: definitely-stable/Shift-lab
+          ref: ea35f16a0f52cd7c41df2763f0bd2794fbbdb476
+          path: protocol
+          persist-credentials: false
+
+      - name: Verify protocol authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C protocol rev-parse HEAD)" = "$PROTOCOL_SHA"
+          test -z "$(git -C protocol status --porcelain=v1 --untracked-files=normal)"
+
+      - name: Materialize exact S4-D object stores
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/x0-meta"
+          (
+            cd protocol
+            python3 .work/tools/baselines.py materialize "$RUNNER_TEMP/pilot-store"
+            python3 .work/tools/x0_corpus.py build "$RUNNER_TEMP/x0-store" "$RUNNER_TEMP/x0-meta"
+          )
+
+      - name: Measure descriptive selector construction cost
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 .work/tools/selector_s4_cost.py             "$GITHUB_WORKSPACE/protocol"             "$RUNNER_TEMP/pilot-store"             "$RUNNER_TEMP/x0-store"             "$RUNNER_TEMP/evidence/selector-cost.json"             --protocol-authority "$PROTOCOL_SHA"             --implementation-sha "$SOURCE_SHA"
+
+      - name: Artifact cap before upload
+        id: artifact_cap
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 .work/tools/budget.py artifact-check "$RUNNER_TEMP/evidence"
+
+      - name: Upload selector cost evidence
+        if: always() && steps.artifact_cap.outcome == 'success'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: delsk-s4-cost-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/evidence
+          retention-days: 30
+          if-no-files-found: error
