@@ -136,6 +136,8 @@ def run(args):
         "index_cpu_ns": index_cpu,
         "peak_rss_bytes": peak_rss_bytes(),
         "runner": {
+            "github_sha": os.environ.get("GITHUB_SHA"),
+            "github_workflow_sha": os.environ.get("GITHUB_WORKFLOW_SHA"),
             "github_run_id": os.environ.get("GITHUB_RUN_ID"),
             "github_run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT"),
             "github_ref": os.environ.get("GITHUB_REF"),
