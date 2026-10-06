@@ -13,3 +13,16 @@
 Наследование от v3: smoke (7 сценариев) и write surface — по v3 infra record `8c70fd27…ddaf` (PR #33), без повторения. Refs v2/v3 retired и не двигались (`recheck` PASS).
 
 После merge этого PR v4 **ACTIVE**: production `register` пишет в `registry-v4`, `initialize` пропускает pilot только при live-проверенной активации. Natural pilot — два dispatch `oracle-pilot.yml` на `main` с `source_sha` = head `main` (G1 требует два verified `COMPLETE` run с разными run ID), затем импорт bundles и bindings в `.work/results/ORACLE-G1-V4/` отдельным PR.
+
+## Natural pilot (v4 ACTIVE)
+
+Enable PR [#39](https://github.com/definitely-stable/Shift-lab/pull/39) смержен как `8d76774c23433a3a48e76c3fd61dbfcf1d57d99c`: `active_activation` на live `main` принимает record, `workflow_sha256` = bytes `oracle-pilot.yml` на `main`. KAT на `8d76774` зелёный (`kat_verified_v2 = true`).
+
+| Entry | Run | Source | Итог | Bundle |
+|---|---|---|---|---|
+| 1 (`c48ab3a`) | [37434946174](https://github.com/definitely-stable/Shift-lab/actions/runs/37434946174), attempt 1 | `8d76774` | `success`: `COMPLETE`, conformance PASS, 1961/1961 пар `ok`, `invalid_reasons` пусто | `bundles/37434946174-1/` |
+| 2 (`aa47f16`) | [37434993046](https://github.com/definitely-stable/Shift-lab/actions/runs/37434993046), attempt 1 | `8d76774` | `success`: `COMPLETE`, conformance PASS, 1961/1961 пар `ok`, `invalid_reasons` пусто | `bundles/37434993046-1/` |
+
+Measurement identity обеих записей — `14c0a54eb916e10df92af7ab29a4ae2240449281c90ea72a49868cc3c7468314`, science identity `92be9c16…cdda`, без transition; сплит `evaluation` sealed (одинаковые sealed commitments). Bundles и binding sidecars — байт в байт из артефактов (zip digest = SHA-256 от GitHub, envelope checksums OK) в `.work/results/ORACLE-G1-V4/` (§8.1).
+
+Production G1 на evidence этого PR (evaluator `8d76774`, evidence из дерева PR): **PASS**, blockers нет; обе entry `BUNDLE`, unbound attempts нет, серия pilot `CURRENT`. Окончательный record считается production-оценкой после merge (evaluator и pinned `main` с этим evidence).

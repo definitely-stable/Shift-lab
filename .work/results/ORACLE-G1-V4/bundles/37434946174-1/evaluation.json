@@ -1,0 +1,843 @@
+{
+  "evaluator_sha256": "601da93e7ecb6e2092ae95e7a54378f0bf9541252c9d4178438603980d3d5bad",
+  "evaluator_source_sha": "8d76774c23433a3a48e76c3fd61dbfcf1d57d99c",
+  "measurement_identity_sha256": "14c0a54eb916e10df92af7ab29a4ae2240449281c90ea72a49868cc3c7468314",
+  "metrics": {
+    "call_reduction": {
+      "den": 11,
+      "num": 371
+    },
+    "eps1": {
+      "den": 1,
+      "num": 1
+    },
+    "eps2": {
+      "den": 1,
+      "num": 1
+    },
+    "eps5": {
+      "den": 1,
+      "num": 1
+    },
+    "nregret_near": {
+      "max": {
+        "den": 1,
+        "num": 0
+      },
+      "p50": {
+        "den": 1,
+        "num": 0
+      },
+      "p95": {
+        "den": 1,
+        "num": 0
+      },
+      "sum": {
+        "den": 1,
+        "num": 0
+      }
+    },
+    "nregret_useful": {
+      "max": {
+        "den": 1,
+        "num": 0
+      },
+      "p50": {
+        "den": 1,
+        "num": 0
+      },
+      "p95": {
+        "den": 1,
+        "num": 0
+      },
+      "sum": {
+        "den": 1,
+        "num": 0
+      }
+    },
+    "regret_near": {
+      "max": {
+        "den": 1,
+        "num": 0
+      },
+      "p50": {
+        "den": 1,
+        "num": 0
+      },
+      "p95": {
+        "den": 1,
+        "num": 0
+      },
+      "sum": {
+        "den": 1,
+        "num": 0
+      }
+    },
+    "regret_useful": {
+      "max": {
+        "den": 1,
+        "num": 0
+      },
+      "p50": {
+        "den": 1,
+        "num": 0
+      },
+      "p95": {
+        "den": 1,
+        "num": 0
+      },
+      "sum": {
+        "den": 1,
+        "num": 0
+      }
+    },
+    "savings_capture": {
+      "den": 1,
+      "num": 1
+    },
+    "strict": {
+      "den": 1,
+      "num": 1
+    },
+    "useful": {
+      "den": 1,
+      "num": 1
+    }
+  },
+  "metrics_status": "COMPUTED",
+  "oracle_kind": "exhaustive",
+  "oracle_status": "COMPLETE",
+  "pairs_canonical_sha256": "0630579d6c781b089aea2c808e25755f1dec5a3ca0ab968689ae5e4276706a48",
+  "per_target": [
+    {
+      "achieved_total_bytes": 939,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "47cf3fd69b97cbe84e81a06aff18669c521244779dae5e2905481a613cb2d321"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "01e33122b694fba956831a34df486c4ce8c63624377deef6ae188df4bfb63a24"
+    },
+    {
+      "achieved_total_bytes": 70,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "9a9d7d741b3b6846ceccc47febf7241dc2b8fdaffcb50cf0f04920e2c6fb497d"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "06d8738cf62f9b74ed6f3afd84330cc26837117d3092c60834ecbdf6d27b30e9"
+    },
+    {
+      "achieved_total_bytes": 712,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "c13040069964fc85cdd3ceb23f5b0d3459afa12e70c5a43b744fb6786bfdc0dc"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "0d2fe4c34accc3d66c2c12b805324dbda1d38d0840f9cfa1d6bc5d2b01e76c88"
+    },
+    {
+      "achieved_total_bytes": 823,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "856f4e537288960965dbacac5c0105a70a1eec9b1db3d18538d89d045545ffc4"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "1728653f0bf50ff45e8190a94978c2c0e8923a1b67ae28dbacce3c56c0c74811"
+    },
+    {
+      "achieved_total_bytes": 144,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "a90a747d6bd1d55f53f898300ba84aaf024f3ef84fb2b0918081b15fc783020e"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "1a9697b643bc866d440f97dc0a2c7e3d802dff26e0e25a0a813e390073c02dee"
+    },
+    {
+      "achieved_total_bytes": 1821,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "ef86d6b3fc17568b771bb1505f875e7a80cade38103d29f3c7ddd96331f87e3b"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "1cdfa844ce9944b80032aacb9592a89aea1acb42c34f17d30871c3bed2158bba"
+    },
+    {
+      "achieved_total_bytes": 1674,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "3d125d61d4dfb5762b92d05c02cdc069baf80bc0026f496439c20d155650be69"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "1d95ff9da33b0c4176304e34f23b0919d1c8da8fa3ab15dea8eb807922a0f8c3"
+    },
+    {
+      "achieved_total_bytes": 4786,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "3c85f951fdaed23c3f0f89cf1b4856f8cf020a1b8ce6c53fd03a17f4da9aca5d"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "1f215de372606ad4a61b682ca788699e0f2a6a5cd8004f3d471ca736c3386e5a"
+    },
+    {
+      "achieved_total_bytes": 1760773,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "c89b182fe6d77c405a05cdd2f86caad68f6b79a2b9f5b366ca799815f0aa22ad"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "1fcc9f5329daa1a2cf46c564771ce55d5ad154128d811a76c4af4d792412dc9a"
+    },
+    {
+      "achieved_total_bytes": 215,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "15a879663fe243cf5b03b07f11f0f48a2416dbce4f2d944e2cd5594ce7bba2b6"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "2409ba9222a4541bb9f44ce17546dc5c715a64239084e3dcf8dbdc7e8d63af74"
+    },
+    {
+      "achieved_total_bytes": 2751,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "6247ae2e5ff04d84e0ec82008c53ff340a5be236963d345f3ae5503c12367b7f"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "250a2c3df2b76177cc4a7907626642a8a398353e3440c34b42229ef4d754450a"
+    },
+    {
+      "achieved_total_bytes": 80,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "b263a177c9b78df89b405111b4f05e4439792c7cb07697c5e581cc9c8304ec75"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "25f708394740c7ea9cefe82f5fd74d8b9941f86afb9553129c76f4b94e524a05"
+    },
+    {
+      "achieved_total_bytes": 478,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "45a600ccf05e0fc45398295daae9852a355f6f738723df8c1b0702a429f9915b"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "2d728d4b9372f25ebd6ee9166aacd166dbedd181bd2692026e9011df14fbd374"
+    },
+    {
+      "achieved_total_bytes": 1696,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "d1ef6c281b6a23196c6b616b3d63c2cba1e63395e6894505d32246888653ee5e"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "3064e5fa967d2b73a603044b0b7fb9158c9b43796ccf61e79e1ded2c40177bc5"
+    },
+    {
+      "achieved_total_bytes": 1797,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "63bb6dc2d391da1ae014bae92db862b33629f8ccad40c6b7394adfb6545dd983"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "32517e6b79a6900dfa14d1bac0d98e442e4f3b15792d19123fb7c8ced92120fc"
+    },
+    {
+      "achieved_total_bytes": 2751817,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "6885027879fb787eebf13cae92c1d82fbaba05e1bd8f3b6f983bc51033276267"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "39ceb6c96b23a3caef079c514e860a61d2989f0cdae3d589a2666cc28759db60"
+    },
+    {
+      "achieved_total_bytes": 11283,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "b090ef1a64d9642ef8cd4d19546e99205c6ce309c7659baca6e944ff2c1595ca"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "3b40c42fa4a8eb5310e408207ea620088e4ce39a20529402d3c374ed1cd7ae7b"
+    },
+    {
+      "achieved_total_bytes": 882,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "103f067edeca418378b3b28963547888adc88422300139ab546b1ac1d0de2a19"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "467f83a76d3c63e2fb20c8001fd63388cc379dbc2da71401b4ff1692095e37b1"
+    },
+    {
+      "achieved_total_bytes": 766,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "9c0efe61c6fe9da2832a2c8b608a09a3c90b300ad516bcc4c8553c149acd378e"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "48328b101c4a6c88951a75e03b90c6bcc609d2eb82258451125dd30afa442f4e"
+    },
+    {
+      "achieved_total_bytes": 82,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "fc2197e7c46d0aa83efc82dbad2b2cf9f18dad3bbda4e02135d5d5d2eb1268b7"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "4ca21a38e157fd43e3fab484102dc1a20c8f3f751faab48b6b159e5699530dad"
+    },
+    {
+      "achieved_total_bytes": 292556,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "e387e45028c95f17e21df9315fa7d4ebfe29754e8df242df59a1330bd1042f6f"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "4f979df689423b7084fffa605f43517c9208405462f430ab146b12e271d66cf9"
+    },
+    {
+      "achieved_total_bytes": 8152,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "2a1b291693a3dc5098f87bc4cfe631a48dc5c4d19840119f13a7f6ab4ead21aa"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "53396899921a71a8f9d753675605d167a7415edd5b90342cb2573d9c085a2c6f"
+    },
+    {
+      "achieved_total_bytes": 15371,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "cfbc5b9bc4c94d8caeb3d55dc9e224038683f14a1faec5872407ba81f3b4f66a"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "63e789f235a41221a735ddf3c44149ee686b160174cae0cc95968a0db04fb815"
+    },
+    {
+      "achieved_total_bytes": 475,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "f29fb6e6bab0a1b71087921ad4dd4eb9aad70f9e0b25294774eeb32ed3a2e347"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "66121faf857c7641657576b9e7ec8c6dcfa2f81ea6530042f1cb5c3f817ca599"
+    },
+    {
+      "achieved_total_bytes": 1062,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "3544ce0900759090b4e7df76d6b16d640cd27edb36640a21e27b3af3e87a550c"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "7b084ae0c76f50134fc43d53896c20902d31933af9e9ca066f77f6464a6c9543"
+    },
+    {
+      "achieved_total_bytes": 869356,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "2ba24d45e3dfb97fa9919e45b131bca04332372b2fb0968522a6f146ceb72e93"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "7fc3c8405253f01c9176586e9f6905b27cc93e6e5fee87351c8d54412553ea7c"
+    },
+    {
+      "achieved_total_bytes": 56188,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "9ca336fbcbff9f1d78b4f45b6a19583fcc097192310dd2f5f6cd43b9a33d7d69"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "827625344691f35ef398a13698a671c326dc91165693f5dbd7803a8ceb55e515"
+    },
+    {
+      "achieved_total_bytes": 96,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "c27d15b648b65b56079b528714429584172fcd0a595595e2d765d7b5752e61e4"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "86a1bf610651586681a7df6bcffd7e03d85220e204d3cecbce8e5849d58bae7c"
+    },
+    {
+      "achieved_total_bytes": 284961,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "fb2aad1e26b6c2d25f9541dda1be5f300d0b2dd42fc5ff7858858ef323198139"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "8a9ebbaf7e557f2c9ee91d2de27211cfa8fa3e253c7a0c4704025a75ff357ac7"
+    },
+    {
+      "achieved_total_bytes": 11471,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "ca09a08cf57d8422c0fd0722328844cf3a8ece039bed7acc74788cffe5513bab"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "941b99de85ff8d2ef408823b3f56def6dc99e8a556907eee35eacc35d817c32c"
+    },
+    {
+      "achieved_total_bytes": 1848,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "37afba7b1dc6a0abf6259136521479cbb22c04fc9b6315e484890a9a53d98f43"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "958b2676c8ec152bce3fa7373d1be24619e567ee27a0c9b88e5e9c3106fb2a6c"
+    },
+    {
+      "achieved_total_bytes": 84,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "04fa4cf61aaa71a215117fb28fa30b8eaaaed55f6ae770e70f281b334cd0b1b6"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "95a9875a8fb7b90dd176fdd957b20d25ac1188a4a470257b4adc5eb1604458ba"
+    },
+    {
+      "achieved_total_bytes": 194340,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "c83cb9a8120fdb430029a5275afad2d7d1a170a15e29cc902af93bcfeb08e05f"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "95d30fd5c0ec29b71fd07c3a332c34de70afa0c600ce010099e1d2893f87d04c"
+    },
+    {
+      "achieved_total_bytes": 221,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "b65e7ba9af01c500c9ff0fd6652f143e45356f9ea7e370afce35c4a18cb184d8"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "a142b21e0581c174a1d05e1462155c7c632617983d3b0b8a49f444bc181288f4"
+    },
+    {
+      "achieved_total_bytes": 72008,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "05c4c8e0cfc6adc309b425153834b1bdf8a3b8146c1b730f355c76a29009736d"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "a871b174caf6686bff6ec7e4e026e322da4958dc9d1417f3c5f349b3be7ca461"
+    },
+    {
+      "achieved_total_bytes": 38887,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "bed3cd2ea73b5afa4d43d7db400c66fe2b8127a21e1b6e4b7c96a48e6862165d"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "acadfd2fc9b4cf412aca56ce73f7e0bd235551e7d187b6832dd5ecb2126755dc"
+    },
+    {
+      "achieved_total_bytes": 391825,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "1c8ee9a1ecc5a5e119febee01a35f2a90f89ec8368c08a9716418e0324a06c7d"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "b17db88d0f353f6f3ed3c058cda94177f0439362dd613716edb540a429dc4e5a"
+    },
+    {
+      "achieved_total_bytes": 113,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "8a09f606a9207bbd53765aba66424cc6d0a56fbee0eb8a036152d0b892507c46"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "b86ce80fc0a6152e1c179704c842db724a3e1bdf521b8af4659c020db89577e2"
+    },
+    {
+      "achieved_total_bytes": 1212,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "6d428c207d5461ad8943805bdf3ab0213649e9739a5a734f688bf2d9f6a4ba25"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "c7bb6487c084e194b569f2f04c10d7ec2c21b65d2620b1dec504d8fde9fe6de6"
+    },
+    {
+      "achieved_total_bytes": 163366,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "a8fedacbc79e8c21898cc5119d19594272a7467198545c0b7a684a922fcfeada"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "c7f4d65f6fc1da6a360ee46546af7e9d46d35f6568147f6002fae4161121e535"
+    },
+    {
+      "achieved_total_bytes": 445,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "032f5922393cbc642091f7dc2bf2e2fb336ed643614e521582d6eb991c019282"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "cbd32d78d790a74a4b7fe599cef54c0a539b76f22b1e3463c28ec30257561658"
+    },
+    {
+      "achieved_total_bytes": 236,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "4339e3cec20141e5244292f0e82a5d4b1791cc853cabbff048fa471fdfe35381"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "cd22990bf0b30ee1221ff6c3c165a5eb76ead250c73319d4fdd0ba5c38f6243a"
+    },
+    {
+      "achieved_total_bytes": 39440,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "25d9854933cfc08b4f1517b458973166171091742ec3c636c7cff444a4fb8a7c"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "cfd92f6ca9fa5cdba6acee332bb7612e7e294349551a3faeac40049899c6ee86"
+    },
+    {
+      "achieved_total_bytes": 57928,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "6c35bc5f7f85eac9c49928bacbb02bb694b547aabf69197e058cca245ad80e83"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "d196479a8f57dd7ddc8192494b2b972b81bf176a8dde403074b20e88121b65a2"
+    },
+    {
+      "achieved_total_bytes": 1235,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "187a79d4886ecbbd4dcd7ea4e262800a858394901f360e5bdabfd0634f858844"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "d39d69f00b6ab02d458571362683a1a1915a651af3885c7b73752cbb64ee4d6d"
+    },
+    {
+      "achieved_total_bytes": 206,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "23c3affb0e9194f5f9edebffececa3b0d20d069548afb6a792d9f7e83b2ad959"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "d58120d499e7572ea0a70e935cd2349d24a6d614caa3754787935bb2cbdbd204"
+    },
+    {
+      "achieved_total_bytes": 11529,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "959513efcc47fc5c5ccff60b04e81ac5779bb4fa1daf4009c7b97db0d71d757a"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "d5b3667d207aca85906a5be3f3b3ca4341a97ff50ccb57657301640d43b0601d"
+    },
+    {
+      "achieved_total_bytes": 96688,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "12be08952efbf8e7826747ff923dd385266024814102d7188feb65c7e484bb14"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "db935b6d13431f66071865761c18c58a242f980672fb850e747ecd087e3b764d"
+    },
+    {
+      "achieved_total_bytes": 724,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "246c2cfb2367c46fbae3608b8e7b86243a33069b64130a5b7439d4be1046ff26"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "e7b25d0760262c434661994cac85d13d6bd7dea5149ee5ed9540a8ded035c5a5"
+    },
+    {
+      "achieved_total_bytes": 879264,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "b87318ed0d6aceda42754f70f92250885c1c7902bb624cdc866d4933bd347d3f"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "e9405bd392bbac59cf92e3934b8c4c501e2f231d3e02c7b1c36b73bc192b0099"
+    },
+    {
+      "achieved_total_bytes": 502,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "ed9781740e197ef7630181842ff51c25413fb3b470dcaf87e0b23869425671ee"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "ee4a55de111fd089589635c29ffd99635c5d2cd3b8d4bfd7a35bec97499e073d"
+    },
+    {
+      "achieved_total_bytes": 2635,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "004501800893a621a9b06003e77fa0311e2a80d23790f2586e5c04cac87c370a"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "eeb52d526d8688334f0a8d66fdf2a5b04fae927ca573adabe9f6d5db76f4cc52"
+    },
+    {
+      "achieved_total_bytes": 253,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "faf506d9e2aca3f43f5ba6114e1b06fe041364bfe36fcf003b3164d7b2832d80"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "f5b0573db98bfff8b45cb97b27e60fda4f8978cded3942dd878bc64a3f561985"
+    },
+    {
+      "achieved_total_bytes": 198,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "526f67c4f24060b964bb74f93829a84b0effcbf65a5b6feea29617343a5befc0"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "fc7135302a879eae5c73c0264b91cc751d8dcc00a57d164c28ad402d13ff7b25"
+    },
+    {
+      "achieved_total_bytes": 16105,
+      "byte_regret": 0,
+      "normalized_regret": {
+        "den": 1,
+        "num": 0
+      },
+      "retrieved": [
+        "e1b25861006adf2ece57dd2e5ffa3f56fc26962f8565b7141f28d1d0ede56ad3"
+      ],
+      "strict_hit": true,
+      "target_occurrence_id": "fff8ca27635aa0321aa4603b532954f1c56b4394119779040a1eb9733bc1c21c"
+    }
+  ],
+  "populations": {
+    "finite": 55,
+    "near": 55,
+    "sealed_excluded": 9,
+    "useful": 47
+  },
+  "retrieval": {
+    "K": 1,
+    "method_id": "oracle-self",
+    "retrieval_sha256": "2a2c34c7cd2c312bc884d5000274d75daab00292c8259f2084726750a10a7a8f"
+  },
+  "retrieval_reasons": [],
+  "retrieval_status": "OK",
+  "schema": "delsk.oracle.evaluation.v1",
+  "standalone_canonical_sha256": "693753f29cb59ea53edb462785bf7ad481e9931707ad986c77adffd2a7b34f8d"
+}

@@ -1,0 +1,33 @@
+{
+  "counts": {
+    "codec_error": 0,
+    "expected_pairs": 1961,
+    "identity_targets": 15,
+    "missing": 0,
+    "near_all_failed": 0,
+    "near_empty": 0,
+    "near_finite": 55,
+    "near_targets": 64,
+    "near_useful": 47,
+    "ok": 1961,
+    "resource_limit": 0,
+    "sealed_pairs": 106,
+    "sealed_targets": 10,
+    "standalone_failed": 0,
+    "standalone_missing": 0,
+    "targets_missing": 0,
+    "timeout": 0
+  },
+  "invalid_reasons": [],
+  "measurement_identity_sha256": "14c0a54eb916e10df92af7ab29a4ae2240449281c90ea72a49868cc3c7468314",
+  "pair_failure_rate": {
+    "den": 1,
+    "num": 0
+  },
+  "run_status": "COMPLETE",
+  "schema": "delsk.oracle.coverage.v1",
+  "standalone_failure_rate": {
+    "den": 1,
+    "num": 0
+  }
+}
