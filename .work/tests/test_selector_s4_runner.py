@@ -1,8 +1,10 @@
 import importlib.util
+import hashlib
 import json
 import sys
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 
 TOOLS = Path(__file__).resolve().parents[1] / "tools"
@@ -59,6 +61,54 @@ class Parsing(unittest.TestCase):
             path.write_bytes(data + b"!")
             with self.assertRaises(runner.RunnerError):
                 runner.verify_object(path, oid)
+
+
+    def test_measure_pair_deletes_patch_and_output_immediately(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp)
+            target_bytes = b"target-bytes"
+            target_id = hashlib.sha256(target_bytes).hexdigest()
+            target = {
+                "target_occurrence_id": "t",
+                "target_object_id": target_id,
+            }
+            store = work / "store"
+            store.mkdir()
+            (store / target_id).write_bytes(target_bytes)
+            manifest = work / "target.csm"
+            manifest.write_bytes(b"manifest")
+            manifests = {
+                target_id: ({"manifest_id": "target-manifest"}, manifest),
+            }
+
+            def fake_run(argv):
+                if "create" in argv:
+                    patch = Path(argv[argv.index("-o") + 1])
+                    patch.write_bytes(b"patch")
+                    return (
+                        type("P", (), {
+                            "returncode": 0,
+                            "stdout": "target-manifest-id=target-manifest\npatch-bytes=5\n",
+                            "stderr": "",
+                        })(),
+                        10,
+                        9,
+                    )
+                output = Path(argv[argv.index("-o") + 1])
+                output.write_bytes(target_bytes)
+                return (
+                    type("P", (), {"returncode": 0, "stdout": "applied=true\n", "stderr": ""})(),
+                    4,
+                    3,
+                )
+
+            with unittest.mock.patch.object(runner, "run_process", side_effect=fake_run):
+                row = runner.measure_pair(Path("cli.dll"), target, None, store, manifests, work)
+
+            self.assertEqual(row["status"], "ok")
+            self.assertEqual(row["applied_sha256"], target_id)
+            self.assertFalse(list(work.glob("*.csp")))
+            self.assertFalse(list(work.glob("*.out")))
 
     def test_plan_rejects_wrong_consumer(self):
         plan = protocol.build_plan()
