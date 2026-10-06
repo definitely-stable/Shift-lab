@@ -174,6 +174,11 @@ def measure_pair(cli, target, base_id, store, manifests, work):
     patch = work / f"{stem}.csp"
     output = work / f"{stem}.out"
 
+    def finish(record):
+        patch.unlink(missing_ok=True)
+        output.unlink(missing_ok=True)
+        return record
+
     create_args = [
         "dotnet", str(cli), "patch", "create",
         "--target-manifest", str(target_manifest),
@@ -219,11 +224,11 @@ def measure_pair(cli, target, base_id, store, manifests, work):
         )
     )
     if not create_ok:
-        return {
+        return finish({
             **common,
             "status": "create_failed",
             "error_class": classify_error(created.stderr, "CREATE_OR_BINDING"),
-        }
+        })
 
     apply_args = ["dotnet", str(cli), "patch", "apply", str(patch), "-o", str(output)]
     if base_id is not None:
@@ -235,22 +240,22 @@ def measure_pair(cli, target, base_id, store, manifests, work):
     common["apply_exit_code"] = applied.returncode
 
     if applied.returncode != 0 or not output.is_file() or output.is_symlink():
-        return {
+        return finish({
             **common,
             "status": "apply_failed",
             "error_class": classify_error(applied.stderr, "APPLY"),
-        }
+        })
 
     applied_sha = file_sha256(output)
     common["applied_sha256"] = applied_sha
     if applied_sha != target_id:
-        return {
+        return finish({
             **common,
             "status": "verify_failed",
             "error_class": "SHA256_MISMATCH",
-        }
+        })
 
-    return {**common, "status": "ok", "error_class": None}
+    return finish({**common, "status": "ok", "error_class": None})
 
 
 def write_jsonl(path, rows):
