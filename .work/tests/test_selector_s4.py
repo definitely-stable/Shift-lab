@@ -87,7 +87,7 @@ class Evaluate(unittest.TestCase):
         rows = []
         values = {None: 1000, **base_bytes}
         for base, patch_bytes in values.items():
-            ok = base != bad
+            ok = bad is None or base != bad
             rows.append({
                 "schema": s4.MEASUREMENT_SCHEMA,
                 "target_occurrence_id": "t",
