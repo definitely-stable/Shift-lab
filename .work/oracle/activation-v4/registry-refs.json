@@ -1,0 +1,39 @@
+{
+  "collected_at": "2026-10-06T07:25:55Z",
+  "main": "fca2c489034e292d050dbfc54f9ef6b59ac21f5e",
+  "problems": [],
+  "refs": {
+    "refs/heads/delsk/registry": {
+      "commits": 1,
+      "head": "6cf2c6a7c35cee005f894366c97fca00230a5670",
+      "linear": true,
+      "one_entry_per_commit": true
+    },
+    "refs/heads/delsk/registry-smoke": {
+      "commits": 5,
+      "head": "d3ec84c7fd17ad613dc1e51463532b139e0ae864",
+      "linear": true,
+      "one_entry_per_commit": true
+    },
+    "refs/heads/delsk/registry-v3": {
+      "commits": 2,
+      "head": "8343a55522c10e5c520ffa0806e50b90df712758",
+      "linear": true,
+      "one_entry_per_commit": true
+    },
+    "refs/heads/delsk/registry-v3-smoke": {
+      "commits": 6,
+      "head": "479cc9d90ba88329cd5cc2bf2e7786b05a86ffc6",
+      "linear": true,
+      "one_entry_per_commit": true
+    },
+    "refs/heads/delsk/registry-v4": {
+      "commits": 1,
+      "head": "c0b64888fb0c1db02724ad255c9ccc0fa1ed524d",
+      "linear": true,
+      "one_entry_per_commit": true
+    }
+  },
+  "repository": "definitely-stable/Shift-lab",
+  "schema": "delsk.oracle.registry-refs.v1"
+}

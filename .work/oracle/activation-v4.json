@@ -1,0 +1,33 @@
+{
+  "g1_contract": "delsk.oracle-contract.v4",
+  "g1_freeze_sha256": "9507f045abd13155a20d938381ea0391e9e094f713d18a143c0a136445cbbb61",
+  "genesis_review": {
+    "merge_commit_sha": "fca2c489034e292d050dbfc54f9ef6b59ac21f5e",
+    "pull_request": 38
+  },
+  "registry": {
+    "genesis_sha256": "8814511f6bd1720baa643d8a475ab750302eef57fc04de2ebe0edfc99339abb0",
+    "ref": "refs/heads/delsk/registry-v4",
+    "root_commit": "c0b64888fb0c1db02724ad255c9ccc0fa1ed524d"
+  },
+  "rulesets": {
+    "path": ".work/oracle/activation-v4/rulesets.json",
+    "sha256": "67834a96f78642624c5ab03da198b71fcd7d5efcb7bb0821cb4e4d6712c4c4dc"
+  },
+  "schema": "delsk.oracle.v4-activation.v1",
+  "steps": {
+    "bind": "Bind registry entry before the measurement boundary (contract v3 bind)",
+    "boundary": "Measurement boundary (contract v3 boundary)",
+    "kat": "Oracle tests (contract, production KAT/G1, mutants, metamorphic, faults, pinned codecs)",
+    "provider": [
+      "Complete job",
+      "Post Read-only source checkout"
+    ],
+    "register": "Register attempt in the append-only registry (contract v3 register)"
+  },
+  "v3_infra": {
+    "path": ".work/oracle/activation/infra.json",
+    "sha256": "8c70fd27d3013c4016bda62ae1e815ace129147014ab05e93e6e6f94693fddaf"
+  },
+  "workflow_sha256": "b85c239e3254d0397e9a30cbf910cc17c4f0ebc160181f0bbe8ccda2bc1ac312"
+}

@@ -1,0 +1,52 @@
+{
+  "api_root_tree": [
+    {
+      "mode": "100644",
+      "path": "entries.jsonl",
+      "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "size": 0,
+      "type": "blob"
+    },
+    {
+      "mode": "100644",
+      "path": "genesis.json",
+      "sha": "c189e1fe729124f29ca22324485dc88e1e269aca",
+      "size": 436,
+      "type": "blob"
+    }
+  ],
+  "checks": {
+    "g1_freeze_sha256 is freeze-v4": true,
+    "genesis.json is canonical and equals make_genesis": true,
+    "protected by deletion and non_fast_forward": true,
+    "root entries.jsonl is empty": true,
+    "root has no parent": true,
+    "root tree is exactly genesis.json and entries.jsonl (100644 blobs)": true,
+    "single root commit equal to the reviewed root": true
+  },
+  "collected_at": "2026-10-06T07:25:48Z",
+  "effective_rules": [
+    "deletion",
+    "non_fast_forward"
+  ],
+  "expected_genesis_sha256": "8814511f6bd1720baa643d8a475ab750302eef57fc04de2ebe0edfc99339abb0",
+  "expected_root": "c0b64888fb0c1db02724ad255c9ccc0fa1ed524d",
+  "genesis_json": {
+    "g1_contract": "delsk.oracle-contract.v4",
+    "g1_freeze_sha256": "9507f045abd13155a20d938381ea0391e9e094f713d18a143c0a136445cbbb61",
+    "measurement_contract": "delsk.oracle-contract.v1",
+    "measurement_freeze_sha256": "c56fc053b103cecd38446b3791db104a12b9fafabacdfc6b71f6f23c0bf7f729",
+    "registry_ref": "refs/heads/delsk/registry-v4",
+    "repository": "definitely-stable/Shift-lab",
+    "schema": "delsk.oracle.registry-genesis.v1"
+  },
+  "genesis_sha256": "8814511f6bd1720baa643d8a475ab750302eef57fc04de2ebe0edfc99339abb0",
+  "head": "c0b64888fb0c1db02724ad255c9ccc0fa1ed524d",
+  "problems": [],
+  "ref": "refs/heads/delsk/registry-v4",
+  "repository": "definitely-stable/Shift-lab",
+  "roots": [
+    "c0b64888fb0c1db02724ad255c9ccc0fa1ed524d"
+  ],
+  "schema": "delsk.oracle.registry-genesis-readback.v1"
+}

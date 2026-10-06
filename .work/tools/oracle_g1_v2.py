@@ -40,7 +40,7 @@ V1_RESULTS = Path(ev.RESULTS)
 # Activation record (contract-v4 2): SHA-256 of the bytes of the reviewed enable record file (step names, provider step
 # names, KAT step name, workflow digest, genesis, rulesets evidence; oracle_activation_v2.py). Set only by the enable PR
 # after every activation item holds; until then production performs no read and can never return PASS.
-ACTIVATION_RECORD = None
+ACTIVATION_RECORD = '44cba89c2f853e91593b1239d86d7f3c5a90ed532754e7e82267a7d9ca84078e'
 
 
 # --- inputs -----------------------------------------------------------------------------------------------------------

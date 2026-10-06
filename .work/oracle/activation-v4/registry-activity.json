@@ -1,0 +1,198 @@
+{
+  "collected_at": "2026-10-06T07:25:57Z",
+  "problems": [],
+  "refs": {
+    "refs/heads/delsk/registry": [
+      {
+        "activity_type": "branch_creation",
+        "actor": {
+          "login": "MrFr3di",
+          "type": "User"
+        },
+        "after": "6cf2c6a7c35cee005f894366c97fca00230a5670",
+        "before": "0000000000000000000000000000000000000000",
+        "id": 45500612151,
+        "ref": "refs/heads/delsk/registry",
+        "timestamp": "2026-10-05T12:03:00Z"
+      }
+    ],
+    "refs/heads/delsk/registry-smoke": [
+      {
+        "activity_type": "branch_creation",
+        "actor": {
+          "login": "MrFr3di",
+          "type": "User"
+        },
+        "after": "a429d34d67959e49af8f79da024ce6eed34cbc13",
+        "before": "0000000000000000000000000000000000000000",
+        "id": 45500623683,
+        "ref": "refs/heads/delsk/registry-smoke",
+        "timestamp": "2026-10-05T12:03:08Z"
+      },
+      {
+        "activity_type": "push",
+        "actor": {
+          "login": "github-actions[bot]",
+          "type": "Bot"
+        },
+        "after": "8a45a9e7165ac819259ad835372c9c7dacaf10c7",
+        "before": "a429d34d67959e49af8f79da024ce6eed34cbc13",
+        "id": 45500723699,
+        "ref": "refs/heads/delsk/registry-smoke",
+        "timestamp": "2026-10-05T12:04:16Z"
+      },
+      {
+        "activity_type": "push",
+        "actor": {
+          "login": "github-actions[bot]",
+          "type": "Bot"
+        },
+        "after": "4746f38075b92073e53ccab1fe274f8cdecfa5ce",
+        "before": "8a45a9e7165ac819259ad835372c9c7dacaf10c7",
+        "id": 45500793965,
+        "ref": "refs/heads/delsk/registry-smoke",
+        "timestamp": "2026-10-05T12:05:05Z"
+      },
+      {
+        "activity_type": "push",
+        "actor": {
+          "login": "github-actions[bot]",
+          "type": "Bot"
+        },
+        "after": "ee9accfde009a87268d78ac0ad5d305c50491747",
+        "before": "4746f38075b92073e53ccab1fe274f8cdecfa5ce",
+        "id": 45500897841,
+        "ref": "refs/heads/delsk/registry-smoke",
+        "timestamp": "2026-10-05T12:06:16Z"
+      },
+      {
+        "activity_type": "push",
+        "actor": {
+          "login": "github-actions[bot]",
+          "type": "Bot"
+        },
+        "after": "d3ec84c7fd17ad613dc1e51463532b139e0ae864",
+        "before": "ee9accfde009a87268d78ac0ad5d305c50491747",
+        "id": 45502070190,
+        "ref": "refs/heads/delsk/registry-smoke",
+        "timestamp": "2026-10-05T12:19:40Z"
+      }
+    ],
+    "refs/heads/delsk/registry-v3": [
+      {
+        "activity_type": "branch_creation",
+        "actor": {
+          "login": "MrFr3di",
+          "type": "User"
+        },
+        "after": "1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258",
+        "before": "0000000000000000000000000000000000000000",
+        "id": 45522175156,
+        "ref": "refs/heads/delsk/registry-v3",
+        "timestamp": "2026-10-05T15:48:31Z"
+      },
+      {
+        "activity_type": "push",
+        "actor": {
+          "login": "github-actions[bot]",
+          "type": "Bot"
+        },
+        "after": "8343a55522c10e5c520ffa0806e50b90df712758",
+        "before": "1a93f4ce71d9e4fbf5f21eaa9e66c660672ee258",
+        "id": 45581830845,
+        "ref": "refs/heads/delsk/registry-v3",
+        "timestamp": "2026-10-06T05:40:14Z"
+      }
+    ],
+    "refs/heads/delsk/registry-v3-smoke": [
+      {
+        "activity_type": "branch_creation",
+        "actor": {
+          "login": "MrFr3di",
+          "type": "User"
+        },
+        "after": "62f79c1ceeb4f61615039104532e8dee251efaa3",
+        "before": "0000000000000000000000000000000000000000",
+        "id": 45522184722,
+        "ref": "refs/heads/delsk/registry-v3-smoke",
+        "timestamp": "2026-10-05T15:48:38Z"
+      },
+      {
+        "activity_type": "push",
+        "actor": {
+          "login": "github-actions[bot]",
+          "type": "Bot"
+        },
+        "after": "e1a6b1343f9b98d89333cb763a65024049fff9c8",
+        "before": "62f79c1ceeb4f61615039104532e8dee251efaa3",
+        "id": 45522329829,
+        "ref": "refs/heads/delsk/registry-v3-smoke",
+        "timestamp": "2026-10-05T15:50:11Z"
+      },
+      {
+        "activity_type": "push",
+        "actor": {
+          "login": "github-actions[bot]",
+          "type": "Bot"
+        },
+        "after": "98d3db61d91dc7d9e3f2c5901d5b42bbb5725fd8",
+        "before": "e1a6b1343f9b98d89333cb763a65024049fff9c8",
+        "id": 45522873142,
+        "ref": "refs/heads/delsk/registry-v3-smoke",
+        "timestamp": "2026-10-05T15:56:01Z"
+      },
+      {
+        "activity_type": "push",
+        "actor": {
+          "login": "github-actions[bot]",
+          "type": "Bot"
+        },
+        "after": "e7ea6af784c89dbf061cad03ce211d854e420756",
+        "before": "98d3db61d91dc7d9e3f2c5901d5b42bbb5725fd8",
+        "id": 45522977879,
+        "ref": "refs/heads/delsk/registry-v3-smoke",
+        "timestamp": "2026-10-05T15:57:08Z"
+      },
+      {
+        "activity_type": "push",
+        "actor": {
+          "login": "github-actions[bot]",
+          "type": "Bot"
+        },
+        "after": "8d63db0716283112c714d6159604929e2c4a7da0",
+        "before": "e7ea6af784c89dbf061cad03ce211d854e420756",
+        "id": 45523286348,
+        "ref": "refs/heads/delsk/registry-v3-smoke",
+        "timestamp": "2026-10-05T16:00:24Z"
+      },
+      {
+        "activity_type": "push",
+        "actor": {
+          "login": "github-actions[bot]",
+          "type": "Bot"
+        },
+        "after": "479cc9d90ba88329cd5cc2bf2e7786b05a86ffc6",
+        "before": "8d63db0716283112c714d6159604929e2c4a7da0",
+        "id": 45523488390,
+        "ref": "refs/heads/delsk/registry-v3-smoke",
+        "timestamp": "2026-10-05T16:02:25Z"
+      }
+    ],
+    "refs/heads/delsk/registry-v4": [
+      {
+        "activity_type": "branch_creation",
+        "actor": {
+          "login": "MrFr3di",
+          "type": "User"
+        },
+        "after": "c0b64888fb0c1db02724ad255c9ccc0fa1ed524d",
+        "before": "0000000000000000000000000000000000000000",
+        "id": 45589567746,
+        "ref": "refs/heads/delsk/registry-v4",
+        "timestamp": "2026-10-06T07:25:32Z"
+      }
+    ]
+  },
+  "repository": "definitely-stable/Shift-lab",
+  "schema": "delsk.oracle.registry-activity.v1"
+}
