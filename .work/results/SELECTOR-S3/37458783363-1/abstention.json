@@ -1,0 +1,308 @@
+{
+  "chosen_level": 0,
+  "encoder_calls_k2": 236,
+  "fn_max": 0.01,
+  "in_sample": true,
+  "k": 2,
+  "levels": [
+    {
+      "level": 0,
+      "lost_savings_bytes": 0,
+      "lost_savings_share": 0.0,
+      "populations": {
+        "adversarial-random": {
+          "abstained": 0,
+          "targets": 8,
+          "useful": 0,
+          "useful_abstained": 0
+        },
+        "adversarial-zlib": {
+          "abstained": 0,
+          "targets": 8,
+          "useful": 0,
+          "useful_abstained": 0
+        },
+        "pilot-calibration": {
+          "abstained": 0,
+          "targets": 12,
+          "useful": 10,
+          "useful_abstained": 0
+        },
+        "pilot-development": {
+          "abstained": 0,
+          "targets": 43,
+          "useful": 37,
+          "useful_abstained": 0
+        },
+        "x0-H1-cdc": {
+          "abstained": 0,
+          "targets": 16,
+          "useful": 15,
+          "useful_abstained": 0
+        },
+        "x0-H1-file": {
+          "abstained": 0,
+          "targets": 16,
+          "useful": 16,
+          "useful_abstained": 0
+        },
+        "x0-H4-cdc": {
+          "abstained": 0,
+          "targets": 16,
+          "useful": 5,
+          "useful_abstained": 0
+        },
+        "x0-H4-file": {
+          "abstained": 0,
+          "targets": 16,
+          "useful": 10,
+          "useful_abstained": 0
+        }
+      },
+      "saved_call_share": 0.0,
+      "saved_calls": 0,
+      "useful_abstained": 0,
+      "useful_abstained_share": 0.0
+    },
+    {
+      "level": 1,
+      "lost_savings_bytes": 97108,
+      "lost_savings_share": 0.005851747847204228,
+      "populations": {
+        "adversarial-random": {
+          "abstained": 8,
+          "targets": 8,
+          "useful": 0,
+          "useful_abstained": 0
+        },
+        "adversarial-zlib": {
+          "abstained": 8,
+          "targets": 8,
+          "useful": 0,
+          "useful_abstained": 0
+        },
+        "pilot-calibration": {
+          "abstained": 2,
+          "targets": 12,
+          "useful": 10,
+          "useful_abstained": 1
+        },
+        "pilot-development": {
+          "abstained": 4,
+          "targets": 43,
+          "useful": 37,
+          "useful_abstained": 4
+        },
+        "x0-H1-cdc": {
+          "abstained": 0,
+          "targets": 16,
+          "useful": 15,
+          "useful_abstained": 0
+        },
+        "x0-H1-file": {
+          "abstained": 0,
+          "targets": 16,
+          "useful": 16,
+          "useful_abstained": 0
+        },
+        "x0-H4-cdc": {
+          "abstained": 0,
+          "targets": 16,
+          "useful": 5,
+          "useful_abstained": 0
+        },
+        "x0-H4-file": {
+          "abstained": 0,
+          "targets": 16,
+          "useful": 10,
+          "useful_abstained": 0
+        }
+      },
+      "saved_call_share": 0.046610169491525424,
+      "saved_calls": 11,
+      "useful_abstained": 5,
+      "useful_abstained_share": 0.053763440860215055
+    },
+    {
+      "level": 2,
+      "lost_savings_bytes": 153518,
+      "lost_savings_share": 0.009251025929965592,
+      "populations": {
+        "adversarial-random": {
+          "abstained": 8,
+          "targets": 8,
+          "useful": 0,
+          "useful_abstained": 0
+        },
+        "adversarial-zlib": {
+          "abstained": 8,
+          "targets": 8,
+          "useful": 0,
+          "useful_abstained": 0
+        },
+        "pilot-calibration": {
+          "abstained": 2,
+          "targets": 12,
+          "useful": 10,
+          "useful_abstained": 1
+        },
+        "pilot-development": {
+          "abstained": 5,
+          "targets": 43,
+          "useful": 37,
+          "useful_abstained": 5
+        },
+        "x0-H1-cdc": {
+          "abstained": 1,
+          "targets": 16,
+          "useful": 15,
+          "useful_abstained": 1
+        },
+        "x0-H1-file": {
+          "abstained": 0,
+          "targets": 16,
+          "useful": 16,
+          "useful_abstained": 0
+        },
+        "x0-H4-cdc": {
+          "abstained": 0,
+          "targets": 16,
+          "useful": 5,
+          "useful_abstained": 0
+        },
+        "x0-H4-file": {
+          "abstained": 0,
+          "targets": 16,
+          "useful": 10,
+          "useful_abstained": 0
+        }
+      },
+      "saved_call_share": 0.0635593220338983,
+      "saved_calls": 15,
+      "useful_abstained": 7,
+      "useful_abstained_share": 0.07526881720430108
+    },
+    {
+      "level": 3,
+      "lost_savings_bytes": 155496,
+      "lost_savings_share": 0.009370220612605229,
+      "populations": {
+        "adversarial-random": {
+          "abstained": 8,
+          "targets": 8,
+          "useful": 0,
+          "useful_abstained": 0
+        },
+        "adversarial-zlib": {
+          "abstained": 8,
+          "targets": 8,
+          "useful": 0,
+          "useful_abstained": 0
+        },
+        "pilot-calibration": {
+          "abstained": 2,
+          "targets": 12,
+          "useful": 10,
+          "useful_abstained": 1
+        },
+        "pilot-development": {
+          "abstained": 5,
+          "targets": 43,
+          "useful": 37,
+          "useful_abstained": 5
+        },
+        "x0-H1-cdc": {
+          "abstained": 2,
+          "targets": 16,
+          "useful": 15,
+          "useful_abstained": 2
+        },
+        "x0-H1-file": {
+          "abstained": 0,
+          "targets": 16,
+          "useful": 16,
+          "useful_abstained": 0
+        },
+        "x0-H4-cdc": {
+          "abstained": 0,
+          "targets": 16,
+          "useful": 5,
+          "useful_abstained": 0
+        },
+        "x0-H4-file": {
+          "abstained": 0,
+          "targets": 16,
+          "useful": 10,
+          "useful_abstained": 0
+        }
+      },
+      "saved_call_share": 0.07203389830508475,
+      "saved_calls": 17,
+      "useful_abstained": 8,
+      "useful_abstained_share": 0.08602150537634409
+    },
+    {
+      "level": 4,
+      "lost_savings_bytes": 373281,
+      "lost_savings_share": 0.022493989044694993,
+      "populations": {
+        "adversarial-random": {
+          "abstained": 8,
+          "targets": 8,
+          "useful": 0,
+          "useful_abstained": 0
+        },
+        "adversarial-zlib": {
+          "abstained": 8,
+          "targets": 8,
+          "useful": 0,
+          "useful_abstained": 0
+        },
+        "pilot-calibration": {
+          "abstained": 2,
+          "targets": 12,
+          "useful": 10,
+          "useful_abstained": 1
+        },
+        "pilot-development": {
+          "abstained": 6,
+          "targets": 43,
+          "useful": 37,
+          "useful_abstained": 6
+        },
+        "x0-H1-cdc": {
+          "abstained": 2,
+          "targets": 16,
+          "useful": 15,
+          "useful_abstained": 2
+        },
+        "x0-H1-file": {
+          "abstained": 0,
+          "targets": 16,
+          "useful": 16,
+          "useful_abstained": 0
+        },
+        "x0-H4-cdc": {
+          "abstained": 0,
+          "targets": 16,
+          "useful": 5,
+          "useful_abstained": 0
+        },
+        "x0-H4-file": {
+          "abstained": 0,
+          "targets": 16,
+          "useful": 10,
+          "useful_abstained": 0
+        }
+      },
+      "saved_call_share": 0.08050847457627118,
+      "saved_calls": 19,
+      "useful_abstained": 9,
+      "useful_abstained_share": 0.0967741935483871
+    }
+  ],
+  "lost_max": 0.005,
+  "natural_targets": 119,
+  "schema": "delsk.simple-selector.s3-abstention.v1",
+  "useful_targets": 93
+}
