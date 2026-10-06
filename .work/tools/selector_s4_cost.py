@@ -18,6 +18,8 @@ import sys
 import time
 
 SCHEMA = "delsk.chunkshift-s4.selector-cost.v1"
+PROTOCOL_SHA = "ea35f16a0f52cd7c41df2763f0bd2794fbbdb476"
+HEX = frozenset("0123456789abcdef")
 
 
 class CostError(Exception):
@@ -27,6 +29,10 @@ class CostError(Exception):
 def check(ok, message):
     if not ok:
         raise CostError(message)
+
+
+def is_hex(value, length):
+    return isinstance(value, str) and len(value) == length and all(ch in HEX for ch in value)
 
 
 def load_protocol(protocol_root):
@@ -77,6 +83,8 @@ def peak_rss_bytes():
 
 
 def run(args):
+    check(args.protocol_authority == PROTOCOL_SHA, "selector-cost protocol authority drift")
+    check(is_hex(args.implementation_sha, 40), "invalid selector-cost implementation SHA")
     bl, ss, xs = load_protocol(args.protocol_root)
     objects, path_entries = collect_population(bl, ss, xs, args.pilot_store, args.x0_store)
 
