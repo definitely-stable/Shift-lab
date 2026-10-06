@@ -25,6 +25,14 @@ PLAN_SCHEMA = "delsk.chunkshift-s4.plan.v1"
 MEASUREMENT_SCHEMA = "delsk.chunkshift-s4.measurement.v1"
 RESULT_SCHEMA = "delsk.chunkshift-s4.result.v1"
 LANES = ("previous1", "size1", "delsk2", "delsk4", "exhaustive")
+MEASUREMENT_KEYS = {
+    "schema", "target_occurrence_id", "target_object_id", "base_object_id",
+    "chunkshift_commit", "status", "error_class", "patch_bytes",
+    "create_wall_ns", "create_cpu_ns", "apply_wall_ns", "apply_cpu_ns",
+    "create_exit_code", "apply_exit_code", "target_manifest_id",
+    "base_manifest_id", "patch_file_digest", "applied_sha256",
+}
+MEASUREMENT_STATUSES = {"ok", "create_failed", "apply_failed", "verify_failed"}
 
 
 class S4Error(Exception):
@@ -146,24 +154,65 @@ def build_plan():
     }
 
 
+def _is_hex(value, length):
+    return (
+        isinstance(value, str) and len(value) == length
+        and all(ch in "0123456789abcdef" for ch in value)
+    )
+
+
 def _measurements(path):
     out = {}
     for line in Path(path).read_text(encoding="utf-8").splitlines():
         if not line:
             continue
         row = json.loads(line)
-        check(row.get("schema") == MEASUREMENT_SCHEMA, "foreign S4 measurement schema")
-        key = (row["target_occurrence_id"], row.get("base_object_id"))
-        check(key not in out, f"duplicate S4 measurement: {key}")
-        check(isinstance(row.get("patch_bytes"), int) and row["patch_bytes"] > 0,
-              f"invalid patch_bytes: {key}")
+        check(set(row) == MEASUREMENT_KEYS, "S4 measurement has missing or unknown fields")
+        check(row["schema"] == MEASUREMENT_SCHEMA, "foreign S4 measurement schema")
+        check(row["status"] in MEASUREMENT_STATUSES, "foreign S4 measurement status")
+        check(_is_hex(row["target_object_id"], 64), "invalid target object id")
+        check(
+            row["base_object_id"] is None or _is_hex(row["base_object_id"], 64),
+            "invalid base object id",
+        )
+        check(_is_hex(row["chunkshift_commit"], 40), "invalid ChunkShift commit")
+        check(isinstance(row["target_manifest_id"], str) and row["target_manifest_id"],
+              "invalid target manifest id")
+        check(
+            (row["base_object_id"] is None and row["base_manifest_id"] is None)
+            or (row["base_object_id"] is not None
+                and isinstance(row["base_manifest_id"], str)
+                and bool(row["base_manifest_id"])),
+            "base manifest id does not match base-object presence",
+        )
         for field in ("create_wall_ns", "create_cpu_ns", "apply_wall_ns", "apply_cpu_ns"):
-            check(isinstance(row.get(field), int) and row[field] >= 0, f"invalid {field}: {key}")
-        check(isinstance(row.get("reconstruction_ok"), bool), f"invalid reconstruction flag: {key}")
-        check(isinstance(row.get("target_object_id"), str) and len(row["target_object_id"]) == 64,
-              f"invalid target object id: {key}")
-        check(isinstance(row.get("chunkshift_commit"), str) and len(row["chunkshift_commit"]) == 40,
-              f"invalid ChunkShift commit: {key}")
+            check(isinstance(row[field], int) and row[field] >= 0, f"invalid {field}")
+        check(row["create_exit_code"] is None or isinstance(row["create_exit_code"], int),
+              "invalid create exit code")
+        check(row["apply_exit_code"] is None or isinstance(row["apply_exit_code"], int),
+              "invalid apply exit code")
+        check(row["error_class"] is None or isinstance(row["error_class"], str),
+              "invalid error class")
+
+        if row["status"] == "ok":
+            check(isinstance(row["patch_bytes"], int) and row["patch_bytes"] > 0,
+                  "successful S4 measurement has invalid patch bytes")
+            check(row["create_exit_code"] == 0 and row["apply_exit_code"] == 0,
+                  "successful S4 measurement has non-zero exit code")
+            check(row["error_class"] is None, "successful S4 measurement carries an error")
+            check(_is_hex(row["patch_file_digest"], 64), "invalid patch file digest")
+            check(_is_hex(row["applied_sha256"], 64), "invalid applied SHA-256")
+        else:
+            check(row["error_class"], "failed S4 measurement must retain an error class")
+            check(row["patch_bytes"] is None or (isinstance(row["patch_bytes"], int) and row["patch_bytes"] > 0),
+                  "failed S4 measurement has invalid patch bytes")
+            check(row["patch_file_digest"] is None or _is_hex(row["patch_file_digest"], 64),
+                  "failed S4 measurement has invalid patch digest")
+            check(row["applied_sha256"] is None or _is_hex(row["applied_sha256"], 64),
+                  "failed S4 measurement has invalid applied SHA-256")
+
+        key = (row["target_occurrence_id"], row["base_object_id"])
+        check(key not in out, f"duplicate S4 measurement: {key}")
         out[key] = row
     return out
 
@@ -282,11 +331,28 @@ def evaluate(plan, measurements):
         check(row["chunkshift_commit"] == consumer_commit,
               f"measurement binds another ChunkShift commit: {tid}")
 
-    if not all(row["reconstruction_ok"] for row in measured.values()):
+    failed = [
+        {
+            "target_occurrence_id": tid,
+            "base_object_id": base,
+            "status": row["status"],
+            "error_class": row["error_class"],
+        }
+        for (tid, base), row in measured.items()
+        if row["status"] != "ok" or row["applied_sha256"] != row["target_object_id"]
+    ]
+    if failed:
         return {
             "schema": RESULT_SCHEMA,
             "verdict": "INVALID",
-            "reason": "reconstruction-failure",
+            "reason": "measurement-or-reconstruction-failure",
+            "failures": sorted(
+                failed,
+                key=lambda item: (
+                    item["target_occurrence_id"],
+                    item["base_object_id"] or "",
+                ),
+            ),
         }
 
     rows = {lane: _lane_rows(plan, measured, lane) for lane in LANES}
