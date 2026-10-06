@@ -1,0 +1,146 @@
+{
+  "accounting_complete": true,
+  "admitted": true,
+  "artifact_bytes": 22830401,
+  "artifact_total_cap": 268435456,
+  "budget_minutes": 600,
+  "budget_mode": "warn",
+  "ledger": [
+    {
+      "attempts": 1,
+      "minutes": 1,
+      "run_id": 37185129729,
+      "run_number": 1,
+      "workflow": "foundation.yml"
+    },
+    {
+      "attempts": 1,
+      "minutes": 1,
+      "run_id": 37185935970,
+      "run_number": 2,
+      "workflow": "foundation.yml"
+    },
+    {
+      "attempts": 1,
+      "minutes": 1,
+      "run_id": 37186057381,
+      "run_number": 3,
+      "workflow": "foundation.yml"
+    },
+    {
+      "attempts": 1,
+      "minutes": 1,
+      "run_id": 37186134266,
+      "run_number": 4,
+      "workflow": "foundation.yml"
+    },
+    {
+      "attempts": 1,
+      "minutes": 1,
+      "run_id": 37186222325,
+      "run_number": 5,
+      "workflow": "foundation.yml"
+    },
+    {
+      "attempts": 1,
+      "minutes": 2,
+      "run_id": 37196309671,
+      "run_number": 6,
+      "workflow": "foundation.yml"
+    },
+    {
+      "attempts": 1,
+      "minutes": 1,
+      "run_id": 37196505949,
+      "run_number": 7,
+      "workflow": "foundation.yml"
+    },
+    {
+      "attempts": 1,
+      "minutes": 1,
+      "run_id": 37197318303,
+      "run_number": 8,
+      "workflow": "foundation.yml"
+    },
+    {
+      "attempts": 1,
+      "minutes": 1,
+      "run_id": 37202367307,
+      "run_number": 9,
+      "workflow": "foundation.yml"
+    },
+    {
+      "attempts": 1,
+      "minutes": 1,
+      "run_id": 37202375349,
+      "run_number": 10,
+      "workflow": "foundation.yml"
+    },
+    {
+      "attempts": 1,
+      "minutes": 1,
+      "run_id": 37205165066,
+      "run_number": 11,
+      "workflow": "foundation.yml"
+    },
+    {
+      "attempts": 1,
+      "minutes": 1,
+      "run_id": 37205172692,
+      "run_number": 12,
+      "workflow": "foundation.yml"
+    },
+    {
+      "attempts": 1,
+      "minutes": 1,
+      "run_id": 37210886381,
+      "run_number": 13,
+      "workflow": "foundation.yml"
+    },
+    {
+      "attempts": 1,
+      "minutes": 1,
+      "run_id": 37210930669,
+      "run_number": 14,
+      "workflow": "foundation.yml"
+    },
+    {
+      "attempts": 1,
+      "minutes": 31,
+      "run_id": 37419440408,
+      "run_number": 1,
+      "workflow": "oracle-pilot.yml"
+    },
+    {
+      "attempts": 1,
+      "minutes": 6,
+      "run_id": 37419673183,
+      "run_number": 2,
+      "workflow": "oracle-pilot.yml"
+    },
+    {
+      "attempts": 1,
+      "minutes": 5,
+      "run_id": 37434946174,
+      "run_number": 3,
+      "workflow": "oracle-pilot.yml"
+    },
+    {
+      "attempts": 1,
+      "minutes": 5,
+      "run_id": 37434993046,
+      "run_number": 4,
+      "workflow": "oracle-pilot.yml"
+    }
+  ],
+  "reserved_minutes": 30,
+  "run_artifact_cap": 16777216,
+  "schema": "delsk.ci.admission.v1",
+  "used_minutes": 62,
+  "warnings": [
+    "job 112125316277: no valid end time, counted as a full run cap"
+  ],
+  "window_end": "2026-10-06T09:34:51+00:00",
+  "window_start": "2026-09-29T09:34:51+00:00",
+  "within_budget": true
+}

@@ -1,0 +1,7 @@
+{
+  "max_descriptor_bytes_per_object": 1024,
+  "object_bytes": 158966574,
+  "objects": 1458,
+  "params_sha256": "2e58c0609879d0a3b9f0840f84ae3bf2feff556c7a79946228973e4bbccc8873",
+  "sketch_cpu_seconds": 63.01
+}
