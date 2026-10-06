@@ -1,0 +1,12 @@
+{
+  "github_ref": "refs/heads/main",
+  "github_run_attempt": "1",
+  "github_run_id": "37458783363",
+  "github_sha": "906dc0adc8b43545baa633876d4a2bb69998c962",
+  "github_workflow_sha": "906dc0adc8b43545baa633876d4a2bb69998c962",
+  "imageos": "ubuntu24",
+  "imageversion": "20260927.320.1",
+  "runner_arch": "X64",
+  "runner_os": "Linux",
+  "schema": "delsk.selector.s3-run.v1"
+}
