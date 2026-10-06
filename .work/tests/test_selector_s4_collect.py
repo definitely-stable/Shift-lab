@@ -23,6 +23,7 @@ class Collector(unittest.TestCase):
             "targets": [
                 {
                     "target_occurrence_id": f"t{i:02d}",
+                    "target_object_id": f"{i + 1:064x}",
                     "lanes": {"exhaustive": []},
                 }
                 for i in range(collect.SHARD_COUNT)
@@ -41,11 +42,28 @@ class Collector(unittest.TestCase):
             run_id = 1000 + i
             directory = shards / f"run-{run_id}"
             directory.mkdir()
-            row = {"target_occurrence_id": f"t{i:02d}", "base_object_id": None, "status": "ok"}
+            target_object_id = f"{i + 1:064x}"
+            manifest_id = f"manifest-{i:02d}"
+            row = {
+                "target_occurrence_id": f"t{i:02d}",
+                "target_object_id": target_object_id,
+                "base_object_id": None,
+                "target_manifest_id": manifest_id,
+                "base_manifest_id": None,
+                "status": "ok",
+            }
             measurements = directory / "measurements.jsonl"
             measurements.write_bytes(canonical(row))
             manifests = directory / "manifests.jsonl"
-            manifests.write_bytes(canonical({"object_id": f"{i:064x}"}))
+            manifests.write_bytes(canonical({
+                "schema": "delsk.chunkshift-s4.manifest.v1",
+                "object_id": target_object_id,
+                "manifest_id": manifest_id,
+                "manifest_sha256": f"{i + 17:064x}",
+                "physical_bytes": 100 + i,
+                "wall_ns": 10,
+                "cpu_ns": 9,
+            }))
             attempt = 2 if i == rerun_index else 1
             shard = {
                 "schema": collect.SHARD_SCHEMA,
