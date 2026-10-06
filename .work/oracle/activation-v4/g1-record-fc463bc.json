@@ -1,0 +1,67 @@
+{
+  "attempts": [
+    {
+      "class": "BUNDLE",
+      "conformance": true,
+      "entry_sha256": "2295186743ee9afe168f110c662e843bba82dcdd5527eb8481d923f211f71c51",
+      "measurement_identity_sha256": "14c0a54eb916e10df92af7ab29a4ae2240449281c90ea72a49868cc3c7468314",
+      "outcome": "COMPLETE",
+      "phase": "pilot",
+      "run_attempt": 1,
+      "run_id": 37434946174,
+      "science_identity_sha256": "92be9c16239f2baa92b2d89878aca10d9b676d2d0cc3bcbe241915e8e2abcdda",
+      "sequence": 1,
+      "violations": []
+    },
+    {
+      "class": "BUNDLE",
+      "conformance": true,
+      "entry_sha256": "7bdbdbf23c2c46f3c47bece77b9124bf95d880a4881d180416444803c97f34c2",
+      "measurement_identity_sha256": "14c0a54eb916e10df92af7ab29a4ae2240449281c90ea72a49868cc3c7468314",
+      "outcome": "COMPLETE",
+      "phase": "pilot",
+      "run_attempt": 1,
+      "run_id": 37434993046,
+      "science_identity_sha256": "92be9c16239f2baa92b2d89878aca10d9b676d2d0cc3bcbe241915e8e2abcdda",
+      "sequence": 2,
+      "violations": []
+    }
+  ],
+  "authority": {
+    "provider_api": "https://api.github.com",
+    "registry_ref": "refs/heads/delsk/registry-v4",
+    "registry_remote": "https://github.com/definitely-stable/Shift-lab.git",
+    "repository": "definitely-stable/Shift-lab",
+    "results_root": ".work/results/ORACLE-G1-V4/"
+  },
+  "blockers": [],
+  "evaluator": {
+    "evaluator_source_sha": "fc463bc54aa57657f005c08fe3bb9d923538213a",
+    "g1_code_sha256": "ec5b81cf943bb7d832a1670f74990bdfabfaef69aaa4e794395b3142b9df2c35"
+  },
+  "external_checkpoint": null,
+  "g1_contract": "delsk.oracle-contract.v4",
+  "genesis_sha256": "8814511f6bd1720baa643d8a475ab750302eef57fc04de2ebe0edfc99339abb0",
+  "main_head_sha": "fc463bc54aa57657f005c08fe3bb9d923538213a",
+  "measurement_contract": "delsk.oracle-contract.v1",
+  "measurement_identity_sha256": "14c0a54eb916e10df92af7ab29a4ae2240449281c90ea72a49868cc3c7468314",
+  "record_sha256": "0d1deb73224eb44ef4d3358a18f0b5ac95995588904a0fbf783f2542be8d9e5c",
+  "registry_head": {
+    "entry_sha256": "7bdbdbf23c2c46f3c47bece77b9124bf95d880a4881d180416444803c97f34c2",
+    "sequence": 2
+  },
+  "schema": "delsk.oracle.g1-record.v1",
+  "science_identity_sha256": "92be9c16239f2baa92b2d89878aca10d9b676d2d0cc3bcbe241915e8e2abcdda",
+  "series": [
+    {
+      "codes": [],
+      "first_sequence": 1,
+      "phase": "pilot",
+      "science_identity_sha256": "92be9c16239f2baa92b2d89878aca10d9b676d2d0cc3bcbe241915e8e2abcdda",
+      "state": "CURRENT"
+    }
+  ],
+  "transitions": [],
+  "unbound_attempts": [],
+  "verdict": "PASS"
+}
