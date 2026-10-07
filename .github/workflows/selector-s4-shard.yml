@@ -1,4 +1,5 @@
 name: DELSK-012 S4 shard (experimental)
+run-name: S4 shard ${{ inputs.shard_index }}/16 · ${{ inputs.batch_id || 'manual' }}
 
 # S4 implementation only. The immutable plan/evaluator authority is the merge
 # of PR #52. Each dispatch measures one deterministic target shard and retains
@@ -14,10 +15,25 @@ on:
         description: Deterministic shard index, 0..15
         type: number
         required: true
+      batch_id:
+        description: Optional automatic-chain identity; must equal source_sha
+        type: string
+        required: false
+        default: ""
+      cost_run_id:
+        description: Automatic-chain selector-cost run ID
+        type: string
+        required: false
+        default: ""
+      prior_run_ids:
+        description: Automatic-chain comma-separated successful prior shard run IDs
+        type: string
+        required: false
+        default: ""
 
 permissions:
   contents: read
-  actions: read
+  actions: write
 
 concurrency:
   group: delsk-experimental
@@ -31,6 +47,9 @@ jobs:
     env:
       SOURCE_SHA: ${{ inputs.source_sha }}
       SHARD_INDEX: ${{ inputs.shard_index }}
+      BATCH_ID: ${{ inputs.batch_id }}
+      COST_RUN_ID: ${{ inputs.cost_run_id }}
+      PRIOR_RUN_IDS: ${{ inputs.prior_run_ids }}
       PROTOCOL_SHA: ea35f16a0f52cd7c41df2763f0bd2794fbbdb476
       CHUNKSHIFT_SHA: 74bb301b6d8ecc52cf0bc0e00d86fa174093d91b
       DOTNET_CLI_TELEMETRY_OPTOUT: "1"
@@ -53,6 +72,27 @@ jobs:
           test "$GITHUB_WORKFLOW_SHA" = "$GITHUB_SHA"
           test "$SHARD_INDEX" -ge 0
           test "$SHARD_INDEX" -lt 16
+          if [ -n "$BATCH_ID" ]; then
+            test "$BATCH_ID" = "$SOURCE_SHA"
+            [[ "$COST_RUN_ID" =~ ^[1-9][0-9]*$ ]]
+            python3 - "$SHARD_INDEX" "$PRIOR_RUN_IDS" "$GITHUB_RUN_ID" <<'PY'
+          import re
+          import sys
+          index = int(sys.argv[1])
+          raw = sys.argv[2]
+          current = sys.argv[3]
+          ids = [] if not raw else raw.split(",")
+          if len(ids) != index:
+              raise SystemExit(f"expected {index} prior shard ids, got {len(ids)}")
+          if len(ids) != len(set(ids)) or any(not re.fullmatch(r"[1-9][0-9]*", item) for item in ids):
+              raise SystemExit("prior shard ids must be unique positive integers")
+          if current in ids:
+              raise SystemExit("current run id already appears in prior shard ids")
+          PY
+          else
+            test -z "$COST_RUN_ID"
+            test -z "$PRIOR_RUN_IDS"
+          fi
 
       - name: Admission (runner-minute ledger, artifact cap)
         id: admit
@@ -156,6 +196,9 @@ jobs:
               "schema": "delsk.chunkshift-s4.run.v1",
               "protocol_authority": os.environ["PROTOCOL_SHA"],
               "chunkshift_commit": os.environ["CHUNKSHIFT_SHA"],
+              "batch_id": os.environ.get("BATCH_ID") or None,
+              "cost_run_id": os.environ.get("COST_RUN_ID") or None,
+              "prior_run_ids": [x for x in os.environ.get("PRIOR_RUN_IDS", "").split(",") if x],
               "shard_index": int(os.environ["SHARD_INDEX"]),
               "shard_count": 16,
               **{key.lower(): os.environ.get(key) for key in keys},
@@ -180,3 +223,65 @@ jobs:
           path: ${{ runner.temp }}/evidence
           retention-days: 30
           if-no-files-found: error
+
+      - name: Continue automatic S4 batch
+        if: success() && inputs.batch_id != ''
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          all_ids="${PRIOR_RUN_IDS:+$PRIOR_RUN_IDS,}$GITHUB_RUN_ID"
+          if [ "$SHARD_INDEX" -lt 15 ]; then
+            next_index=$((SHARD_INDEX + 1))
+            jq -cn \
+              --arg ref "main" \
+              --arg source_sha "$SOURCE_SHA" \
+              --argjson shard_index "$next_index" \
+              --arg batch_id "$BATCH_ID" \
+              --arg cost_run_id "$COST_RUN_ID" \
+              --arg prior_run_ids "$all_ids" \
+              '{
+                ref: $ref,
+                inputs: {
+                  source_sha: $source_sha,
+                  shard_index: ($shard_index|tostring),
+                  batch_id: $batch_id,
+                  cost_run_id: $cost_run_id,
+                  prior_run_ids: $prior_run_ids
+                }
+              }' |
+            gh api --method POST \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "/repos/$GITHUB_REPOSITORY/actions/workflows/selector-s4-shard.yml/dispatches" \
+              --input -
+          else
+            python3 - "$all_ids" <<'PY'
+          import re
+          import sys
+          ids = sys.argv[1].split(',')
+          if len(ids) != 16 or len(ids) != len(set(ids)) or any(not re.fullmatch(r'[1-9][0-9]*', item) for item in ids):
+              raise SystemExit('automatic S4 chain did not produce exactly 16 unique shard run ids')
+          PY
+            jq -cn \
+              --arg ref "main" \
+              --arg source_sha "$SOURCE_SHA" \
+              --arg shard_run_ids "$all_ids" \
+              --arg cost_run_id "$COST_RUN_ID" \
+              --arg batch_id "$BATCH_ID" \
+              '{
+                ref: $ref,
+                inputs: {
+                  source_sha: $source_sha,
+                  shard_run_ids: $shard_run_ids,
+                  cost_run_id: $cost_run_id,
+                  batch_id: $batch_id
+                }
+              }' |
+            gh api --method POST \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "/repos/$GITHUB_REPOSITORY/actions/workflows/selector-s4-evaluate.yml/dispatches" \
+              --input -
+          fi
