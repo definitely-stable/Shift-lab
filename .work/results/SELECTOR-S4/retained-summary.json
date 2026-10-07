@@ -1,0 +1,91 @@
+{
+  "schema": "delsk.chunkshift-s4.retained-summary.v1",
+  "status": "COMPLETE",
+  "verdict": "OPEN_CONFIRMATION_K2",
+  "protocol_authority": "ea35f16a0f52cd7c41df2763f0bd2794fbbdb476",
+  "implementation_sha": "a7d2d1346c70cb72adb62fdb221288414ea2132a",
+  "chunkshift_commit": "74bb301b6d8ecc52cf0bc0e00d86fa174093d91b",
+  "chunkshift_cli_sha256": "1ea0a5f018058d93417d8794dd3b343d419c8e018e415b3bc676a18e7e7f5b20",
+  "dotnet_version": "10.0.401",
+  "plan_sha256": "81042c283385617ddc037712923820dec025ab36bb6222ecfc6b114619b195dc",
+  "measurements_sha256": "e8e0c0fae1e373a074441c26e2efbf7cfc199b43ad11a1453ec5e4f694f9ce57",
+  "rows": 3815,
+  "failed_rows": 0,
+  "unique_manifest_objects": 2394,
+  "evaluator_run": {
+    "run_id": 37597358766,
+    "run_attempt": 1,
+    "artifact_id": 11471047037,
+    "artifact_digest": "sha256:55a018575eb7a87c5334500723d362555123057ead7dfc53f372062db0eabb4c",
+    "artifact_size": 555158
+  },
+  "selector_cost_run": {
+    "run_id": 37586176282,
+    "run_attempt": 1,
+    "artifact_id": 11467006334,
+    "artifact_digest": "sha256:84fcf0391d9dbe705c5b46090e09e1c3b9548f537f362171026c8b3af12dae3f",
+    "artifact_size": 1517
+  },
+  "aggregate": {
+    "previous1": {
+      "physical_patch_bytes": 20750611,
+      "savings_capture": 0.9912622711435287,
+      "calls": 238,
+      "create_wall_ns": 291975755521,
+      "create_cpu_ns": 562152946881
+    },
+    "size1": {
+      "physical_patch_bytes": 20982367,
+      "savings_capture": 0.9821078542902629,
+      "calls": 238,
+      "create_wall_ns": 293354552662,
+      "create_cpu_ns": 564611564886
+    },
+    "delsk2": {
+      "physical_patch_bytes": 20531317,
+      "savings_capture": 0.9999244360472208,
+      "calls": 355,
+      "create_wall_ns": 488530085030,
+      "create_cpu_ns": 948294390830
+    },
+    "delsk4": {
+      "physical_patch_bytes": 20530127,
+      "savings_capture": 0.9999714413288765,
+      "calls": 584,
+      "create_wall_ns": 808310458282,
+      "create_cpu_ns": 1572132836722
+    },
+    "exhaustive": {
+      "physical_patch_bytes": 20529404,
+      "savings_capture": 1,
+      "calls": 3815,
+      "create_wall_ns": 2706475752104,
+      "create_cpu_ns": 4819772044146
+    }
+  },
+  "delsk2_vs_previous1": {
+    "patch_bytes_saved": 219294,
+    "patch_bytes_improvement_fraction": 0.010568074356943031,
+    "call_ratio": 1.4915966386554622,
+    "create_wall_ratio": 1.6731871595238088,
+    "create_cpu_ratio": 1.686897482422592
+  },
+  "delsk2_vs_exhaustive": {
+    "patch_bytes_regret": 1913,
+    "call_reduction": 10.746478873239436
+  },
+  "selector_cost": {
+    "objects": 2394,
+    "object_bytes_scanned": 284873869,
+    "descriptor_bytes": 153216,
+    "index_bytes": 153220,
+    "peak_rss_bytes": 245239808,
+    "decision_endpoint": false
+  },
+  "limitations": [
+    "S4-D used only development+calibration pilot and X0 populations; the sealed pilot evaluation split was not opened.",
+    "Selector construction timing is from the Python reference implementation and is descriptive only.",
+    "S4-D is a development screen and cannot by itself close G5 or authorize production/public API changes.",
+    "The full raw measurement rows remain bound by measurements_sha256 and are scheduled for durable compressed retention before Actions artifact expiry."
+  ]
+}
