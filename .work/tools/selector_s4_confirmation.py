@@ -54,6 +54,12 @@ def _hex(value, n):
 
 
 def _evaluation_universe():
+    seal = json.loads((WORK / "corpus/e1/seal.json").read_text(encoding="utf-8"))
+    check(seal.get("status") == "SEALED", "E1 is not sealed")
+    check(seal.get("candidate_lock_sha256") == CANDIDATE_LOCK_SHA256, "candidate-lock seal drift")
+    check(seal.get("files", {}).get(".work/corpus/e1/coverage.json") == COVERAGE_SHA256, "coverage seal drift")
+    check(seal.get("bindings", {}).get("corpus_lock_sha256") == CORPUS_LOCK_SHA256, "corpus seal drift")
+
     candidate, corpus, _, _ = om.load_natural()
     check(candidate["corpus_lock_sha256"] == CORPUS_LOCK_SHA256, "corpus lock drift")
     occurrences = {o["occurrence_id"]: o for o in corpus["occurrences"]}
