@@ -23,6 +23,7 @@ class FrozenPlan(unittest.TestCase):
         self.assertEqual(plan["abstention_level"], 0)
         self.assertEqual(len(plan["targets"]), 9)
         self.assertEqual(sum(len(t["bases"]) for t in plan["targets"]), 106)
+        self.assertEqual(plan["expected_measurements"], 115)
         self.assertNotIn("file", {t["track"] for t in plan["targets"]})
         self.assertEqual(
             {t["track"] for t in plan["targets"]},
@@ -89,6 +90,7 @@ class SyntheticEvaluator(unittest.TestCase):
             "abstention_level": 0,
             "expected_targets": 9,
             "expected_base_pairs": 18,
+            "expected_measurements": 27,
             "round_orders": list(c.ROUND_ORDERS),
             "targets": targets,
         }
@@ -172,6 +174,10 @@ class SyntheticEvaluator(unittest.TestCase):
             "conclusion": "success",
             "run_id": run_id,
             "runner_name": runner,
+            "implementation_sha": "f" * 40,
+            "head_sha": "f" * 40,
+            "workflow_sha": "f" * 40,
+            "ref": "refs/heads/main",
         }), encoding="utf-8")
 
     def test_pass(self):
