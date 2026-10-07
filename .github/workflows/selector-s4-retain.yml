@@ -1,0 +1,152 @@
+name: DELSK-012 retain S4-D raw evidence
+
+# One-shot durable retention. It does not create or evaluate any new patch.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/selector-s4-retain.yml
+      - .work/results/SELECTOR-S4/**
+      - .work/selector/s4-confirmation.md
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  retain:
+    if: github.event.before == 'a7d2d1346c70cb72adb62fdb221288414ea2132a'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      S4_SOURCE_SHA: a7d2d1346c70cb72adb62fdb221288414ea2132a
+      EVALUATION_RUN_ID: "37597358766"
+      EVALUATION_ARTIFACT_ID: "11471047037"
+      EVALUATION_ARTIFACT_DIGEST: sha256:55a018575eb7a87c5334500723d362555123057ead7dfc53f372062db0eabb4c
+      MEASUREMENTS_SHA256: e8e0c0fae1e373a074441c26e2efbf7cfc199b43ad11a1453ec5e4f694f9ce57
+      RETENTION_BRANCH: delsk-012-s4-raw-retention-a7d2d1
+
+    steps:
+      - name: Checkout retention merge
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+          fetch-depth: 1
+
+      - name: Verify one-shot transition
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "${{ github.event.before }}" = "$S4_SOURCE_SHA"
+          test "$GITHUB_WORKFLOW_SHA" = "$GITHUB_SHA"
+
+      - name: Verify authoritative evaluation run and artifact
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          run_json="$RUNNER_TEMP/run.json"
+          artifacts_json="$RUNNER_TEMP/artifacts.json"
+
+          gh api             -H "Accept: application/vnd.github+json"             -H "X-GitHub-Api-Version: 2022-11-28"             "/repos/$GITHUB_REPOSITORY/actions/runs/$EVALUATION_RUN_ID" > "$run_json"
+          gh api             -H "Accept: application/vnd.github+json"             -H "X-GitHub-Api-Version: 2022-11-28"             "/repos/$GITHUB_REPOSITORY/actions/runs/$EVALUATION_RUN_ID/artifacts?per_page=100" > "$artifacts_json"
+
+          python3 - "$run_json" "$artifacts_json" <<'PY'
+          import json
+          import os
+          import sys
+
+          run = json.load(open(sys.argv[1], encoding="utf-8"))
+          artifacts = json.load(open(sys.argv[2], encoding="utf-8")).get("artifacts", [])
+          expected = {
+              "id": int(os.environ["EVALUATION_RUN_ID"]),
+              "head_sha": os.environ["S4_SOURCE_SHA"],
+              "head_branch": "main",
+              "event": "workflow_dispatch",
+              "status": "completed",
+              "conclusion": "success",
+              "run_attempt": 1,
+              "path": ".github/workflows/selector-s4-evaluate.yml",
+          }
+          failed = [key for key, value in expected.items() if run.get(key) != value]
+          if failed:
+              raise SystemExit("evaluation run mismatch: " + ", ".join(failed))
+
+          aid = int(os.environ["EVALUATION_ARTIFACT_ID"])
+          matches = [a for a in artifacts if a.get("id") == aid]
+          if len(matches) != 1:
+              raise SystemExit("authoritative evaluation artifact missing")
+          artifact = matches[0]
+          if artifact.get("digest") != os.environ["EVALUATION_ARTIFACT_DIGEST"]:
+              raise SystemExit("authoritative artifact digest drift")
+          if artifact.get("expired") is not False:
+              raise SystemExit("authoritative evaluation artifact expired")
+          PY
+
+      - name: Download and verify authoritative artifact bytes
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          zip="$RUNNER_TEMP/s4-evaluation.zip"
+          gh api             -H "Accept: application/vnd.github+json"             -H "X-GitHub-Api-Version: 2022-11-28"             "/repos/$GITHUB_REPOSITORY/actions/artifacts/$EVALUATION_ARTIFACT_ID/zip" > "$zip"
+          test "sha256:$(sha256sum "$zip" | cut -d' ' -f1)" = "$EVALUATION_ARTIFACT_DIGEST"
+
+          mkdir -p "$RUNNER_TEMP/evidence"
+          unzip -q "$zip" -d "$RUNNER_TEMP/evidence"
+          test "$(sha256sum "$RUNNER_TEMP/evidence/measurements.jsonl" | cut -d' ' -f1)" = "$MEASUREMENTS_SHA256"
+
+      - name: Create deterministic compressed raw evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .work/results/SELECTOR-S4/raw
+          gzip -n -9 -c "$RUNNER_TEMP/evidence/measurements.jsonl"             > .work/results/SELECTOR-S4/raw/measurements.jsonl.gz
+
+          compressed_sha="$(sha256sum .work/results/SELECTOR-S4/raw/measurements.jsonl.gz | cut -d' ' -f1)"
+          compressed_bytes="$(stat -c '%s' .work/results/SELECTOR-S4/raw/measurements.jsonl.gz)"
+
+          python3 - "$compressed_sha" "$compressed_bytes" > .work/results/SELECTOR-S4/raw/retention.json <<'PY'
+          import json
+          import os
+          import sys
+
+          out = {
+              "schema": "delsk.chunkshift-s4.raw-retention.v1",
+              "source_evaluation_run_id": int(os.environ["EVALUATION_RUN_ID"]),
+              "source_artifact_id": int(os.environ["EVALUATION_ARTIFACT_ID"]),
+              "source_artifact_digest": os.environ["EVALUATION_ARTIFACT_DIGEST"],
+              "measurements_sha256": os.environ["MEASUREMENTS_SHA256"],
+              "rows": 3815,
+              "compression": "gzip -n -9",
+              "compressed_sha256": sys.argv[1],
+              "compressed_bytes": int(sys.argv[2]),
+              "instructions": "gzip -dc measurements.jsonl.gz | sha256sum must equal measurements_sha256",
+          }
+          json.dump(out, sys.stdout, indent=2, sort_keys=True)
+          sys.stdout.write("\n")
+          PY
+
+          gzip -dc .work/results/SELECTOR-S4/raw/measurements.jsonl.gz |
+            sha256sum |
+            grep -F "$MEASUREMENTS_SHA256"
+
+      - name: Push generated retention branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin "$RETENTION_BRANCH" >/dev/null 2>&1; then
+            echo "retention branch already exists; refusing replacement" >&2
+            exit 1
+          fi
+          git switch -c "$RETENTION_BRANCH"
+          git add .work/results/SELECTOR-S4/raw
+          git diff --cached --check
+          git commit -m "selector(S4): retain raw compact measurement rows"
+          git push origin "HEAD:refs/heads/$RETENTION_BRANCH"
