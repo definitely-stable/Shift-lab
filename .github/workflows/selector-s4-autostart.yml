@@ -1,0 +1,60 @@
+name: DELSK-012 S4 one-shot autostart
+run-name: S4 autostart · ${{ github.sha }}
+
+# One-shot bridge from the reviewed implementation merge to the automatic S4
+# chain. It arms only when main advances directly from the reviewed d8bcbb5
+# implementation. Later changes to these files cannot silently start S4 again.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/selector-s4-autostart.yml
+      - .github/workflows/selector-s4-cost.yml
+      - .github/workflows/selector-s4-shard.yml
+      - .github/workflows/selector-s4-evaluate.yml
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  start:
+    if: github.event.before == 'd8bcbb5207702baf69b748edd4bafef7950d08ce'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      EXPECTED_BEFORE: d8bcbb5207702baf69b748edd4bafef7950d08ce
+      SOURCE_SHA: ${{ github.sha }}
+      BATCH_ID: ${{ github.sha }}
+    steps:
+      - name: Verify one-shot transition
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "${{ github.event.before }}" = "$EXPECTED_BEFORE"
+          test "$GITHUB_WORKFLOW_SHA" = "$GITHUB_SHA"
+
+      - name: Dispatch automatic S4 cost run
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          jq -cn \
+            --arg ref "main" \
+            --arg source_sha "$SOURCE_SHA" \
+            --arg batch_id "$BATCH_ID" \
+            '{
+              ref: $ref,
+              inputs: {
+                source_sha: $source_sha,
+                batch_id: $batch_id
+              }
+            }' |
+          gh api --method POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "/repos/$GITHUB_REPOSITORY/actions/workflows/selector-s4-cost.yml/dispatches" \
+            --input -
