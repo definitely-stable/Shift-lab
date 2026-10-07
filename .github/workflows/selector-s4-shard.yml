@@ -1,0 +1,182 @@
+name: DELSK-012 S4 shard (experimental)
+
+# S4 implementation only. The immutable plan/evaluator authority is the merge
+# of PR #52. Each dispatch measures one deterministic target shard and retains
+# no natural payload bytes in its artifact.
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Full main commit SHA containing this runner implementation
+        type: string
+        required: true
+      shard_index:
+        description: Deterministic shard index, 0..15
+        type: number
+        required: true
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: delsk-experimental
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  shard:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      SHARD_INDEX: ${{ inputs.shard_index }}
+      PROTOCOL_SHA: ea35f16a0f52cd7c41df2763f0bd2794fbbdb476
+      CHUNKSHIFT_SHA: 74bb301b6d8ecc52cf0bc0e00d86fa174093d91b
+      DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+      DOTNET_NOLOGO: "1"
+      NUGET_XMLDOC_MODE: skip
+      PYTHONDONTWRITEBYTECODE: "1"
+
+    steps:
+      - name: Checkout S4 implementation
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Bind dispatch to exact main implementation
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "$SOURCE_SHA" = "$GITHUB_SHA"
+          test "$GITHUB_WORKFLOW_SHA" = "$GITHUB_SHA"
+          test "$SHARD_INDEX" -ge 0
+          test "$SHARD_INDEX" -lt 16
+
+      - name: Admission (runner-minute ledger, artifact cap)
+        id: admit
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          BUDGET_MODE: ${{ vars.DELSK_BUDGET_MODE }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/evidence"
+          python3 .work/tools/budget.py admit "$RUNNER_TEMP/evidence/admission.json"
+
+      - name: Admission must pass
+        run: test "${{ steps.admit.outcome }}" = success
+
+      - name: Checkout immutable S4 protocol authority
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: definitely-stable/Shift-lab
+          ref: ea35f16a0f52cd7c41df2763f0bd2794fbbdb476
+          path: protocol
+          persist-credentials: false
+
+      - name: Verify protocol authority and build exact plan
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C protocol rev-parse HEAD)" = "$PROTOCOL_SHA"
+          test -z "$(git -C protocol status --porcelain=v1 --untracked-files=normal)"
+          (
+            cd protocol
+            python3 .work/tools/selector_s4.py plan "$RUNNER_TEMP/s4-plan.json"
+          )
+
+      - name: Materialize pinned pilot and X0 stores
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/x0-meta"
+          (
+            cd protocol
+            python3 .work/tools/baselines.py materialize "$RUNNER_TEMP/pilot-store"
+            python3 .work/tools/x0_corpus.py build "$RUNNER_TEMP/x0-store" "$RUNNER_TEMP/x0-meta"
+          )
+
+      - name: Checkout pinned ChunkShift consumer
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: definitely-stable/ChunkShift
+          ref: 74bb301b6d8ecc52cf0bc0e00d86fa174093d91b
+          path: consumer
+          persist-credentials: false
+
+      - name: Verify clean pinned consumer
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C consumer rev-parse HEAD)" = "$CHUNKSHIFT_SHA"
+          test -z "$(git -C consumer status --porcelain=v1 --untracked-files=normal)"
+
+      - name: Setup pinned .NET SDK
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: consumer/global.json
+
+      - name: Build pinned ChunkShift CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          dotnet restore consumer/src/ChunkShift.Cli/ChunkShift.Cli.csproj
+          dotnet build consumer/src/ChunkShift.Cli/ChunkShift.Cli.csproj             -c Release -f net10.0 --no-restore
+
+      - name: Measure deterministic S4 shard
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 .work/tools/selector_s4_runner.py measure-shard             "$RUNNER_TEMP/s4-plan.json"             "$RUNNER_TEMP/pilot-store"             "$RUNNER_TEMP/x0-store"             "$GITHUB_WORKSPACE/consumer/src/ChunkShift.Cli/bin/Release/net10.0/ChunkShift.Cli.dll"             "$SHARD_INDEX"             "$RUNNER_TEMP/evidence"             --protocol-authority "$PROTOCOL_SHA"             --implementation-sha "$SOURCE_SHA"
+
+      - name: Verify external tracked sources remained unchanged
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git -C protocol diff --quiet HEAD --
+          git -C consumer diff --quiet HEAD --
+
+      - name: Retain run provenance
+        if: always()
+        shell: bash
+        run: |
+          python3 - "$RUNNER_TEMP/evidence/run.json" <<'PY'
+          import json
+          import os
+          import sys
+
+          keys = (
+              "GITHUB_SHA", "GITHUB_WORKFLOW_SHA", "GITHUB_RUN_ID",
+              "GITHUB_RUN_ATTEMPT", "GITHUB_REF", "RUNNER_OS", "RUNNER_ARCH",
+              "ImageOS", "ImageVersion",
+          )
+          out = {
+              "schema": "delsk.chunkshift-s4.run.v1",
+              "protocol_authority": os.environ["PROTOCOL_SHA"],
+              "chunkshift_commit": os.environ["CHUNKSHIFT_SHA"],
+              "shard_index": int(os.environ["SHARD_INDEX"]),
+              "shard_count": 16,
+              **{key.lower(): os.environ.get(key) for key in keys},
+          }
+          with open(sys.argv[1], "w", encoding="utf-8") as stream:
+              json.dump(out, stream, indent=2, sort_keys=True)
+              stream.write("\n")
+          PY
+
+      - name: Artifact cap before upload
+        id: artifact_cap
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 .work/tools/budget.py artifact-check "$RUNNER_TEMP/evidence"
+
+      - name: Upload S4 shard evidence
+        if: always() && steps.artifact_cap.outcome == 'success'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: delsk-s4-shard-${{ inputs.shard_index }}-of-16-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/evidence
+          retention-days: 30
+          if-no-files-found: error
