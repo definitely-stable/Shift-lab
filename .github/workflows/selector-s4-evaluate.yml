@@ -94,6 +94,31 @@ jobs:
           open(out, "w", encoding="utf-8").write("\n".join(ids) + "\n")
           PY
 
+      - name: Wait for selected S4 runs to finalize
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          { cat "$RUNNER_TEMP/run-ids.txt"; printf '%s\n' "$COST_RUN_ID"; } |
+          while read -r run_id
+          do
+            completed=false
+            for _ in $(seq 1 30)
+            do
+              status="$(gh api \
+                -H "Accept: application/vnd.github+json" \
+                -H "X-GitHub-Api-Version: 2022-11-28" \
+                "/repos/$GITHUB_REPOSITORY/actions/runs/$run_id" \
+                --jq '.status')"
+              if [ "$status" = completed ]; then
+                completed=true
+                break
+              fi
+              sleep 2
+            done
+            test "$completed" = true
+          done
       - name: Download and verify GitHub shard artifacts
         shell: bash
         env:
