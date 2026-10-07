@@ -45,6 +45,7 @@ class FrozenPlan(unittest.TestCase):
         self.assertIn("There is no threshold tuning, K tuning or fallback to K4", text)
         self.assertIn("G5_SCOPED_PASS_K2", text)
         self.assertIn("G5_REJECT_K2", text)
+        self.assertIn("No rerun and no replacement dispatch is admissible", text)
 
 
 class SyntheticEvaluator(unittest.TestCase):
