@@ -121,6 +121,7 @@ def build_plan(protocol_authority):
         "abstention_level": 0,
         "expected_targets": EXPECTED_TARGETS,
         "expected_base_pairs": EXPECTED_PAIRS,
+        "expected_measurements": EXPECTED_TARGETS + EXPECTED_PAIRS,
         "round_orders": list(ROUND_ORDERS),
         "targets": targets,
     }
@@ -309,6 +310,11 @@ def _repeat(plan, root, role):
     check(run.get("status") == "completed" and run.get("conclusion") == "success", f"repeat {role}: run not successful")
     check(isinstance(run.get("run_id"), int) and run["run_id"] > 0, f"repeat {role}: bad run id")
     check(isinstance(run.get("runner_name"), str) and run["runner_name"], f"repeat {role}: runner missing")
+    implementation = run.get("implementation_sha")
+    check(_hex(implementation, 40), f"repeat {role}: implementation SHA missing")
+    check(run.get("head_sha") == implementation and run.get("workflow_sha") == implementation,
+          f"repeat {role}: head/workflow SHA drift")
+    check(run.get("ref") == "refs/heads/main", f"repeat {role}: not main")
 
     measured = _measurement_map(plan, paths["measurements"])
     selected = _selection(plan, paths["selection"])
@@ -335,7 +341,7 @@ def _repeat(plan, root, role):
     cost = _cost(paths["cost"])
     timing = _timing(paths["timing"])
     pair_signature = [
-        [tid, base or "", row["patch_bytes"], row["patch_file_digest"], row["applied_sha256"]]
+        [tid, base or "", row["patch_bytes"], row["applied_sha256"]]
         for (tid, base), row in sorted(measured.items(), key=lambda item: (item[0][0], item[0][1] or ""))
     ]
     selection_signature = [[tid, *selected[tid]] for tid in sorted(selected)]
@@ -359,6 +365,7 @@ def evaluate(plan, a_root, b_root):
 
     check(a["run"]["run_id"] != b["run"]["run_id"], "repeats share one run id")
     check(a["run"]["runner_name"] != b["run"]["runner_name"], "repeats share one runner name")
+    check(a["run"]["implementation_sha"] == b["run"]["implementation_sha"], "repeat implementation SHA drift")
     check(a["pair_signature"] == b["pair_signature"], "repeat quality tables differ")
     check(a["selection_signature"] == b["selection_signature"], "repeat K2 selections differ")
 
