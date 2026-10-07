@@ -1,6 +1,6 @@
 # S4 implementation: GitHub-hosted ChunkShift screen
 
-Status: **IMPLEMENTED / NOT_RUN**.  
+Status: **IMPLEMENTED / AUTOCHAIN ARMED; authoritative S4-D rerun pending this PR merge**.  
 Protocol authority: `ea35f16a0f52cd7c41df2763f0bd2794fbbdb476` (merge of PR #52).  
 Consumer: `definitely-stable/ChunkShift@74bb301b6d8ecc52cf0bc0e00d86fa174093d91b`.
 
@@ -116,4 +116,24 @@ Until this implementation PR is merged:
 - do not open the sealed pilot evaluation split;
 - do not claim G5, product readiness or a production ChunkShift integration.
 
-After merge, run the cost measurement and all 16 shards from the **same exact main implementation SHA**, then invoke the evidence evaluator once with those run IDs.
+## Automatic execution chain
+
+The first manual smoke under implementation `d8bcbb5207702baf69b748edd4bafef7950d08ce` proved the cost and shard workflow surfaces, but those runs are retained only as activation/smoke evidence once this autochain PR changes main.
+
+This PR adds a one-shot automatic chain:
+
+`push(main from d8bcbb5...) → cost → shard 0 → shard 1 → ... → shard 15 → evaluator`.
+
+Properties:
+
+- the autostart workflow is armed only when `github.event.before == d8bcbb5207702baf69b748edd4bafef7950d08ce`; later edits cannot silently retrigger the experiment;
+- `batch_id` must equal the new exact implementation SHA;
+- cost dispatches shard 0 only after successful evidence upload;
+- every shard receives the exact accumulated prior run IDs and requires their count to equal its shard index;
+- every successful shard dispatches only the next shard; there is no waiting controller job and no queue of 15 pending runs;
+- shard 15 requires exactly 16 unique run IDs before dispatching the immutable evaluator;
+- any infrastructure/admission/artifact failure stops the chain instead of being silently retried;
+- a scientific pair failure remains an explicit measurement row and reaches the frozen evaluator as `INVALID` if applicable;
+- every child run remains an independent first-attempt `workflow_dispatch`, preserving the evidence model frozen in S4.
+
+After this PR merges, the new implementation SHA becomes the only authoritative S4-D batch identity. The earlier `d8bcbb5...` cost/shard-0 runs are not mixed into the final collection.
