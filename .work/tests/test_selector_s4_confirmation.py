@@ -5,8 +5,9 @@ import unittest.mock
 from pathlib import Path
 import sys
 
-TOOLS = Path(__file__).resolve().parents[1] / "tools"
-ROOT = Path(__file__).resolve().parents[2]
+WORK = Path(__file__).resolve().parents[1]
+REPO = WORK.parent
+TOOLS = WORK / "tools"
 sys.path.insert(0, str(TOOLS))
 
 import selector_s4_confirmation as c  # noqa: E402
@@ -40,7 +41,7 @@ class FrozenPlan(unittest.TestCase):
         self.assertEqual(c.build_plan("b" * 40), c.build_plan("b" * 40))
 
     def test_protocol_has_no_k4_rescue(self):
-        text = (ROOT / "selector" / "s4-confirmation.md").read_text(encoding="utf-8")
+        text = (WORK / "selector" / "s4-confirmation.md").read_text(encoding="utf-8")
         self.assertIn("K = 2 only", text)
         self.assertIn("There is no threshold tuning, K tuning or fallback to K4", text)
         self.assertIn("G5_SCOPED_PASS_K2", text)
@@ -231,7 +232,7 @@ class SyntheticEvaluator(unittest.TestCase):
 
 class RawRetention(unittest.TestCase):
     def test_retention_is_one_shot_and_digest_bound(self):
-        text = (ROOT.parent / ".github/workflows/selector-s4-retain.yml").read_text(encoding="utf-8")
+        text = (REPO / ".github/workflows/selector-s4-retain.yml").read_text(encoding="utf-8")
         self.assertIn("github.event.before == 'a7d2d1346c70cb72adb62fdb221288414ea2132a'", text)
         self.assertIn("37597358766", text)
         self.assertIn("11471047037", text)
