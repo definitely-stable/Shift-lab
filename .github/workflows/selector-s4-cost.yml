@@ -1,4 +1,5 @@
 name: DELSK-012 S4 selector cost (experimental)
+run-name: S4 cost · ${{ inputs.batch_id || 'manual' }}
 
 # One descriptive cold-construction measurement on the exact S4-D object
 # population. It is not an S4-D decision endpoint.
@@ -9,10 +10,15 @@ on:
         description: Full main commit SHA containing this S4 implementation
         type: string
         required: true
+      batch_id:
+        description: Optional automatic-chain identity; must equal source_sha
+        type: string
+        required: false
+        default: ""
 
 permissions:
   contents: read
-  actions: read
+  actions: write
 
 concurrency:
   group: delsk-experimental
@@ -25,6 +31,7 @@ jobs:
     timeout-minutes: 30
     env:
       SOURCE_SHA: ${{ inputs.source_sha }}
+      BATCH_ID: ${{ inputs.batch_id }}
       PROTOCOL_SHA: ea35f16a0f52cd7c41df2763f0bd2794fbbdb476
 
     steps:
@@ -40,6 +47,9 @@ jobs:
           test "$GITHUB_REF" = "refs/heads/main"
           test "$SOURCE_SHA" = "$GITHUB_SHA"
           test "$GITHUB_WORKFLOW_SHA" = "$GITHUB_SHA"
+          if [ -n "$BATCH_ID" ]; then
+            test "$BATCH_ID" = "$SOURCE_SHA"
+          fi
 
       - name: Admission (runner-minute ledger, artifact cap)
         id: admit
@@ -101,3 +111,31 @@ jobs:
           path: ${{ runner.temp }}/evidence
           retention-days: 30
           if-no-files-found: error
+
+      - name: Continue automatic S4 batch with shard 0
+        if: success() && inputs.batch_id != ''
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          jq -cn \
+            --arg ref "main" \
+            --arg source_sha "$SOURCE_SHA" \
+            --arg batch_id "$BATCH_ID" \
+            --arg cost_run_id "$GITHUB_RUN_ID" \
+            '{
+              ref: $ref,
+              inputs: {
+                source_sha: $source_sha,
+                shard_index: "0",
+                batch_id: $batch_id,
+                cost_run_id: $cost_run_id,
+                prior_run_ids: ""
+              }
+            }' |
+          gh api --method POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "/repos/$GITHUB_REPOSITORY/actions/workflows/selector-s4-shard.yml/dispatches" \
+            --input -
