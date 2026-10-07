@@ -93,7 +93,7 @@ Both runs:
 
 The two runs must have different GitHub run IDs and different runner names. Equal image versions are allowed.
 
-A run that fails before its first confirmation CSP create may be replaced only after its failure is retained as pre-measure infrastructure evidence. Any failure after the first confirmation CSP create makes S4-C `INVALID`; no rerun/replacement can substitute it under this protocol.
+Runs A and B are one-shot authoritative dispatches. **No rerun and no replacement dispatch is admissible**, including for pre-measure infrastructure failure. Any failure/cancellation/admission failure in A or B makes S4-C `INVALID` under this protocol. A later attempt requires a new versioned confirmation slice that retains the failed run instead of silently replacing it.
 
 ## 5. Quality measurements
 
