@@ -72,6 +72,7 @@ def _evaluation_universe():
             "path": prov.get("member_path"),
             "offset": prov.get("offset"),
             "line": occ["family_id"],
+            "ordinal": ordinal[occ["source_id"]],
             "version_rank": ordinal[occ["source_id"]],
         }
 
