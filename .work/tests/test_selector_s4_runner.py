@@ -126,6 +126,7 @@ class WorkflowBoundary(unittest.TestCase):
     SHARD = ROOT / ".github/workflows/selector-s4-shard.yml"
     COST = ROOT / ".github/workflows/selector-s4-cost.yml"
     EVALUATE = ROOT / ".github/workflows/selector-s4-evaluate.yml"
+    AUTOSTART = ROOT / ".github/workflows/selector-s4-autostart.yml"
 
     def test_measurement_workflows_are_main_and_workflow_sha_bound(self):
         for path in (self.SHARD, self.COST):
@@ -147,6 +148,36 @@ class WorkflowBoundary(unittest.TestCase):
         self.assertIn(runner.PROTOCOL_SHA, text)
         self.assertIn(".work/tools/selector_s4.py evaluate", text)
 
+
+    def test_automatic_chain_is_one_shot_and_source_bound(self):
+        auto = self.AUTOSTART.read_text(encoding="utf-8")
+        cost = self.COST.read_text(encoding="utf-8")
+        shard = self.SHARD.read_text(encoding="utf-8")
+        evaluate = self.EVALUATE.read_text(encoding="utf-8")
+
+        self.assertIn(
+            "github.event.before == 'd8bcbb5207702baf69b748edd4bafef7950d08ce'",
+            auto,
+        )
+        self.assertIn("actions: write", auto)
+        self.assertIn("selector-s4-cost.yml/dispatches", auto)
+        self.assertIn("--arg batch_id \"$BATCH_ID\"", auto)
+
+        for text in (cost, shard):
+            self.assertIn("actions: write", text)
+            self.assertIn("batch_id:", text)
+            self.assertIn('test "$BATCH_ID" = "$SOURCE_SHA"', text)
+
+        self.assertIn("selector-s4-shard.yml/dispatches", cost)
+        self.assertIn("cost_run_id:", shard)
+        self.assertIn("prior_run_ids:", shard)
+        self.assertIn('len(ids) != index', shard)
+        self.assertIn("selector-s4-shard.yml/dispatches", shard)
+        self.assertIn("selector-s4-evaluate.yml/dispatches", shard)
+        self.assertIn("len(ids) != 16", shard)
+
+        self.assertIn("batch_id:", evaluate)
+        self.assertIn('test "$BATCH_ID" = "$SOURCE_SHA"', evaluate)
 
 
 if __name__ == "__main__":
