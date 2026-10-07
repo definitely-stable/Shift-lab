@@ -178,6 +178,8 @@ class WorkflowBoundary(unittest.TestCase):
 
         self.assertIn("batch_id:", evaluate)
         self.assertIn('test "$BATCH_ID" = "$SOURCE_SHA"', evaluate)
+        self.assertIn("Wait for selected S4 runs to finalize", evaluate)
+        self.assertIn("seq 1 30", evaluate)
 
 
 if __name__ == "__main__":
