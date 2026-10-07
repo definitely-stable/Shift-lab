@@ -51,7 +51,7 @@ SC — SavingsCapture, UR — Useful Recall. «calls ÷» — во скольк�
 
 ## 5. Ограничения
 
-- In-sample: правило подобрано на тех же 12 + 6 families. Held-out подтверждение требует новых lineages, не виденных ни в pilot, ни в X0 (burn rule X0).
+- Development evidence remains in-sample/burned. S4-D improved real ChunkShift bytes but still used development+calibration/X0. The pre-existing sealed E1 evaluation lineage (`bzip2`) remained unopened and is reserved for S4-C holdout confirmation.
 - Один кодер (xdelta3 `-9`, standalone `zstd -19`), `C_t` ≤ 64 кандидатов. Масштаб каталога (тысячи–миллионы объектов) не проверялся: content-order здесь — exact scan по 64 B.
 - Python-эталон описывает semantics, а не скорость. Portable native реализация и parity-тесты — отдельный шаг.
 
@@ -59,5 +59,5 @@ SC — SavingsCapture, UR — Useful Recall. «calls ÷» — во скольк�
 
 1. **S2 · стоимость в системе** (бывшая DELSK-008, перенацелена): Rust-прототип с parity к этому эталону, индекс `path → объекты` и inverted index по хэшам с cap против exact scan на каталогах 10⁴–10⁶ объектов — [s2.md](s2.md); **RUN** ([результаты](results-s2.md)): на 10⁶ объектов запрос p95 16.7 µs, top-2 совпадает с полным перебором, ≈ 41 B индекса на объект.
 2. **S3 · fallback и негативные случаи** (DELSK-009): когда selector не должен кодировать delta (сжатые и случайные данные), и экономия CPU ценой потерянных bytes — [s3.md](s3.md); **RUN** ([результаты](results-s3.md)): preregistered правило выбрало `L = 0` — отказ по 64 B descriptor теряет useful delta сжатых архивов, поэтому selector кодирует всегда.
-3. **S4 · интеграция с ChunkShift** (DELSK-012): [preregistered development screen](s4.md) закрепляет внешний consumer boundary; [implementation](s4-implementation.md) реализована отдельно и всё ещё **NOT_RUN**. Delsk выбирает whole base objects, а pinned ChunkShift внутри каждого выбранного base неизменно использует production patch builder. Этот screen может только открыть fresh confirmation, но не закрыть G5.
-4. **Held-out / confirmation**: только если S4-D даёт `OPEN_CONFIRMATION_K2/K4`; новые lineages и финальные G5 thresholds фиксируются до просмотра confirmation payload.
+3. **S4-D · интеграция с ChunkShift** (DELSK-012): [development screen](s4.md) **COMPLETE / `OPEN_CONFIRMATION_K2`**; [retained evidence](../results/SELECTOR-S4/README.md): 3,815 rows, 0 failures, K2 saves 1.0568% physical CSP bytes vs `previous1` and is only 1,913 bytes above exhaustive.
+4. **S4-C · sealed holdout confirmation**: [frozen protocol](s4-confirmation.md), **NOT_RUN**. K=2 fixed; evaluation split `bzip2` only; Rust selector is authoritative; two independent hosted repeats. A PASS closes only scoped ChunkShift G5, not a universal standalone-library claim.
