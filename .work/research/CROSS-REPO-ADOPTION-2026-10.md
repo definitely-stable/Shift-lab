@@ -23,7 +23,7 @@ Evidence: ../results/SELECTOR-S4/retained-summary.json. None is a fresh bzip2 ev
 
 S2 16.7 us p95 and ~40.7 logical index B/object were on a synthetic million-object catalog; its actual process RSS was ~419 MB, and top2 exact-index parity=1.0 is empirical only. S3 tested 119 natural targets and found five useful tar-gz targets with zero shared hashes, rejecting positive abstention thresholds. No global index completeness claim follows.
 
-## Critical point-by-point transfer matrix
+## Critical point-by-point transfer matrix (24 entries)
 
 | ID | Research item / observed issue | Applicability and falsifier | Decision / gate |
 | --- | --- | --- | --- |
