@@ -84,6 +84,8 @@ class WorkflowBoundary(unittest.TestCase):
 
     def test_evaluator_closes_provider_and_artifact_surface(self):
         text = self.read("selector-s4-confirm-evaluate.yml")
+        self.assertIn("Require exactly two S4-C repeat runs for this implementation", text)
+        self.assertIn("expected exact two-run provider set", text)
         self.assertIn('"run_attempt": 1', text)
         self.assertIn('"path": ".github/workflows/selector-s4-confirm-repeat.yml"', text)
         self.assertIn("artifact_digest", text)
