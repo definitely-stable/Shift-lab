@@ -1,6 +1,8 @@
 import json
 import tempfile
 import unittest
+from types import SimpleNamespace
+from unittest.mock import patch
 from pathlib import Path
 import sys
 
@@ -75,12 +77,54 @@ class WorkflowBoundary(unittest.TestCase):
         self.assertNotIn("re-run", text.lower())
 
     def test_parity_precedes_any_chunkshift_measurement(self):
-        text = (TOOLS / "selector_s4_confirmation_runner.py").read_text(encoding="utf-8")
-        parity = text.index("parity_ok =")
-        manifests = text.index("create_manifests(plan, store, cli, work)")
-        quality = text.index("quality_table(plan, store, cli, manifests, work)")
-        self.assertLess(parity, manifests)
-        self.assertLess(parity, quality)
+        # Exercise the runtime guard rather than text positions: the source file
+        # contains an earlier *definition* of create_manifests, which is not a call.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            cli = root / "chunkshift.dll"
+            binary = root / "delsk-confirm"
+            cli.write_bytes(b"test-cli")
+            binary.write_bytes(b"test-rust")
+            args = SimpleNamespace(
+                plan=root / "plan.json",
+                store=root,
+                chunkshift_dll=cli,
+                rust_binary=binary,
+                out_dir=root / "out",
+                repeat="A",
+                protocol_root=root,
+                protocol_authority=runner.PROTOCOL_SHA,
+                implementation_sha="a" * 40,
+            )
+            mismatch = {
+                "schema": runner.SELECTION_SCHEMA,
+                "selector": "delsk.simple-selector.v1",
+                "k": 2,
+                "targets": [{
+                    "target_occurrence_id": "synthetic",
+                    "rust_k2": ["rust"],
+                    "python_k2": ["python"],
+                }],
+            }
+            with (
+                patch.object(runner, "load_plan", return_value={}),
+                patch.object(runner, "driver_input"),
+                patch.object(runner, "run_rust_driver", return_value={}),
+                patch.object(runner, "python_selection", return_value={}),
+                patch.object(runner, "selection_record", return_value=mismatch),
+                patch.object(runner, "rust_cost_record", return_value={}),
+                patch.object(runner, "create_manifests") as manifests,
+                patch.object(runner, "quality_table") as quality,
+                patch.object(runner, "timing_rounds") as timing,
+            ):
+                self.assertEqual(runner.run(args), 0)
+            manifests.assert_not_called()
+            quality.assert_not_called()
+            timing.assert_not_called()
+            record = json.loads((root / "out" / "run.json").read_text(encoding="utf-8"))
+            self.assertEqual(record["science_state"], "PARITY_FAILED")
+            self.assertEqual((root / "out" / "measurements.jsonl").read_bytes(), b"")
+            self.assertEqual((root / "out" / "manifests.jsonl").read_bytes(), b"")
 
     def test_evaluator_closes_provider_and_artifact_surface(self):
         text = self.read("selector-s4-confirm-evaluate.yml")
