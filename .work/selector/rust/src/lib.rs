@@ -253,8 +253,8 @@ impl PostingStorage {
         match self {
             Self::Compact(rows) => {
                 let prefix = key.to_be_bytes();
-                let start = rows.partition_point(|e| e[..4] < prefix);
-                let end = start + rows[start..].partition_point(|e| e[..4] == prefix);
+                let start = rows.partition_point(|e| e[..4].cmp(&prefix[..]).is_lt());
+                let end = start + rows[start..].partition_point(|e| e[..4].eq(&prefix[..]));
                 for entry in rows[start..end].iter().take(cap) {
                     out.push((u32::from(entry[4]) << 16)
                         | (u32::from(entry[5]) << 8) | u32::from(entry[6]));
