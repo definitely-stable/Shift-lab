@@ -82,6 +82,25 @@ fn capped_popular_hash_must_fallback_even_when_k_candidates_exist() {
 }
 
 #[test]
+fn repeated_object_ids_do_not_falsely_certify_k_distinct_candidates() {
+    // Catalog uniqueness is a caller precondition; until it is validated by
+    // a separate API gate, the certificate must at least count logical IDs.
+    let t = obj("target", 100, &[42], None);
+    let catalog = Catalog::new(
+        vec![
+            obj("duplicate", 99, &[42], None),
+            obj("duplicate", 98, &[42], None),
+            obj("zero-overlap", 100, &[99], None),
+        ],
+        64,
+    );
+    let got = catalog.select_indexed_certified(&t, 2);
+    assert_eq!(got.stats.positive_candidates, 1);
+    assert_eq!(got.certification, RetrievalCertification::ExactFallbackSparse);
+    assert_eq!(got.ids, catalog.select_exact(&t, 2));
+}
+
+#[test]
 fn zero_budget_is_exact_without_scan() {
     let t = obj("target", 100, &[42], None);
     let catalog = Catalog::new(vec![obj("x", 100, &[42], None)], 0);
