@@ -112,10 +112,11 @@ fn deterministic_adversarial_property_matrix() {
         let objs: Vec<Object> = (0..28u64)
             .map(|i| {
                 let data = xorshift_bytes(seed ^ (i * 17 + 1), 24 + (i as usize * 31) % 180);
+                let one_hash = [seed % 5 + 1];
                 let mut o = obj(
                     &format!("obj-{i:02}"),
                     data.len() as u64,
-                    if i % 7 == 0 { &[] } else if i % 3 == 0 { &[seed % 5 + 1] } else { &[] },
+                    if i % 7 == 0 { &[] } else if i % 3 == 0 { &one_hash } else { &[] },
                     if i % 4 == 0 { Some("same") } else { None },
                 );
                 if i % 7 != 0 && i % 3 != 0 {
