@@ -1,0 +1,184 @@
+name: DELSK-012 S4-C repeat
+run-name: S4-C repeat ${{ inputs.repeat }} · ${{ inputs.source_sha }}
+
+# Frozen confirmation implementation. The plan/evaluator authority is the merge
+# of PR #55; this workflow may execute it but may not redefine it.
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact merged S4-C implementation SHA
+        type: string
+        required: true
+      repeat:
+        description: Authoritative repeat A or B
+        type: choice
+        options: [A, B]
+        required: true
+      prior_run_id:
+        description: Repeat A run ID when executing B; empty for A
+        type: string
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: delsk-experimental
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  repeat:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      REPEAT: ${{ inputs.repeat }}
+      PRIOR_RUN_ID: ${{ inputs.prior_run_id }}
+      PROTOCOL_SHA: abf6bd07540a132ddf2af4fa1001db103b27a9f8
+      CHUNKSHIFT_SHA: 74bb301b6d8ecc52cf0bc0e00d86fa174093d91b
+      RUNNER_NAME: ${{ runner.name }}
+      DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+      DOTNET_NOLOGO: "1"
+      NUGET_XMLDOC_MODE: skip
+      PYTHONDONTWRITEBYTECODE: "1"
+
+    steps:
+      - name: Checkout S4-C implementation
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Bind dispatch to exact implementation and one-shot chain
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "$SOURCE_SHA" = "$GITHUB_SHA"
+          test "$GITHUB_WORKFLOW_SHA" = "$GITHUB_SHA"
+          if [ "$REPEAT" = A ]; then
+            test -z "$PRIOR_RUN_ID"
+          else
+            test "$REPEAT" = B
+            [[ "$PRIOR_RUN_ID" =~ ^[1-9][0-9]*$ ]]
+            test "$PRIOR_RUN_ID" != "$GITHUB_RUN_ID"
+          fi
+
+      - name: Admission (runner-minute ledger, artifact cap)
+        id: admit
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          BUDGET_MODE: ${{ vars.DELSK_BUDGET_MODE }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/evidence"
+          python3 .work/tools/budget.py admit "$RUNNER_TEMP/evidence/admission.json"
+
+      - name: Admission must pass
+        run: test "${{ steps.admit.outcome }}" = success
+
+      - name: Checkout immutable S4-C protocol authority
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: definitely-stable/Shift-lab
+          ref: abf6bd07540a132ddf2af4fa1001db103b27a9f8
+          path: protocol
+          persist-credentials: false
+
+      - name: Build exact sealed confirmation plan
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C protocol rev-parse HEAD)" = "$PROTOCOL_SHA"
+          test -z "$(git -C protocol status --porcelain=v1 --untracked-files=normal)"
+          python3 protocol/.work/tools/selector_s4_confirmation.py plan             "$RUNNER_TEMP/s4c-plan.json"             --protocol-authority "$PROTOCOL_SHA"
+
+      - name: Materialize frozen natural store
+        shell: bash
+        run: |
+          set -euo pipefail
+          (
+            cd protocol
+            python3 .work/tools/baselines.py materialize "$RUNNER_TEMP/pilot-store"
+          )
+
+      - name: Checkout pinned ChunkShift consumer
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: definitely-stable/ChunkShift
+          ref: 74bb301b6d8ecc52cf0bc0e00d86fa174093d91b
+          path: consumer
+          persist-credentials: false
+
+      - name: Verify clean pinned consumer
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C consumer rev-parse HEAD)" = "$CHUNKSHIFT_SHA"
+          test -z "$(git -C consumer status --porcelain=v1 --untracked-files=normal)"
+
+      - name: Setup pinned .NET SDK
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: consumer/global.json
+
+      - name: Build pinned ChunkShift CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          dotnet restore consumer/src/ChunkShift.Cli/ChunkShift.Cli.csproj
+          dotnet build consumer/src/ChunkShift.Cli/ChunkShift.Cli.csproj             -c Release -f net10.0 --no-restore
+
+      - name: Build real Rust selector driver
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo build --locked --release             --manifest-path .work/selector/rust/Cargo.toml             --bin delsk-confirm
+
+      - name: Execute authoritative S4-C repeat
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 .work/tools/selector_s4_confirmation_runner.py             "$RUNNER_TEMP/s4c-plan.json"             "$RUNNER_TEMP/pilot-store"             "$GITHUB_WORKSPACE/consumer/src/ChunkShift.Cli/bin/Release/net10.0/ChunkShift.Cli.dll"             "$GITHUB_WORKSPACE/.work/selector/rust/target/release/delsk-confirm"             "$RUNNER_TEMP/evidence"             --repeat "$REPEAT"             --protocol-root "$GITHUB_WORKSPACE/protocol"             --protocol-authority "$PROTOCOL_SHA"             --implementation-sha "$SOURCE_SHA"
+
+      - name: Verify tracked sources remained unchanged
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git -C protocol diff --quiet HEAD --
+          git -C consumer diff --quiet HEAD --
+
+      - name: Artifact cap before upload
+        id: artifact_cap
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 .work/tools/budget.py artifact-check "$RUNNER_TEMP/evidence"
+
+      - name: Upload S4-C repeat evidence
+        if: always() && steps.artifact_cap.outcome == 'success'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: delsk-s4c-repeat-${{ inputs.repeat }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/evidence
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Continue one-shot S4-C chain
+        if: success()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [ "$REPEAT" = A ]; then
+            jq -cn               --arg ref "main"               --arg source_sha "$SOURCE_SHA"               --arg repeat "B"               --arg prior_run_id "$GITHUB_RUN_ID"               '{ref:$ref,inputs:{source_sha:$source_sha,repeat:$repeat,prior_run_id:$prior_run_id}}' |
+            gh api --method POST               -H "Accept: application/vnd.github+json"               -H "X-GitHub-Api-Version: 2022-11-28"               "/repos/$GITHUB_REPOSITORY/actions/workflows/selector-s4-confirm-repeat.yml/dispatches"               --input -
+          else
+            jq -cn               --arg ref "main"               --arg source_sha "$SOURCE_SHA"               --arg repeat_a_run_id "$PRIOR_RUN_ID"               --arg repeat_b_run_id "$GITHUB_RUN_ID"               '{ref:$ref,inputs:{source_sha:$source_sha,repeat_a_run_id:$repeat_a_run_id,repeat_b_run_id:$repeat_b_run_id}}' |
+            gh api --method POST               -H "Accept: application/vnd.github+json"               -H "X-GitHub-Api-Version: 2022-11-28"               "/repos/$GITHUB_REPOSITORY/actions/workflows/selector-s4-confirm-evaluate.yml/dispatches"               --input -
+          fi
