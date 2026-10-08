@@ -207,10 +207,33 @@ pub struct Catalog {
 }
 
 /// Counters of one indexed query.
-#[derive(Clone, Copy, Debug, Default)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct QueryStats {
     pub candidates: usize,
     pub capped_postings: usize,
+    /// Unique retrieved, non-target objects with a positive descriptor intersection.
+    /// Metadata-only candidates are not counted here.
+    pub positive_candidates: usize,
+}
+
+/// How exact top-K equality to a full catalog scan was established.
+///
+/// `IndexedExact` requires all hash postings to have been read in full, all path
+/// matches included, and at least K non-target positive-resemblance candidates.
+/// These conditions ensure no unseen zero-resemblance base can enter content top-K.
+/// Any uncertain case takes the exact fallback; no probability claim is involved.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum RetrievalCertification {
+    IndexedExact,
+    ExactFallbackCapped,
+    ExactFallbackSparse,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct CertifiedSelection {
+    pub ids: Vec<String>,
+    pub certification: RetrievalCertification,
+    pub stats: QueryStats,
 }
 
 impl Catalog {
@@ -265,7 +288,48 @@ impl Catalog {
         let bases: Vec<&Object> =
             ids.into_iter().map(|i| &self.objects[i as usize]).filter(|o| o.id != t.id).collect();
         stats.candidates = bases.len();
+        stats.positive_candidates = bases
+            .iter()
+            .filter(|o| resemblance(&t.descriptor, &o.descriptor).0 != 0)
+            .count();
         (select_top(t, &bases, k).into_iter().map(|o| o.id.clone()).collect(), stats)
+    }
+
+    /// Opt-in, correctness-first indexed retrieval. Unlike `select_indexed`, its
+    /// result is always identical to `select_exact` for the same target and K.
+    ///
+    /// A full scan is required if any posting is truncated, or if fewer than K
+    /// distinct non-target objects share a descriptor hash. In the latter case an
+    /// unseen zero-overlap candidate might win a size/id tie or fill a top-K slot.
+    /// No new descriptor/scorer/selection policy is introduced by this method.
+    pub fn select_indexed_certified(&self, t: &Object, k: usize) -> CertifiedSelection {
+        if k == 0 {
+            return CertifiedSelection {
+                ids: Vec::new(),
+                certification: RetrievalCertification::IndexedExact,
+                stats: QueryStats::default(),
+            };
+        }
+        let (ids, stats) = self.select_indexed(t, k);
+        if stats.capped_postings != 0 {
+            CertifiedSelection {
+                ids: self.select_exact(t, k),
+                certification: RetrievalCertification::ExactFallbackCapped,
+                stats,
+            }
+        } else if stats.positive_candidates < k {
+            CertifiedSelection {
+                ids: self.select_exact(t, k),
+                certification: RetrievalCertification::ExactFallbackSparse,
+                stats,
+            }
+        } else {
+            CertifiedSelection {
+                ids,
+                certification: RetrievalCertification::IndexedExact,
+                stats,
+            }
+        }
     }
 }
 
