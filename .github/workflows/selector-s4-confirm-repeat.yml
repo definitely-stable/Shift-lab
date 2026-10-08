@@ -40,7 +40,6 @@ jobs:
       PRIOR_RUN_ID: ${{ inputs.prior_run_id }}
       PROTOCOL_SHA: abf6bd07540a132ddf2af4fa1001db103b27a9f8
       CHUNKSHIFT_SHA: 74bb301b6d8ecc52cf0bc0e00d86fa174093d91b
-      RUNNER_NAME: ${{ runner.name }}
       DOTNET_CLI_TELEMETRY_OPTOUT: "1"
       DOTNET_NOLOGO: "1"
       NUGET_XMLDOC_MODE: skip
@@ -140,6 +139,8 @@ jobs:
 
       - name: Execute authoritative S4-C repeat
         shell: bash
+        env:
+          RUNNER_NAME: ${{ runner.name }}
         run: |
           set -euo pipefail
           python3 .work/tools/selector_s4_confirmation_runner.py             "$RUNNER_TEMP/s4c-plan.json"             "$RUNNER_TEMP/pilot-store"             "$GITHUB_WORKSPACE/consumer/src/ChunkShift.Cli/bin/Release/net10.0/ChunkShift.Cli.dll"             "$GITHUB_WORKSPACE/.work/selector/rust/target/release/delsk-confirm"             "$RUNNER_TEMP/evidence"             --repeat "$REPEAT"             --protocol-root "$GITHUB_WORKSPACE/protocol"             --protocol-authority "$PROTOCOL_SHA"             --implementation-sha "$SOURCE_SHA"
