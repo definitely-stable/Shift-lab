@@ -39,3 +39,4 @@ jobs:
         run: |
           cargo --version
           cargo test --release --locked
+          cargo build --release --locked --bin delsk-confirm
