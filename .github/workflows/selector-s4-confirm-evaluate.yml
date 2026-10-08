@@ -1,0 +1,267 @@
+name: DELSK-012 S4-C evaluate
+run-name: S4-C evaluate · ${{ inputs.source_sha }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact merged S4-C implementation SHA
+        type: string
+        required: true
+      repeat_a_run_id:
+        description: Authoritative first-attempt repeat A run ID
+        type: string
+        required: true
+      repeat_b_run_id:
+        description: Authoritative first-attempt repeat B run ID
+        type: string
+        required: true
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      REPEAT_A_RUN_ID: ${{ inputs.repeat_a_run_id }}
+      REPEAT_B_RUN_ID: ${{ inputs.repeat_b_run_id }}
+      PROTOCOL_SHA: 9ec28a0022651bb7416871089b0bcc4edd3454b8
+
+    steps:
+      - name: Checkout S4-C implementation
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Bind evaluator to exact implementation
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "$SOURCE_SHA" = "$GITHUB_SHA"
+          test "$GITHUB_WORKFLOW_SHA" = "$GITHUB_SHA"
+          [[ "$REPEAT_A_RUN_ID" =~ ^[1-9][0-9]*$ ]]
+          [[ "$REPEAT_B_RUN_ID" =~ ^[1-9][0-9]*$ ]]
+          test "$REPEAT_A_RUN_ID" != "$REPEAT_B_RUN_ID"
+
+      - name: Checkout immutable S4-C protocol authority
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: definitely-stable/Shift-lab
+          ref: 9ec28a0022651bb7416871089b0bcc4edd3454b8
+          path: protocol
+          persist-credentials: false
+
+      - name: Rebuild exact sealed confirmation plan
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C protocol rev-parse HEAD)" = "$PROTOCOL_SHA"
+          test -z "$(git -C protocol status --porcelain=v1 --untracked-files=normal)"
+          python3 protocol/.work/tools/selector_s4_confirmation_v3.py plan             "$RUNNER_TEMP/s4c-plan.json"             --protocol-authority "$PROTOCOL_SHA"
+
+      - name: Require exactly two S4-C repeat runs for this implementation
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 - "$SOURCE_SHA" "$REPEAT_A_RUN_ID" "$REPEAT_B_RUN_ID" <<'PY'
+          import json
+          import subprocess
+          import sys
+
+          source, a, b = sys.argv[1:]
+          page = 1
+          matches = []
+          while True:
+              raw = subprocess.check_output([
+                  "gh", "api",
+                  "-H", "Accept: application/vnd.github+json",
+                  "-H", "X-GitHub-Api-Version: 2022-11-28",
+                  f"/repos/{__import__('os').environ['GITHUB_REPOSITORY']}/actions/workflows/selector-s4-confirm-repeat.yml/runs?branch=main&event=workflow_dispatch&per_page=100&page={page}",
+              ], text=True)
+              doc = json.loads(raw)
+              rows = doc.get("workflow_runs", [])
+              matches.extend(r for r in rows if r.get("head_sha") == source)
+              if len(rows) < 100:
+                  break
+              page += 1
+          ids = [str(r.get("id")) for r in matches]
+          if len(ids) != 2 or set(ids) != {a, b}:
+              raise SystemExit(f"expected exact two-run provider set {{{a},{b}}}, got {ids}")
+          PY
+
+      - name: Wait for exact first-attempt repeat workflows to finish
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # Repeat B dispatches this evaluator before its own job can become
+          # 'completed'. This bounded provider read is NOT a rerun or replacement.
+          for run_id in "$REPEAT_A_RUN_ID" "$REPEAT_B_RUN_ID"; do
+            ready=0
+            for attempt in $(seq 1 24); do
+              run_json="$(gh api -H "Accept: application/vnd.github+json" "/repos/$GITHUB_REPOSITORY/actions/runs/$run_id")"
+              status="$(jq -r '.status // ""' <<<"$run_json")"
+              conclusion="$(jq -r '.conclusion // ""' <<<"$run_json")"
+              if [ "$status" = "completed" ]; then
+                test "$conclusion" = "success"
+                ready=1
+                break
+              fi
+              case "$status" in
+                queued|in_progress|requested|waiting|pending) ;;
+                *) echo "unexpected repeat status: $status" >&2; exit 1 ;;
+              esac
+              sleep 5
+            done
+            test "$ready" -eq 1
+          done
+
+      - name: Verify and download authoritative repeat artifacts
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          : > "$RUNNER_TEMP/provider-index.jsonl"
+
+          for spec in "A:$REPEAT_A_RUN_ID" "B:$REPEAT_B_RUN_ID"
+          do
+            role="${spec%%:*}"
+            run_id="${spec##*:}"
+            run_json="$RUNNER_TEMP/run-$role.json"
+            artifacts_json="$RUNNER_TEMP/artifacts-$role.json"
+
+            gh api               -H "Accept: application/vnd.github+json"               -H "X-GitHub-Api-Version: 2022-11-28"               "/repos/$GITHUB_REPOSITORY/actions/runs/$run_id" > "$run_json"
+            gh api               -H "Accept: application/vnd.github+json"               -H "X-GitHub-Api-Version: 2022-11-28"               "/repos/$GITHUB_REPOSITORY/actions/runs/$run_id/artifacts?per_page=100" > "$artifacts_json"
+
+            mapfile -t meta < <(
+              python3 - "$role" "$run_id" "$run_json" "$artifacts_json" "$SOURCE_SHA" "$RUNNER_TEMP/provider-index.jsonl" <<'PY'
+          import json
+          import re
+          import sys
+
+          role, run_id, run_path, artifacts_path, source_sha, index_path = sys.argv[1:]
+          run_id = int(run_id)
+          run = json.load(open(run_path, encoding="utf-8"))
+          expected = {
+              "id": run_id,
+              "event": "workflow_dispatch",
+              "status": "completed",
+              "conclusion": "success",
+              "run_attempt": 1,
+              "head_branch": "main",
+              "head_sha": source_sha,
+              "path": ".github/workflows/selector-s4-confirm-repeat.yml",
+          }
+          failed = [key for key, value in expected.items() if run.get(key) != value]
+          if failed:
+              raise SystemExit(f"repeat {role} provider mismatch: {', '.join(failed)}")
+
+          artifacts = json.load(open(artifacts_path, encoding="utf-8")).get("artifacts", [])
+          name = f"delsk-s4c-repeat-{role}-{run_id}-1"
+          matches = [a for a in artifacts if a.get("name") == name]
+          if len(matches) != 1:
+              raise SystemExit(f"repeat {role}: expected exactly one authoritative artifact")
+          artifact = matches[0]
+          digest = str(artifact.get("digest") or "").lower()
+          if artifact.get("expired") is not False:
+              raise SystemExit(f"repeat {role}: artifact expired")
+          if not re.fullmatch(r"sha256:[0-9a-f]{64}", digest):
+              raise SystemExit(f"repeat {role}: invalid artifact digest")
+          aid = artifact.get("id")
+          if not isinstance(aid, int) or aid <= 0:
+              raise SystemExit(f"repeat {role}: invalid artifact id")
+
+          row = {
+              "role": role,
+              "run_id": run_id,
+              "run_attempt": 1,
+              "head_sha": source_sha,
+              "artifact_id": aid,
+              "artifact_name": name,
+              "artifact_digest": digest,
+              "artifact_size": artifact.get("size_in_bytes"),
+          }
+          with open(index_path, "a", encoding="utf-8") as stream:
+              stream.write(json.dumps(row, sort_keys=True, separators=(",", ":")) + "\n")
+          print(aid)
+          print(digest)
+          PY
+            )
+
+            artifact_id="${meta[0]}"
+            artifact_digest="${meta[1]}"
+            zip="$RUNNER_TEMP/repeat-$role.zip"
+            gh api               -H "Accept: application/vnd.github+json"               -H "X-GitHub-Api-Version: 2022-11-28"               "/repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id/zip" > "$zip"
+            test "sha256:$(sha256sum "$zip" | cut -d' ' -f1)" = "$artifact_digest"
+
+            mkdir -p "$RUNNER_TEMP/repeat-$role"
+            unzip -q "$zip" -d "$RUNNER_TEMP/repeat-$role"
+            python3 - "$RUNNER_TEMP/repeat-$role" <<'PY'
+          import pathlib
+          import sys
+
+          root = pathlib.Path(sys.argv[1])
+          allowed = {
+              "admission.json", "measurements.jsonl", "manifests.jsonl",
+              "selection.json", "rust-cost.json", "timing.json", "run.json",
+          }
+          actual = {p.relative_to(root).as_posix() for p in root.rglob("*") if p.is_file()}
+          if actual != allowed:
+              raise SystemExit(f"unexpected repeat artifact files: {sorted(actual ^ allowed)}")
+          PY
+          done
+
+      - name: Evaluate only with immutable protocol authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/result"
+          python3 protocol/.work/tools/selector_s4_confirmation_v3.py evaluate             "$RUNNER_TEMP/s4c-plan.json"             "$RUNNER_TEMP/repeat-A"             "$RUNNER_TEMP/repeat-B"             "$RUNNER_TEMP/result/result.json"
+          cp "$RUNNER_TEMP/provider-index.jsonl" "$RUNNER_TEMP/result/provider-index.jsonl"
+          cp "$RUNNER_TEMP/s4c-plan.json" "$RUNNER_TEMP/result/plan.json"
+
+      - name: Retain evaluator provenance
+        shell: bash
+        run: |
+          python3 - "$RUNNER_TEMP/result/evaluation-run.json" <<'PY'
+          import json
+          import os
+          import sys
+          out = {
+              "schema": "delsk.chunkshift-s4-confirm.evaluation-run.v1",
+              "protocol_authority": os.environ["PROTOCOL_SHA"],
+              "implementation_sha": os.environ["SOURCE_SHA"],
+              "repeat_a_run_id": int(os.environ["REPEAT_A_RUN_ID"]),
+              "repeat_b_run_id": int(os.environ["REPEAT_B_RUN_ID"]),
+              "github_run_id": int(os.environ["GITHUB_RUN_ID"]),
+              "github_run_attempt": int(os.environ["GITHUB_RUN_ATTEMPT"]),
+              "github_sha": os.environ["GITHUB_SHA"],
+              "github_workflow_sha": os.environ["GITHUB_WORKFLOW_SHA"],
+              "github_ref": os.environ["GITHUB_REF"],
+          }
+          with open(sys.argv[1], "w", encoding="utf-8") as stream:
+              json.dump(out, stream, indent=2, sort_keys=True)
+              stream.write("\n")
+          PY
+
+      - name: Artifact cap before upload
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 .work/tools/budget.py artifact-check "$RUNNER_TEMP/result"
+
+      - name: Upload S4-C verdict evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: delsk-s4c-evaluation-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/result
+          retention-days: 30
+          if-no-files-found: error

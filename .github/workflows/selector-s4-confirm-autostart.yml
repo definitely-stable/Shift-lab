@@ -1,0 +1,46 @@
+name: DELSK-012 S4-C one-shot autostart
+run-name: S4-C autostart · ${{ github.sha }}
+
+# Arms the sealed holdout only when the reviewed implementation merges directly
+# on top of the exact pre-implementation main. Later edits cannot retrigger it.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/selector-s4-confirm-autostart.yml
+      - .github/workflows/selector-s4-confirm-repeat.yml
+      - .github/workflows/selector-s4-confirm-evaluate.yml
+      - .work/tools/selector_s4_confirmation_runner.py
+      - .work/selector/rust/src/bin/delsk-confirm.rs
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  start:
+    if: github.event.before == '9ec28a0022651bb7416871089b0bcc4edd3454b8'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      EXPECTED_BEFORE: 9ec28a0022651bb7416871089b0bcc4edd3454b8
+      SOURCE_SHA: ${{ github.sha }}
+
+    steps:
+      - name: Verify one-shot implementation transition
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "${{ github.event.before }}" = "$EXPECTED_BEFORE"
+          test "$GITHUB_WORKFLOW_SHA" = "$GITHUB_SHA"
+
+      - name: Dispatch authoritative repeat A
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          jq -cn             --arg ref "main"             --arg source_sha "$SOURCE_SHA"             --arg repeat "A"             '{ref:$ref,inputs:{source_sha:$source_sha,repeat:$repeat,prior_run_id:""}}' |
+          gh api --method POST             -H "Accept: application/vnd.github+json"             -H "X-GitHub-Api-Version: 2022-11-28"             "/repos/$GITHUB_REPOSITORY/actions/workflows/selector-s4-confirm-repeat.yml/dispatches"             --input -
