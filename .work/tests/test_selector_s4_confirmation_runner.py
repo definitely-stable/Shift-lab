@@ -6,7 +6,7 @@ import sys
 
 TOOLS = Path(__file__).resolve().parents[1] / "tools"
 ROOT = Path(__file__).resolve().parents[2]
-REPO = ROOT.parent
+REPO = ROOT
 sys.path.insert(0, str(TOOLS))
 
 import selector_s4_confirmation as frozen  # noqa: E402
