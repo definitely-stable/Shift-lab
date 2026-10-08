@@ -280,4 +280,25 @@ mod tests {
         // Storage is still the preregistered fixed 64 B per catalog object.
         assert_eq!(3 * HASHES * std::mem::size_of::<u64>(), 192);
     }
+
+    #[test]
+    fn distinct_valid_hashes_can_exceed_frozen_index_budget() {
+        // Synthetic *structural* counterexample, not sealed S4-C evidence.
+        // Eight unique hashes per object require 8 B/key + 4 B/posting id
+        // in the current Catalog::index_bytes model: 96 B/object.
+        let objects: Vec<Object> = (0..2u64)
+            .map(|i| Object {
+                id: format!("base-{i}"),
+                size: 4096,
+                path: None,
+                line: None,
+                version: 0,
+                offset: None,
+                descriptor: (i * 8 + 1..=i * 8 + 8).collect(),
+            })
+            .collect();
+        let catalog = Catalog::new(objects, usize::MAX);
+        assert_eq!(catalog.index_bytes(), 2 * 96);
+        assert!(catalog.index_bytes() > 2 * 64);
+    }
 }
