@@ -37,6 +37,16 @@
 
 GitHub URLs и номера хранятся в [реестре](issues/index.json); после публикации ссылки в таблице ведут прямо в issues. Bodies сохранены как первоначальные постановки; текущие обсуждения и статусы ведутся в GitHub.
 
+## Cross-repository adoption follow-up (после S4-C)
+
+Независимый критический разбор DeltaMeter/Mathlab и исправления DELSK: [23 пункта](research/CROSS-REPO-ADOPTION-2026-10.md). Из них немедленные будущие задачи:
+
+- [H11 / issue #58](https://github.com/definitely-stable/Shift-lab/issues/58) — доказуемо точный индексированный top-K или exact fallback. [Proof/limitations](selector/index-completeness.md). Начат изолированный Rust Slice A в отдельном draft PR; **не менять v1/S4-C**.
+- [H12 / issue #59](https://github.com/definitely-stable/Shift-lab/issues/59) — полная экономика выбора баз и цена fanout. [Protocol draft](research/SYSTEM-ROI-PROTOCOL-DRAFT.md); measurement **NOT_FROZEN / NOT_RUN**.
+- H13–H18 (baseline-preserving K2, compact catalog, budgeted trial, incremental descriptor, structural anchors, keyed retrieval) — условный BACKLOG, без новых implementation/quality claims. Каждая тема должна пройти prior-art, frozen protocol и честный контроль до отдельного issue/program activation.
+
+**Merge/order guard:** PR #57 должен завершить S4-C на исходном exact parent `e1ee235fe08c7cc1f6e8ec8884b65439435adf92`. H11/H12 draft не вливать в main до закрытия этого шага; иначе автозапуск S4-C может не сработать. Закрытая E1 evaluation не становится свежим независимым holdout для последующих моделей.
+
 ## Первый следующий шаг
 
 **2026-10-08, current:** G1 PASS; compact-descriptor track остановлен; [simple selector](selector/README.md) принят. S2 завершён положительно, S3 отверг abstention (`L=0`). S4-D на реальном pinned ChunkShift завершён: 3,815/3,815 rows, 0 failures, frozen verdict **`OPEN_CONFIRMATION_K2`** ([evidence](results/SELECTOR-S4/README.md)). Следующий decision slice — [S4-C](selector/s4-confirmation.md): заранее sealed evaluation split bzip2, K=2 fixed, Rust selector end-to-end, два independent hosted repeats. До S4-C verdict G5 и production/standalone verdict остаются открыты.
