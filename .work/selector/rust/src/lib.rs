@@ -288,9 +288,11 @@ impl Catalog {
         let bases: Vec<&Object> =
             ids.into_iter().map(|i| &self.objects[i as usize]).filter(|o| o.id != t.id).collect();
         stats.candidates = bases.len();
+        let mut unique_positive_ids = std::collections::HashSet::new();
         stats.positive_candidates = bases
             .iter()
             .filter(|o| resemblance(&t.descriptor, &o.descriptor).0 != 0)
+            .filter(|o| unique_positive_ids.insert(o.id.as_str()))
             .count();
         (select_top(t, &bases, k).into_iter().map(|o| o.id.clone()).collect(), stats)
     }
