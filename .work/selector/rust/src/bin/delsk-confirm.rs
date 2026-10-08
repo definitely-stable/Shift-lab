@@ -107,7 +107,7 @@ fn load_queries(path: &Path) -> Vec<Query> {
     let mut bases: BTreeMap<String, Vec<Meta>> = BTreeMap::new();
 
     for line in text.lines().filter(|line| !line.is_empty()) {
-        let parts: Vec<&str> = line.split('	').collect();
+        let parts: Vec<&str> = line.split('\\t').collect();
         assert_eq!(parts.len(), 8, "TSV shape");
         let kind = parts[0];
         let tid = parts[1].to_owned();
@@ -157,7 +157,8 @@ fn unique_meta(queries: &[Query]) -> BTreeMap<String, Meta> {
 }
 
 fn json_string(s: &str) -> String {
-    format!("\"{}\"", s.replace('\\', "\\\\").replace('"', "\\""))
+    assert!(s.len() == 64 && s.bytes().all(|b| b.is_ascii_hexdigit()), "non-hex JSON identity");
+    format!("\"{}\"", s)
 }
 
 fn main() {
