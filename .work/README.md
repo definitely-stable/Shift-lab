@@ -12,7 +12,7 @@
 | [Аудит исходных отчётов](research/report-audit.md) | Что принято, исправлено, отложено и почему |
 | [Современная литература](research/literature-review.md) | Проверенные первичные источники и ограничения novelty |
 | [Практики лабораторий](research/lab-practices.md) | ChunkShift, внешние лаборатории и реальные ограничения Actions |
-| [DELSK × DeltaMeter × Mathlab: adoption audit](research/CROSS-REPO-ADOPTION-2026-10.md) | 23 проверенных пункта, границы переносимости, слабые места и решения H11–H18; **не меняет S4-C** |
+| [DELSK × DeltaMeter × Mathlab: adoption audit](research/CROSS-REPO-ADOPTION-2026-10.md) | 24 проверенных пункта, границы переносимости, слабые места и решения H11–H18; **не меняет S4-C** |
 | [H11 certified index proof & test plan](selector/index-completeness.md) | Достаточные условия точного top-K и fail-to-exact fallback; **draft / без CI-решения** |
 | [H12 total-system ROI protocol draft](research/SYSTEM-ROI-PROTOCOL-DRAFT.md) | Полные CPU/wall/network/RSS сценарии и будущая preregistration; **NOT_FROZEN** |
 | [Протокол DELSK-P1](protocol.md) | Ground truth, метрики, статистика, gates |
