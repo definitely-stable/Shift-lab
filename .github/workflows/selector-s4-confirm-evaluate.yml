@@ -96,6 +96,34 @@ jobs:
               raise SystemExit(f"expected exact two-run provider set {{{a},{b}}}, got {ids}")
           PY
 
+      - name: Wait for exact first-attempt repeat workflows to finish
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # Repeat B dispatches this evaluator before its own job can become
+          # 'completed'. This bounded provider read is NOT a rerun or replacement.
+          for run_id in "$REPEAT_A_RUN_ID" "$REPEAT_B_RUN_ID"; do
+            ready=0
+            for attempt in $(seq 1 24); do
+              run_json="$(gh api -H "Accept: application/vnd.github+json" "/repos/$GITHUB_REPOSITORY/actions/runs/$run_id")"
+              status="$(jq -r '.status // ""' <<<"$run_json")"
+              conclusion="$(jq -r '.conclusion // ""' <<<"$run_json")"
+              if [ "$status" = "completed" ]; then
+                test "$conclusion" = "success"
+                ready=1
+                break
+              fi
+              case "$status" in
+                queued|in_progress|requested|waiting|pending) ;;
+                *) echo "unexpected repeat status: $status" >&2; exit 1 ;;
+              esac
+              sleep 5
+            done
+            test "$ready" -eq 1
+          done
+
       - name: Verify and download authoritative repeat artifacts
         shell: bash
         env:

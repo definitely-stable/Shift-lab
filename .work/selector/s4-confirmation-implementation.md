@@ -62,6 +62,8 @@ Python recomputes the same K2 IDs from the authority implementation only for par
 - exact repeat workflow path;
 - exactly one non-expired named artifact with SHA-256.
 
+Before artifact verification, a bounded read-only provider poll ensures both exact first-attempt runs have actually completed successfully. Repeat B dispatches the evaluator before the provider can necessarily mark its own workflow completed; this barrier avoids a scheduling race without dispatching any new run, retrying measurements, or weakening identity gates.
+
 Artifact ZIP bytes are checked against GitHub's digest before extraction. The extracted file set is closed.
 
 The final verdict is produced only by `selector_s4_confirmation_v2.py` at protocol authority
