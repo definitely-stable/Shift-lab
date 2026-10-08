@@ -2,6 +2,7 @@
 import json
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 import sys
 
@@ -9,6 +10,7 @@ TOOLS = Path(__file__).resolve().parents[1] / "tools"
 sys.path.insert(0, str(TOOLS))
 import selector_s4_confirmation as v1  # noqa: E402
 import selector_s4_confirmation_v2 as v2  # noqa: E402
+import test_selector_s4_confirmation as synthetic  # noqa: E402
 
 
 class CostGateErratum(unittest.TestCase):
@@ -57,6 +59,46 @@ class CostGateErratum(unittest.TestCase):
             with self.subTest(index=index):
                 with self.assertRaises(v2.ConfirmError):
                     self.evaluate_cost(v2, index)
+
+    def test_over_budget_produces_final_scoped_reject_in_both_repeats(self):
+        fixture = synthetic.SyntheticEvaluator()
+        plan = fixture.plan()
+        with tempfile.TemporaryDirectory() as tmp:
+            a, b = Path(tmp) / "a", Path(tmp) / "b"
+            fixture.make_repeat(a, plan, "A", 1, "runner-a")
+            fixture.make_repeat(b, plan, "B", 2, "runner-b")
+            for folder in (a, b):
+                path = folder / "rust-cost.json"
+                cost = json.loads(path.read_text(encoding="utf-8"))
+                cost["index_bytes"] = 96 * cost["objects"]
+                path.write_text(json.dumps(cost), encoding="utf-8")
+            with patch.object(v2, "build_plan", return_value=plan):
+                verdict = v2.evaluate(plan, a, b)
+            self.assertEqual(verdict["verdict"], "G5_REJECT_K2")
+            self.assertTrue(verdict["repeat_a"]["quality_ok"])
+            self.assertTrue(verdict["repeat_b"]["quality_ok"])
+            self.assertFalse(verdict["repeat_a"]["rust_cost"]["index_budget_ok"])
+            self.assertFalse(verdict["repeat_b"]["rust_cost"]["index_budget_ok"])
+            with patch.object(v1, "build_plan", return_value=plan):
+                with self.assertRaises(v1.ConfirmError):
+                    v1.evaluate(plan, a, b)
+
+    def test_over_budget_on_only_one_repeat_still_rejects(self):
+        fixture = synthetic.SyntheticEvaluator()
+        plan = fixture.plan()
+        with tempfile.TemporaryDirectory() as tmp:
+            a, b = Path(tmp) / "a", Path(tmp) / "b"
+            fixture.make_repeat(a, plan, "A", 1, "runner-a")
+            fixture.make_repeat(b, plan, "B", 2, "runner-b")
+            path = b / "rust-cost.json"
+            cost = json.loads(path.read_text(encoding="utf-8"))
+            cost["index_bytes"] = 96 * cost["objects"]
+            path.write_text(json.dumps(cost), encoding="utf-8")
+            with patch.object(v2, "build_plan", return_value=plan):
+                verdict = v2.evaluate(plan, a, b)
+            self.assertEqual(verdict["verdict"], "G5_REJECT_K2")
+            self.assertTrue(verdict["repeat_a"]["eligible"])
+            self.assertFalse(verdict["repeat_b"]["eligible"])
 
     def test_all_science_thresholds_unchanged_except_verdict_class(self):
         # Guard against accidental edits to fixed population, K, and thresholds.
