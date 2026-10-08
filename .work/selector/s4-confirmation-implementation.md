@@ -74,3 +74,12 @@ Possible scientific verdicts remain exactly:
 - `INVALID`.
 
 No result exists until both natural repeats and the immutable evaluator complete.
+
+## Independent preflight audit (2026-10-08; synthetic only)
+
+- The original Rust driver assumed every object produces exactly eight **distinct** hashes. That is stronger than the frozen bottom-8 semantics: short, empty and low-diversity objects may produce fewer. The implementation now accepts 0..8 hashes without padding or selector changes, while reserving 64 bytes per catalog object in frozen accounting. Rust unit tests cover those shapes.
+- **Unresolved structural risk before irreversible holdout execution:** the frozen cost gate is `Catalog::index_bytes <= 64 * objects`. The unchanged index implementation accounts for a distinct hash as an 8-byte key plus a 4-byte posting ID. Two valid synthetic objects with eight unique hashes each therefore consume `192 B / 2 = 96 B/object` of logical index, *without* path postings. A deterministic Rust unit test demonstrates this counterexample. This does **not** predict the sealed bzip2 outcome; the evaluation inputs were not inspected.
+- The immutable v1 evaluator presently treats `index_bytes > 64 * objects` as a `ConfirmError` (invalid evidence), not as an ineligible quality/cost gate. This distinction needs an explicit scientific decision **before** releasing the one-shot merge: either retain the original strict rule and accept the risk of `INVALID`, or independently preregister a **versioned** correction with new immutable authority. Do not silently loosen the test, redefine `index_bytes`, inspect the holdout, or rescue a failed first attempt.
+- Measured per-query selection in `delsk-confirm` is `select_top` on the frozen per-target `C_t`. A global `Catalog` is constructed for index-cost accounting, but its `select_indexed` path does **not** serve these queries. Therefore these timings are scoped to K2 ranking on an already-materialized candidate set; they are **not** evidence of a full-catalog H11 retrieval speedup or end-to-end catalogue lookup latency.
+
+**Gate:** PR CI success alone is insufficient authorization to merge and auto-open the sealed holdout. Review the frozen index-cost incompatibility and data/measurement scope before merging. The S4-C protocol file and sealed evaluation population are untouched by this note.
