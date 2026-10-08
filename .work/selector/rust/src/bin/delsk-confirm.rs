@@ -161,6 +161,13 @@ fn json_string(s: &str) -> String {
     format!("\"{}\"", s)
 }
 
+/// Capacity is fixed at eight slots, not eight necessarily distinct observations.
+/// Deliberately does not fill missing hashes with zero or duplicate hashes:
+/// that would change the frozen MinHash resemblance/order semantics.
+fn validate_descriptor_width(hashes: &[u64]) {
+    assert!(hashes.len() <= HASHES, "descriptor exceeds eight-hash capacity");
+}
+
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     assert_eq!(args.len(), 4, "usage: delsk-confirm STORE INPUT.tsv OUT.json");
@@ -180,7 +187,10 @@ fn main() {
         assert_eq!(data.len() as u64, meta.size, "object size");
         scanned += data.len() as u64;
         let d = descriptor(&data);
-        assert_eq!(d.len(), HASHES, "S4-C objects must have full 64-byte descriptors");
+        // Bottom-k retains at most eight *distinct* hashes. Repeated, short and
+        // empty objects can have fewer; fixed-width accounting still reserves
+        // 64 B per object, as required by the frozen S4-C protocol.
+        validate_descriptor_width(&d);
         assert!(descriptors.insert(id.clone(), d).is_none());
     }
     let descriptor_cpu_ns = cpu_ns() - desc_cpu0;
@@ -246,4 +256,28 @@ fn main() {
         catalog_wall_ns, catalog_cpu_ns, index_bytes, query_json, round_json, selection_json
     );
     fs::write(output, doc).expect("write output");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn short_empty_and_repetitive_descriptors_are_valid() {
+        for bytes in [
+            &b""[..],
+            &b"a"[..],
+            &b"abcdefg"[..],
+            &b"abcdefgh"[..],
+            &[0x55; 4096][..],
+        ] {
+            let d = descriptor(bytes);
+            validate_descriptor_width(&d);
+        }
+        assert_eq!(descriptor(b"").len(), 0);
+        assert_eq!(descriptor(b"a").len(), 1);
+        assert_eq!(descriptor(&[0x55; 4096]).len(), 1);
+        // Storage is still the preregistered fixed 64 B per catalog object.
+        assert_eq!(3 * HASHES * std::mem::size_of::<u64>(), 192);
+    }
 }
