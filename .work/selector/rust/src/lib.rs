@@ -128,8 +128,8 @@ pub fn metadata_order<'a>(t: &Object, bases: &'a [Object]) -> Vec<&'a Object> {
         bases.iter().filter(|b| b.path.as_ref() == Some(path) && b.line == t.line).collect();
     let toff = t.offset.unwrap_or(0);
     same.sort_by(|x, y| {
-        (x.offset.unwrap_or(0).abs_diff(toff), -x.version, gap(t, x), &x.id)
-            .cmp(&(y.offset.unwrap_or(0).abs_diff(toff), -y.version, gap(t, y), &y.id))
+        (x.offset.unwrap_or(0).abs_diff(toff), std::cmp::Reverse(x.version), gap(t, x), &x.id)
+            .cmp(&(y.offset.unwrap_or(0).abs_diff(toff), std::cmp::Reverse(y.version), gap(t, y), &y.id))
     });
     same
 }
@@ -178,7 +178,7 @@ pub fn select_top<'a>(t: &Object, bases: &[&'a Object], k: usize) -> Vec<&'a Obj
         None => Vec::new(),
     };
     let toff = t.offset.unwrap_or(0);
-    let meta_key = |x: &&Object| (x.offset.unwrap_or(0).abs_diff(toff), -x.version, gap(t, x), x.id.clone());
+    let meta_key = |x: &&Object| (x.offset.unwrap_or(0).abs_diff(toff), std::cmp::Reverse(x.version), gap(t, x), x.id.clone());
     meta.sort_by_cached_key(meta_key);
     meta.truncate(k);
     let mut scored: Vec<((u32, u32), &Object)> =

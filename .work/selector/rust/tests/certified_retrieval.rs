@@ -126,6 +126,29 @@ fn empty_short_and_repeated_data_obey_exact_oracle() {
 }
 
 #[test]
+fn extreme_version_rank_has_total_order_without_signed_overflow() {
+    // Python's -version is unbounded, while i64::MIN negation overflows in Rust.
+    // Reverse(i64) preserves descending semantics for the *entire* i64 domain.
+    let t = obj("target", 100, &[42], Some("same"));
+    let mut oldest = obj("oldest", 100, &[42], Some("same"));
+    let mut ordinary = obj("ordinary", 100, &[42], Some("same"));
+    let mut latest = obj("latest", 100, &[42], Some("same"));
+    oldest.version = i64::MIN;
+    ordinary.version = 0;
+    latest.version = i64::MAX;
+    let objects = vec![oldest, ordinary, latest];
+    let ordered = delsk_selector::metadata_order(&t, &objects);
+    let ids: Vec<_> = ordered.iter().map(|o| o.id.as_str()).collect();
+    assert_eq!(ids, ["latest", "ordinary", "oldest"]);
+    for cap in [0, 1, 64] {
+        let catalog = Catalog::new(objects.clone(), cap);
+        for k in 0..=5 {
+            assert_exact(&catalog, &t, k);
+        }
+    }
+}
+
+#[test]
 fn deterministic_adversarial_property_matrix() {
     for seed in 1..=35u64 {
         let objs: Vec<Object> = (0..28u64)

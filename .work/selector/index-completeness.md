@@ -67,7 +67,7 @@ Compare approximate indexed, certified indexed, exact scanning, and size/path fa
 
 ## Deferred correctness/engineering risks
 
-- Object::version == i64::MIN currently makes unary negation in metadata keys overflow; audit public input validation before production. This does not affect frozen bounded version-rank corpus.
+- PR #60 research fix: replace signed unary negation by `Reverse(i64)` in both metadata orderings, preserving all existing bounded-input ordering while handling `i64::MIN`; adversarial test covers `i64::MIN/0/i64::MAX`. Object ID uniqueness and catalog input validation still require independent production hardening. This does not affect frozen bounded version-rank corpus.
 - current clone-heavy string metadata and logical index_bytes() underestimate resident memory.
 - concurrent catalog mutation is not modeled; snapshot generation and atomic index swap need a separate slice.
 - hash-poisoning and deterministic seed choice need a threat model, not just a swap to keyed BLAKE3.
