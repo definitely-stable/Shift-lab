@@ -1,0 +1,12 @@
+{
+  "compressed_bytes": 585232,
+  "compressed_sha256": "db68c20ddcc56e472461533e86f59c1a71cfc577de4f29766245f05ad724801c",
+  "compression": "gzip -n -9",
+  "instructions": "gzip -dc measurements.jsonl.gz | sha256sum must equal measurements_sha256",
+  "measurements_sha256": "e8e0c0fae1e373a074441c26e2efbf7cfc199b43ad11a1453ec5e4f694f9ce57",
+  "rows": 3815,
+  "schema": "delsk.chunkshift-s4.raw-retention.v1",
+  "source_artifact_digest": "sha256:55a018575eb7a87c5334500723d362555123057ead7dfc53f372062db0eabb4c",
+  "source_artifact_id": 11471047037,
+  "source_evaluation_run_id": 37597358766
+}
