@@ -282,10 +282,11 @@ mod tests {
     }
 
     #[test]
-    fn distinct_valid_hashes_can_exceed_frozen_index_budget() {
-        // Synthetic *structural* counterexample, not sealed S4-C evidence.
-        // Eight unique hashes per object require 8 B/key + 4 B/posting id
-        // in the current Catalog::index_bytes model: 96 B/object.
+    fn distinct_valid_hashes_fit_packed_index_budget() {
+        // Synthetic *structural* regression, not sealed S4-C evidence.
+        // The compact posting stores 32-bit fingerprint + 24-bit object id,
+        // i.e. 7 B/hash. Full 64-bit hashes remain in the 64 B descriptor
+        // and are checked before a posting is selected.
         let objects: Vec<Object> = (0..2u64)
             .map(|i| Object {
                 id: format!("base-{i}"),
@@ -298,7 +299,7 @@ mod tests {
             })
             .collect();
         let catalog = Catalog::new(objects, usize::MAX);
-        assert_eq!(catalog.index_bytes(), 2 * 96);
-        assert!(catalog.index_bytes() > 2 * 64);
+        assert_eq!(catalog.index_bytes(), 2 * 56);
+        assert!(catalog.index_bytes() <= 2 * 64);
     }
 }
