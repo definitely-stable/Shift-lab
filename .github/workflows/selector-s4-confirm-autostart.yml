@@ -20,11 +20,11 @@ permissions:
 
 jobs:
   start:
-    if: github.event.before == 'e1ee235fe08c7cc1f6e8ec8884b65439435adf92'
+    if: github.event.before == '0027d521a48701e504438a3ba750594647358d55'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     env:
-      EXPECTED_BEFORE: e1ee235fe08c7cc1f6e8ec8884b65439435adf92
+      EXPECTED_BEFORE: 0027d521a48701e504438a3ba750594647358d55
       SOURCE_SHA: ${{ github.sha }}
 
     steps:

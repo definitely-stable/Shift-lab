@@ -29,7 +29,7 @@ jobs:
       SOURCE_SHA: ${{ inputs.source_sha }}
       REPEAT_A_RUN_ID: ${{ inputs.repeat_a_run_id }}
       REPEAT_B_RUN_ID: ${{ inputs.repeat_b_run_id }}
-      PROTOCOL_SHA: abf6bd07540a132ddf2af4fa1001db103b27a9f8
+      PROTOCOL_SHA: 0027d521a48701e504438a3ba750594647358d55
 
     steps:
       - name: Checkout S4-C implementation
@@ -52,7 +52,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: definitely-stable/Shift-lab
-          ref: abf6bd07540a132ddf2af4fa1001db103b27a9f8
+          ref: 0027d521a48701e504438a3ba750594647358d55
           path: protocol
           persist-credentials: false
 
@@ -62,7 +62,7 @@ jobs:
           set -euo pipefail
           test "$(git -C protocol rev-parse HEAD)" = "$PROTOCOL_SHA"
           test -z "$(git -C protocol status --porcelain=v1 --untracked-files=normal)"
-          python3 protocol/.work/tools/selector_s4_confirmation.py plan             "$RUNNER_TEMP/s4c-plan.json"             --protocol-authority "$PROTOCOL_SHA"
+          python3 protocol/.work/tools/selector_s4_confirmation_v2.py plan             "$RUNNER_TEMP/s4c-plan.json"             --protocol-authority "$PROTOCOL_SHA"
 
       - name: Require exactly two S4-C repeat runs for this implementation
         shell: bash
@@ -197,7 +197,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/result"
-          python3 protocol/.work/tools/selector_s4_confirmation.py evaluate             "$RUNNER_TEMP/s4c-plan.json"             "$RUNNER_TEMP/repeat-A"             "$RUNNER_TEMP/repeat-B"             "$RUNNER_TEMP/result/result.json"
+          python3 protocol/.work/tools/selector_s4_confirmation_v2.py evaluate             "$RUNNER_TEMP/s4c-plan.json"             "$RUNNER_TEMP/repeat-A"             "$RUNNER_TEMP/repeat-B"             "$RUNNER_TEMP/result/result.json"
           cp "$RUNNER_TEMP/provider-index.jsonl" "$RUNNER_TEMP/result/provider-index.jsonl"
           cp "$RUNNER_TEMP/s4c-plan.json" "$RUNNER_TEMP/result/plan.json"
 

@@ -2,7 +2,7 @@ name: DELSK-012 S4-C repeat
 run-name: S4-C repeat ${{ inputs.repeat }} · ${{ inputs.source_sha }}
 
 # Frozen confirmation implementation. The plan/evaluator authority is the merge
-# of PR #55; this workflow may execute it but may not redefine it.
+# of PR #62 (v2 cost-gate erratum); this workflow may execute it but may not redefine it.
 on:
   workflow_dispatch:
     inputs:
@@ -38,7 +38,7 @@ jobs:
       SOURCE_SHA: ${{ inputs.source_sha }}
       REPEAT: ${{ inputs.repeat }}
       PRIOR_RUN_ID: ${{ inputs.prior_run_id }}
-      PROTOCOL_SHA: abf6bd07540a132ddf2af4fa1001db103b27a9f8
+      PROTOCOL_SHA: 0027d521a48701e504438a3ba750594647358d55
       CHUNKSHIFT_SHA: 74bb301b6d8ecc52cf0bc0e00d86fa174093d91b
       DOTNET_CLI_TELEMETRY_OPTOUT: "1"
       DOTNET_NOLOGO: "1"
@@ -83,7 +83,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: definitely-stable/Shift-lab
-          ref: abf6bd07540a132ddf2af4fa1001db103b27a9f8
+          ref: 0027d521a48701e504438a3ba750594647358d55
           path: protocol
           persist-credentials: false
 
@@ -93,7 +93,7 @@ jobs:
           set -euo pipefail
           test "$(git -C protocol rev-parse HEAD)" = "$PROTOCOL_SHA"
           test -z "$(git -C protocol status --porcelain=v1 --untracked-files=normal)"
-          python3 protocol/.work/tools/selector_s4_confirmation.py plan             "$RUNNER_TEMP/s4c-plan.json"             --protocol-authority "$PROTOCOL_SHA"
+          python3 protocol/.work/tools/selector_s4_confirmation_v2.py plan             "$RUNNER_TEMP/s4c-plan.json"             --protocol-authority "$PROTOCOL_SHA"
 
       - name: Materialize frozen natural store
         shell: bash

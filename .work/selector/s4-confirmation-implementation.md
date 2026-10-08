@@ -1,7 +1,7 @@
 # S4-C implementation: sealed holdout execution
 
 Status: **IMPLEMENTED / NOT_RUN**.  
-Frozen protocol authority: `abf6bd07540a132ddf2af4fa1001db103b27a9f8` (PR #55).  
+Protocol authority: `0027d521a48701e504438a3ba750594647358d55` (PR #62, preregistered S4-C v2 index-cost verdict erratum). Original v1: `abf6bd07540a132ddf2af4fa1001db103b27a9f8` (unchanged).  
 Consumer: `definitely-stable/ChunkShift@74bb301b6d8ecc52cf0bc0e00d86fa174093d91b`.
 
 This file describes execution only. It does not change [s4-confirmation.md](s4-confirmation.md), K=2, the sealed evaluation population or any G5 threshold.
@@ -9,7 +9,7 @@ This file describes execution only. It does not change [s4-confirmation.md](s4-c
 ## Execution graph
 
 After this implementation PR is squash-merged directly on top of
-`e1ee235fe08c7cc1f6e8ec8884b65439435adf92`:
+`0027d521a48701e504438a3ba750594647358d55`:
 
 `merge push → repeat A → repeat B → immutable evaluator`
 
@@ -64,8 +64,8 @@ Python recomputes the same K2 IDs from the authority implementation only for par
 
 Artifact ZIP bytes are checked against GitHub's digest before extraction. The extracted file set is closed.
 
-The final verdict is produced only by the evaluator at protocol authority
-`abf6bd07540a132ddf2af4fa1001db103b27a9f8`.
+The final verdict is produced only by `selector_s4_confirmation_v2.py` at protocol authority
+`0027d521a48701e504438a3ba750594647358d55` (the immutable original v1 evaluator remains preserved).
 
 Possible scientific verdicts remain exactly:
 
@@ -75,11 +75,13 @@ Possible scientific verdicts remain exactly:
 
 No result exists until both natural repeats and the immutable evaluator complete.
 
-## Independent preflight audit (2026-10-08; synthetic only)
+## Independent preflight audit and protocol v2 handoff (2026-10-08; synthetic only)
 
-- The original Rust driver assumed every object produces exactly eight **distinct** hashes. That is stronger than the frozen bottom-8 semantics: short, empty and low-diversity objects may produce fewer. The implementation now accepts 0..8 hashes without padding or selector changes, while reserving 64 bytes per catalog object in frozen accounting. Rust unit tests cover those shapes.
-- **Unresolved structural risk before irreversible holdout execution:** the frozen cost gate is `Catalog::index_bytes <= 64 * objects`. The unchanged index implementation accounts for a distinct hash as an 8-byte key plus a 4-byte posting ID. Two valid synthetic objects with eight unique hashes each therefore consume `192 B / 2 = 96 B/object` of logical index, *without* path postings. A deterministic Rust unit test demonstrates this counterexample. This does **not** predict the sealed bzip2 outcome; the evaluation inputs were not inspected.
-- The immutable v1 evaluator presently treats `index_bytes > 64 * objects` as a `ConfirmError` (invalid evidence), not as an ineligible quality/cost gate. This distinction needs an explicit scientific decision **before** releasing the one-shot merge: either retain the original strict rule and accept the risk of `INVALID`, or independently preregister a **versioned** correction with new immutable authority. Do not silently loosen the test, redefine `index_bytes`, inspect the holdout, or rescue a failed first attempt.
-- Measured per-query selection in `delsk-confirm` is `select_top` on the frozen per-target `C_t`. A global `Catalog` is constructed for index-cost accounting, but its `select_indexed` path does **not** serve these queries. Therefore these timings are scoped to K2 ranking on an already-materialized candidate set; they are **not** evidence of a full-catalog H11 retrieval speedup or end-to-end catalogue lookup latency.
+- The Rust driver accepts 0..8 distinct bottom hashes for short, empty, or repetitive objects; the frozen descriptor storage cost still reserves 64 bytes per catalog object.
+- The synthetic adversarial example with two disjoint 8-hash descriptors costs 192 index bytes (96 B/object), exceeding the unchanged 64 B/object gate. This does not predict the held-out bzip2 result.
+- Before any E1 measurement, protocol-only PR #62 was merged as exact authority `0027d521a48701e504438a3ba750594647358d55`. Its v2 evaluator treats a structurally valid over-budget index as **G5_REJECT_K2**, not **INVALID**. Negative, missing, or malformed cost measurements remain INVALID. Original protocol v1 SHA `abf6bd07540a132ddf2af4fa1001db103b27a9f8` and its code remain immutable; quality/cost thresholds, selector K=2, consumer pin, dataset, and no-rerun policy are unchanged.
+- Confirmation runtime and both independent plan/evaluator workflows pin the exact PR #62 authority; the first auto-start transition is restricted to `0027d521a48701e504438a3ba750594647358d55` → squash-merged implementation SHA.
+- The index guardrail is global `Catalog::index_bytes` cost accounting; measured query timings in `delsk-confirm` are ranking already-materialized frozen per-target `C_t`, **not** H11 full-catalog indexed retrieval.
+- Recheck the GitHub provider history before merge: no earlier S4-C E1 repeat/first-attempt dispatch may exist. If any is found, **stop**; the E1 split is no longer eligible for this new authority. Never manually retry failed repeat A/B/evaluator, never tune thresholds on opened evidence.
 
-**Gate:** PR CI success alone is insufficient authorization to merge and auto-open the sealed holdout. Review the frozen index-cost incompatibility and data/measurement scope before merging. The S4-C protocol file and sealed evaluation population are untouched by this note.
+**Merge gate:** current `main` must still be exactly `0027d521a48701e504438a3ba750594647358d55`, all required GitHub-hosted checks must pass, and frozen test/evidence boundaries must be independently reviewed. PR #60 stays draft until first-attempt S4-C evidence is closed.

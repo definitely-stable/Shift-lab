@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[2]
 REPO = ROOT
 sys.path.insert(0, str(TOOLS))
 
-import selector_s4_confirmation as frozen  # noqa: E402
+import selector_s4_confirmation_v2 as frozen  # noqa: E402
 import selector_s4_confirmation_runner as runner  # noqa: E402
 
 
@@ -58,7 +58,7 @@ class WorkflowBoundary(unittest.TestCase):
     def test_autostart_is_one_shot_on_exact_parent(self):
         text = self.read("selector-s4-confirm-autostart.yml")
         self.assertIn(
-            "github.event.before == 'e1ee235fe08c7cc1f6e8ec8884b65439435adf92'",
+            "github.event.before == '0027d521a48701e504438a3ba750594647358d55'",
             text,
         )
         self.assertIn('test "$GITHUB_WORKFLOW_SHA" = "$GITHUB_SHA"', text)
@@ -70,11 +70,25 @@ class WorkflowBoundary(unittest.TestCase):
         self.assertIn("actions: write", text)
         self.assertIn('test "$SOURCE_SHA" = "$GITHUB_SHA"', text)
         self.assertIn('test "$GITHUB_WORKFLOW_SHA" = "$GITHUB_SHA"', text)
-        self.assertIn("abf6bd07540a132ddf2af4fa1001db103b27a9f8", text)
+        self.assertIn("0027d521a48701e504438a3ba750594647358d55", text)
         self.assertIn("selector-s4-confirm-repeat.yml/dispatches", text)
         self.assertIn("selector-s4-confirm-evaluate.yml/dispatches", text)
         self.assertNotIn("rerun", text.lower())
         self.assertNotIn("re-run", text.lower())
+
+    def test_all_runtime_paths_use_exact_v2_authority(self):
+        autostart = self.read("selector-s4-confirm-autostart.yml")
+        repeat = self.read("selector-s4-confirm-repeat.yml")
+        evaluate = self.read("selector-s4-confirm-evaluate.yml")
+        runtime = (REPO / ".work/tools/selector_s4_confirmation_runner.py").read_text(encoding="utf-8")
+        for text in (repeat, evaluate, runtime):
+            self.assertIn("0027d521a48701e504438a3ba750594647358d55", text)
+            self.assertNotIn("abf6bd07540a132ddf2af4fa1001db103b27a9f8", text)
+        for text in (repeat, evaluate):
+            self.assertIn("selector_s4_confirmation_v2.py plan", text)
+        self.assertIn("selector_s4_confirmation_v2.py evaluate", evaluate)
+        self.assertIn("github.event.before == '0027d521a48701e504438a3ba750594647358d55'", autostart)
+        self.assertNotIn("e1ee235fe08c7cc1f6e8ec8884b65439435adf92", autostart)
 
     def test_parity_precedes_any_chunkshift_measurement(self):
         # Exercise the runtime guard rather than text positions: the source file
@@ -134,7 +148,7 @@ class WorkflowBoundary(unittest.TestCase):
         self.assertIn('"path": ".github/workflows/selector-s4-confirm-repeat.yml"', text)
         self.assertIn("artifact_digest", text)
         self.assertIn("unexpected repeat artifact files", text)
-        self.assertIn("protocol/.work/tools/selector_s4_confirmation.py evaluate", text)
+        self.assertIn("protocol/.work/tools/selector_s4_confirmation_v2.py evaluate", text)
         for name in (
             "admission.json", "measurements.jsonl", "manifests.jsonl",
             "selection.json", "rust-cost.json", "timing.json", "run.json",
