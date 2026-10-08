@@ -39,7 +39,7 @@ GitHub URLs и номера хранятся в [реестре](issues/index.js
 
 ## Cross-repository adoption follow-up (после S4-C)
 
-Независимый критический разбор DeltaMeter/Mathlab и исправления DELSK: [23 пункта](research/CROSS-REPO-ADOPTION-2026-10.md). Из них немедленные будущие задачи:
+Независимый критический разбор DeltaMeter/Mathlab и исправления DELSK: [24 пункта](research/CROSS-REPO-ADOPTION-2026-10.md). Из них немедленные будущие задачи:
 
 - [H11 / issue #58](https://github.com/definitely-stable/Shift-lab/issues/58) — доказуемо точный индексированный top-K или exact fallback. [Proof/limitations](selector/index-completeness.md). Начат изолированный Rust Slice A в отдельном draft PR; **не менять v1/S4-C**.
 - [H12 / issue #59](https://github.com/definitely-stable/Shift-lab/issues/59) — полная экономика выбора баз и цена fanout. [Protocol draft](research/SYSTEM-ROI-PROTOCOL-DRAFT.md); measurement **NOT_FROZEN / NOT_RUN**.
