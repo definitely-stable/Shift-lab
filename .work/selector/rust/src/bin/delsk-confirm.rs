@@ -107,7 +107,7 @@ fn load_queries(path: &Path) -> Vec<Query> {
     let mut bases: BTreeMap<String, Vec<Meta>> = BTreeMap::new();
 
     for line in text.lines().filter(|line| !line.is_empty()) {
-        let parts: Vec<&str> = line.split('\\t').collect();
+        let parts: Vec<&str> = line.split(char::from(9)).collect();
         assert_eq!(parts.len(), 8, "TSV shape");
         let kind = parts[0];
         let tid = parts[1].to_owned();
