@@ -23,7 +23,7 @@ sys.path.insert(0, str(TOOLS))
 
 import selector_s4_runner as s4  # noqa: E402
 
-PROTOCOL_SHA = "0027d521a48701e504438a3ba750594647358d55"
+PROTOCOL_SHA = "9ec28a0022651bb7416871089b0bcc4edd3454b8"
 CONSUMER_SHA = "74bb301b6d8ecc52cf0bc0e00d86fa174093d91b"
 PLAN_SCHEMA = "delsk.chunkshift-s4-confirm.plan.v1"
 SELECTION_SCHEMA = "delsk.chunkshift-s4-confirm.selection.v1"
