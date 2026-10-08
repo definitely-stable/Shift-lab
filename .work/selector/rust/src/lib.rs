@@ -411,6 +411,61 @@ mod tests {
     }
 
     #[test]
+    fn compact_index_counts_real_packed_entries_and_path_ids() {
+        let objects: Vec<Object> = (0..20u64)
+            .map(|i| Object {
+                id: format!("o{i}"),
+                size: 100,
+                path: Some("same-path".into()),
+                line: Some("stable".into()),
+                version: i as i64,
+                offset: None,
+                descriptor: (i * 8 + 1..=i * 8 + 8).collect(),
+            })
+            .collect();
+        let catalog = Catalog::new(objects, usize::MAX);
+        // Eight 7-byte packed postings and one 4-byte path posting per
+        // object; total 60B/object under the frozen LOGICAL cost model.
+        assert_eq!(catalog.index_bytes(), 20 * (8 * 7 + 4));
+        assert!(catalog.index_bytes() <= 20 * 64);
+    }
+
+    #[test]
+    fn fingerprint_collisions_do_not_become_full_hash_matches() {
+        let target = Object {
+            id: "target".into(), size: 100, path: None, line: None,
+            version: 0, offset: None, descriptor: vec![0x1234_5678_1111_1111],
+        };
+        let unrelated = Object {
+            id: "collision".into(), size: 99, path: None, line: None,
+            version: 0, offset: None, descriptor: vec![0x1234_5678_2222_2222],
+        };
+        let matching = Object {
+            id: "matching".into(), size: 100, path: None, line: None,
+            version: 0, offset: None, descriptor: target.descriptor.clone(),
+        };
+        let catalog = Catalog::new(vec![unrelated, matching], usize::MAX);
+        let (ids, stats) = catalog.select_indexed(&target, 2);
+        assert_eq!(ids, vec!["matching"]);
+        assert_eq!(stats.capped_postings, 0);
+        assert_eq!(stats.candidates, 1);
+    }
+
+    #[test]
+    fn zero_overlap_remains_approximate_without_explicit_fallback() {
+        let target = Object {
+            id: "target".into(), size: 100, path: None, line: None,
+            version: 0, offset: None, descriptor: vec![7],
+        };
+        let catalog = Catalog::new(vec![Object {
+            id: "candidate".into(), size: 100, path: None, line: None,
+            version: 0, offset: None, descriptor: vec![8],
+        }], usize::MAX);
+        assert!(catalog.select_indexed(&target, 1).0.is_empty());
+        assert_eq!(catalog.select_exact(&target, 1), vec!["candidate"]);
+    }
+
+    #[test]
     fn short_inputs() {
         assert!(descriptor(b"").is_empty());
         assert_eq!(descriptor(b"abc").len(), 1);
