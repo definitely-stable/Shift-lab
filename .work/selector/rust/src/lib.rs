@@ -197,17 +197,91 @@ pub fn select_top<'a>(t: &Object, bases: &[&'a Object], k: usize) -> Vec<&'a Obj
     out
 }
 
-/// Catalog of base objects with a path map and an inverted index over descriptor hashes.
-/// Objects are immutable through this API: mutating indexed fields without rebuilding
-/// would invalidate any exactness certificate returned by the indexed selector.
+/// Packed postings. Each entry contains a 32-bit fingerprint (upper bits of
+/// the full descriptor hash) and a 24-bit object index, stored in exactly 7 bytes.
+/// Full 64-bit descriptor hashes remain authoritative when reading the index.
+///
+/// For catalogs larger than 2^24 objects, fall back to two u32 words per
+/// posting. Both layouts store exactly one entry per original descriptor hash.
+/// Fingerprint collisions can add *lookup candidates*, never remove an exact
+/// hash hit while its posting bucket is not truncated.
+enum PostingStorage {
+    Compact(Vec<[u8; 7]>),
+    Wide(Vec<(u32, u32)>),
+}
+
+impl PostingStorage {
+    fn new(objects: &[Object]) -> Self {
+        let capacity = objects.iter().map(|o| o.descriptor.len()).sum();
+        if objects.len() <= 1 << 24 {
+            let mut rows = Vec::with_capacity(capacity);
+            for (i, o) in objects.iter().enumerate() {
+                let id = u32::try_from(i).expect("compact object index");
+                for &hash in &o.descriptor {
+                    let key = (hash >> 32) as u32;
+                    let bytes = key.to_be_bytes();
+                    rows.push([
+                        bytes[0], bytes[1], bytes[2], bytes[3],
+                        (id >> 16) as u8, (id >> 8) as u8, id as u8,
+                    ]);
+                }
+            }
+            rows.sort_unstable();
+            Self::Compact(rows)
+        } else {
+            let mut rows = Vec::with_capacity(capacity);
+            for (i, o) in objects.iter().enumerate() {
+                let id = u32::try_from(i).expect("catalog index requires u32 object count");
+                for &hash in &o.descriptor {
+                    rows.push(((hash >> 32) as u32, id));
+                }
+            }
+            rows.sort_unstable();
+            Self::Wide(rows)
+        }
+    }
+
+    fn accounted_bytes(&self) -> usize {
+        match self {
+            Self::Compact(rows) => rows.len() * std::mem::size_of::<[u8; 7]>(),
+            Self::Wide(rows) => rows.len() * std::mem::size_of::<(u32, u32)>(),
+        }
+    }
+
+    fn fingerprint_hits(&self, hash: u64, cap: usize, out: &mut Vec<u32>) -> bool {
+        let key = (hash >> 32) as u32;
+        match self {
+            Self::Compact(rows) => {
+                let prefix = key.to_be_bytes();
+                let start = rows.partition_point(|e| e[..4].cmp(&prefix[..]).is_lt());
+                let end = start + rows[start..].partition_point(|e| e[..4].eq(&prefix[..]));
+                for entry in rows[start..end].iter().take(cap) {
+                    out.push((u32::from(entry[4]) << 16)
+                        | (u32::from(entry[5]) << 8) | u32::from(entry[6]));
+                }
+                end - start > cap
+            }
+            Self::Wide(rows) => {
+                let start = rows.partition_point(|e| e.0 < key);
+                let end = start + rows[start..].partition_point(|e| e.0 == key);
+                out.extend(rows[start..end].iter().take(cap).map(|e| e.1));
+                end - start > cap
+            }
+        }
+    }
+}
+
+/// Catalog of base objects with a path map and a packed, 32-bit-fingerprint
+/// inverted index. The entire 64-bit descriptor is kept separately for scoring.
+/// This is research-only infrastructure, not a frozen public representation.
 pub struct Catalog {
+    // Safe Rust callers cannot mutate the indexed snapshot after construction.
     objects: Vec<Object>,
     by_path: HashMap<(String, Option<String>), Vec<u32>>,
-    postings: HashMap<u64, Vec<u32>>,
-    /// Maximum objects read per posting list in an indexed query.
+    postings: PostingStorage,
+    /// Maximum entries read per fingerprint bucket in an indexed query.
     pub posting_cap: usize,
-    /// All base IDs must be unique and all descriptors sorted/distinct and <= HASHES.
-    /// Invalid catalog inputs may still be exact-scanned but cannot be certified.
+    // Immutable proof premises for opt-in certified retrieval.
     certifiable_snapshot: bool,
 }
 
@@ -216,8 +290,7 @@ pub struct Catalog {
 pub struct QueryStats {
     pub candidates: usize,
     pub capped_postings: usize,
-    /// Unique retrieved, non-target objects with a positive descriptor intersection.
-    /// Metadata-only candidates are not counted here.
+    /// Unique, non-target, positive-resemblance objects among the retrieved candidates.
     pub positive_candidates: usize,
 }
 
@@ -252,34 +325,31 @@ fn canonical_descriptor(hashes: &[u64]) -> bool {
 
 impl Catalog {
     pub fn new(objects: Vec<Object>, posting_cap: usize) -> Self {
-        let mut unique_ids = std::collections::HashSet::with_capacity(objects.len());
-        let certifiable_snapshot = objects.len() <= u32::MAX as usize
-            && objects.iter().all(|o| unique_ids.insert(o.id.as_str()) && canonical_descriptor(&o.descriptor));
+        assert!(objects.len() <= u32::MAX as usize, "catalog object limit u32");
+        let mut ids = std::collections::HashSet::with_capacity(objects.len());
+        let certifiable_snapshot = objects.iter().all(|o| ids.insert(o.id.as_str()) && canonical_descriptor(&o.descriptor));
         let mut by_path: HashMap<(String, Option<String>), Vec<u32>> = HashMap::new();
-        let mut postings: HashMap<u64, Vec<u32>> = HashMap::new();
         for (i, o) in objects.iter().enumerate() {
             if let Some(p) = &o.path {
                 by_path.entry((p.clone(), o.line.clone())).or_default().push(i as u32);
             }
-            for h in &o.descriptor {
-                postings.entry(*h).or_default().push(i as u32);
-            }
         }
+        let postings = PostingStorage::new(&objects);
         Self { objects, by_path, postings, posting_cap, certifiable_snapshot }
     }
 
-    /// Borrow the immutable base-object snapshot. Updates require constructing
-    /// a fresh Catalog so postings and metadata cannot become stale.
+    /// Read-only view of the indexed snapshot. Rebuild Catalog for mutations.
     pub fn objects(&self) -> &[Object] {
         &self.objects
     }
 
-    /// Bytes of the index structures from their lengths (posting and path ids at 4 B, posting keys at 8 B);
-    /// descriptors, object ids and allocator overhead are reported separately.
+    /// Logical index payload: packed fingerprint+object-index entries plus
+    /// path posting IDs. This preserves the S4-C index_bytes cost boundary,
+    /// but does not represent HashMap/Vec/string allocator overhead or RSS.
+    /// Those must be measured independently for product claims.
     pub fn index_bytes(&self) -> usize {
-        let posting_ids: usize = self.postings.values().map(|v| v.len() * 4).sum();
         let path_ids: usize = self.by_path.values().map(|v| v.len() * 4).sum();
-        posting_ids + self.postings.len() * 8 + path_ids
+        self.postings.accounted_bytes() + path_ids
     }
 
     /// Exact selection over every object except the target itself.
@@ -288,8 +358,11 @@ impl Catalog {
         select_top(t, &bases, k).into_iter().map(|o| o.id.clone()).collect()
     }
 
-    /// Indexed selection: candidates are the path matches and the objects sharing at least one descriptor hash
-    /// (each posting list read up to `posting_cap`), ranked by the same order as [`select`].
+    /// Approximate indexed search: metadata matches and candidates sharing
+    /// a full 64-bit descriptor hash. Only 32-bit fingerprints are indexed;
+    /// the full 64-bit hash is checked before a posting becomes a candidate.
+    /// Truncation is performed over fingerprint buckets (conservative cap
+    /// accounting), so this remains approximate and can omit bases.
     pub fn select_indexed(&self, t: &Object, k: usize) -> (Vec<String>, QueryStats) {
         let mut stats = QueryStats::default();
         let mut ids: Vec<u32> = Vec::new();
@@ -298,24 +371,26 @@ impl Catalog {
                 ids.extend_from_slice(v);
             }
         }
-        for h in &t.descriptor {
-            if let Some(v) = self.postings.get(h) {
-                if v.len() > self.posting_cap {
-                    stats.capped_postings += 1;
-                }
-                ids.extend_from_slice(&v[..v.len().min(self.posting_cap)]);
+        for &h in &t.descriptor {
+            let mut found = Vec::new();
+            if self.postings.fingerprint_hits(h, self.posting_cap, &mut found) {
+                stats.capped_postings += 1;
             }
+            // Fingerprints are only a lookup accelerator; never equate
+            // a 32-bit collision with a full descriptor-hash match.
+            ids.extend(found.into_iter().filter(|&id| {
+                self.objects[id as usize].descriptor.contains(&h)
+            }));
         }
         ids.sort_unstable();
         ids.dedup();
         let bases: Vec<&Object> =
             ids.into_iter().map(|i| &self.objects[i as usize]).filter(|o| o.id != t.id).collect();
         stats.candidates = bases.len();
-        let mut unique_positive_ids = std::collections::HashSet::new();
-        stats.positive_candidates = bases
-            .iter()
+        let mut positive_ids = std::collections::HashSet::new();
+        stats.positive_candidates = bases.iter()
             .filter(|o| resemblance(&t.descriptor, &o.descriptor).0 != 0)
-            .filter(|o| unique_positive_ids.insert(o.id.as_str()))
+            .filter(|o| positive_ids.insert(o.id.as_str()))
             .count();
         (select_top(t, &bases, k).into_iter().map(|o| o.id.clone()).collect(), stats)
     }
@@ -423,6 +498,61 @@ mod tests {
                 assert_eq!(top, full, "target {} k {k}", t.id);
             }
         }
+    }
+
+    #[test]
+    fn compact_index_counts_real_packed_entries_and_path_ids() {
+        let objects: Vec<Object> = (0..20u64)
+            .map(|i| Object {
+                id: format!("o{i}"),
+                size: 100,
+                path: Some("same-path".into()),
+                line: Some("stable".into()),
+                version: i as i64,
+                offset: None,
+                descriptor: (i * 8 + 1..=i * 8 + 8).collect(),
+            })
+            .collect();
+        let catalog = Catalog::new(objects, usize::MAX);
+        // Eight 7-byte packed postings and one 4-byte path posting per
+        // object; total 60B/object under the frozen LOGICAL cost model.
+        assert_eq!(catalog.index_bytes(), 20 * (8 * 7 + 4));
+        assert!(catalog.index_bytes() <= 20 * 64);
+    }
+
+    #[test]
+    fn fingerprint_collisions_do_not_become_full_hash_matches() {
+        let target = Object {
+            id: "target".into(), size: 100, path: None, line: None,
+            version: 0, offset: None, descriptor: vec![0x1234_5678_1111_1111],
+        };
+        let unrelated = Object {
+            id: "collision".into(), size: 99, path: None, line: None,
+            version: 0, offset: None, descriptor: vec![0x1234_5678_2222_2222],
+        };
+        let matching = Object {
+            id: "matching".into(), size: 100, path: None, line: None,
+            version: 0, offset: None, descriptor: target.descriptor.clone(),
+        };
+        let catalog = Catalog::new(vec![unrelated, matching], usize::MAX);
+        let (ids, stats) = catalog.select_indexed(&target, 2);
+        assert_eq!(ids, vec!["matching"]);
+        assert_eq!(stats.capped_postings, 0);
+        assert_eq!(stats.candidates, 1);
+    }
+
+    #[test]
+    fn zero_overlap_remains_approximate_without_explicit_fallback() {
+        let target = Object {
+            id: "target".into(), size: 100, path: None, line: None,
+            version: 0, offset: None, descriptor: vec![7],
+        };
+        let catalog = Catalog::new(vec![Object {
+            id: "candidate".into(), size: 100, path: None, line: None,
+            version: 0, offset: None, descriptor: vec![8],
+        }], usize::MAX);
+        assert!(catalog.select_indexed(&target, 1).0.is_empty());
+        assert_eq!(catalog.select_exact(&target, 1), vec!["candidate"]);
     }
 
     #[test]
