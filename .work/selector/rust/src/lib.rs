@@ -198,12 +198,17 @@ pub fn select_top<'a>(t: &Object, bases: &[&'a Object], k: usize) -> Vec<&'a Obj
 }
 
 /// Catalog of base objects with a path map and an inverted index over descriptor hashes.
+/// Objects are immutable through this API: mutating indexed fields without rebuilding
+/// would invalidate any exactness certificate returned by the indexed selector.
 pub struct Catalog {
-    pub objects: Vec<Object>,
+    objects: Vec<Object>,
     by_path: HashMap<(String, Option<String>), Vec<u32>>,
     postings: HashMap<u64, Vec<u32>>,
     /// Maximum objects read per posting list in an indexed query.
     pub posting_cap: usize,
+    /// All base IDs must be unique and all descriptors sorted/distinct and <= HASHES.
+    /// Invalid catalog inputs may still be exact-scanned but cannot be certified.
+    certifiable_snapshot: bool,
 }
 
 /// Counters of one indexed query.
@@ -227,6 +232,8 @@ pub enum RetrievalCertification {
     IndexedExact,
     ExactFallbackCapped,
     ExactFallbackSparse,
+    /// Invalid snapshot ID/descriptor invariants, or noncanonical target descriptor.
+    ExactFallbackInvalidInput,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -236,8 +243,18 @@ pub struct CertifiedSelection {
     pub stats: QueryStats,
 }
 
+/// The resemblance and index algorithms operate on strictly ascending, distinct
+/// descriptors of at most HASHES hashes. Malformed external descriptors can still
+/// use select_exact, but must never receive an indexed exactness certificate.
+fn canonical_descriptor(hashes: &[u64]) -> bool {
+    hashes.len() <= HASHES && hashes.windows(2).all(|pair| pair[0] < pair[1])
+}
+
 impl Catalog {
     pub fn new(objects: Vec<Object>, posting_cap: usize) -> Self {
+        let mut unique_ids = std::collections::HashSet::with_capacity(objects.len());
+        let certifiable_snapshot = objects.len() <= u32::MAX as usize
+            && objects.iter().all(|o| unique_ids.insert(o.id.as_str()) && canonical_descriptor(&o.descriptor));
         let mut by_path: HashMap<(String, Option<String>), Vec<u32>> = HashMap::new();
         let mut postings: HashMap<u64, Vec<u32>> = HashMap::new();
         for (i, o) in objects.iter().enumerate() {
@@ -248,7 +265,13 @@ impl Catalog {
                 postings.entry(*h).or_default().push(i as u32);
             }
         }
-        Self { objects, by_path, postings, posting_cap }
+        Self { objects, by_path, postings, posting_cap, certifiable_snapshot }
+    }
+
+    /// Borrow the immutable base-object snapshot. Updates require constructing
+    /// a fresh Catalog so postings and metadata cannot become stale.
+    pub fn objects(&self) -> &[Object] {
+        &self.objects
     }
 
     /// Bytes of the index structures from their lengths (posting and path ids at 4 B, posting keys at 8 B);
@@ -309,6 +332,13 @@ impl Catalog {
             return CertifiedSelection {
                 ids: Vec::new(),
                 certification: RetrievalCertification::IndexedExact,
+                stats: QueryStats::default(),
+            };
+        }
+        if !self.certifiable_snapshot || !canonical_descriptor(&t.descriptor) {
+            return CertifiedSelection {
+                ids: self.select_exact(t, k),
+                certification: RetrievalCertification::ExactFallbackInvalidInput,
                 stats: QueryStats::default(),
             };
         }
