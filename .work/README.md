@@ -12,6 +12,9 @@
 | [Аудит исходных отчётов](research/report-audit.md) | Что принято, исправлено, отложено и почему |
 | [Современная литература](research/literature-review.md) | Проверенные первичные источники и ограничения novelty |
 | [Практики лабораторий](research/lab-practices.md) | ChunkShift, внешние лаборатории и реальные ограничения Actions |
+| [DELSK × DeltaMeter × Mathlab: adoption audit](research/CROSS-REPO-ADOPTION-2026-10.md) | 24 проверенных пункта, границы переносимости, слабые места и решения H11–H18; **не меняет S4-C** |
+| [H11 certified index proof & test plan](selector/index-completeness.md) | Достаточные условия точного top-K и fail-to-exact fallback; **draft / без CI-решения** |
+| [H12 total-system ROI protocol draft](research/SYSTEM-ROI-PROTOCOL-DRAFT.md) | Полные CPU/wall/network/RSS сценарии и будущая preregistration; **NOT_FROZEN** |
 | [Протокол DELSK-P1](protocol.md) | Ground truth, метрики, статистика, gates |
 | [Корпус и baseline matrix](corpus-and-baselines.md) | Объекты, lineage split, лицензии, воспроизведение |
 | [Slice E0: candidate-universe design audit](research/DELSK-002-E0-candidate-universe.md) | Формальная модель, counterexamples и варианты решений до E freeze |
@@ -30,7 +33,7 @@
 | [Решение о pivot 2026-10-06](decisions/2026-10-06-pivot-simple-selector.md) | DELSK-000: после G1 PASS, Slice A и X0 compact-descriptor track остановлен; принят простой selector, остальные направления перенацелены |
 | [Simple selector `delsk.simple-selector.v1`](selector/README.md) | Метаданные (путь, линия релизов, версия) чередуются с 64 B MinHash; K = 2 по умолчанию; in-sample SC@2 ≥ 0.958 (≥ 0.9966 вне chunks бинарников) при сокращении вызовов кодера в 10–21 раз |
 | [S4 ChunkShift consumer screen](selector/s4.md) | Whole-base integration boundary; development screen **COMPLETE / OPEN_CONFIRMATION_K2**, 3,815/3,815 rows, 0 failures; [retained result](results/SELECTOR-S4/README.md) |
-| [S4-C sealed holdout confirmation](selector/s4-confirmation.md) | Frozen next gate: pre-existing evaluation split `bzip2`, K=2 only, Rust selector end-to-end, two independent hosted repeats; **NOT_RUN** |
+| [S4-C sealed holdout confirmation](selector/s4-confirmation.md) | Frozen next gate: pre-existing evaluation split `bzip2`, K=2 only, Rust selector end-to-end, two independent hosted repeats; **G5_SCOPED_PASS_K2** on pinned bzip2 E1; A/B/evaluator attempts 1 |
 | [S4-C pre-measure index-cost erratum v2](selector/s4-confirmation-erratum-v2.md) | Draft protocol clarification (#61): valid index-cost gate failures become scoped REJECT, not INVALID; **NOT_ACTIVE / no holdout access**, original frozen authority unchanged |
 | [DELSK-002 X0 screening](corpus/x0/README.md) | Preregistered screening трудных классов корпуса после насыщения Slice A: чередующиеся ветки релизов (6 C-проектов), release binaries (6 проектов), CDC chunks, lane без метаданных; exhaustive oracle того же codec lock и дешёвые baselines; decision rule HARD при headroom ≥ 2 pp. Exploratory, не G1/G2 evidence; RUN, [результаты](corpus/x0/results.md): `NO_HEADROOM_AT_256` — чередование веток ломает только наивный `previous_version`, MinHash 64 B и `version_previous` насыщают все ячейки |
 | [Prior art update 2026-10](research/DELSK-PRIOR-ART-UPDATE-2026-10.md) | Карта sketch/similarity методов и минимальный baseline набор DELSK-004 после G1 |
