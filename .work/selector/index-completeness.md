@@ -32,7 +32,7 @@ This is intentionally SUFFICIENT, not necessary. For K=1 with a deterministic pa
 
 - Existing select_indexed: unchanged approximate behavior; QueryStats now additionally records positive_candidates (a counter, not a proof).
 - Catalog::objects() exposes only &[Object] (read-only immutable snapshot); field Catalog.objects is private. To change objects, build a new Catalog and its index atomically in caller-owned state.
-- Catalog::new rejects exact certification (but preserves exact-scan and legacy approximate-selector operation) when duplicate IDs, noncanonical object descriptors or unrepresentable u32 index cardinality are observed. Target descriptors are likewise validated for the certification path.
+- Catalog::new disables indexed certification (but keeps exact scanning and legacy approximate retrieval available) when duplicate IDs or noncanonical descriptors are found. Target descriptors are likewise validated before certification. Independently, the existing S4-C packed-index constructor rejects catalogs exceeding u32::MAX objects with an assertion; it does **not** return an exact fallback in that allocation-limit case.
 - New select_indexed_certified(t, k) -> CertifiedSelection:
   - IndexedExact: proof premises hold, selected ids come from indexed subset.
   - ExactFallbackCapped: at least one truncated posting, full select_exact run.
