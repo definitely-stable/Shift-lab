@@ -1,0 +1,24 @@
+{
+  "catalog_cpu_ns": 66935,
+  "catalog_wall_ns": 67807,
+  "descriptor_bytes": 5312,
+  "descriptor_cpu_ns": 4478245,
+  "descriptor_wall_ns": 4480454,
+  "driver_process_cpu_ns": 5996000,
+  "driver_process_wall_ns": 6241440,
+  "index_bytes": 4956,
+  "object_bytes_scanned": 1690369,
+  "objects": 83,
+  "query_ns": [
+    4739,
+    351,
+    2014,
+    1062,
+    801,
+    381,
+    381,
+    2785,
+    2475
+  ],
+  "schema": "delsk.chunkshift-s4-confirm.rust-cost.v1"
+}

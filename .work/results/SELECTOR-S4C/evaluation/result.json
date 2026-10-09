@@ -1,0 +1,130 @@
+{
+  "candidate": "delsk.simple-selector.v1/K2",
+  "repeat_a": {
+    "aggregate": {
+      "delsk2": {
+        "calls": 26,
+        "captured_savings_bytes": 78305,
+        "oracle_patch_bytes": 107263,
+        "oracle_savings_bytes": 78305,
+        "physical_patch_bytes": 107263,
+        "savings_capture": 1.0,
+        "standalone_patch_bytes": 185568,
+        "targets": 9
+      },
+      "exhaustive": {
+        "calls": 115,
+        "captured_savings_bytes": 78305,
+        "oracle_patch_bytes": 107263,
+        "oracle_savings_bytes": 78305,
+        "physical_patch_bytes": 107263,
+        "savings_capture": 1.0,
+        "standalone_patch_bytes": 185568,
+        "targets": 9
+      },
+      "previous1": {
+        "calls": 18,
+        "captured_savings_bytes": 76369,
+        "oracle_patch_bytes": 107263,
+        "oracle_savings_bytes": 78305,
+        "physical_patch_bytes": 109199,
+        "savings_capture": 0.9752761637187919,
+        "standalone_patch_bytes": 185568,
+        "targets": 9
+      },
+      "size1": {
+        "calls": 18,
+        "captured_savings_bytes": 64716,
+        "oracle_patch_bytes": 107263,
+        "oracle_savings_bytes": 78305,
+        "physical_patch_bytes": 120852,
+        "savings_capture": 0.8264606346976566,
+        "standalone_patch_bytes": 185568,
+        "targets": 9
+      }
+    },
+    "eligible": true,
+    "quality_ok": true,
+    "rust_cost": {
+      "descriptor_bytes": 5312,
+      "descriptor_throughput_mib_s": 359.7986946299005,
+      "eligible": true,
+      "index_budget_ok": true,
+      "index_bytes": 4956,
+      "object_bytes_scanned": 1690369,
+      "objects": 83,
+      "query_p95_us": 4.739
+    },
+    "timing": {
+      "apply_ratio_median": 1.001429923277096,
+      "cpu_ratio_median": 1.5319189832716915,
+      "eligible": true,
+      "wall_ratio_median": 1.508439388482819
+    }
+  },
+  "repeat_b": {
+    "aggregate": {
+      "delsk2": {
+        "calls": 26,
+        "captured_savings_bytes": 78305,
+        "oracle_patch_bytes": 107263,
+        "oracle_savings_bytes": 78305,
+        "physical_patch_bytes": 107263,
+        "savings_capture": 1.0,
+        "standalone_patch_bytes": 185568,
+        "targets": 9
+      },
+      "exhaustive": {
+        "calls": 115,
+        "captured_savings_bytes": 78305,
+        "oracle_patch_bytes": 107263,
+        "oracle_savings_bytes": 78305,
+        "physical_patch_bytes": 107263,
+        "savings_capture": 1.0,
+        "standalone_patch_bytes": 185568,
+        "targets": 9
+      },
+      "previous1": {
+        "calls": 18,
+        "captured_savings_bytes": 76369,
+        "oracle_patch_bytes": 107263,
+        "oracle_savings_bytes": 78305,
+        "physical_patch_bytes": 109199,
+        "savings_capture": 0.9752761637187919,
+        "standalone_patch_bytes": 185568,
+        "targets": 9
+      },
+      "size1": {
+        "calls": 18,
+        "captured_savings_bytes": 64716,
+        "oracle_patch_bytes": 107263,
+        "oracle_savings_bytes": 78305,
+        "physical_patch_bytes": 120852,
+        "savings_capture": 0.8264606346976566,
+        "standalone_patch_bytes": 185568,
+        "targets": 9
+      }
+    },
+    "eligible": true,
+    "quality_ok": true,
+    "rust_cost": {
+      "descriptor_bytes": 5312,
+      "descriptor_throughput_mib_s": 341.14028786090904,
+      "eligible": true,
+      "index_budget_ok": true,
+      "index_bytes": 4956,
+      "object_bytes_scanned": 1690369,
+      "objects": 83,
+      "query_p95_us": 6.65
+    },
+    "timing": {
+      "apply_ratio_median": 1.0000193067971173,
+      "cpu_ratio_median": 1.4990493322203384,
+      "eligible": true,
+      "wall_ratio_median": 1.4760243732612617
+    }
+  },
+  "schema": "delsk.chunkshift-s4-confirm.result.v1",
+  "scope": "pinned ChunkShift + sealed E1 bzip2 modeled evaluation split",
+  "verdict": "G5_SCOPED_PASS_K2"
+}

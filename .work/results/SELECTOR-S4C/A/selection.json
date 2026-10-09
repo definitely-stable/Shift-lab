@@ -1,0 +1,104 @@
+{
+  "k": 2,
+  "schema": "delsk.chunkshift-s4-confirm.selection.v1",
+  "selector": "delsk.simple-selector.v1",
+  "targets": [
+    {
+      "python_k2": [
+        "47f0a497fe9f1ae99cb3074f6195578f9c7dd4f437ab95fde55f120ddb7fdd1f",
+        "c399a9799f5e69ca637f681619eaad4bf889638f7bdd32be69b395c6dfb26d15"
+      ],
+      "rust_k2": [
+        "47f0a497fe9f1ae99cb3074f6195578f9c7dd4f437ab95fde55f120ddb7fdd1f",
+        "c399a9799f5e69ca637f681619eaad4bf889638f7bdd32be69b395c6dfb26d15"
+      ],
+      "target_occurrence_id": "0a6fe6860af04ae85ca640a1df6ce1bfbd12f2019b532e4d94ae9f52332b79be"
+    },
+    {
+      "python_k2": [
+        "0768bc2380fa343020c76067862142037dfa261e8c14bd4f44686db397703e71"
+      ],
+      "rust_k2": [
+        "0768bc2380fa343020c76067862142037dfa261e8c14bd4f44686db397703e71"
+      ],
+      "target_occurrence_id": "14d93dcce3cddfb3de7c8211ebf45066e974ad2538d0daf35fcb143e0ccd63a7"
+    },
+    {
+      "python_k2": [
+        "e483d3f70907acab6254f10732bad68d24d4a7e57653dba8287c8ec8882a44f0",
+        "5f9cf438dd1c4d29c8f32acedcdd19d5840712fd2c4d8acd8e6ffc06824e4b30"
+      ],
+      "rust_k2": [
+        "e483d3f70907acab6254f10732bad68d24d4a7e57653dba8287c8ec8882a44f0",
+        "5f9cf438dd1c4d29c8f32acedcdd19d5840712fd2c4d8acd8e6ffc06824e4b30"
+      ],
+      "target_occurrence_id": "1804dbe70ab576a12bf6dc05ea62a30af43919352095f6636285d49fd707b03a"
+    },
+    {
+      "python_k2": [
+        "f436b3ab95fec93ce255087533309a25fa89a763555c2398c50b866cc2c23c93",
+        "7a676d7316da3ca6c8b669a025f28b38ea087f9e00ccea243c166a1ae1c9f370"
+      ],
+      "rust_k2": [
+        "f436b3ab95fec93ce255087533309a25fa89a763555c2398c50b866cc2c23c93",
+        "7a676d7316da3ca6c8b669a025f28b38ea087f9e00ccea243c166a1ae1c9f370"
+      ],
+      "target_occurrence_id": "3a4c196cfb810b4deabe5e70dfab448c4cd38c49b869052b9ccf0b3bd2f212ee"
+    },
+    {
+      "python_k2": [
+        "4956add4b9b019bfcea6e315d45cf6733e528871c21da1849c1e00e325951b93",
+        "c50e86c021914f4fa8b8131558463f3201b3052ccd7a17e0d365b5f80ac74c0e"
+      ],
+      "rust_k2": [
+        "4956add4b9b019bfcea6e315d45cf6733e528871c21da1849c1e00e325951b93",
+        "c50e86c021914f4fa8b8131558463f3201b3052ccd7a17e0d365b5f80ac74c0e"
+      ],
+      "target_occurrence_id": "4d30d730abec6f579f885e90f0bad79f4aed09a98ac7f1397f8b31b178a95248"
+    },
+    {
+      "python_k2": [
+        "4bd0ddf78dd1a1732c4f5fb70aab5726488d41e8abdca5950165a9e1ff5702dc",
+        "8c55aa07ee4b2683d476a53d9d25b254f3daeafd9b69424afa4e19cf9bd68d17"
+      ],
+      "rust_k2": [
+        "4bd0ddf78dd1a1732c4f5fb70aab5726488d41e8abdca5950165a9e1ff5702dc",
+        "8c55aa07ee4b2683d476a53d9d25b254f3daeafd9b69424afa4e19cf9bd68d17"
+      ],
+      "target_occurrence_id": "79d93e9b88dcf70639ddf547f07bea09d13f131954b593cc189c8bae0c3a78d6"
+    },
+    {
+      "python_k2": [
+        "201b1dc1e6592b3ce693f43c8e18515d90f03234acc4fd309655857c4b66e758",
+        "0768bc2380fa343020c76067862142037dfa261e8c14bd4f44686db397703e71"
+      ],
+      "rust_k2": [
+        "201b1dc1e6592b3ce693f43c8e18515d90f03234acc4fd309655857c4b66e758",
+        "0768bc2380fa343020c76067862142037dfa261e8c14bd4f44686db397703e71"
+      ],
+      "target_occurrence_id": "b344413fb4208f4b3f9040d73e5a1222928f6c0c1b1f3106cc3c31e6cf335f91"
+    },
+    {
+      "python_k2": [
+        "c9541991a374c46b816417684f66b435b1710c098c181465dea91a4cc0d491f2",
+        "a685a62b4715c76e23712e65cc58b739c129ae10e61deb29f3a2e0614b6bb0dd"
+      ],
+      "rust_k2": [
+        "c9541991a374c46b816417684f66b435b1710c098c181465dea91a4cc0d491f2",
+        "a685a62b4715c76e23712e65cc58b739c129ae10e61deb29f3a2e0614b6bb0dd"
+      ],
+      "target_occurrence_id": "eee6ee5e39f84e7dc7c60c1a81719b3a9962c3d7eeadede1619e1b933ca0dbe0"
+    },
+    {
+      "python_k2": [
+        "718384ce171a441cb7254473100949e98cdfc5e25ca1578d402f1ac721523bb7",
+        "8758b123d3d0fd03d157a7a5a1405297bd86ddd3ec6b3c3220a79ac27d1aa33b"
+      ],
+      "rust_k2": [
+        "718384ce171a441cb7254473100949e98cdfc5e25ca1578d402f1ac721523bb7",
+        "8758b123d3d0fd03d157a7a5a1405297bd86ddd3ec6b3c3220a79ac27d1aa33b"
+      ],
+      "target_occurrence_id": "f2010c0b480b0b748fd4d168867ef3fab574126055ac9cec851631b03fdb0ad0"
+    }
+  ]
+}
