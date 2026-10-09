@@ -50,7 +50,10 @@ class World:
         (self.home / '.gitconfig').write_text(
             f'[url "{self.remote.as_posix()}"]\n\tinsteadOf = {reg.REGISTRY_REMOTE}\n'
             f'[init]\n\tdefaultBranch = main\n[user]\n\tname = t\n\temail = t@example.invalid\n'
-            f'[commit]\n\tgpgsign = false\n')
+            f'[commit]\n\tgpgsign = false\n'
+            # These per-test bare remotes are deleted immediately. Background
+            # auto-gc/maintenance can race TemporaryDirectory.rmtree after push.
+            f'[gc]\n\tauto = 0\n[maintenance]\n\tauto = false\n')
         self.env = patch.dict(os.environ, {'HOME': str(self.home)})
         self.env.start()
         subprocess.run(['git', 'init', '--quiet', '-b', 'main', str(self.root)], check=True)
