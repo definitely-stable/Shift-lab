@@ -83,8 +83,7 @@ fn capped_popular_hash_must_fallback_even_when_k_candidates_exist() {
 
 #[test]
 fn repeated_object_ids_do_not_falsely_certify_k_distinct_candidates() {
-    // Catalog uniqueness is a caller precondition; until it is validated by
-    // a separate API gate, the certificate must at least count logical IDs.
+    // A duplicate logical ID invalidates the snapshot; never certify.
     let t = obj("target", 100, &[42], None);
     let catalog = Catalog::new(
         vec![
@@ -96,7 +95,7 @@ fn repeated_object_ids_do_not_falsely_certify_k_distinct_candidates() {
     );
     let got = catalog.select_indexed_certified(&t, 2);
     assert_eq!(got.stats.positive_candidates, 1);
-    assert_eq!(got.certification, RetrievalCertification::ExactFallbackSparse);
+    assert_eq!(got.certification, RetrievalCertification::ExactFallbackInvalidInput);
     assert_eq!(got.ids, catalog.select_exact(&t, 2));
 }
 
@@ -177,4 +176,81 @@ fn deterministic_adversarial_property_matrix() {
             }
         }
     }
+}
+
+
+#[test]
+fn duplicate_object_ids_with_k_positive_candidates_never_certify() {
+    let t = obj("target", 100, &[42], None);
+    let catalog = Catalog::new(
+        vec![
+            obj("same", 100, &[42], None),
+            obj("same", 99, &[42], None),
+            obj("other", 98, &[42], None),
+            obj("zero", 101, &[99], None),
+        ],
+        usize::MAX,
+    );
+    // Duplicate IDs invalidate certification even when positive candidates >= K.
+    for k in 1..=4 {
+        assert_eq!(
+            assert_exact(&catalog, &t, k),
+            RetrievalCertification::ExactFallbackInvalidInput
+        );
+    }
+}
+
+#[test]
+fn malformed_descriptors_never_certify_even_with_positive_overlap() {
+    let target = obj("target", 100, &[10, 20, 30], None);
+    let valid = obj("valid", 101, &[10, 20, 40], None);
+    let malformed = [
+        vec![20, 10],                   // unsorted
+        vec![10, 10, 20],               // duplicates
+        (0..=8u64).collect::<Vec<_>>(), // >8
+    ];
+    for hashes in malformed {
+        let invalid_catalog = Catalog::new(
+            vec![valid.clone(), obj("broken", 101, &hashes, None)],
+            usize::MAX,
+        );
+        for k in [1, 2, 3, 4] {
+            assert_eq!(
+                assert_exact(&invalid_catalog, &target, k),
+                RetrievalCertification::ExactFallbackInvalidInput
+            );
+        }
+        let valid_catalog = Catalog::new(
+            vec![valid.clone(), obj("other", 103, &[20, 50], None)],
+            usize::MAX,
+        );
+        let invalid_target = obj("target", 101, &hashes, None);
+        for k in [1, 2, 3, 4] {
+            assert_eq!(
+                assert_exact(&valid_catalog, &invalid_target, k),
+                RetrievalCertification::ExactFallbackInvalidInput
+            );
+        }
+    }
+}
+
+#[test]
+fn immutable_catalog_snapshot_exposes_only_read_only_objects() {
+    let target = obj("target", 101, &[42], None);
+    let mut original = vec![
+        obj("a", 100, &[42], None),
+        obj("b", 102, &[42], None),
+        obj("c", 101, &[99], None),
+    ];
+    let catalog = Catalog::new(original.clone(), usize::MAX);
+    let before = assert_exact(&catalog, &target, 1);
+    assert_eq!(before, RetrievalCertification::IndexedExact);
+    assert_eq!(catalog.objects().len(), original.len());
+    original[1].descriptor = vec![99];
+    original[2].descriptor = vec![42];
+    assert_eq!(before, assert_exact(&catalog, &target, 1));
+    assert_eq!(catalog.objects()[1].descriptor, vec![42]);
+    let rebuilt = Catalog::new(original, usize::MAX);
+    assert_exact(&rebuilt, &target, 1);
+    assert_ne!(rebuilt.select_exact(&target, 1), catalog.select_exact(&target, 1));
 }
