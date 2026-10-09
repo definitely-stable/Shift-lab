@@ -128,8 +128,8 @@ pub fn metadata_order<'a>(t: &Object, bases: &'a [Object]) -> Vec<&'a Object> {
         bases.iter().filter(|b| b.path.as_ref() == Some(path) && b.line == t.line).collect();
     let toff = t.offset.unwrap_or(0);
     same.sort_by(|x, y| {
-        (x.offset.unwrap_or(0).abs_diff(toff), -x.version, gap(t, x), &x.id)
-            .cmp(&(y.offset.unwrap_or(0).abs_diff(toff), -y.version, gap(t, y), &y.id))
+        (x.offset.unwrap_or(0).abs_diff(toff), std::cmp::Reverse(x.version), gap(t, x), &x.id)
+            .cmp(&(y.offset.unwrap_or(0).abs_diff(toff), std::cmp::Reverse(y.version), gap(t, y), &y.id))
     });
     same
 }
@@ -178,7 +178,7 @@ pub fn select_top<'a>(t: &Object, bases: &[&'a Object], k: usize) -> Vec<&'a Obj
         None => Vec::new(),
     };
     let toff = t.offset.unwrap_or(0);
-    let meta_key = |x: &&Object| (x.offset.unwrap_or(0).abs_diff(toff), -x.version, gap(t, x), x.id.clone());
+    let meta_key = |x: &&Object| (x.offset.unwrap_or(0).abs_diff(toff), std::cmp::Reverse(x.version), gap(t, x), x.id.clone());
     meta.sort_by_cached_key(meta_key);
     meta.truncate(k);
     let mut scored: Vec<((u32, u32), &Object)> =
@@ -275,23 +275,59 @@ impl PostingStorage {
 /// inverted index. The entire 64-bit descriptor is kept separately for scoring.
 /// This is research-only infrastructure, not a frozen public representation.
 pub struct Catalog {
-    pub objects: Vec<Object>,
+    // Safe Rust callers cannot mutate the indexed snapshot after construction.
+    objects: Vec<Object>,
     by_path: HashMap<(String, Option<String>), Vec<u32>>,
     postings: PostingStorage,
     /// Maximum entries read per fingerprint bucket in an indexed query.
     pub posting_cap: usize,
+    // Immutable proof premises for opt-in certified retrieval.
+    certifiable_snapshot: bool,
 }
 
 /// Counters of one indexed query.
-#[derive(Clone, Copy, Debug, Default)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct QueryStats {
     pub candidates: usize,
     pub capped_postings: usize,
+    /// Unique, non-target, positive-resemblance objects among the retrieved candidates.
+    pub positive_candidates: usize,
+}
+
+/// How exact top-K equality to a full catalog scan was established.
+///
+/// `IndexedExact` requires all hash postings to have been read in full, all path
+/// matches included, and at least K non-target positive-resemblance candidates.
+/// These conditions ensure no unseen zero-resemblance base can enter content top-K.
+/// Any uncertain case takes the exact fallback; no probability claim is involved.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum RetrievalCertification {
+    IndexedExact,
+    ExactFallbackCapped,
+    ExactFallbackSparse,
+    /// Invalid snapshot ID/descriptor invariants, or noncanonical target descriptor.
+    ExactFallbackInvalidInput,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct CertifiedSelection {
+    pub ids: Vec<String>,
+    pub certification: RetrievalCertification,
+    pub stats: QueryStats,
+}
+
+/// The resemblance and index algorithms operate on strictly ascending, distinct
+/// descriptors of at most HASHES hashes. Malformed external descriptors can still
+/// use select_exact, but must never receive an indexed exactness certificate.
+fn canonical_descriptor(hashes: &[u64]) -> bool {
+    hashes.len() <= HASHES && hashes.windows(2).all(|pair| pair[0] < pair[1])
 }
 
 impl Catalog {
     pub fn new(objects: Vec<Object>, posting_cap: usize) -> Self {
         assert!(objects.len() <= u32::MAX as usize, "catalog object limit u32");
+        let mut ids = std::collections::HashSet::with_capacity(objects.len());
+        let certifiable_snapshot = objects.iter().all(|o| ids.insert(o.id.as_str()) && canonical_descriptor(&o.descriptor));
         let mut by_path: HashMap<(String, Option<String>), Vec<u32>> = HashMap::new();
         for (i, o) in objects.iter().enumerate() {
             if let Some(p) = &o.path {
@@ -299,7 +335,12 @@ impl Catalog {
             }
         }
         let postings = PostingStorage::new(&objects);
-        Self { objects, by_path, postings, posting_cap }
+        Self { objects, by_path, postings, posting_cap, certifiable_snapshot }
+    }
+
+    /// Read-only view of the indexed snapshot. Rebuild Catalog for mutations.
+    pub fn objects(&self) -> &[Object] {
+        &self.objects
     }
 
     /// Logical index payload: packed fingerprint+object-index entries plus
@@ -346,7 +387,56 @@ impl Catalog {
         let bases: Vec<&Object> =
             ids.into_iter().map(|i| &self.objects[i as usize]).filter(|o| o.id != t.id).collect();
         stats.candidates = bases.len();
+        let mut positive_ids = std::collections::HashSet::new();
+        stats.positive_candidates = bases.iter()
+            .filter(|o| resemblance(&t.descriptor, &o.descriptor).0 != 0)
+            .filter(|o| positive_ids.insert(o.id.as_str()))
+            .count();
         (select_top(t, &bases, k).into_iter().map(|o| o.id.clone()).collect(), stats)
+    }
+
+    /// Opt-in, correctness-first indexed retrieval. Unlike `select_indexed`, its
+    /// result is always identical to `select_exact` for the same target and K.
+    ///
+    /// A full scan is required if any posting is truncated, or if fewer than K
+    /// distinct non-target objects share a descriptor hash. In the latter case an
+    /// unseen zero-overlap candidate might win a size/id tie or fill a top-K slot.
+    /// No new descriptor/scorer/selection policy is introduced by this method.
+    pub fn select_indexed_certified(&self, t: &Object, k: usize) -> CertifiedSelection {
+        if k == 0 {
+            return CertifiedSelection {
+                ids: Vec::new(),
+                certification: RetrievalCertification::IndexedExact,
+                stats: QueryStats::default(),
+            };
+        }
+        if !self.certifiable_snapshot || !canonical_descriptor(&t.descriptor) {
+            return CertifiedSelection {
+                ids: self.select_exact(t, k),
+                certification: RetrievalCertification::ExactFallbackInvalidInput,
+                stats: QueryStats::default(),
+            };
+        }
+        let (ids, stats) = self.select_indexed(t, k);
+        if stats.capped_postings != 0 {
+            CertifiedSelection {
+                ids: self.select_exact(t, k),
+                certification: RetrievalCertification::ExactFallbackCapped,
+                stats,
+            }
+        } else if stats.positive_candidates < k {
+            CertifiedSelection {
+                ids: self.select_exact(t, k),
+                certification: RetrievalCertification::ExactFallbackSparse,
+                stats,
+            }
+        } else {
+            CertifiedSelection {
+                ids,
+                certification: RetrievalCertification::IndexedExact,
+                stats,
+            }
+        }
     }
 }
 
