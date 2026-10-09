@@ -1,0 +1,12 @@
+{
+  "github_ref": "refs/heads/main",
+  "github_run_attempt": 1,
+  "github_run_id": 37806374272,
+  "github_sha": "e002276e6820f2b2f2544a894d3de5c59da0d073",
+  "github_workflow_sha": "e002276e6820f2b2f2544a894d3de5c59da0d073",
+  "implementation_sha": "e002276e6820f2b2f2544a894d3de5c59da0d073",
+  "protocol_authority": "9ec28a0022651bb7416871089b0bcc4edd3454b8",
+  "repeat_a_run_id": 37804898028,
+  "repeat_b_run_id": 37805606542,
+  "schema": "delsk.chunkshift-s4-confirm.evaluation-run.v1"
+}

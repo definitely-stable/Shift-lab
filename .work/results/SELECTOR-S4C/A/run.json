@@ -1,0 +1,23 @@
+{
+  "chunkshift_cli_sha256": "1ea0a5f018058d93417d8794dd3b343d419c8e018e415b3bc676a18e7e7f5b20",
+  "chunkshift_commit": "74bb301b6d8ecc52cf0bc0e00d86fa174093d91b",
+  "conclusion": "success",
+  "event": "workflow_dispatch",
+  "head_sha": "e002276e6820f2b2f2544a894d3de5c59da0d073",
+  "image_os": "ubuntu24",
+  "image_version": "20261004.327.1",
+  "implementation_sha": "e002276e6820f2b2f2544a894d3de5c59da0d073",
+  "protocol_authority": "9ec28a0022651bb7416871089b0bcc4edd3454b8",
+  "ref": "refs/heads/main",
+  "repeat": "A",
+  "run_attempt": 1,
+  "run_id": 37804898028,
+  "runner_arch": "X64",
+  "runner_name": "GitHub Actions 1000032280",
+  "runner_os": "Linux",
+  "rust_binary_sha256": "27b220adc0e19f6ab1739429d9ef2821536c2592fadf2eb6fcf58e5c42ac0d6a",
+  "schema": "delsk.chunkshift-s4-confirm.run.v1",
+  "science_state": "COMPLETE",
+  "status": "completed",
+  "workflow_sha": "e002276e6820f2b2f2544a894d3de5c59da0d073"
+}

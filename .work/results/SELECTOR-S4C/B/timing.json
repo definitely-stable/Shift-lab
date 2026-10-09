@@ -1,0 +1,124 @@
+{
+  "rounds": [
+    {
+      "delsk2": {
+        "apply_cpu_ns": 2133653992,
+        "apply_wall_ns": 1958630079,
+        "create_cpu_ns": 9892978989,
+        "create_wall_ns": 7916337809,
+        "selector_query_ns": 41861
+      },
+      "order": "P-D",
+      "previous1": {
+        "apply_cpu_ns": 2153339996,
+        "apply_wall_ns": 1976698981,
+        "create_cpu_ns": 6671524991,
+        "create_wall_ns": 5417138463,
+        "selector_query_ns": 100157
+      }
+    },
+    {
+      "delsk2": {
+        "apply_cpu_ns": 2168450995,
+        "apply_wall_ns": 1990517845,
+        "create_cpu_ns": 10006158986,
+        "create_wall_ns": 8028445670,
+        "selector_query_ns": 32919
+      },
+      "order": "D-P",
+      "previous1": {
+        "apply_cpu_ns": 2119929995,
+        "apply_wall_ns": 1943821081,
+        "create_cpu_ns": 6572890989,
+        "create_wall_ns": 5330070013,
+        "selector_query_ns": 100128
+      }
+    },
+    {
+      "delsk2": {
+        "apply_cpu_ns": 2144744997,
+        "apply_wall_ns": 1965390648,
+        "create_cpu_ns": 10042859986,
+        "create_wall_ns": 8040893778,
+        "selector_query_ns": 30074
+      },
+      "order": "P-D",
+      "previous1": {
+        "apply_cpu_ns": 2118723996,
+        "apply_wall_ns": 1943306058,
+        "create_cpu_ns": 6596898989,
+        "create_wall_ns": 5345054983,
+        "selector_query_ns": 104754
+      }
+    },
+    {
+      "delsk2": {
+        "apply_cpu_ns": 2130431995,
+        "apply_wall_ns": 1957402821,
+        "create_cpu_ns": 9988299988,
+        "create_wall_ns": 8021827802,
+        "selector_query_ns": 28252
+      },
+      "order": "D-P",
+      "previous1": {
+        "apply_cpu_ns": 2198270996,
+        "apply_wall_ns": 2018148709,
+        "create_cpu_ns": 6757837993,
+        "create_wall_ns": 5498002578,
+        "selector_query_ns": 107087
+      }
+    },
+    {
+      "delsk2": {
+        "apply_cpu_ns": 2127055997,
+        "apply_wall_ns": 1952148930,
+        "create_cpu_ns": 9913057985,
+        "create_wall_ns": 7952388141,
+        "selector_query_ns": 30034
+      },
+      "order": "P-D",
+      "previous1": {
+        "apply_cpu_ns": 2157449995,
+        "apply_wall_ns": 1980184970,
+        "create_cpu_ns": 6722845993,
+        "create_wall_ns": 5441087549,
+        "selector_query_ns": 96542
+      }
+    },
+    {
+      "delsk2": {
+        "apply_cpu_ns": 2141710993,
+        "apply_wall_ns": 1964786398,
+        "create_cpu_ns": 10018163989,
+        "create_wall_ns": 8019142814,
+        "selector_query_ns": 29844
+      },
+      "order": "D-P",
+      "previous1": {
+        "apply_cpu_ns": 2139813996,
+        "apply_wall_ns": 1964748465,
+        "create_cpu_ns": 6553319990,
+        "create_wall_ns": 5305147204,
+        "selector_query_ns": 119686
+      }
+    },
+    {
+      "delsk2": {
+        "apply_cpu_ns": 2136862995,
+        "apply_wall_ns": 1962699888,
+        "create_cpu_ns": 9862330986,
+        "create_wall_ns": 7884485591,
+        "selector_query_ns": 32158
+      },
+      "order": "P-D",
+      "previous1": {
+        "apply_cpu_ns": 2127219998,
+        "apply_wall_ns": 1948441311,
+        "create_cpu_ns": 6579056989,
+        "create_wall_ns": 5341704198,
+        "selector_query_ns": 94029
+      }
+    }
+  ],
+  "schema": "delsk.chunkshift-s4-confirm.timing.v1"
+}
