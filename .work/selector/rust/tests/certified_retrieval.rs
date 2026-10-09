@@ -94,7 +94,8 @@ fn repeated_object_ids_do_not_falsely_certify_k_distinct_candidates() {
         64,
     );
     let got = catalog.select_indexed_certified(&t, 2);
-    assert_eq!(got.stats.positive_candidates, 1);
+    // Invalid snapshots fail closed before looking up postings; statistics are not measured.
+    assert_eq!(got.stats.positive_candidates, 0);
     assert_eq!(got.certification, RetrievalCertification::ExactFallbackInvalidInput);
     assert_eq!(got.ids, catalog.select_exact(&t, 2));
 }
