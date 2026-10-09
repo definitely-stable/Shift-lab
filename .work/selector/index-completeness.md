@@ -1,8 +1,8 @@
 # H11 — Certified indexed retrieval: correctness-first foundation
 
 Issue: https://github.com/definitely-stable/Shift-lab/issues/58
-Status: SLICE A CODE CANDIDATE / NOT A MEASURED PRODUCT VERDICT.
-Scope: research-only, additive Rust API. Must NOT be merged ahead of S4-C PR #57; original frozen S4-C protocol assumes exact main parent e1ee235fe08c7cc1f6e8ec8884b65439435adf92.
+Status: SLICE A CODE CANDIDATE WITH IMMUTABLE-SNAPSHOT GUARD / NOT A MEASURED PRODUCT VERDICT.
+Scope: research-only Rust API; frozen S4-C PR #57 is now merged, with first-attempt A/B and evaluator all successful and G5_SCOPED_PASS_K2 scoped verdict. The frozen holdout is already open and cannot be treated as a new confirmation.
 Reference: ./README.md and ./results-s2.md, ./results-s3.md.
 
 ## Failure model of current approximate index
@@ -31,13 +31,17 @@ This is intentionally SUFFICIENT, not necessary. For K=1 with a deterministic pa
 ## API semantics (research prototype, no public freeze)
 
 - Existing select_indexed: unchanged approximate behavior; QueryStats now additionally records positive_candidates (a counter, not a proof).
+- Catalog::objects() exposes only &[Object] (read-only immutable snapshot); field Catalog.objects is private. To change objects, build a new Catalog and its index atomically in caller-owned state.
+- Catalog::new rejects exact certification (but preserves exact-scan and legacy approximate-selector operation) when duplicate IDs, noncanonical object descriptors or unrepresentable u32 index cardinality are observed. Target descriptors are likewise validated for the certification path.
 - New select_indexed_certified(t, k) -> CertifiedSelection:
   - IndexedExact: proof premises hold, selected ids come from indexed subset.
   - ExactFallbackCapped: at least one truncated posting, full select_exact run.
   - ExactFallbackSparse: too few unique positive-overlap candidates, full select_exact run.
+  - ExactFallbackInvalidInput: mutable/index consistency cannot be proven due to malformed snapshot/target input; full select_exact run.
 - No descriptor/hash/metadata/interleave/K or wire contract changes.
 - This is correctness of exact ORDERED top K versus select_exact. It does NOT imply that selected K are actual smallest-physical-patch K, or that the selection has speedup over exact scanning.
-- Catalog loading, integrity, version pin, mutable concurrent updates and object-id collision checks are outside this slice. For exact comparison, catalog and target must refer to the same immutable snapshot.
+- Catalog loading and external signature/version pin remain out of scope. A catalog can no longer mutate its indexed objects through safe Rust accessors. Object ID uniqueness and sorted/distinct descriptor shape (up to 8 entries) are checked before certifying; invalid inputs fall back to full exact scan. Cross-thread state changes must publish a new, fully built Catalog snapshot instead of modifying existing postings.
+- This shape guard does not attempt to prove external object bytes match claimed hashes. A separate authenticated content-provenance layer is still needed if inputs are adversarial.
 
 ## Independent tests
 
