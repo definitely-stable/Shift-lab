@@ -1,0 +1,31 @@
+{
+  "schema": "delsk.h12b.discovery.v1",
+  "stage": "DISCOVERY_ONLY_NOT_FROZEN",
+  "entries": [
+    {
+      "family": "brotli",
+      "upstream": "https://github.com/google/brotli",
+      "modality": "source-release",
+      "license_review": "MIT_REVIEW_REQUIRED",
+      "candidate_status": "NEEDS_SHA_AND_LICENSE_REVIEW"
+    },
+    {
+      "family": "libdeflate",
+      "upstream": "https://github.com/ebiggers/libdeflate",
+      "modality": "source-release",
+      "license_review": "MIT_REVIEW_REQUIRED",
+      "candidate_status": "NEEDS_SHA_AND_LICENSE_REVIEW"
+    },
+    {
+      "family": "lz4",
+      "upstream": "https://github.com/lz4/lz4",
+      "modality": "source-release",
+      "license_review": "MIXED_MEMBER_REVIEW_REQUIRED",
+      "candidate_status": "NEEDS_SHA_AND_LICENSE_REVIEW"
+    }
+  ],
+  "unmet_modalities": [
+    "application-binary",
+    "non-code-large-object"
+  ]
+}
