@@ -40,3 +40,18 @@ jobs:
           cargo --version
           cargo test --release --locked
           cargo build --release --locked --bin delsk-confirm
+      - name: H11-B0 deterministic synthetic correctness smoke (non-decision)
+        working-directory: .work/selector/rust
+        run: |
+          cargo run --release --locked --bin delsk-h11b0 -- 256 8 > "$RUNNER_TEMP/h11b0.json"
+          python3 - "$RUNNER_TEMP/h11b0.json" <<'PY'
+          import json, sys
+          data = json.load(open(sys.argv[1]))
+          assert data["schema"] == "delsk.h11b0.synthetic-smoke.v1"
+          assert data["scope"] == "SYNTHETIC_ONLY_NOT_DECISION_EVIDENCE"
+          assert data["objects"] == 256 and data["target_queries"] == 9
+          assert len(data["cases"]) == 9
+          assert all(row["queries"] == 9 and
+              sum(row[k] for k in ("indexed_exact", "fallback_sparse", "fallback_capped", "fallback_invalid")) == 9
+              for row in data["cases"])
+          PY
