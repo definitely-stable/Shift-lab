@@ -1,0 +1,57 @@
+{
+  "artifacts": {
+    "A": {
+      "artifact_id": 11562547245,
+      "extracted_sha256": {
+        "admission.json": "27e3331d5c7060518316ac505294001c68c4485ce0f43e5c83187e7a7844ccaa",
+        "manifests.jsonl": "7eeb9a1f23d9a09c82a49b1487b1bf4f74de842b9874c7317ecf043c75e54cfe",
+        "measurements.jsonl": "47fec02833ab75b764c494f3410c4eb14d8ee2a1a86f8c043eab073f08d03548",
+        "run.json": "197b657f2c247ce9cb62db1790c1e27187419105d6ffe58bda0a355e4edf5d2b",
+        "rust-cost.json": "2cf57283e98b0efdf445ac11c82fc23424978b1deb323856034ea47e28aaafe0",
+        "selection.json": "8035857fa12feb13eb8bf21e6d814461e3658f90072a60942fe388b479934b0e",
+        "timing.json": "5e2135409802c8fed0b23e20ba3b2dde8f030e192fa97eabaf4e77b283f2bba5"
+      },
+      "original_zip_sha256": "9b289cc785d2cbb14d0db9ec593aca431f743dd54db83c32455cb978ead24167",
+      "original_zip_size": 31121,
+      "provider_run_id": 37804898028,
+      "run_attempt": 1
+    },
+    "B": {
+      "artifact_id": 11562722944,
+      "extracted_sha256": {
+        "admission.json": "e39f850b958e751ffb6438ba69c31cae8a7684023508e62ce7afa42d19247b74",
+        "manifests.jsonl": "5ccf3c10d13cc16d2e1063c6a6d29eb785f76bdb313d2f7b08f25f5a32224ba8",
+        "measurements.jsonl": "bc795b433bb7ed8a35da47bcd31a3032b8c6df9c5dfdd266ee6d1c5256a30c7e",
+        "run.json": "a3db1c247a34f0e14ea28692e696478f3eac8021d7bdc4dd21ba74062ba119ff",
+        "rust-cost.json": "3f15aad4734d1ddf9588e99aac384fd423c66758c3fcc78f68f631a6cb235b99",
+        "selection.json": "8035857fa12feb13eb8bf21e6d814461e3658f90072a60942fe388b479934b0e",
+        "timing.json": "3ab628b1cef0b89b79c50e0408c3f081512042883d43e69f4bdf6eb8edf9c2f7"
+      },
+      "original_zip_sha256": "a5937bc8b488392c62a1f031ed3fcf6c8a94581572407a5a04259b817d5996b3",
+      "original_zip_size": 31108,
+      "provider_run_id": 37805606542,
+      "run_attempt": 1
+    },
+    "evaluation": {
+      "artifact_id": 11563067146,
+      "extracted_sha256": {
+        "evaluation-run.json": "069ae381ed323c04e0e4c4e3ea64e0b3923453a73ac2a2572db6e11b443093e3",
+        "plan.json": "0759688e1a6c91157c871fdaa62a5877de15024fb270194d98d9ca48473f4af3",
+        "provider-index.jsonl": "507336c7905bd8f561e0627556e2c191410ca7da4b62b2b4e6f4968f07e1c541",
+        "result.json": "802f7ac91d9b5f5c67f58f8614b37c174363b5329580ba6f1a1f3e39f9471aed"
+      },
+      "original_zip_sha256": "30677da6695d84cb889fc4440885420c4452e414b3c3860d554fa72326c332b2",
+      "original_zip_size": 6838,
+      "provider_run_id": 37806374272,
+      "run_attempt": 1
+    }
+  },
+  "consumer_sha": "74bb301b6d8ecc52cf0bc0e00d86fa174093d91b",
+  "independent_frozen_v3_replay_identical": true,
+  "protocol_sha": "9ec28a0022651bb7416871089b0bcc4edd3454b8",
+  "raw_measurements_identical": false,
+  "schema": "delsk.s4c.retained.v1",
+  "semantic_quality_identical": true,
+  "source_sha": "e002276e6820f2b2f2544a894d3de5c59da0d073",
+  "verdict": "G5_SCOPED_PASS_K2"
+}

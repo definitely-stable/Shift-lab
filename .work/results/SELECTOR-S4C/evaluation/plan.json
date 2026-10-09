@@ -1,0 +1,1179 @@
+{
+  "abstention_level": 0,
+  "candidate_lock_sha256": "cb16d53b164ff393187e0115bdf31c52ac717a5172fb1e91889b5988ac019d2e",
+  "consumer_commit": "74bb301b6d8ecc52cf0bc0e00d86fa174093d91b",
+  "corpus_lock_sha256": "e5c288256bed284572a9f111186411517b4c73d097d13aea4cf48e2fb9f6fffa",
+  "coverage_sha256": "fff71554f28fea2b1628ac9f430e4d542f0147e30bcdc43e64887265f6cade5c",
+  "expected_base_pairs": 106,
+  "expected_measurements": 115,
+  "expected_targets": 9,
+  "family": "bzip2",
+  "k": 2,
+  "protocol_authority": "9ec28a0022651bb7416871089b0bcc4edd3454b8",
+  "round_orders": [
+    "P-D",
+    "D-P",
+    "P-D",
+    "D-P",
+    "P-D",
+    "D-P",
+    "P-D"
+  ],
+  "schema": "delsk.chunkshift-s4-confirm.plan.v1",
+  "split": "evaluation",
+  "status": "PREREGISTERED_NOT_RUN",
+  "targets": [
+    {
+      "bases": [
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "0dc8d4c1d38b98094c17e067b850e11f489fd6b949b6692e777fe5ef7a428d4b",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "bzlib.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "1c7c8a4e12e876583a107b289a1773ca21a66d08d0f77c95e6dccac0ce080795",
+          "offset": 24576,
+          "ordinal": 1,
+          "path": "bzlib.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "294d0c2e8bb84de1f1ab06d5e340ea4b7103da7e2675768230300411519b57ab",
+          "offset": 8192,
+          "ordinal": 1,
+          "path": "compress.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "47f0a497fe9f1ae99cb3074f6195578f9c7dd4f437ab95fde55f120ddb7fdd1f",
+          "offset": 49152,
+          "ordinal": 1,
+          "path": "bzip2.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "4ffba3ecdc0b485c5c7563f7c1339dd6f2909b26653b5e43a6f76f0219f20e4a",
+          "offset": 8192,
+          "ordinal": 1,
+          "path": "bzlib.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "64ad85062de5c133671e8f2d3a1c6c27cd8de68c1cf40b074a8d74580c8d93d7",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "bzip2recover.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "66bdf26ba68ffd942e891fc5aba5cb92159ac96f6587cf83e5c823c0c8ded7a5",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "bzlib_private.h",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "670a7c8642a2ad702fe4dc9907b61ba4cdaa6159462e2863c2e2130e63d66b50",
+          "offset": 8192,
+          "ordinal": 1,
+          "path": "decompress.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "73f8913cd353cb00136284661d2a5a30cf5c498ae18c4254a4b239d1631c4570",
+          "offset": 32768,
+          "ordinal": 1,
+          "path": "bzlib.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "7b22e57d6e4663f64acf249c8144d4b8267d3dfe6e4280e4abef1e0210daca61",
+          "offset": 16384,
+          "ordinal": 1,
+          "path": "blocksort.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "7c03b2fd1cf25a1c036257d57c787ba1761e53e28b9b3ec8a8c9733070f02c48",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "blocksort.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "7e672ea71a3c1a45fa6920f70bf4014c4acb518d53d43823ae42695cc24193e3",
+          "offset": 24576,
+          "ordinal": 1,
+          "path": "bzip2.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "84d204d06c623189eede5167e34aeb854bc303a22abbf07ab04510f7176a0a23",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "compress.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "88d6bbff437c45f20d16b33fd27d13d51cc097fc053554692ef2aec3d195ce41",
+          "offset": 16384,
+          "ordinal": 1,
+          "path": "bzip2.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "a685a62b4715c76e23712e65cc58b739c129ae10e61deb29f3a2e0614b6bb0dd",
+          "offset": 8192,
+          "ordinal": 1,
+          "path": "bzip2.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "ac5e174480f74eda1362e9f7be8f35408826825dc4fb4f2c1f03bd457b3da278",
+          "offset": 8192,
+          "ordinal": 1,
+          "path": "blocksort.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "c399a9799f5e69ca637f681619eaad4bf889638f7bdd32be69b395c6dfb26d15",
+          "offset": 40960,
+          "ordinal": 1,
+          "path": "bzip2.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "c9541991a374c46b816417684f66b435b1710c098c181465dea91a4cc0d491f2",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "bzip2.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "cbb92f5b6d1ebd7b8e17780e1561324a47fdff8f35b2e5e42acfd51f5ad22a3f",
+          "offset": 32768,
+          "ordinal": 1,
+          "path": "bzip2.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "e1a0f1a7bd7a30ff44d866fff7199adae6825b350416f8afca7aff415b8c483c",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "decompress.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "e663729ad96614091f6ed828ddbc42fec0b32a097937a697849c2d0cf88409c9",
+          "offset": 16384,
+          "ordinal": 1,
+          "path": "bzlib.c",
+          "version_rank": 1
+        }
+      ],
+      "family_id": "bzip2",
+      "previous1": [
+        "47f0a497fe9f1ae99cb3074f6195578f9c7dd4f437ab95fde55f120ddb7fdd1f"
+      ],
+      "size1": [
+        "0dc8d4c1d38b98094c17e067b850e11f489fd6b949b6692e777fe5ef7a428d4b"
+      ],
+      "target": {
+        "bytes": 8192,
+        "line": "bzip2",
+        "object_id": "06ea86e507a0b091a588ff68579a5aa2342a1c860116585f802c955ea888a035",
+        "offset": 49152,
+        "ordinal": 2,
+        "path": "bzip2.c",
+        "version_rank": 2
+      },
+      "target_occurrence_id": "0a6fe6860af04ae85ca640a1df6ce1bfbd12f2019b532e4d94ae9f52332b79be",
+      "track": "chunk-8k"
+    },
+    {
+      "bases": [
+        {
+          "bytes": 53442,
+          "line": "bzip2",
+          "object_id": "0768bc2380fa343020c76067862142037dfa261e8c14bd4f44686db397703e71",
+          "offset": null,
+          "ordinal": 1,
+          "path": null,
+          "version_rank": 1
+        }
+      ],
+      "family_id": "bzip2",
+      "previous1": [
+        "0768bc2380fa343020c76067862142037dfa261e8c14bd4f44686db397703e71"
+      ],
+      "size1": [
+        "0768bc2380fa343020c76067862142037dfa261e8c14bd4f44686db397703e71"
+      ],
+      "target": {
+        "bytes": 53484,
+        "line": "bzip2",
+        "object_id": "201b1dc1e6592b3ce693f43c8e18515d90f03234acc4fd309655857c4b66e758",
+        "offset": null,
+        "ordinal": 2,
+        "path": null,
+        "version_rank": 2
+      },
+      "target_occurrence_id": "14d93dcce3cddfb3de7c8211ebf45066e974ad2538d0daf35fcb143e0ccd63a7",
+      "track": "tar-gz"
+    },
+    {
+      "bases": [
+        {
+          "bytes": 16384,
+          "line": "bzip2",
+          "object_id": "0f66c98585c561e49ff905b60e97a77ed09d7780281954d33a26441ceb6f657f",
+          "offset": 32768,
+          "ordinal": 2,
+          "path": "bzip2.c",
+          "version_rank": 2
+        },
+        {
+          "bytes": 16384,
+          "line": "bzip2",
+          "object_id": "137cba8c36fb1f277c984bab927d8d8125a3d374172652d999e4ef9af04e00a1",
+          "offset": 0,
+          "ordinal": 2,
+          "path": "bzlib.c",
+          "version_rank": 2
+        },
+        {
+          "bytes": 16384,
+          "line": "bzip2",
+          "object_id": "4ac61b21aab8675d7a44505403eeecf9f7240285ff1289e2d0f42433bcf108f9",
+          "offset": 0,
+          "ordinal": 2,
+          "path": "blocksort.c",
+          "version_rank": 2
+        },
+        {
+          "bytes": 16384,
+          "line": "bzip2",
+          "object_id": "4eeef8374c99e31070dffe391f19ac4fd992f142b5ffa1dd8e924a73ed97d1ce",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "bzlib.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 16384,
+          "line": "bzip2",
+          "object_id": "5f9cf438dd1c4d29c8f32acedcdd19d5840712fd2c4d8acd8e6ffc06824e4b30",
+          "offset": 16384,
+          "ordinal": 1,
+          "path": "bzlib.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 16384,
+          "line": "bzip2",
+          "object_id": "7a676d7316da3ca6c8b669a025f28b38ea087f9e00ccea243c166a1ae1c9f370",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "blocksort.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 16384,
+          "line": "bzip2",
+          "object_id": "85d3dc300f1be7f5203b091dc3d14b888272b08e1a04b9f7f0eea84acb6b4c7c",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "decompress.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 16384,
+          "line": "bzip2",
+          "object_id": "9cbe0ced1e1aa16b96141422f24586927d3365a0c3c724a9289a5a2d49729cf5",
+          "offset": 0,
+          "ordinal": 2,
+          "path": "bzip2.c",
+          "version_rank": 2
+        },
+        {
+          "bytes": 16384,
+          "line": "bzip2",
+          "object_id": "9e98f5433265c1026712fa3aa9c123bdce147cf7949ddf6b524de1fa52946330",
+          "offset": 32768,
+          "ordinal": 1,
+          "path": "bzip2.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 16384,
+          "line": "bzip2",
+          "object_id": "a77246c37f9179b1438d7579945361e6188ff5edb1bfb8a9880f43549879dc9a",
+          "offset": 0,
+          "ordinal": 2,
+          "path": "compress.c",
+          "version_rank": 2
+        },
+        {
+          "bytes": 16384,
+          "line": "bzip2",
+          "object_id": "abffa5431ce13c15023d3b61279032e65a2fee637bc1553d2725eafa719309a9",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "bzip2.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 16384,
+          "line": "bzip2",
+          "object_id": "c43394be11b0bbc8dc473e4dc98af8345527e6d275c890a59e9139bbd27ff327",
+          "offset": 0,
+          "ordinal": 2,
+          "path": "decompress.c",
+          "version_rank": 2
+        },
+        {
+          "bytes": 16384,
+          "line": "bzip2",
+          "object_id": "c6279aaa6474f947d43f692cb92961f531e9f56a3e9b8422691fd53e8412ed8d",
+          "offset": 16384,
+          "ordinal": 2,
+          "path": "bzip2.c",
+          "version_rank": 2
+        },
+        {
+          "bytes": 16384,
+          "line": "bzip2",
+          "object_id": "d35a0001c1aec946a20351d9f53d7720b5492ad000224f9e7be59cfb7fdd1f3e",
+          "offset": 16384,
+          "ordinal": 1,
+          "path": "bzip2.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 16384,
+          "line": "bzip2",
+          "object_id": "e483d3f70907acab6254f10732bad68d24d4a7e57653dba8287c8ec8882a44f0",
+          "offset": 16384,
+          "ordinal": 2,
+          "path": "bzlib.c",
+          "version_rank": 2
+        },
+        {
+          "bytes": 16384,
+          "line": "bzip2",
+          "object_id": "f436b3ab95fec93ce255087533309a25fa89a763555c2398c50b866cc2c23c93",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "compress.c",
+          "version_rank": 1
+        }
+      ],
+      "family_id": "bzip2",
+      "previous1": [
+        "e483d3f70907acab6254f10732bad68d24d4a7e57653dba8287c8ec8882a44f0"
+      ],
+      "size1": [
+        "0f66c98585c561e49ff905b60e97a77ed09d7780281954d33a26441ceb6f657f"
+      ],
+      "target": {
+        "bytes": 16384,
+        "line": "bzip2",
+        "object_id": "56e4673a969ba0d7d2428bee7106d2cd9d7c27782ec57ecbb3e835d83165a8c2",
+        "offset": 16384,
+        "ordinal": 3,
+        "path": "bzlib.c",
+        "version_rank": 3
+      },
+      "target_occurrence_id": "1804dbe70ab576a12bf6dc05ea62a30af43919352095f6636285d49fd707b03a",
+      "track": "chunk-16k"
+    },
+    {
+      "bases": [
+        {
+          "bytes": 16384,
+          "line": "bzip2",
+          "object_id": "4eeef8374c99e31070dffe391f19ac4fd992f142b5ffa1dd8e924a73ed97d1ce",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "bzlib.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 16384,
+          "line": "bzip2",
+          "object_id": "5f9cf438dd1c4d29c8f32acedcdd19d5840712fd2c4d8acd8e6ffc06824e4b30",
+          "offset": 16384,
+          "ordinal": 1,
+          "path": "bzlib.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 16384,
+          "line": "bzip2",
+          "object_id": "7a676d7316da3ca6c8b669a025f28b38ea087f9e00ccea243c166a1ae1c9f370",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "blocksort.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 16384,
+          "line": "bzip2",
+          "object_id": "85d3dc300f1be7f5203b091dc3d14b888272b08e1a04b9f7f0eea84acb6b4c7c",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "decompress.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 16384,
+          "line": "bzip2",
+          "object_id": "9e98f5433265c1026712fa3aa9c123bdce147cf7949ddf6b524de1fa52946330",
+          "offset": 32768,
+          "ordinal": 1,
+          "path": "bzip2.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 16384,
+          "line": "bzip2",
+          "object_id": "abffa5431ce13c15023d3b61279032e65a2fee637bc1553d2725eafa719309a9",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "bzip2.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 16384,
+          "line": "bzip2",
+          "object_id": "d35a0001c1aec946a20351d9f53d7720b5492ad000224f9e7be59cfb7fdd1f3e",
+          "offset": 16384,
+          "ordinal": 1,
+          "path": "bzip2.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 16384,
+          "line": "bzip2",
+          "object_id": "f436b3ab95fec93ce255087533309a25fa89a763555c2398c50b866cc2c23c93",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "compress.c",
+          "version_rank": 1
+        }
+      ],
+      "family_id": "bzip2",
+      "previous1": [
+        "f436b3ab95fec93ce255087533309a25fa89a763555c2398c50b866cc2c23c93"
+      ],
+      "size1": [
+        "4eeef8374c99e31070dffe391f19ac4fd992f142b5ffa1dd8e924a73ed97d1ce"
+      ],
+      "target": {
+        "bytes": 16384,
+        "line": "bzip2",
+        "object_id": "a77246c37f9179b1438d7579945361e6188ff5edb1bfb8a9880f43549879dc9a",
+        "offset": 0,
+        "ordinal": 2,
+        "path": "compress.c",
+        "version_rank": 2
+      },
+      "target_occurrence_id": "3a4c196cfb810b4deabe5e70dfab448c4cd38c49b869052b9ccf0b3bd2f212ee",
+      "track": "chunk-16k"
+    },
+    {
+      "bases": [
+        {
+          "bytes": 32768,
+          "line": "bzip2",
+          "object_id": "4956add4b9b019bfcea6e315d45cf6733e528871c21da1849c1e00e325951b93",
+          "offset": 0,
+          "ordinal": 2,
+          "path": "bzip2.c",
+          "version_rank": 2
+        },
+        {
+          "bytes": 32768,
+          "line": "bzip2",
+          "object_id": "8d625a7d4ef7fb6b76b0a524bdc5138c4f35cfef122d50f3e386a484750a0b3f",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "bzlib.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 32768,
+          "line": "bzip2",
+          "object_id": "9a9c25a7c3b5555bd8a0cb873d901bea0eb3ac3f97ade9562e183c2acbd46a15",
+          "offset": 0,
+          "ordinal": 2,
+          "path": "bzlib.c",
+          "version_rank": 2
+        },
+        {
+          "bytes": 32768,
+          "line": "bzip2",
+          "object_id": "c50e86c021914f4fa8b8131558463f3201b3052ccd7a17e0d365b5f80ac74c0e",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "bzip2.c",
+          "version_rank": 1
+        }
+      ],
+      "family_id": "bzip2",
+      "previous1": [
+        "4956add4b9b019bfcea6e315d45cf6733e528871c21da1849c1e00e325951b93"
+      ],
+      "size1": [
+        "4956add4b9b019bfcea6e315d45cf6733e528871c21da1849c1e00e325951b93"
+      ],
+      "target": {
+        "bytes": 32768,
+        "line": "bzip2",
+        "object_id": "b50db37064be079a607115b7d20835bece1dd203ff616765beb51c4c100a11eb",
+        "offset": 0,
+        "ordinal": 3,
+        "path": "bzip2.c",
+        "version_rank": 3
+      },
+      "target_occurrence_id": "4d30d730abec6f579f885e90f0bad79f4aed09a98ac7f1397f8b31b178a95248",
+      "track": "chunk-32k"
+    },
+    {
+      "bases": [
+        {
+          "bytes": 256000,
+          "line": "bzip2",
+          "object_id": "4bd0ddf78dd1a1732c4f5fb70aab5726488d41e8abdca5950165a9e1ff5702dc",
+          "offset": null,
+          "ordinal": 1,
+          "path": null,
+          "version_rank": 1
+        },
+        {
+          "bytes": 256000,
+          "line": "bzip2",
+          "object_id": "8c55aa07ee4b2683d476a53d9d25b254f3daeafd9b69424afa4e19cf9bd68d17",
+          "offset": null,
+          "ordinal": 2,
+          "path": null,
+          "version_rank": 2
+        }
+      ],
+      "family_id": "bzip2",
+      "previous1": [
+        "4bd0ddf78dd1a1732c4f5fb70aab5726488d41e8abdca5950165a9e1ff5702dc"
+      ],
+      "size1": [
+        "4bd0ddf78dd1a1732c4f5fb70aab5726488d41e8abdca5950165a9e1ff5702dc"
+      ],
+      "target": {
+        "bytes": 256000,
+        "line": "bzip2",
+        "object_id": "afc2591a2645fd71da27bf5c99f4ec8c6fe33f32bb48950a23799bd1f2cba46a",
+        "offset": null,
+        "ordinal": 3,
+        "path": null,
+        "version_rank": 3
+      },
+      "target_occurrence_id": "79d93e9b88dcf70639ddf547f07bea09d13f131954b593cc189c8bae0c3a78d6",
+      "track": "tar"
+    },
+    {
+      "bases": [
+        {
+          "bytes": 53442,
+          "line": "bzip2",
+          "object_id": "0768bc2380fa343020c76067862142037dfa261e8c14bd4f44686db397703e71",
+          "offset": null,
+          "ordinal": 1,
+          "path": null,
+          "version_rank": 1
+        },
+        {
+          "bytes": 53484,
+          "line": "bzip2",
+          "object_id": "201b1dc1e6592b3ce693f43c8e18515d90f03234acc4fd309655857c4b66e758",
+          "offset": null,
+          "ordinal": 2,
+          "path": null,
+          "version_rank": 2
+        }
+      ],
+      "family_id": "bzip2",
+      "previous1": [
+        "201b1dc1e6592b3ce693f43c8e18515d90f03234acc4fd309655857c4b66e758"
+      ],
+      "size1": [
+        "201b1dc1e6592b3ce693f43c8e18515d90f03234acc4fd309655857c4b66e758"
+      ],
+      "target": {
+        "bytes": 53587,
+        "line": "bzip2",
+        "object_id": "afb17ea6d3b7bf1d9b628f848c99f5e003aa91ef4a33c0bef7bf5abf123d92b3",
+        "offset": null,
+        "ordinal": 3,
+        "path": null,
+        "version_rank": 3
+      },
+      "target_occurrence_id": "b344413fb4208f4b3f9040d73e5a1222928f6c0c1b1f3106cc3c31e6cf335f91",
+      "track": "tar-gz"
+    },
+    {
+      "bases": [
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "0dc8d4c1d38b98094c17e067b850e11f489fd6b949b6692e777fe5ef7a428d4b",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "bzlib.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "1c7c8a4e12e876583a107b289a1773ca21a66d08d0f77c95e6dccac0ce080795",
+          "offset": 24576,
+          "ordinal": 1,
+          "path": "bzlib.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "294d0c2e8bb84de1f1ab06d5e340ea4b7103da7e2675768230300411519b57ab",
+          "offset": 8192,
+          "ordinal": 1,
+          "path": "compress.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "47f0a497fe9f1ae99cb3074f6195578f9c7dd4f437ab95fde55f120ddb7fdd1f",
+          "offset": 49152,
+          "ordinal": 1,
+          "path": "bzip2.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "4ffba3ecdc0b485c5c7563f7c1339dd6f2909b26653b5e43a6f76f0219f20e4a",
+          "offset": 8192,
+          "ordinal": 1,
+          "path": "bzlib.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "64ad85062de5c133671e8f2d3a1c6c27cd8de68c1cf40b074a8d74580c8d93d7",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "bzip2recover.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "66bdf26ba68ffd942e891fc5aba5cb92159ac96f6587cf83e5c823c0c8ded7a5",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "bzlib_private.h",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "670a7c8642a2ad702fe4dc9907b61ba4cdaa6159462e2863c2e2130e63d66b50",
+          "offset": 8192,
+          "ordinal": 1,
+          "path": "decompress.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "73f8913cd353cb00136284661d2a5a30cf5c498ae18c4254a4b239d1631c4570",
+          "offset": 32768,
+          "ordinal": 1,
+          "path": "bzlib.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "7b22e57d6e4663f64acf249c8144d4b8267d3dfe6e4280e4abef1e0210daca61",
+          "offset": 16384,
+          "ordinal": 1,
+          "path": "blocksort.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "7c03b2fd1cf25a1c036257d57c787ba1761e53e28b9b3ec8a8c9733070f02c48",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "blocksort.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "7e672ea71a3c1a45fa6920f70bf4014c4acb518d53d43823ae42695cc24193e3",
+          "offset": 24576,
+          "ordinal": 1,
+          "path": "bzip2.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "84d204d06c623189eede5167e34aeb854bc303a22abbf07ab04510f7176a0a23",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "compress.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "88d6bbff437c45f20d16b33fd27d13d51cc097fc053554692ef2aec3d195ce41",
+          "offset": 16384,
+          "ordinal": 1,
+          "path": "bzip2.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "a685a62b4715c76e23712e65cc58b739c129ae10e61deb29f3a2e0614b6bb0dd",
+          "offset": 8192,
+          "ordinal": 1,
+          "path": "bzip2.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "ac5e174480f74eda1362e9f7be8f35408826825dc4fb4f2c1f03bd457b3da278",
+          "offset": 8192,
+          "ordinal": 1,
+          "path": "blocksort.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "c399a9799f5e69ca637f681619eaad4bf889638f7bdd32be69b395c6dfb26d15",
+          "offset": 40960,
+          "ordinal": 1,
+          "path": "bzip2.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "c9541991a374c46b816417684f66b435b1710c098c181465dea91a4cc0d491f2",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "bzip2.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "cbb92f5b6d1ebd7b8e17780e1561324a47fdff8f35b2e5e42acfd51f5ad22a3f",
+          "offset": 32768,
+          "ordinal": 1,
+          "path": "bzip2.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "e1a0f1a7bd7a30ff44d866fff7199adae6825b350416f8afca7aff415b8c483c",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "decompress.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 8192,
+          "line": "bzip2",
+          "object_id": "e663729ad96614091f6ed828ddbc42fec0b32a097937a697849c2d0cf88409c9",
+          "offset": 16384,
+          "ordinal": 1,
+          "path": "bzlib.c",
+          "version_rank": 1
+        }
+      ],
+      "family_id": "bzip2",
+      "previous1": [
+        "c9541991a374c46b816417684f66b435b1710c098c181465dea91a4cc0d491f2"
+      ],
+      "size1": [
+        "0dc8d4c1d38b98094c17e067b850e11f489fd6b949b6692e777fe5ef7a428d4b"
+      ],
+      "target": {
+        "bytes": 8192,
+        "line": "bzip2",
+        "object_id": "845e27825803c08c14dea3715014acdae953ac2b50e5824c3c1757cdecbdf739",
+        "offset": 0,
+        "ordinal": 2,
+        "path": "bzip2.c",
+        "version_rank": 2
+      },
+      "target_occurrence_id": "eee6ee5e39f84e7dc7c60c1a81719b3a9962c3d7eeadede1619e1b933ca0dbe0",
+      "track": "chunk-8k"
+    },
+    {
+      "bases": [
+        {
+          "bytes": 4096,
+          "line": "bzip2",
+          "object_id": "10248719fc8a71a5b477671f336a6b7b569a4f0794631a25c3df01f23dfbcffb",
+          "offset": 8192,
+          "ordinal": 1,
+          "path": "blocksort.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 4096,
+          "line": "bzip2",
+          "object_id": "105ca71c613fcd4ee0faf638d23beb02701693cf88397464742738507df81a01",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "bzlib.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 4096,
+          "line": "bzip2",
+          "object_id": "1fdfef7d8bcdf471cfec1fbb1fb4a6d612c5cf04ccded73441dc8341aa67bd6f",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "crctable.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 4096,
+          "line": "bzip2",
+          "object_id": "2344ef26b764f8f6ccdad7673a393c5136cc40f17863d685f3bdf39c1a0e3b9d",
+          "offset": 16384,
+          "ordinal": 1,
+          "path": "decompress.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 4096,
+          "line": "bzip2",
+          "object_id": "298c7f931689ac370b50b2cb076a3e23553b5b54de966469c6fcd0c1e8e0550c",
+          "offset": 8192,
+          "ordinal": 1,
+          "path": "decompress.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 4096,
+          "line": "bzip2",
+          "object_id": "2a04f220a034dfa13facf1055e6f02d513deab8ba97870c1795e274ad1a6cdab",
+          "offset": 12288,
+          "ordinal": 1,
+          "path": "compress.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 4096,
+          "line": "bzip2",
+          "object_id": "2d796e0cff1a52abc025136e2514831cf94bb23e3635d519c6c2f2002b44c548",
+          "offset": 53248,
+          "ordinal": 1,
+          "path": "bzip2.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 4096,
+          "line": "bzip2",
+          "object_id": "36e1f419c99447215800aedc19272adc8c19d119a66c28a2ef79b4beab192778",
+          "offset": 16384,
+          "ordinal": 1,
+          "path": "compress.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 4096,
+          "line": "bzip2",
+          "object_id": "422e1d987177302aa4bef1c5a62a98b1a2eb829c7af70de5ab913550f4ecb65a",
+          "offset": 16384,
+          "ordinal": 1,
+          "path": "bzip2.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 4096,
+          "line": "bzip2",
+          "object_id": "5202eb05f03f83b184bc868f1388599e6898701bb4040928820bf80766de3e78",
+          "offset": 12288,
+          "ordinal": 1,
+          "path": "bzlib.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 4096,
+          "line": "bzip2",
+          "object_id": "53a3ff3626ac1b4dab830f2337024e52a6cf1dc1e603497caf6e0f04a9a40e42",
+          "offset": 8192,
+          "ordinal": 1,
+          "path": "compress.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 4096,
+          "line": "bzip2",
+          "object_id": "5c0c0f4dc888c023226795100a73d8e1210205248bde9e66a15a7c04ca2390b6",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "decompress.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 4096,
+          "line": "bzip2",
+          "object_id": "718384ce171a441cb7254473100949e98cdfc5e25ca1578d402f1ac721523bb7",
+          "offset": 16384,
+          "ordinal": 1,
+          "path": "blocksort.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 4096,
+          "line": "bzip2",
+          "object_id": "75c871cbfc774a45d44e2db85983801d493fc2ec022b291dc98a65bc2dcd4630",
+          "offset": 49152,
+          "ordinal": 1,
+          "path": "bzip2.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 4096,
+          "line": "bzip2",
+          "object_id": "8329bb1772f6ef4e3b4d9c96b7b435b207b2639eee3c9d7829b00e2d3feea28f",
+          "offset": 20480,
+          "ordinal": 1,
+          "path": "bzlib.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 4096,
+          "line": "bzip2",
+          "object_id": "8758b123d3d0fd03d157a7a5a1405297bd86ddd3ec6b3c3220a79ac27d1aa33b",
+          "offset": 20480,
+          "ordinal": 1,
+          "path": "blocksort.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 4096,
+          "line": "bzip2",
+          "object_id": "948e14cd133206876cde85095591ff904b28cdac7a76ddada6003d2dfde88fec",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "huffman.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 4096,
+          "line": "bzip2",
+          "object_id": "a46a428b61a448862d0de0aa9a61a55237ad6d13fadd792d21cb9cb4e1e9ca6c",
+          "offset": 4096,
+          "ordinal": 1,
+          "path": "bzip2recover.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 4096,
+          "line": "bzip2",
+          "object_id": "a970b27875001e96356e46a909cf21f215119bf9bee6c117b2cfc9f9ec74e94e",
+          "offset": 36864,
+          "ordinal": 1,
+          "path": "bzlib.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 4096,
+          "line": "bzip2",
+          "object_id": "afe12c331818618e2f0ec1e1d828fc018dcf7d68415920b01ac6c2cd838538cc",
+          "offset": 12288,
+          "ordinal": 1,
+          "path": "decompress.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 4096,
+          "line": "bzip2",
+          "object_id": "b07830ce35d55d2c9fe719a523465f8cd48d167423d6bb88c83b5b0d017ff6f0",
+          "offset": 28672,
+          "ordinal": 1,
+          "path": "bzlib.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 4096,
+          "line": "bzip2",
+          "object_id": "b07b56300c1006df03dfd0ccc5e2187650ee9b744791dbe8f488a5303344f2d3",
+          "offset": 4096,
+          "ordinal": 1,
+          "path": "bzlib.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 4096,
+          "line": "bzip2",
+          "object_id": "c9e1677ecf2212e39561dbe1121ec6a57076e749a6310eb17538262714d0839e",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "dlltest.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 4096,
+          "line": "bzip2",
+          "object_id": "cd94ceda0cdeea207fba28706aff3cf9473e6ec1ee9da53844e88d4535a33585",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "bzlib.h",
+          "version_rank": 1
+        },
+        {
+          "bytes": 4096,
+          "line": "bzip2",
+          "object_id": "d1db4def2c26b76faca0c0940781fccb30ae07a9301b18fe2b64b3ee0f96f1d5",
+          "offset": 24576,
+          "ordinal": 1,
+          "path": "blocksort.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 4096,
+          "line": "bzip2",
+          "object_id": "d675978892df871d32d0768945e33b5406169cbc54a0be880d53a178ff7fd924",
+          "offset": 40960,
+          "ordinal": 1,
+          "path": "bzlib.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 4096,
+          "line": "bzip2",
+          "object_id": "d80eb34220d010c61b8518099db3a66ed1c721801498fc45fdce58431c12ea3f",
+          "offset": 4096,
+          "ordinal": 1,
+          "path": "blocksort.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 4096,
+          "line": "bzip2",
+          "object_id": "daa4c4a47404c9e73d40bf0109f1b9e983b6acb6433f67e710ecddbce2b3c004",
+          "offset": 24576,
+          "ordinal": 1,
+          "path": "bzlib.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 4096,
+          "line": "bzip2",
+          "object_id": "fa7b1da247931f9a0c27027e6cfedc6da9488160eeb68624b016896179ef7cf5",
+          "offset": 0,
+          "ordinal": 1,
+          "path": "bzip2.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 4096,
+          "line": "bzip2",
+          "object_id": "feb5ea58bbfe41432a27d2087e40a18f9071f6cb5640cee47c67e2e2ec391d12",
+          "offset": 36864,
+          "ordinal": 1,
+          "path": "bzip2.c",
+          "version_rank": 1
+        },
+        {
+          "bytes": 4096,
+          "line": "bzip2",
+          "object_id": "ff031800691fbb3cef2cc0011f73dde1980c96c74168fb7db00d18ffd2ed741b",
+          "offset": 4096,
+          "ordinal": 1,
+          "path": "bzip2.c",
+          "version_rank": 1
+        }
+      ],
+      "family_id": "bzip2",
+      "previous1": [
+        "718384ce171a441cb7254473100949e98cdfc5e25ca1578d402f1ac721523bb7"
+      ],
+      "size1": [
+        "10248719fc8a71a5b477671f336a6b7b569a4f0794631a25c3df01f23dfbcffb"
+      ],
+      "target": {
+        "bytes": 4096,
+        "line": "bzip2",
+        "object_id": "25051cb9f1b567ee045b945e9641cb8aafdd89fe93b402500837e16d887288e5",
+        "offset": 16384,
+        "ordinal": 2,
+        "path": "blocksort.c",
+        "version_rank": 2
+      },
+      "target_occurrence_id": "f2010c0b480b0b748fd4d168867ef3fab574126055ac9cec851631b03fdb0ad0",
+      "track": "chunk-4k"
+    }
+  ]
+}
